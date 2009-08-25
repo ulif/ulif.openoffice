@@ -161,25 +161,9 @@ def start(binarypath):
 def stop():
     print "Bye."
 
-def usage():
-    return '''Usage: %s [start|stop|restart|status]
-
-    Commands:
-
-      start:  starts an OpenOffice.org server instance.
-
-      stop:   stops an OpenOffice.org server instance.
-
-      restart: restarts an OpenOffice.org server instance.
-
-      status: tell status of server process.
-
-    Without any command this help is printed.
-    ''' % sys.argv[0]
-
-usage = "usage: %prog [options] start|stop|restart|status"
 
 def getOptions():
+    usage = "usage: %prog [options] start|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status']
     parser = OptionParser(usage=usage)
 
