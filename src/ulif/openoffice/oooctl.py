@@ -36,13 +36,16 @@ processes.
 import sys
 import os
 import time
+from optparse import OptionParser
 from signal import SIGTERM
+
 
 OOO_BINARY = os.path.join(
     os.path.abspath(
         os.path.dirname(os.path.dirname(__file__))),
     'parts', 'openoffice', 'program', 'soffice')
 
+OOO_BINARY = '/usr/lib/openoffice/program/soffice'
 
 def run(cmd):
     pass
@@ -174,24 +177,43 @@ def usage():
     Without any command this help is printed.
     ''' % sys.argv[0]
 
+usage = "usage: %prog [options] start|stop|restart|status"
+
+def getOptions():
+    allowed_args = ['start', 'stop', 'restart', 'status']
+    parser = OptionParser(usage=usage)
+
+    (options, args) = parser.parse_args()
+
+    if len(args) > 1:
+        parser.error("only one argument allowed. Use option '-h' for help.")
+        
+    cmd = None
+    if len(args) == 1:
+        cmd = args[0]
+    if cmd not in allowed_args:
+        parser.error("argument must be one of %s. Use option '-h' for help." %
+                     ', '.join(["'%s'" % x for x in allowed_args]))
+    return (cmd, options)
+    
+    
 def main(argv=sys.argv):
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
+        
+    (cmd, options) = getOptions()
+
     if not os.path.isfile(OOO_BINARY):
         raise IOError('No such file: %s'% OOO_BINARY)
-    cmd = None
-    if len(argv) > 1:
-        cmd = argv[1]
+    
     if cmd == 'start':
         print "Going into background..."
         startstop(pidfile='/tmp/ooodaeomon.pid', action='start')
         start()
     elif cmd in ['stop', 'restart', 'status']:
         startstop(pidfile='/tmp/ooodaeomon.pid', action=cmd)
-    elif cmd:
-        print "Unknown command: %s" % cmd
-        print usage()
     else:
-        print usage()
+        # We should never come here.
+        pass
     sys.exit(0)
