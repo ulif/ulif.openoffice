@@ -83,7 +83,6 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
     si = file(stdin, 'r')
     so = file(stdout, 'a+')
     se = file(stderr, 'a+', 0)
-    #pid = str(os.getpid())
     pid = str(os.getpgrp())
     sys.stderr.write("\n%s\n" % startmsg % pid)
     sys.stderr.flush()
