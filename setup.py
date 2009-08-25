@@ -7,7 +7,7 @@ setup(name='ulif.openoffice',
       version=version,
       description="Helpers to bridge different Python envs and OpenOffice.org.",
       long_description=open("README.txt").read() + "\n\n" +
-                       open(os.path.join("ulif", "openoffice",
+                       open(os.path.join("src", "ulif", "openoffice",
                                          "README.txt")).read() + "\n\n" +
                        open("CHANGES.txt").read(),
       classifiers=[
@@ -23,6 +23,7 @@ setup(name='ulif.openoffice',
       url='http://pypi.python.org/pypi/ulif.openoffice',
       license='GPL',
       packages=find_packages('src', exclude=['ez_setup']),
+      package_dir = {'': 'src'},
       namespace_packages=['ulif', ],
       include_package_data=True,
       zip_safe=False,
