@@ -40,12 +40,8 @@ from optparse import OptionParser
 from signal import SIGTERM
 
 
-OOO_BINARY = os.path.join(
-    os.path.abspath(
-        os.path.dirname(os.path.dirname(__file__))),
-    'parts', 'openoffice', 'program', 'soffice')
-
 OOO_BINARY = '/usr/lib/openoffice/program/soffice'
+
 
 def run(cmd):
     pass
@@ -136,6 +132,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 sys.stderr.write(mess % pidfile)
                 sys.exit(1)
 
+            sys.stderr.write("Going into background...")
             daemonize(stdout,stderr,stdin,pidfile,startmsg)
             return
 
@@ -197,13 +194,8 @@ def main(argv=sys.argv):
         
     (cmd, options) = getOptions()
 
-    if cmd == 'start':
-        print "Going into background..."
-        startstop(pidfile='/tmp/ooodaeomon.pid', action='start')
-        start(options.binarypath)
-    elif cmd in ['stop', 'restart', 'status']:
-        startstop(pidfile='/tmp/ooodaeomon.pid', action=cmd)
-    else:
-        # We should never come here.
-        pass
+    # startstop() returns only in case of 'start' or 'restart' cmd...
+    startstop(pidfile='/tmp/ooodaeomon.pid', action=cmd)
+    start(options.binarypath)
+
     sys.exit(0)
