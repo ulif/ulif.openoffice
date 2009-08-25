@@ -150,10 +150,10 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
 
 
-def start():
+def start(binarypath):
     print "Starting OpenOffice.org server..."    
     cmd = "%s %s %s" % (
-        OOO_BINARY,
+        binarypath,
         '"-accept=socket,host=localhost,port=2002;urp;"',
         '-headless -nologo -nofirststartwizard -norestore')
     os.system(cmd)
@@ -183,10 +183,21 @@ def getOptions():
     allowed_args = ['start', 'stop', 'restart', 'status']
     parser = OptionParser(usage=usage)
 
+    parser.add_option(
+        "-b", "--binarypath",
+        help = "absolute path to OpenOffice.org binary. Default: %s" %
+        OOO_BINARY,
+        default = OOO_BINARY,
+        )
+    
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
         parser.error("only one argument allowed. Use option '-h' for help.")
+
+    if not os.path.isfile(options.binarypath):
+        parser.error("no such file: %s. Use -b to set the binary path. "
+                     "Use -h to see all options." % options.binarypath)
         
     cmd = None
     if len(args) == 1:
@@ -204,13 +215,10 @@ def main(argv=sys.argv):
         
     (cmd, options) = getOptions()
 
-    if not os.path.isfile(OOO_BINARY):
-        raise IOError('No such file: %s'% OOO_BINARY)
-    
     if cmd == 'start':
         print "Going into background..."
         startstop(pidfile='/tmp/ooodaeomon.pid', action='start')
-        start()
+        start(options.binarypath)
     elif cmd in ['stop', 'restart', 'status']:
         startstop(pidfile='/tmp/ooodaeomon.pid', action=cmd)
     else:
