@@ -117,7 +117,6 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
             else:
                try:
                   while 1:
-                      #os.kill(pid,SIGTERM)
                       os.killpg(pid,SIGTERM)
                       time.sleep(1)
                except OSError, err:
