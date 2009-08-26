@@ -192,7 +192,7 @@ def getOptions():
         "--stdin", metavar='FILE',
         help = "file where daemon input is read from. "
                "Default: /dev/null",
-        default = None,
+        default = '/dev/null',
         )
 
     
@@ -223,6 +223,7 @@ def main(argv=sys.argv):
 
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
+              stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
     start(options.binarypath)
 
