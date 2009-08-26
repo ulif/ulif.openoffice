@@ -111,6 +111,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 pid = None
             else:
                try:
+                  sys.stderr.write("stopping pid %s..." % pid)
                   while 1:
                       os.killpg(pid,SIGTERM)
                       time.sleep(1)
@@ -118,6 +119,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                   err = str(err)
                   if err.find("No such process") > 0:
                       os.remove(pidfile)
+                      sys.stderr.write(" done.\n")
                       if 'stop' == action:
                           sys.exit(0)
                       action = 'start'
@@ -132,7 +134,8 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 sys.stderr.write(mess % pidfile)
                 sys.exit(1)
 
-            sys.stderr.write("Going into background...")
+            sys.stderr.write("starting OpenOffice.org server, ")
+            sys.stderr.write("going into background...")
             daemonize(stdout,stderr,stdin,pidfile,startmsg)
             return
 
