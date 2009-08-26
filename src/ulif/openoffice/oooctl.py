@@ -41,7 +41,7 @@ from signal import SIGTERM
 
 
 OOO_BINARY = '/usr/lib/openoffice/program/soffice'
-
+PIDFILE = '/tmp/ooodaeomon.pid'
 
 def run(cmd):
     pass
@@ -146,16 +146,11 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
 
 def start(binarypath):
-    print "Starting OpenOffice.org server..."    
     cmd = "%s %s %s" % (
         binarypath,
         '"-accept=socket,host=localhost,port=2002;urp;"',
         '-headless -nologo -nofirststartwizard -norestore')
     os.system(cmd)
-
-def stop():
-    print "Bye."
-
 
 def getOptions():
     usage = "usage: %prog [options] start|stop|restart|status"
@@ -167,6 +162,12 @@ def getOptions():
         help = "absolute path to OpenOffice.org binary. Default: %s" %
         OOO_BINARY,
         default = OOO_BINARY,
+        )
+
+    parser.add_option(
+        "-p", "--pidfile",
+        help = "absolute path of PID file. Default: %s" % PIDFILE,
+        default = PIDFILE
         )
     
     (options, args) = parser.parse_args()
@@ -195,7 +196,7 @@ def main(argv=sys.argv):
     (cmd, options) = getOptions()
 
     # startstop() returns only in case of 'start' or 'restart' cmd...
-    startstop(pidfile='/tmp/ooodaeomon.pid', action=cmd)
+    startstop(pidfile=options.pidfile, action=cmd)
     start(options.binarypath)
 
     sys.exit(0)
