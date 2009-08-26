@@ -162,7 +162,8 @@ def getOptions():
 
     parser.add_option(
         "-b", "--binarypath",
-        help = "absolute path to OpenOffice.org binary. Default: %s" %
+        help = "absolute path to OpenOffice.org binary. This option "
+               "makes only sense when starting the daemon. Default: %s" %
         OOO_BINARY,
         default = OOO_BINARY,
         )
@@ -170,8 +171,30 @@ def getOptions():
     parser.add_option(
         "-p", "--pidfile",
         help = "absolute path of PID file. Default: %s" % PIDFILE,
-        default = PIDFILE
+        default = PIDFILE,
         )
+
+    parser.add_option(
+        "--stdout", metavar='FILE',
+        help = "file where daemon messages should be logged. "
+               "Default: /dev/null",
+        default = '/dev/null',
+        )
+
+    parser.add_option(
+        "--stderr", metavar='FILE',
+        help = "file where daemon errors should be logged. "
+               "If not set (default) stdout is used.",
+        default = None,
+        )
+
+    parser.add_option(
+        "--stdin", metavar='FILE',
+        help = "file where daemon input is read from. "
+               "Default: /dev/null",
+        default = None,
+        )
+
     
     (options, args) = parser.parse_args()
 
@@ -199,7 +222,8 @@ def main(argv=sys.argv):
     (cmd, options) = getOptions()
 
     # startstop() returns only in case of 'start' or 'restart' cmd...
-    startstop(pidfile=options.pidfile, action=cmd)
+    startstop(stderr=options.stderr, stdout=options.stdout,
+              pidfile=options.pidfile, action=cmd)
     start(options.binarypath)
 
     sys.exit(0)
