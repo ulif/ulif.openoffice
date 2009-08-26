@@ -51,6 +51,10 @@ The main actions are to call the script with one of the::
 
 commands as argument.
 
+We set the `oooctl` path as a var for further use:
+
+    >>> oooctl_bin = join('bin', 'oooctl')
+
 
 **-b** -- Setting the OpenOffice.org installation path
 ------------------------------------------------------
@@ -73,11 +77,21 @@ real OpenOffice.org binary:
     >>> import sys
     >>> write('fake_soffice', 
     ... '''#!%s
+    ... import sys
+    ... import pprint
+    ... sys.stdout.write("Fake soffice started with these options/args:\\n")
+    ... pprint.pprint(sys.argv)
+    ... sys.stderr.flush()
+    ... sys.stdout.flush()
     ... while 1:
     ...     pass
     ... ''' % sys.executable)
 
-This script will simply loop forever (well, sort of).
+This script will simply loop forever (well, sort of). We determine the
+exact absolute path of our 'binary':
+
+    >>> import os
+    >>> soffice_path = os.path.join(os.getcwd(), 'fake_soffice')
 
 We must make this script executable:
 
@@ -87,22 +101,63 @@ We must make this script executable:
 Now we can call the daemon and tell it to start our faked office
 server:
 
-    >>> print system(join('bin', 'oooctl') + ' -b ./fake_soffice start')
+    >>> print system("%s -b %s start" % (join('bin', 'oooctl'), soffice_path))
     starting OpenOffice.org server, going into background...
     started with pid ...
     <BLANKLINE>
 
 We can get the daemon status:
 
-    >>> print system(join('bin', 'oooctl') + ' -b ./fake_soffice' 
-    ...                                    + ' status')
+    >>> print system(join('bin', 'oooctl') + ' status')
     Status: Running (PID ...) 
     <BLANKLINE>
 
+
 We can stop the server:
 
-    >>> print system(join('bin', 'oooctl') + ' -b ./fake_soffice'
-    ...                                    + ' stop')
+    >>> print system(join('bin', 'oooctl') + ' stop')
     stopping pid ... done.
     <BLANKLINE>
 
+
+(Re-)Directing the daemon input and output
+------------------------------------------
+
+By default the daemonized programme's output will be redirected to
+``/dev/null``. You can, however use the ``--stdout``, ``--stderr`` and
+``--stdin`` options to set appropriate log files.
+
+We create a temporary log file:
+
+    >>> import tempfile
+    >>> (tmp_fd, tmp_path) = tempfile.mkstemp()
+
+Now we start the OOo server with the tempfile as logger:
+
+    >>> print system(join('bin', 'oooctl') + ' -b %s start' % (
+    ...                                                       soffice_path, )
+    ...                                    + ' --stdout="%s"' % tmp_path
+    ...                                    + ' --stderr="%s"' % tmp_path)
+    starting OpenOffice.org server, going into background...
+    started with pid ...
+    <BLANKLINE>
+
+    >>> print system(join('bin', 'oooctl') + ' stop')
+    stopping pid ... done.
+    <BLANKLINE>
+
+In the logfile we can see what arguments and options the daemon used:
+
+    >>> cat (tmp_path)
+    Fake soffice started with these options/args:
+    ['/sample-buildout/fake_soffice',
+     '-accept=socket,host=localhost,port=2002;urp;',
+     '-headless',
+     '-nologo',
+     '-nofirststartwizard',
+     '-norestore']
+
+Clean up:
+
+    >>> os.close(tmp_fd)
+    >>> os.unlink(tmp_path)
