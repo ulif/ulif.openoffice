@@ -21,3 +21,42 @@
 ##
 """Test `ulif.openoffice`.
 """
+import re
+import unittest
+import zc.buildout.testing
+from zope.testing import doctest, renormalizing
+
+checker = renormalizing.RENormalizing([
+    zc.buildout.testing.normalize_path,
+    (re.compile(
+        "Couldn't find index page for '[a-zA-Z0-9.]+' "
+        "\(maybe misspelled\?\)"
+        "\n"),
+     ''),
+    (re.compile("""['"][^\n"']+z3c.recipe.i18n[^\n"']*['"],"""),
+     "'/z3c.recipe.i18n',"),
+    (re.compile('#![^\n]+\n'), ''),
+    (re.compile('-\S+-py\d[.]\d(-\S+)?.egg'),
+     '-pyN.N.egg',
+    ),
+    ])
+
+
+def setUp(test):
+    zc.buildout.testing.buildoutSetUp(test)
+    zc.buildout.testing.install_develop('ulif.openoffice', test)
+    zc.buildout.testing.install_develop('zc.recipe.egg', test)
+
+def test_suite():
+    return unittest.TestSuite(
+        doctest.DocFileSuite(
+            'README.txt',
+            setUp = setUp,
+            tearDown = zc.buildout.testing.buildoutTearDown,
+            optionflags = doctest.ELLIPSIS,
+            checker = checker,
+            ),
+        )
+
+if __name__ == '__main__':
+    unittest.main(defaultTests='test_suite')
