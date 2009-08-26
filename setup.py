@@ -34,6 +34,7 @@ setup(name='ulif.openoffice',
       extras_require=dict(
         test = [
             'zope.testing',
+            'zc.recipe.egg',
             ]
         ),
       entry_points="""
