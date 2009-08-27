@@ -40,5 +40,6 @@ setup(name='ulif.openoffice',
       entry_points="""
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
+      pyunoctl = ulif.openoffice.pyunoctl:main
       """,
       )
