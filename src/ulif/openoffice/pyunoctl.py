@@ -26,11 +26,48 @@ from ulif.openoffice.oooctl import daemonize, startstop
 
 PY_BIN = '/usr/bin/python'
 UNO_LIB_DIR = None
+PIDFILE = '/tmp/pyunodaeomon.pid'
 
 def getOptions():
     usage = "usage: %prog [options] start|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status']
     parser = OptionParser(usage=usage)
+
+    parser.add_option(
+        "-b", "--binarypath",
+        help = "absolute path to OpenOffice.org binary. This option "
+               "makes only sense when starting the daemon. Default: %s" %
+        PY_BIN,
+        default = PY_BIN,
+        )
+
+    parser.add_option(
+        "-p", "--pidfile",
+        help = "absolute path of PID file. Default: %s" % PIDFILE,
+        default = PIDFILE,
+        )
+
+    parser.add_option(
+        "--stdout", metavar='FILE',
+        help = "file where daemon messages should be logged. "
+               "Default: /dev/null",
+        default = '/dev/null',
+        )
+
+    parser.add_option(
+        "--stderr", metavar='FILE',
+        help = "file where daemon errors should be logged. "
+               "If not set (default) stdout is used.",
+        default = None,
+        )
+
+    parser.add_option(
+        "--stdin", metavar='FILE',
+        help = "file where daemon input is read from. "
+               "Default: /dev/null",
+        default = '/dev/null',
+        )
+
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
