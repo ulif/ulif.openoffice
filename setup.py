@@ -41,5 +41,6 @@ setup(name='ulif.openoffice',
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
       pyunoctl = ulif.openoffice.pyunoctl:main
+      convert = ulif.openoffice.convert:main
       """,
       )
