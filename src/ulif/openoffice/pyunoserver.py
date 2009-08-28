@@ -71,7 +71,6 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
           Please make sure to start oooctl.
 
         """
-        #data = self.request.recv(1024)
         data = self.rfile.readline().strip()
         if "TEST" == data:
             self.wfile.write('OK 0 0.1dev\n')
@@ -86,10 +85,6 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             return
         self.wfile.write('OK convert %s' % path)
         return
-        
-        cur_thread = threading.currentThread()
-        response = "%s: %s" % (cur_thread.getName(), data)
-        self.request.send(response)
 
     def getKeyValue(self, line):
         if "=" not in line:
