@@ -27,19 +27,87 @@ import socket
 import threading
 import SocketServer
 
-class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
+class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
     def handle(self):
-        data = self.request.recv(1024)
+        """The protocol:
+
+        The request:
+        <REQUEST> := <CONVERT_CMD>|<TEST_CMD>
+        <CONVERT-CMD> := <CMD><PATH>
+        <CMD> := "CONVERT_PDF\n"|"CONVERT_HTML\n"
+        <TEST_CMD> := "TEST\n"
+        <PATH> := "PATH="<PATH-TO-DOCUMENT>"\n"
+        <PATH-TO-DOCUMENT> := file-path
+
+        Response:
+        <OK-RESULT>|<ERR-RESULT>|<VERSION-RESULT>
+        with:
+        <OK-RESULT> := "OK "<STATUS>" "<PATH-TO-RESULT>
+        <ERR-RESULT> := "ERR "<STATUS>" "<ERR-MSG>
+        <STATUS> := a number (?)
+        <PATH-TO-RESULT> := file-path
+        <ERR-MSG> := text (possibly several lines)
+        <VERSION-RESULT> := "OK 0 "server-version
+
+        Examples:
+        Request:
+          CONVERT_PDF
+          PATH=/home/foo/bar.odt
+        Response:
+          OK 0 /tmp/asdqwe.pdf
+
+        Request:
+          CONVERT_HTML
+          PATH=/home/foo/bar.docx
+        Response:
+          OK 0 /tmp/sdfwqer
+        
+        Request:
+          TEST
+        Response:
+          ERR -1 Could not reach OpenOffice.org server on port 2002
+          Please make sure to start oooctl.
+
+        """
+        #data = self.request.recv(1024)
+        data = self.rfile.readline().strip()
+        if "TEST" == data:
+            self.wfile.write('OK 0 0.1dev\n')
+            return
+        if data not in ["CONVERT_PDF", "CONVERT_HTML"]:
+            self.wfile.write('ERR -1 unknown command. Use CONVERT_HTML, '
+                             'CONVERT_PDF or TEST.\n')
+            return
+        key, path = self.getKeyValue(self.rfile.readline())
+        if key is None or key != "PATH":
+            self.wfile.write('ERR -1 missing path.')
+            return
+        self.wfile.write('OK convert %s' % path)
+        return
+        
         cur_thread = threading.currentThread()
         response = "%s: %s" % (cur_thread.getName(), data)
         self.request.send(response)
+
+    def getKeyValue(self, line):
+        if "=" not in line:
+            return (None, None)
+        key, value = line.split('=', 1)
+        return (key.strip(), value.strip())
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """An asynchronous TCP server.
     """
-    pass
+    def server_bind(self):
+        # We use SO_REUSEADDR to ensure, that we can reuse the port on
+        # restarts immediately. Otherwise we would be blocked by
+        # TIME_WAIT for several seconds or minutes.
+        if self.allow_reuse_address:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return SocketServer.TCPServer.server_bind(self)
+
 
 def run(host, port, python_binary, uno_lib_dir):
     print "START PYUNO DAEMON"
@@ -48,7 +116,7 @@ def run(host, port, python_binary, uno_lib_dir):
 
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
-
+    server.allow_reuse_address = True
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)
@@ -56,5 +124,8 @@ def run(host, port, python_binary, uno_lib_dir):
     server_thread.setDaemon(True)
     server_thread.start()
     print "Server loop running in thread:", server_thread.getName()
+    
     while 1:
+        # Run (nearly) forever...
         pass
+    
