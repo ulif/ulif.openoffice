@@ -23,6 +23,7 @@
 
 Important code fragments are from regular Python documentation.
 """
+import sys
 import socket
 import threading
 import SocketServer
@@ -104,8 +105,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         # We use SO_REUSEADDR to ensure, that we can reuse the port on
         # restarts immediately. Otherwise we would be blocked by
         # TIME_WAIT for several seconds or minutes.
-        if self.allow_reuse_address:
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return SocketServer.TCPServer.server_bind(self)
 
 
@@ -116,7 +116,7 @@ def run(host, port, python_binary, uno_lib_dir):
 
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
-    server.allow_reuse_address = True
+    #server.allow_reuse_address = reuse_port
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)
@@ -128,4 +128,3 @@ def run(host, port, python_binary, uno_lib_dir):
     while 1:
         # Run (nearly) forever...
         pass
-    
