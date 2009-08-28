@@ -23,6 +23,7 @@ import os
 import sys
 from optparse import OptionParser
 from ulif.openoffice.oooctl import daemonize, startstop
+from ulif.openoffice.pyunoserver import run
 
 PY_BIN = '/usr/bin/python'
 UNO_LIB_DIR = None
@@ -86,8 +87,10 @@ def getOptions():
     return (cmd, options)
     
 
-def start(python_binary, uno_lib_dir):
+def start(host='127.0.0.1', port=2009, python_binary, uno_lib_dir):
     print "START PYUNO DAEMON"
+    run(host=host, port=port, python_binary=python_binary,
+        uno_lib_dir = uno_lib_dir)
 
 def main(argv=sys.argv):
     if os.name != 'posix':
