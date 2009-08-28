@@ -41,12 +41,12 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
     pass
 
-def run(host='127.0.0.1', port=2009, python_binary, uno_lib_dir):
+def run(host, port, python_binary, uno_lib_dir):
     print "START PYUNO DAEMON"
     # Port 0 means to select an arbitrary unused port
-    HOST, PORT = "localhost", 2009
+    #HOST, PORT = host, port"localhost", 2009
 
-    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+    server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
 
     # Start a thread with the server -- that thread will then start one
