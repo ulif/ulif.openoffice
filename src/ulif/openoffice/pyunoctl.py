@@ -29,6 +29,9 @@ PY_BIN = '/usr/bin/python'
 UNO_LIB_DIR = None
 PIDFILE = '/tmp/pyunodaeomon.pid'
 
+PORT = 2009
+HOST = '127.0.0.1'
+
 def getOptions():
     usage = "usage: %prog [options] start|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status']
@@ -43,7 +46,23 @@ def getOptions():
         )
 
     parser.add_option(
-        "-p", "--pidfile",
+        "-p", "--port",
+        help = "port where the server listens. This option makes only "
+               "sense when starting the daemon. Default: %s" % PORT,
+        default = PORT,
+        type = 'int',
+        )
+
+    parser.add_option(
+        "--host",
+        help = "host or IP where the server should listen. This option "
+               "makes only sense when starting the daemon. Default: %s" % (
+            HOST),
+        default = HOST,
+        )
+    
+    parser.add_option(
+        "--pidfile",
         help = "absolute path of PID file. Default: %s" % PIDFILE,
         default = PIDFILE,
         )
@@ -77,6 +96,9 @@ def getOptions():
     if not os.path.isfile(options.binarypath):
         parser.error("no such file: %s. Use -b to set the binary path. "
                      "Use -h to see all options." % options.binarypath)
+
+    if options.port < 1:
+        parser.error("option -p: port must be 1 or greater: %s" % options.port)
         
     cmd = None
     if len(args) == 1:
@@ -87,7 +109,7 @@ def getOptions():
     return (cmd, options)
     
 
-def start(host='127.0.0.1', port=2009, python_binary, uno_lib_dir):
+def start(host, port, python_binary, uno_lib_dir):
     print "START PYUNO DAEMON"
     run(host=host, port=port, python_binary=python_binary,
         uno_lib_dir = uno_lib_dir)
@@ -103,6 +125,6 @@ def main(argv=sys.argv):
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
-    start(options.binarypath, UNO_LIB_DIR)
+    start(options.host, options.port, options.binarypath, UNO_LIB_DIR)
 
     sys.exit(0)
