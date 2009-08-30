@@ -32,10 +32,13 @@ To do so we creaze a `buildout.cfg` file:
     ... eggs = ulif.openoffice
     ... ''')
 
-Now we can run buildout to install our script:
+Now we can run buildout to install our script (and other scripts,
+described below, as well):
 
     >>> print system(join('bin', 'buildout'))
     Installing openoffice-ctl.
+    Generated script '.../bin/pyunoctl'.
+    Generated script '.../bin/convert'.
     Generated script '.../bin/oooctl'.
     <BLANKLINE>
 
@@ -156,6 +159,32 @@ In the logfile we can see what arguments and options the daemon used:
      '-nologo',
      '-nofirststartwizard',
      '-norestore']
+
+``pyunoctl`` -- a conversion daemon
+===================================
+
+This script starts a server in background that allows conversion of
+documents using the pyUNO API. It requires a running OO.org server in
+background (see above).
+
+The conversion daemon starts a server in background which listens for
+conversion requests on a TCP port. It then calls OpenOffice.org via
+the pyUNO-API to perform the conversion and responses with the path of
+the generated doc (or an error message).
+
+The conversion server is a multithreaded asynchronous TCP daemon. So,
+several requests can be served at the same time.
+
+The script provides help with the ``-h`` switch:
+
+    >>> print system(join('bin', 'pyunoctl') + ' -h')
+    Usage: oooctl [options] start|stop|restart|status
+    ...
+
+
+
+
+
 
 Clean up:
 
