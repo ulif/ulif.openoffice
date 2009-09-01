@@ -19,7 +19,7 @@ in your local `bin/` directory.
 Here we 'fake' this install by using buildout, which will install the
 script in our test environment.
 
-To do so we creaze a `buildout.cfg` file:
+To do so we create a `buildout.cfg` file:
 
     >>> write('buildout.cfg',
     ... '''
@@ -139,8 +139,7 @@ Now we start the OOo server with the tempfile as logger:
 
     >>> print system(join('bin', 'oooctl') + ' -b %s start' % (
     ...                                                       soffice_path, )
-    ...                                    + ' --stdout="%s"' % tmp_path
-    ...                                    + ' --stderr="%s"' % tmp_path)
+    ...                                    + ' --stdout="%s"' % tmp_path)
     starting OpenOffice.org server, going into background...
     started with pid ...
     <BLANKLINE>
@@ -167,6 +166,16 @@ This script starts a server in background that allows conversion of
 documents using the pyUNO API. It requires a running OO.org server in
 background (see above).
 
+.. note:: This script must be installed with a pyuno enabled Python interpreter!
+
+  See sections below on how to do/check this.
+
+
+Currently conversion from all OOo readable formats (.doc, .odt, .txt,
+...) to HTML and PDF-A is supported. This means, if you can load a
+document with OpenOffice.org, then this daemon can convert it to HTML
+or PDF-A.
+
 The conversion daemon starts a server in background which listens for
 conversion requests on a TCP port. It then calls OpenOffice.org via
 the pyUNO-API to perform the conversion and responses with the path of
@@ -178,15 +187,140 @@ several requests can be served at the same time.
 The script provides help with the ``-h`` switch:
 
     >>> print system(join('bin', 'pyunoctl') + ' -h')
-    Usage: oooctl [options] start|stop|restart|status
+    Usage: pyunoctl [options] start|stop|restart|status
     ...
 
+    >>> import os
+    >>> old_cwd = os.getcwd() 
+    >>> #os.chdir('/')
+
+Before we can really use the daemon, we have to fire up the OOo
+daemon:
+
+    >>> #old_home = os.environ.get('HOME')
+    >>> #os.environ['HOME'] = '/home/uli'
+    
+    >>> print system(join(old_cwd, 'bin', 'oooctl') + ' --stdout=/tmp/output start')
+    starting OpenOffice.org server, going into background...
+    started with pid ...
+    <BLANKLINE>
+
+Now, we start the pyuno daemon:
+
+    >>> print system(join(old_cwd, 'bin', 'pyunoctl') + ' --stdout=/tmp/out start')
+    starting OpenOffice.org server, going into background...
+    started with pid ...
+    <BLANKLINE>
+
+    >>> #os.environ['HOME'] = old_home
+ 
+Testing the conversion daemon
+-----------------------------
+
+Once, the daemon started we can send requests. One of the commands we
+can send is to test environment, connection and all that. For this, we
+need a TCP client that can send commands for us and returns the
+results:
+
+    >>> import socket
+    >>> import os
+    >>> def send_request(ip, port, message):
+    ...   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ...   sock.connect((ip, port))
+    ...   f = sock.makefile('r', 0)
+    ...   f.write(message)
+    ...   response = f.readlines()
+    ...   sock.close()
+    ...   return ''.join(response)
 
 
+Commands sent always have to be closed by newlines:
+
+    >>> command = 'TEST\n'
+
+As the default port is 2009, we can call the client like this:
+
+    >>> print send_request('127.0.0.1', 2009, command)
+    OK 0 0.1dev
+
+The response tells us that
+
+* the request could be handled ('OK'),
+
+* the status is zero (=no problems),
+
+* the version number of the server ('0.1dev').
+
+If we send garbage, we get an error:
+
+    >>> command = 'Blah\n'
+    >>> print send_request('127.0.0.1', 2009, command)
+    ERR -1 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.
+
+Here the server tells us, that
+
+* the request could not be handled ('ERR')
+
+* the status is -1 (=fatal error)
+
+* a hint, what commands we can use to talk to it.
+
+Before we go on, we have to give the server time to start up:
+
+    >>> import time
+    >>> time.sleep(3)
 
 
+Convert to PDF via the conversion daemon
+----------------------------------------
+
+Finally let's start a real conversion. We have a simple .doc document
+we'd like to have as PDF. The document is located here:
+
+    >>> import os
+    >>> import ulif.openoffice
+    >>> pkg_path = os.path.dirname(ulif.openoffice.__file__)
+    >>> testdoc_path = os.path.join(
+    ...                   pkg_path, 'tests', 'input', 'testdoc1.doc')
+
+We tell the machinery to convert to PDF/A by sending the following
+lines::
+
+    CONVERT_PDF
+    PATH=<path-to-source-document>
+
+We start the conversion:
+
+    >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
+    >>> print send_request('127.0.0.1', 2009, command)
+    path: /.../input/testdoc1.doc
+    OK 0
+
+The created file is generated at the same path as the source.
+
+
+Note, that the user that run OO.org server, will need a valid home
+directory where OOo stores data. We create such a home in the
+testsetup in the ``home`` directory:
+
+    >>> ls('home')
+    d  .fontconfig
+    d  .openoffice.org2
 
 Clean up:
 
+
+Shut down the pyuno daemon:
+    >>> print system(join('bin', 'pyunoctl') + ' stop')
+    stopping pid ... done.
+    <BLANKLINE>
+
+Shut down the oooctl daemon:
+
+    >>> print system(join('bin', 'oooctl') + ' stop')
+    stopping pid ... done.
+    <BLANKLINE>
+
     >>> os.close(tmp_fd)
     >>> os.unlink(tmp_path)
+
