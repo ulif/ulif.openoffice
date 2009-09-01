@@ -23,10 +23,13 @@
 
 Important code fragments are from regular Python documentation.
 """
+import os
 import sys
 import socket
+import tempfile
 import threading
 import SocketServer
+from ulif.openoffice.convert import convert_to_pdf, convert
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
@@ -82,6 +85,21 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
         key, path = self.getKeyValue(self.rfile.readline())
         if key is None or key != "PATH":
             self.wfile.write('ERR -1 missing path.')
+            return
+        if data == 'CONVERT_PDF':
+            self.wfile.write('path: %s\n' % path)
+            filter_name = "writer_pdf_Export"
+            extension  = "pdf"
+            ret_val = -1
+            try:
+                ret_val = convert(
+                    filter_name=filter_name, extension=extension, paths=[path])
+            except Exception, e:
+                self.wfile.write('ERR: %s: %s\n' % (e.__class__, e.message) )
+                return
+            except:
+                self.wfile.write('Other ERR\n')
+            self.wfile.write('OK %s' % ret_val)
             return
         self.wfile.write('OK convert %s' % path)
         return
