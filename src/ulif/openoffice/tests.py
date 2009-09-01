@@ -21,6 +21,7 @@
 ##
 """Test `ulif.openoffice`.
 """
+import os
 import re
 import unittest
 import zc.buildout.testing
@@ -46,17 +47,20 @@ def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
     zc.buildout.testing.install_develop('ulif.openoffice', test)
     zc.buildout.testing.install_develop('zc.recipe.egg', test)
+    # Create a home that openoffice.org can fiddle around with...
+    os.mkdir('home')
+    os.environ['HOME'] = os.path.abspath(os.path.join(os.getcwd(), 'home'))
 
 def test_suite():
-    return unittest.TestSuite(
+    suite = unittest.TestSuite(
         doctest.DocFileSuite(
             'README.txt',
             setUp = setUp,
             tearDown = zc.buildout.testing.buildoutTearDown,
-            optionflags = doctest.ELLIPSIS,
+            optionflags = doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE,
             checker = checker,
-            ),
-        )
+            ))
+    return suite
 
 if __name__ == '__main__':
     unittest.main(defaultTests='test_suite')
