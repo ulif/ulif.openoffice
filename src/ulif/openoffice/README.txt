@@ -302,6 +302,28 @@ We start the conversion:
 The created file is generated at the same path as the source.
 
 
+Convert to HTML via the conversion daemon
+-----------------------------------------
+
+Finally let's start a real conversion. We have a really simple .doc
+document we'd like to have as HTML. The document is located here:
+
+    >>> testdoc_path = os.path.join(
+    ...                   pkg_path, 'tests', 'input', 'simpledoc1.doc')
+
+We tell the machinery to convert to PDF/A by sending the following
+lines::
+
+    CONVERT_HTML
+    PATH=<path-to-source-document>
+
+We start the conversion:
+
+    >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
+    >>> print send_request('127.0.0.1', 2009, command)
+    path: /.../input/testdoc1.doc
+    OK 200 /.../input/testdoc1.html
+
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
 testsetup in the ``home`` directory:
