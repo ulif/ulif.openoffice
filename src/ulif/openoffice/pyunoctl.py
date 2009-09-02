@@ -121,6 +121,10 @@ def main(argv=sys.argv):
         
     (cmd, options) = getOptions()
 
+    if cmd == 'start':
+        sys.stdout.write('starting pyUNO conversion server, ')
+        sys.stdout.flush()
+    
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
