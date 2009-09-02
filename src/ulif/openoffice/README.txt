@@ -200,14 +200,14 @@ daemon:
     >>> #old_home = os.environ.get('HOME')
     >>> #os.environ['HOME'] = '/home/uli'
     
-    >>> print system(join(old_cwd, 'bin', 'oooctl') + ' --stdout=/tmp/output start')
+    >>> print system(join('bin', 'oooctl') + ' --stdout=/tmp/output start')
     starting OpenOffice.org server, going into background...
     started with pid ...
     <BLANKLINE>
 
 Now, we start the pyuno daemon:
 
-    >>> print system(join(old_cwd, 'bin', 'pyunoctl') + ' --stdout=/tmp/out start')
+    >>> print system(join('bin', 'pyunoctl') + ' --stdout=/tmp/out start')
     starting pyUNO conversion server, going into background...
     started with pid ...
     <BLANKLINE>
@@ -255,15 +255,18 @@ If we send garbage, we get an error:
 
     >>> command = 'Blah\n'
     >>> print send_request('127.0.0.1', 2009, command)
-    ERR -1 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.
+    ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.
 
 Here the server tells us, that
 
 * the request could not be handled ('ERR')
 
-* the status is -1 (=fatal error)
+* the status is 550
 
 * a hint, what commands we can use to talk to it.
+
+As we can see, we are normally using HTTP status codes. This is also a
+measure to allow simple switch to HTTP somewhen in the future.
 
 Before we go on, we have to give the server time to start up:
 
@@ -294,7 +297,7 @@ We start the conversion:
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
     path: /.../input/testdoc1.doc
-    OK 0 /.../input/testdoc1.pdf
+    OK 200 /.../input/testdoc1.pdf
 
 The created file is generated at the same path as the source.
 
