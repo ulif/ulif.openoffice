@@ -24,6 +24,23 @@
 This way we can better make sure to have a solid interface for
 third-party software.
 """
+import socket
+
 
 class PyUNOServerClient(object):
-    pass
+    """A basic client to communicate with a running pyunoserver.
+    """
+
+    def __init__(self, ip, port):
+        self.ip = ip
+        self.port = port
+    
+    def send_request(self, message):
+        (ip, port) = self.ip, self.port
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip, port))
+        f = sock.makefile('r', 0)
+        f.write(message)
+        response = f.readlines()
+        sock.close()
+        return ''.join(response)
