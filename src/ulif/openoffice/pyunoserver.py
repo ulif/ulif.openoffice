@@ -108,6 +108,27 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             else:
                 self.wfile.write('OK 200 %s' % (dest_path,))
             return
+        if data == 'CONVERT_HTML':
+            self.wfile.write('path: %s\n' % path)
+            filter_name = "HTML (StarWriter)"
+            extension  = "html"
+            ret_val = -1
+            dest_path = ''
+            try:
+                (ret_val, dest_paths) = convert(
+                    filter_name=filter_name, extension=extension, paths=[path])
+                dest_path = urlsplit(dest_paths[0])[2]
+            except Exception, e:
+                self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
+                return
+            except:
+                self.wfile.write('ERR 550 internal pyuno error \n')
+            if ret_val != 0:
+                self.wfile.write('ERR 550 conversion not finished: %s' % (
+                        ret_val,))
+            else:
+                self.wfile.write('OK 200 %s' % (dest_path,))
+            return
         self.wfile.write('OK convert %s' % path)
         return
 
