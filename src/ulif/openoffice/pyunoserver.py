@@ -80,7 +80,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             self.wfile.write('OK 0 0.1dev\n')
             return
         if data not in ["CONVERT_PDF", "CONVERT_HTML"]:
-            self.wfile.write('ERR -1 unknown command. Use CONVERT_HTML, '
+            self.wfile.write('ERR 550 unknown command. Use CONVERT_HTML, '
                              'CONVERT_PDF or TEST.\n')
             return
         key, path = self.getKeyValue(self.rfile.readline())
@@ -98,11 +98,15 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                     filter_name=filter_name, extension=extension, paths=[path])
                 dest_path = urlsplit(dest_paths[0])[2]
             except Exception, e:
-                self.wfile.write('ERR: %s: %s\n' % (e.__class__, e.message) )
+                self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
                 return
             except:
-                self.wfile.write('Other ERR\n')
-            self.wfile.write('OK %s %s' % (ret_val, dest_path))
+                self.wfile.write('ERR 550 internal pyuno error \n')
+            if ret_val != 0:
+                self.wfile.write('ERR 550 conversion not finished: %s' % (
+                        ret_val,))
+            else:
+                self.wfile.write('OK 200 %s' % (dest_path,))
             return
         self.wfile.write('OK convert %s' % path)
         return
