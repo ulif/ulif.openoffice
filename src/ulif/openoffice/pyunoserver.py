@@ -29,6 +29,7 @@ import socket
 import tempfile
 import threading
 import SocketServer
+from urlparse import urlsplit
 from ulif.openoffice.convert import convert_to_pdf, convert
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
@@ -91,15 +92,17 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             filter_name = "writer_pdf_Export"
             extension  = "pdf"
             ret_val = -1
+            dest_path = ''
             try:
-                ret_val = convert(
+                (ret_val, dest_paths) = convert(
                     filter_name=filter_name, extension=extension, paths=[path])
+                dest_path = urlsplit(dest_paths[0])[2]
             except Exception, e:
                 self.wfile.write('ERR: %s: %s\n' % (e.__class__, e.message) )
                 return
             except:
                 self.wfile.write('Other ERR\n')
-            self.wfile.write('OK %s' % ret_val)
+            self.wfile.write('OK %s %s' % (ret_val, dest_path))
             return
         self.wfile.write('OK convert %s' % path)
         return
@@ -129,7 +132,7 @@ def run(host, port, python_binary, uno_lib_dir):
 
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
-    #server.allow_reuse_address = reuse_port
+
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)
