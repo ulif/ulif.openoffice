@@ -208,7 +208,7 @@ daemon:
 Now, we start the pyuno daemon:
 
     >>> print system(join(old_cwd, 'bin', 'pyunoctl') + ' --stdout=/tmp/out start')
-    starting OpenOffice.org server, going into background...
+    starting pyUNO conversion server, going into background...
     started with pid ...
     <BLANKLINE>
 
@@ -294,7 +294,7 @@ We start the conversion:
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
     path: /.../input/testdoc1.doc
-    OK 0
+    OK 0 /.../input/testdoc1.pdf
 
 The created file is generated at the same path as the source.
 
