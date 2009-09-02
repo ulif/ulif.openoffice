@@ -183,6 +183,7 @@ def convert(
     doc = None
     stdout = False
     filter_props = None
+    dest_paths = []
 
     try:
         ctxLocal = uno.getComponentContext()
@@ -232,6 +233,7 @@ def convert(
                     dest = dest + "." + extension
                     destUrl = absolutize(cwd, systemPathToFileUrl(dest))
                     doc.storeToURL(destUrl, tuple(out_props))
+                    dest_paths.append(destUrl)
 		else:
 		    doc.storeToURL("private:stream",out_props)
             except IOException, e:
@@ -255,7 +257,7 @@ def convert(
             pass
         ret_val = 1
 
-    return ret_val
+    return (ret_val, dest_paths)
 
 def usage():
     sys.stderr.write(
@@ -310,7 +312,7 @@ def main(argv=sys.argv):
             usage()
             sys.exit()
             
-        ret_val = convert(url, filter_name, extension, args)
+        (ret_val, paths) = convert(url, filter_name, extension, args)
 
     except getopt.GetoptError,e:
         sys.stderr.write(str(e) + "\n")
