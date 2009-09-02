@@ -35,7 +35,7 @@ class PyUNOServerClient(object):
         self.ip = ip
         self.port = port
     
-    def send_request(self, message):
+    def sendRequest(self, message):
         (ip, port) = self.ip, self.port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((ip, port))
