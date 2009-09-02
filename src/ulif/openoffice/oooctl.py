@@ -134,7 +134,6 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 sys.stderr.write(mess % pidfile)
                 sys.exit(1)
 
-            sys.stderr.write("starting OpenOffice.org server, ")
             sys.stderr.write("going into background...")
             daemonize(stdout,stderr,stdin,pidfile,startmsg)
             return
@@ -218,9 +217,13 @@ def main(argv=sys.argv):
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
-        
+
     (cmd, options) = getOptions()
 
+    if cmd == 'start':
+        sys.stdout.write('starting OpenOffice.org server, ')
+        sys.stdout.flush()
+    
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
