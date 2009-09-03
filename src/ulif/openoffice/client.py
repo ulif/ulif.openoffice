@@ -27,6 +27,41 @@ third-party software.
 import socket
 
 
+class PyUNOResponse(object):
+
+    def __init__(self, rawresponse):
+        isok, status, msg = self.processRawResponse(rawresponse)
+        self.ok = isok
+        self.status = status
+        self.message = msg
+
+    def processRawResponse(self, response):
+        isok = False
+        status = 550
+        if response is None or len(response) == 0:
+            return (False, 550, '')
+        if '\n' in response:
+            lines = response.split('\n')
+            if len(lines[-1]) > 0:
+                response = lines[-1]
+            elif len(lines) > 1 and len(lines[-2]) > 0:
+                response = lines[-2]
+            else:
+                return (False, 550, '')
+        else:
+            return (False, 550, '')
+        response = response.strip()
+        parts = response.split(' ', 2)
+        try:
+            status = int(parts[1])
+        except:
+            return (False, 550, '')
+        if parts[0] == 'OK':
+            isok = True
+        message = parts[2]
+        return (isok, status, message)
+        
+
 class PyUNOServerClient(object):
     """A basic client to communicate with a running pyunoserver.
     """
@@ -43,4 +78,4 @@ class PyUNOServerClient(object):
         f.write(message)
         response = f.readlines()
         sock.close()
-        return ''.join(response)
+        return PyUNOResponse(''.join(response))
