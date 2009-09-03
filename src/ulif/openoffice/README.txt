@@ -321,8 +321,8 @@ We start the conversion:
 
     >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    path: /.../input/testdoc1.doc
-    OK 200 /.../input/testdoc1.html
+    path: /.../input/simpledoc1.doc
+    OK 200 /.../input/simpledoc1.html
 
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
