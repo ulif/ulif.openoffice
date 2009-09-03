@@ -219,20 +219,35 @@ Testing the conversion daemon
 
 Once, the daemon started we can send requests. One of the commands we
 can send is to test environment, connection and all that. For this, we
-need a TCP client that can send commands for us and returns the
-results:
+need a client that sends commands and parses the responses for us. It
+is not difficult to write an own client (few lines of socket code will
+do), but if you're writing third party software you might use the
+ready-for-use client from `ulif.openoffice.client`, which should give
+you a more consistent API over time and can hide changes in protocol
+etc.
 
-    >>> import socket
-    >>> import os
+Using the client in simple form can be done like this:
+
+    >>> from ulif.openoffice.client import PyUNOServerClient
     >>> def send_request(ip, port, message):
-    ...   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ...   sock.connect((ip, port))
-    ...   f = sock.makefile('r', 0)
-    ...   f.write(message)
-    ...   response = f.readlines()
-    ...   sock.close()
-    ...   return ''.join(response)
+    ...   client = PyUNOServerClient(ip, port)
+    ...   result = client.sendRequest(message)
+    ...   ok = result.ok and 'OK' or 'ERR'
+    ...   return '%s %s %s' % (ok, result.status, result.message)
 
+The client returns response objects, which always contain:
+
+* ``ok``
+    a boolean flag indicating whether the request succeeded
+
+* ``status``
+    a number indicating the response status. Stati are generally
+    leaned on HTTP status messages, so 200 means 'okay' while any
+    other number indicates some problem in processing the request.
+
+* ``message``
+    Any readable output returned by the server. This includes paths or
+    more verbose error messages in case of errors.
 
 Commands sent always have to be closed by newlines:
 
@@ -296,7 +311,6 @@ We start the conversion:
 
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    path: /.../input/testdoc1.doc
     OK 200 /.../input/testdoc1.pdf
 
 The created file is generated at the same path as the source.
@@ -321,7 +335,6 @@ We start the conversion:
 
     >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    path: /.../input/simpledoc1.doc
     OK 200 /.../input/simpledoc1.html
 
 Note, that the user that run OO.org server, will need a valid home
