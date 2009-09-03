@@ -85,51 +85,35 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             return
         key, path = self.getKeyValue(self.rfile.readline())
         if key is None or key != "PATH":
-            self.wfile.write('ERR -1 missing path.')
+            self.wfile.write('ERR 550 missing path.')
             return
+        
         if data == 'CONVERT_PDF':
             self.wfile.write('path: %s\n' % path)
             filter_name = "writer_pdf_Export"
             extension  = "pdf"
-            ret_val = -1
-            dest_path = ''
-            try:
-                (ret_val, dest_paths) = convert(
-                    filter_name=filter_name, extension=extension, paths=[path])
-                dest_path = urlsplit(dest_paths[0])[2]
-            except Exception, e:
-                self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
-                return
-            except:
-                self.wfile.write('ERR 550 internal pyuno error \n')
-            if ret_val != 0:
-                self.wfile.write('ERR 550 conversion not finished: %s' % (
-                        ret_val,))
-            else:
-                self.wfile.write('OK 200 %s' % (dest_path,))
-            return
         if data == 'CONVERT_HTML':
             self.wfile.write('path: %s\n' % path)
             filter_name = "HTML (StarWriter)"
             extension  = "html"
-            ret_val = -1
-            dest_path = ''
-            try:
-                (ret_val, dest_paths) = convert(
-                    filter_name=filter_name, extension=extension, paths=[path])
+
+        ret_val = -1
+        dest_path = ''
+        try:
+            (ret_val, dest_paths) = convert(
+                filter_name=filter_name, extension=extension, paths=[path])
+            if len(dest_paths):
                 dest_path = urlsplit(dest_paths[0])[2]
-            except Exception, e:
-                self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
-                return
-            except:
-                self.wfile.write('ERR 550 internal pyuno error \n')
-            if ret_val != 0:
-                self.wfile.write('ERR 550 conversion not finished: %s' % (
-                        ret_val,))
-            else:
-                self.wfile.write('OK 200 %s' % (dest_path,))
+        except Exception, e:
+            self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
             return
-        self.wfile.write('OK convert %s' % path)
+        except:
+            self.wfile.write('ERR 550 internal pyuno error \n')
+        if ret_val != 0:
+            self.wfile.write('ERR 550 conversion not finished: %s' % (
+                    ret_val,))
+        else:
+            self.wfile.write('OK 200 %s' % (dest_path,))
         return
 
     def getKeyValue(self, line):
