@@ -315,7 +315,7 @@ We can also use the client component to get convert to PDFs:
 
     >>> from ulif.openoffice.client import PyUNOServerClient
     >>> client = PyUNOServerClient()
-    >>> response = client.convertToPDF(testdoc_path)
+    >>> response = client.convertFileToPDF(testdoc_path)
 
 The response will contain a status (HTTP equivalent number), a boolean
 flag indicating whether conversion was performed successfully and a
@@ -352,6 +352,40 @@ We start the conversion:
     >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
     OK 200 /.../input/simpledoc1.html
+
+We can also use the client component to get convert to HTML:
+
+    >>> from ulif.openoffice.client import PyUNOServerClient
+    >>> client = PyUNOServerClient()
+    >>> filecontent = open(testdoc_path, 'rb').read()
+    >>> response = client.convertToHTML(
+    ...              filename=testdoc_path, data=filecontent)
+
+The response will contain a status (HTTP equivalent number), a boolean
+flag indicating whether conversion was performed successfully and a
+message, which in case of success contains the path of the generated
+HTML document. All embedded files that belong to that document are
+stored in the same directory as the HTML file:
+
+    >>> response.status
+    200
+
+    >>> response.ok
+    True
+
+    >>> response.message
+    '/tmp/.../simpledoc1.html'
+
+.. note:: It is the callers responsibility to clean up generated
+     directories.
+
+We must remove the result directory ourselve:
+
+    >>> import shutil
+    >>> result_dir = os.path.dirname(response.message)
+    >>> if os.path.isdir(result_dir):
+    ...   shutil.rmtree(result_dir)
+
 
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
