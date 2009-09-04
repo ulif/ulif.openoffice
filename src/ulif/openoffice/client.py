@@ -24,7 +24,10 @@
 This way we can better make sure to have a solid interface for
 third-party software.
 """
+import os
 import socket
+import tempfile
+
 from ulif.openoffice.pyunoctl import PORT as PYUNO_PORT
 
 
@@ -80,3 +83,33 @@ class PyUNOServerClient(object):
         response = f.readlines()
         sock.close()
         return PyUNOResponse(''.join(response))
+
+    def convertFileToPDF(self, path):
+        """Send a request to a running pyuno server to convert to PDF.
+
+        The path of the document to be converted is given in ``path``.
+        """
+        command = 'CONVERT_PDF\nPATH=%s\n' % (path,)
+        result = self.sendRequest(command)
+        return result
+
+    def convertToHTML(self, filename, data):
+        """Send a request to a running pyuno server to convert to HTML.
+
+        The document contents is delivered by `data`, the filename by
+        `filename`.
+
+        The resulting document and all accompanied files (like images,
+        etc.) will reside in a new temporary directory. It is the
+        callers responsibility to remove that directory.
+        """
+        # Write data to file in temporary dir...
+        if os.path.isabs(filename):
+            filename = os.path.basename(filename)
+        absdir = tempfile.mkdtemp()
+        absdocpath = os.path.join(absdir, filename)
+        open(absdocpath, 'wb').write(data)
+
+        command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        return result
