@@ -25,6 +25,7 @@ This way we can better make sure to have a solid interface for
 third-party software.
 """
 import socket
+from ulif.openoffice.pyunoctl import PORT as PYUNO_PORT
 
 
 class PyUNOResponse(object):
@@ -65,8 +66,8 @@ class PyUNOResponse(object):
 class PyUNOServerClient(object):
     """A basic client to communicate with a running pyunoserver.
     """
-
-    def __init__(self, ip, port):
+    
+    def __init__(self, ip='127.0.0.1', port=PYUNO_PORT):
         self.ip = ip
         self.port = port
     
