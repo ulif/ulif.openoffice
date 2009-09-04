@@ -197,9 +197,6 @@ The script provides help with the ``-h`` switch:
 Before we can really use the daemon, we have to fire up the OOo
 daemon:
 
-    >>> #old_home = os.environ.get('HOME')
-    >>> #os.environ['HOME'] = '/home/uli'
-    
     >>> print system(join('bin', 'oooctl') + ' --stdout=/tmp/output start')
     starting OpenOffice.org server, going into background...
     started with pid ...
@@ -212,8 +209,7 @@ Now, we start the pyuno daemon:
     started with pid ...
     <BLANKLINE>
 
-    >>> #os.environ['HOME'] = old_home
- 
+
 Testing the conversion daemon
 -----------------------------
 
@@ -299,7 +295,7 @@ we'd like to have as PDF. The document is located here:
     >>> import ulif.openoffice
     >>> pkg_path = os.path.dirname(ulif.openoffice.__file__)
     >>> testdoc_path = os.path.join(
-    ...                   pkg_path, 'tests', 'input', 'testdoc1.doc')
+    ...                   pkg_path, 'tests', 'input', 'simpledoc1.doc')
 
 We tell the machinery to convert to PDF/A by sending the following
 lines::
@@ -311,9 +307,29 @@ We start the conversion:
 
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 200 /.../input/testdoc1.pdf
+    OK 200 /.../input/simpledoc1.pdf
 
 The created file is generated at the same path as the source.
+
+We can also use the client component to get convert to PDFs:
+
+    >>> from ulif.openoffice.client import PyUNOServerClient
+    >>> client = PyUNOServerClient()
+    >>> response = client.convertToPDF(testdoc_path)
+
+The response will contain a status (HTTP equivalent number), a boolean
+flag indicating whether conversion was performed successfully and a
+message, which in case of success contains the path of the generated
+document:
+
+    >>> response.status
+    200
+
+    >>> response.ok
+    True
+
+    >>> response.message
+    '/.../tests/input/simpledoc1.pdf'
 
 
 Convert to HTML via the conversion daemon
