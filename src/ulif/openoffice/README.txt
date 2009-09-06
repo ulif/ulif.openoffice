@@ -336,6 +336,32 @@ document:
     >>> response.message
     '/sample-buildout/home/simpledoc1.pdf'
 
+Instead of giving a path, we can also use the client with a
+``filename`` parameter and the contents of the file to be
+converted. For this, we use the clients ``convertToPDF`` method. This
+consumes slightly more time than the method above:
+
+    >>> contents = open(testdoc_path, 'rb').read()
+    >>> response = client.convertToPDF(
+    ...              os.path.basename(testdoc_path), contents)
+
+Again, the ``message`` attribute of the response tells us, where the
+generated doc can be found:
+
+    >>> response.message
+    '/.../simpledoc1.pdf'
+
+This time the document was created inside a temporary directory,
+created only for this request. You should not make assumptions about
+this location.
+
+.. note:: It is the callers responsibility to remove the temporary
+          directory after use.
+
+    >>> import shutil
+    >>> shutil.rmtree(os.path.dirname(response.message))
+
+
 
 Convert to HTML via the conversion daemon
 -----------------------------------------
@@ -355,13 +381,13 @@ We start the conversion:
     >>> print send_request('127.0.0.1', 2009, command)
     OK 200 /sample-buildout/home/simpledoc1.html
 
+
 We can also use the client component to get convert to HTML:
 
     >>> from ulif.openoffice.client import PyUNOServerClient
     >>> client = PyUNOServerClient()
     >>> filecontent = open(testdoc_path, 'rb').read()
-    >>> response = client.convertToHTML(
-    ...              filename=testdoc_path, data=filecontent)
+    >>> response = client.convertFileToHTML(testdoc_path)
 
 The response will contain a status (HTTP equivalent number), a boolean
 flag indicating whether conversion was performed successfully and a
@@ -376,7 +402,28 @@ stored in the same directory as the HTML file:
     True
 
     >>> response.message
-    '/tmp/.../simpledoc1.html'
+    '/sample-buildout/home/simpledoc1.html'
+
+
+Instead of giving a path, we can also use the client with a
+``filename`` parameter and the contents of the file to be
+converted. For this, we use the clients ``convertToHTML`` method. This
+consumes slightly more time than the method above:
+
+    >>> contents = open(testdoc_path, 'rb').read()
+    >>> response = client.convertToHTML(
+    ...              os.path.basename(testdoc_path), contents)
+
+Again, the ``message`` attribute of the response tells us, where the
+generated doc can be found:
+
+    >>> response.message
+    '/.../simpledoc1.html'
+
+This time the document was created inside a temporary directory,
+created only for this request. You should not make assumptions about
+this location. All accompanied documents like images, etc. are stored
+in the same directory.
 
 .. note:: It is the callers responsibility to clean up generated
      directories.
