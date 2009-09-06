@@ -113,15 +113,8 @@ class PyUNOServerClient(object):
         callers responsibility to remove that directory.
         """
         # Write data to file in temporary dir...
-        if os.path.isabs(filename):
-            filename = os.path.basename(filename)
-        absdir = tempfile.mkdtemp()
-        absdocpath = os.path.join(absdir, filename)
-        open(absdocpath, 'wb').write(data)
-
-        command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
-        result = self.sendRequest(command)
-        return result
+        absdocpath = self.writeToTempDir(filename, data)
+        return self.convertFileToHTML(absdocpath)
 
     def convertToPDF(self, filename, data):
         """Send a request to a running pyuno server to convert to PDF.
@@ -134,12 +127,15 @@ class PyUNOServerClient(object):
         directory.
         """
         # Write data to file in temporary dir...
+        absdocpath = self.writeToTempDir(filename, data)
+        return self.convertFileToPDF(absdocpath)
+
+    def writeToTempDir(self, filename, data):
+        """Write data as file named ``filename`` in temporary dir.
+        """
         if os.path.isabs(filename):
             filename = os.path.basename(filename)
         absdir = tempfile.mkdtemp()
         absdocpath = os.path.join(absdir, filename)
         open(absdocpath, 'wb').write(data)
-
-        command = 'CONVERT_PDF\nPATH=%s\n' % (absdocpath,)
-        result = self.sendRequest(command)
-        return result
+        return absdocpath
