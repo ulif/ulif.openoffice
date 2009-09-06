@@ -93,6 +93,15 @@ class PyUNOServerClient(object):
         result = self.sendRequest(command)
         return result
 
+    def convertFileToHTML(self, path):
+        """Send a request to a running pyuno server to convert to HTML.
+
+        The path of the document to be converted is given in ``path``.
+        """
+        command = 'CONVERT_HTML\nPATH=%s\n' % (path,)
+        result = self.sendRequest(command)
+        return result
+
     def convertToHTML(self, filename, data):
         """Send a request to a running pyuno server to convert to HTML.
 
@@ -111,5 +120,26 @@ class PyUNOServerClient(object):
         open(absdocpath, 'wb').write(data)
 
         command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        return result
+
+    def convertToPDF(self, filename, data):
+        """Send a request to a running pyuno server to convert to PDF.
+
+        The document contents is delivered by `data`, the filename by
+        `filename`.
+
+        The resulting PDF document will reside in a new temporary
+        directory. It is the callers responsibility to remove that
+        directory.
+        """
+        # Write data to file in temporary dir...
+        if os.path.isabs(filename):
+            filename = os.path.basename(filename)
+        absdir = tempfile.mkdtemp()
+        absdocpath = os.path.join(absdir, filename)
+        open(absdocpath, 'wb').write(data)
+
+        command = 'CONVERT_PDF\nPATH=%s\n' % (absdocpath,)
         result = self.sendRequest(command)
         return result
