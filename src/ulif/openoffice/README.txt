@@ -292,10 +292,15 @@ Finally let's start a real conversion. We have a simple .doc document
 we'd like to have as PDF. The document is located here:
 
     >>> import os
+    >>> import shutil
     >>> import ulif.openoffice
-    >>> pkg_path = os.path.dirname(ulif.openoffice.__file__)
-    >>> testdoc_path = os.path.join(
-    ...                   pkg_path, 'tests', 'input', 'simpledoc1.doc')
+    >>> src_path = os.path.dirname(ulif.openoffice.__file__)
+    >>> src_path = os.path.join( src_path,
+    ...                  'tests', 'input', 'simpledoc1.doc')
+    >>> dst_path = os.path.join('home', 'simpledoc1.doc')
+    >>> shutil.copyfile(src_path, dst_path)
+    >>> testdoc_path = os.path.abspath(dst_path)
+
 
 We tell the machinery to convert to PDF/A by sending the following
 lines::
@@ -307,7 +312,7 @@ We start the conversion:
 
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 200 /.../input/simpledoc1.pdf
+    OK 200 /sample-buildout/home/simpledoc1.pdf
 
 The created file is generated at the same path as the source.
 
@@ -329,17 +334,14 @@ document:
     True
 
     >>> response.message
-    '/.../tests/input/simpledoc1.pdf'
+    '/sample-buildout/home/simpledoc1.pdf'
 
 
 Convert to HTML via the conversion daemon
 -----------------------------------------
 
 Finally let's start a real conversion. We have a really simple .doc
-document we'd like to have as HTML. The document is located here:
-
-    >>> testdoc_path = os.path.join(
-    ...                   pkg_path, 'tests', 'input', 'simpledoc1.doc')
+document we'd like to have as HTML.
 
 We tell the machinery to convert to PDF/A by sending the following
 lines::
@@ -351,7 +353,7 @@ We start the conversion:
 
     >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 200 /.../input/simpledoc1.html
+    OK 200 /sample-buildout/home/simpledoc1.html
 
 We can also use the client component to get convert to HTML:
 
@@ -394,6 +396,9 @@ testsetup in the ``home`` directory:
     >>> ls('home')
     d  .fontconfig
     d  .openoffice.org2
+    -  simpledoc1.doc
+    -  simpledoc1.html
+    -  simpledoc1.pdf
 
 Clean up:
 
