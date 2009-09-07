@@ -443,9 +443,12 @@ testsetup in the ``home`` directory:
     >>> ls('home')
     d  .fontconfig
     d  .openoffice.org2
+    d  .pyunocache
     -  simpledoc1.doc
     -  simpledoc1.html
     -  simpledoc1.pdf
+
+The home also contains the cache dir for the PyUNOServer.
 
 Clean up:
 
