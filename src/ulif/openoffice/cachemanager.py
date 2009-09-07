@@ -21,6 +21,7 @@
 ##
 """A manager for storing generated files.
 """
+import md5 # Deprecated but works also with Python2.4...
 import os
 import sys
 
@@ -29,6 +30,7 @@ class CacheManager(object):
     def __init__(self, cache_dir):
         self.cache_dir = cache_dir
         self.prepareCacheDir()
+        self.level = 1 # How many dir levels will we create?
 
     def prepareCacheDir(self):
         cache_dir = self.cache_dir
@@ -49,3 +51,44 @@ class CacheManager(object):
             os.mkdir(cache_dir)
             sys.stderr.write('Create cachedir: %s\n' % cache_dir)
         self.cache_dir = cache_dir
+
+    def contains(self, extension=None, data=None, path=None):
+        """Tell whether a document is stored.
+
+        You must pass ``extension`` and either ``data`` or ``path``.
+        """
+        if extension is None:
+            raise ValueError('extension must not be None.')
+        if data is None and path is None:
+            raise ValueError('either path or data must be given.')
+        if not data is None and not path is None:
+            raise ValueError('only one of data or path might be given')
+        md5_digest = self.getMD5Digest(data=data, path=path)
+        dir = self.getCacheDir(extension=extension, md5_digest=md5_digest)
+        if not os.path.exists(dir):
+            return False
+        return True
+
+    def getMD5Digest(self, data=None, path=None):
+        """Get the MD5 sum of a file.
+
+        You can pass the file contents (``data``) **or** the ``path``.
+        """
+        if data is not None:
+            return md5.new(data).hexdigest()
+        return md5.new(open(path, 'r').read()).hexdigest()
+
+    def getCacheDir(self, extension, md5_digest):
+        """Get the cache dir where a document with given parameters would be
+           stored.
+
+        This does not guarantee, that the path really exists.
+        """
+        parent_dir = [md5_digest[x*2:x*2+2]
+                      for x in range((self.level+1))][:-1]
+        parent_dir.append(md5_digest)
+        extension = extension.lower()
+        parent_cache_dir = os.path.join(*parent_dir)
+        parent_cache_dir = os.path.join(
+            self.cache_dir, parent_cache_dir, extension)
+        return parent_cache_dir
