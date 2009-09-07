@@ -1,0 +1,13 @@
+ulif.openoffice.cachemanager -- A cache manager
+***********************************************
+
+A cache manager tries to cache converted files, so that already
+converted documents do not have to be converted again.
+
+A cache manager expects a ``cache_dir`` parameter where it can store
+the cached files:
+
+    >>> from ulif.openoffice.cachemanager import CacheManager
+    >>> 1+1
+    3
+
