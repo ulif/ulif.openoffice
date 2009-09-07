@@ -5,9 +5,107 @@ A cache manager tries to cache converted files, so that already
 converted documents do not have to be converted again.
 
 A cache manager expects a ``cache_dir`` parameter where it can store
-the cached files:
+the cached files. If this parameter is set to ``None`` no caching will
+be performed at all:
 
     >>> from ulif.openoffice.cachemanager import CacheManager
-    >>> 1+1
-    3
+    >>> cm = CacheManager(cache_dir=None)
 
+If we pass a path, which already exists and is a file, the cache
+manager will complain but still be constructed.
+
+If we pass a path that does not exist, it will be created:
+
+    >>> ls('home')
+
+    >>> cm = CacheManager(cache_dir='home/mycachedir')
+    >>> ls('home')
+    d  mycachedir
+
+The cache manager can register files, look for already created
+conversions and pass them back if found.
+
+We lookup a certain document which, as the cache is yet empty, cannot
+be found. We create a dummy file for this purpose:
+
+    >>> import os
+    >>> open('dummysource.doc', 'w').write('Just a dummy file.')
+    >>> docsource = os.path.abspath('dummysource.doc')
+    >>> docsource_contents = open(docsource, 'r').read()
+
+    >>> cm.contains(extension = 'pdf', path = docsource)
+    False
+
+We can also pass the file contents as argument:
+
+    >>> cm.contains(extension = 'pdf', data = docsource_contents)
+    False
+
+The cache is based on MD5 sums of source files. Source documents are
+not stored.
+
+
+Determining the cache directory
+===============================
+
+The cache is organized on-disk as a tree of MD5 sum oriented
+directories. This means, if we have a given document (with a
+computable MD5 sum), the place where it is stored will depend on the
+MD5 sum, the ``level`` of the cache manager and a filename extension.
+
+Say, we have a file with MD5 sum '08867237840fabae77b838e9c9226eb2'
+and we look for a PDF conversion of this file, then we can ask:
+
+    >>> cm.getCacheDir(extension='pdf', 
+    ...                md5_digest='08867237840fabae77b838e9c9226eb2')
+    '/.../mycachedir/08/08867237840fabae77b838e9c9226eb2/pdf'
+
+Here the first two digits of MD5 sum ('08') serve as directory name
+for level one directories.
+
+The trailing dirs are built appending the complete MD5 sum and the
+extension (in lowercase).
+
+Each cache manager has a ``level`` attribute, which tells how many
+levels of directories should be created. Default is 1.
+
+    >>> cm.level
+    1
+
+This avoids to have more than 256 directories in the upper cache
+dir. If you expect many files to be cached (i.e. more than 10.000),
+you might consider increasing this value.
+
+If we set the ``level`` attribute to a higher value, the cache path
+finder will use more directory levels:
+
+    >>> cm.level = 3
+    >>> cm.getCacheDir(extension='pdf', 
+    ...                md5_digest='08867237840fabae77b838e9c9226eb2')
+    '/.../mycachedir/08/86/72/08867237840fabae77b838e9c9226eb2/pdf'
+
+This time the directories '08', '86', and '72' were inserted in the
+path.
+
+Note, that changing the directory level of an already caching cache
+manager will make all files already cached unfindable!
+
+If we set the directory level to zero, all files will be stored in the
+root cache directory:
+
+    >>> cm.level = 0
+    >>> cm.getCacheDir(extension='pdf', 
+    ...                md5_digest='08867237840fabae77b838e9c9226eb2')
+    '/.../mycachedir/08867237840fabae77b838e9c9226eb2/pdf'
+
+As you can see, each converted document gets an own directory for each
+cached conversion format determined by the extension.
+
+The conversion results of a pdf created from a source doc with MD5 sum
+'1234' will therefore be stored in a directory ``1234/pdf/``, while
+the HTML transformation of the same source doc will reside in
+``1234/html/``.
+
+We reset the directory level to initial value:
+
+    >>> cm.level = 1
