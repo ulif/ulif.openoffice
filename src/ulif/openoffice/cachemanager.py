@@ -23,14 +23,15 @@
 """
 import md5 # Deprecated but works also with Python2.4...
 import os
+import shutil
 import sys
 
 class CacheManager(object):
 
-    def __init__(self, cache_dir):
+    def __init__(self, cache_dir, level=1):
         self.cache_dir = cache_dir
         self.prepareCacheDir()
-        self.level = 1 # How many dir levels will we create?
+        self.level = level # How many dir levels will we create?
 
     def prepareCacheDir(self):
         cache_dir = self.cache_dir
@@ -92,3 +93,20 @@ class CacheManager(object):
         parent_cache_dir = os.path.join(
             self.cache_dir, parent_cache_dir, extension)
         return parent_cache_dir
+
+    def registerDoc(self, source_path, to_cache):
+        """Register the document at path ``to_cache`` generated from
+           ``source_path``.
+        
+        """
+        md5_digest = self.getMD5Digest(path=source_path)
+        ext = os.path.splitext(to_cache)[1][1:].lower()
+        dir = self.getCacheDir(ext, md5_digest)
+
+        if ext in ['pdf',]:
+            dst_dir = dir
+            dst = os.path.join(dir, os.path.basename(to_cache))
+            os.makedirs(dir)
+            shutil.copy2(to_cache, dst)
+            return
+        return
