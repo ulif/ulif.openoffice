@@ -23,10 +23,13 @@
 
 Important code fragments are from regular Python documentation.
 """
+import os
 import socket
+import sys
 import threading
 import SocketServer
 from urlparse import urlsplit
+from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.convert import convert_to_pdf, convert
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
@@ -130,12 +133,14 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return SocketServer.TCPServer.server_bind(self)
 
-
-def run(host, port, python_binary, uno_lib_dir):
+    
+def run(host, port, python_binary, uno_lib_dir, cache_dir):
     print "START PYUNO DAEMON"
     # Port 0 means to select an arbitrary unused port
     #HOST, PORT = host, port"localhost", 2009
 
+    cache_manager = CacheManager(cache_dir)
+    
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
 
