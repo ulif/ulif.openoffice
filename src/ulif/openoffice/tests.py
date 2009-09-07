@@ -52,14 +52,17 @@ def setUp(test):
     os.environ['HOME'] = os.path.abspath(os.path.join(os.getcwd(), 'home'))
 
 def test_suite():
-    suite = unittest.TestSuite(
-        doctest.DocFileSuite(
-            'README.txt',
-            setUp = setUp,
-            tearDown = zc.buildout.testing.buildoutTearDown,
-            optionflags = doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE,
-            checker = checker,
-            ))
+    testfiles = ['README.txt', 'cachemanager.txt']
+    suite = unittest.TestSuite()
+    for testfile in testfiles:
+        suite.addTest(
+            doctest.DocFileSuite(
+                testfile,
+                setUp = setUp,
+                tearDown = zc.buildout.testing.buildoutTearDown,
+                optionflags = doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE,
+                checker = checker,
+                ))
     return suite
 
 if __name__ == '__main__':
