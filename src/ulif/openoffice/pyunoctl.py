@@ -32,9 +32,14 @@ PIDFILE = '/tmp/pyunodaeomon.pid'
 PORT = 2009
 HOST = '127.0.0.1'
 
+HOME = os.environ.get('HOME', None)
+CACHE_DIR = '.pyunocache'
+
+
 def getOptions():
     usage = "usage: %prog [options] start|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status']
+    default_cache_dir = HOME and os.path.join(HOME, CACHE_DIR) or None
     parser = OptionParser(usage=usage)
 
     parser.add_option(
@@ -88,6 +93,15 @@ def getOptions():
         default = '/dev/null',
         )
 
+    parser.add_option(
+        "--cache-dir", metavar='DIR',
+        help = "directory where to store cache files. "
+               "Default: $HOME/.pyunocache. If no home "
+               "directory exists or DIR is set to empty "
+               "string, no caching will be performed.",
+        default = default_cache_dir,
+        )
+    
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
@@ -106,13 +120,15 @@ def getOptions():
     if cmd not in allowed_args:
         parser.error("argument must be one of %s. Use option '-h' for help." %
                      ', '.join(["'%s'" % x for x in allowed_args]))
+
+
     return (cmd, options)
     
 
-def start(host, port, python_binary, uno_lib_dir):
+def start(host, port, python_binary, uno_lib_dir, cache_dir):
     print "START PYUNO DAEMON"
     run(host=host, port=port, python_binary=python_binary,
-        uno_lib_dir = uno_lib_dir)
+        uno_lib_dir = uno_lib_dir, cache_dir = cache_dir)
 
 def main(argv=sys.argv):
     if os.name != 'posix':
@@ -129,6 +145,7 @@ def main(argv=sys.argv):
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
-    start(options.host, options.port, options.binarypath, UNO_LIB_DIR)
+    start(options.host, options.port, options.binarypath, UNO_LIB_DIR,
+          options.cache_dir)
 
     sys.exit(0)
