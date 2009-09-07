@@ -23,10 +23,7 @@
 
 Important code fragments are from regular Python documentation.
 """
-import os
-import sys
 import socket
-import tempfile
 import threading
 import SocketServer
 from urlparse import urlsplit
