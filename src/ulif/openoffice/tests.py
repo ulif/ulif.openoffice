@@ -52,7 +52,10 @@ def setUp(test):
     os.environ['HOME'] = os.path.abspath(os.path.join(os.getcwd(), 'home'))
 
 def test_suite():
-    testfiles = ['README.txt', 'cachemanager.txt']
+    testfiles = [
+        'cachemanager.txt',
+        'README.txt',
+        ]
     suite = unittest.TestSuite()
     for testfile in testfiles:
         suite.addTest(
