@@ -334,7 +334,7 @@ document:
     True
 
     >>> response.message
-    '/sample-buildout/home/simpledoc1.pdf'
+    '/sample-buildout/home/.pyunocache/.../pdf/simpledoc1.pdf'
 
 Instead of giving a path, we can also use the client with a
 ``filename`` parameter and the contents of the file to be
@@ -402,7 +402,7 @@ stored in the same directory as the HTML file:
     True
 
     >>> response.message
-    '/sample-buildout/home/simpledoc1.html'
+    '/sample-buildout/home/.pyunocache/.../html/simpledoc1.html'
 
 
 Instead of giving a path, we can also use the client with a
