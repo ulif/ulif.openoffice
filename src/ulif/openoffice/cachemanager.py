@@ -106,10 +106,10 @@ class CacheManager(object):
 
         if ext in ['pdf',]:
             # Copy only the result doc...
-            dst_dir = dir
             dst = os.path.join(dir, os.path.basename(to_cache))
             os.makedirs(dir)
             shutil.copy2(to_cache, dst)
+            self.markCacheDir(dir, to_cache)
             return
         # Copy all files in result dir...
         dir_to_cache = os.path.dirname(to_cache)
@@ -124,6 +124,7 @@ class CacheManager(object):
                 continue
             dst = os.path.join(dir, filename)
             shutil.copy2(fullpath, dst)
+            self.markCacheDir(dir, to_cache)
         return
 
     def getCachedDocPath(self, source_path, ext):
@@ -134,6 +135,12 @@ class CacheManager(object):
         dir = self.getCacheDir(ext, md5_digest)
         if not os.path.isdir(dir):
             return None
-        cached_file = os.path.basename(source_path)
-        cached_file = os.path.splitext(cached_file)[0] + '.' + ext
+        cached_file = open(os.path.join(dir, 'MAINDOC'), 'r').read()
         return os.path.join(dir, cached_file)
+
+    def markCacheDir(self, cache_dir, doc_to_cache):
+        """Create an entry in cache dir to remember main file.
+        """
+        mainfile_name = os.path.basename(doc_to_cache)
+        marker_file = os.path.join(cache_dir, 'MAINDOC')
+        open(marker_file, 'w').write(mainfile_name)
