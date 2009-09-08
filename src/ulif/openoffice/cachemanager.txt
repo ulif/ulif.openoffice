@@ -136,6 +136,22 @@ Now the document can be found:
     True
 
 
+Retrieving cached docs
+----------------------
+
+The cache manager will return the path to a cached file if it exists
+or ``None``:
+
+    >>> cm = CacheManager(cache_dir='home/mycachedir')
+    >>> cm.getCachedDocPath(source_path=docsource, ext='html')
+    '/.../mycachedir/.../html/dummysource.html'
+
+    >>> cm.getCachedDocPath(source_path=docsource, ext='pdf')
+    '/.../mycachedir/.../pdf/dummysource.pdf'
+
+    >>> None is cm.getCachedDocPath(source_path=docsource, ext='blah')
+    True
+
 Determining the cache directory
 ===============================
 
