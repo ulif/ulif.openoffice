@@ -104,9 +104,23 @@ class CacheManager(object):
         dir = self.getCacheDir(ext, md5_digest)
 
         if ext in ['pdf',]:
+            # Copy only the result doc...
             dst_dir = dir
             dst = os.path.join(dir, os.path.basename(to_cache))
             os.makedirs(dir)
             shutil.copy2(to_cache, dst)
             return
+        # Copy all files in result dir...
+        dir_to_cache = os.path.dirname(to_cache)
+        os.makedirs(dir)
+        for filename in os.listdir(dir_to_cache):
+            fullpath = os.path.join(dir_to_cache, filename)
+            if not os.path.isfile(fullpath):
+                # Ignore subdirs.
+                continue
+            if filename == os.path.basename(source_path):
+                # Ignore source document.
+                continue
+            dst = os.path.join(dir, filename)
+            shutil.copy2(fullpath, dst)
         return
