@@ -97,7 +97,8 @@ class CacheManager(object):
     def registerDoc(self, source_path, to_cache):
         """Register the document at path ``to_cache`` generated from
            ``source_path``.
-        
+
+           Both paths should refer to files, not directories.
         """
         md5_digest = self.getMD5Digest(path=source_path)
         ext = os.path.splitext(to_cache)[1][1:].lower()
@@ -124,3 +125,15 @@ class CacheManager(object):
             dst = os.path.join(dir, filename)
             shutil.copy2(fullpath, dst)
         return
+
+    def getCachedDocPath(self, source_path, ext):
+        """Get a cached docs path or ``None``.
+        """
+        md5_digest = self.getMD5Digest(path=source_path)
+        ext = ext.lower()
+        dir = self.getCacheDir(ext, md5_digest)
+        if not os.path.isdir(dir):
+            return None
+        cached_file = os.path.basename(source_path)
+        cached_file = os.path.splitext(cached_file)[0] + '.' + ext
+        return os.path.join(dir, cached_file)
