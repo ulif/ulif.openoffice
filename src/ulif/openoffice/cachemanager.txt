@@ -67,6 +67,9 @@ Feeding the cache manager
 We can register conversion results with the cache manager, which will
 be available lateron.
 
+Caching PDF files
+-----------------
+
 To demonstrate this, we create a dummy source file and a dummy
 conversioned file:
 
@@ -96,6 +99,40 @@ the complete md5sum and the ``pdf`` file type marker.
 Now the document can be found:
 
     >>> cm.contains(extension = 'pdf', data = docsource_contents)
+    True
+
+Caching HTML files
+------------------
+
+When caching HTML we also need to cache accompanied files like images
+and the like. We create some faked conversion result in a special
+directory:
+
+    >>> htmlresult = os.path.join('htmlresult', 'dummyresult.html')
+    >>> os.mkdir('htmlresult')
+    >>> open(htmlresult, 'w').write('Some dummy HTML')
+    >>> open(os.path.join('htmlresult', 'someimage.jpg'),
+    ...      'w').write('Some dummy JPEG')
+
+We also create a subdir, which should not be cached:
+
+    >>> os.mkdir(os.path.join('htmlresult', 'ignoreme'))
+
+Now we can create a cache manager and register our stuff:
+
+    >>> cm = CacheManager(cache_dir='home/mycachedir')
+    >>> cm.registerDoc(source_path=docsource,
+    ...                to_cache=htmlresult)
+
+The document and the image were really cached:
+
+    >>> ls('home/mycachedir/08/08867237840fabae77b838e9c9226eb2/html')
+    -  dummyresult.html
+    -  someimage.jpg
+
+Now the document can be found:
+
+    >>> cm.contains(extension = 'html', data = docsource_contents)
     True
 
 
