@@ -97,6 +97,13 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             filter_name = "HTML (StarWriter)"
             extension  = "html"
 
+        # Ask cache before doing conversion...
+        cm = self.server.cache_manager
+        dest_path = cm.getCachedDocPath(path, ext=extension)
+        if dest_path is not None:
+            self.wfile.write('OK 200 %s' % (dest_path,))
+            return
+            
         ret_val = -1
         dest_path = ''
         try:
@@ -113,6 +120,8 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             self.wfile.write('ERR 550 conversion not finished: %s' % (
                     ret_val,))
         else:
+            # Notify cache manager...
+            cm.registerDoc(source_path=path, to_cache=dest_path)
             self.wfile.write('OK 200 %s' % (dest_path,))
         return
 
@@ -126,6 +135,9 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """An asynchronous TCP server.
     """
+
+    cache_manager = None
+    
     def server_bind(self):
         # We use SO_REUSEADDR to ensure, that we can reuse the port on
         # restarts immediately. Otherwise we would be blocked by
@@ -144,6 +156,8 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir):
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
 
+    server.cache_manager = cache_manager
+    
     # Start a thread with the server -- that thread will then start one
     # more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)
