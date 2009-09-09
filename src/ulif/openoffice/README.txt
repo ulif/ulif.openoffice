@@ -98,7 +98,6 @@ exact absolute path of our 'binary':
 
 We must make this script executable:
 
-    >>> import os
     >>> os.chmod('fake_soffice', 0700)
 
 Now we can call the daemon and tell it to start our faked office
@@ -191,8 +190,6 @@ The script provides help with the ``-h`` switch:
     ...
 
     >>> import os
-    >>> old_cwd = os.getcwd() 
-    >>> #os.chdir('/')
 
 Before we can really use the daemon, we have to fire up the OOo
 daemon:
@@ -334,7 +331,16 @@ document:
     True
 
     >>> response.message
-    '/sample-buildout/home/.pyunocache/.../pdf/simpledoc1.pdf'
+    '/tmp/.../simpledoc1.pdf'
+
+Result directories returned by the client are always temporary
+directories which can be used by the caller.
+
+.. note:: It is the callers responsibility to remove the temporary
+          directory after use.
+
+    >>> import shutil
+    >>> shutil.rmtree(os.path.dirname(response.message))
 
 Instead of giving a path, we can also use the client with a
 ``filename`` parameter and the contents of the file to be
@@ -402,8 +408,13 @@ stored in the same directory as the HTML file:
     True
 
     >>> response.message
-    '/sample-buildout/home/.pyunocache/.../html/simpledoc1.html'
+    '/tmp/.../simpledoc1.html'
 
+.. note:: It is the callers responsibility to clean up generated
+     directories.
+
+    >>> import shutil
+    >>> shutil.rmtree(os.path.dirname(response.message))
 
 Instead of giving a path, we can also use the client with a
 ``filename`` parameter and the contents of the file to be
