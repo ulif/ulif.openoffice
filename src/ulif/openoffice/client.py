@@ -25,6 +25,7 @@ This way we can better make sure to have a solid interface for
 third-party software.
 """
 import os
+import shutil
 import socket
 import tempfile
 
@@ -88,19 +89,28 @@ class PyUNOServerClient(object):
         """Send a request to a running pyuno server to convert to PDF.
 
         The path of the document to be converted is given in ``path``.
+
+        The resulting PDF document will reside in a new temporary
+        directory. It is the callers responsibility to remove that
+        directory.
         """
-        command = 'CONVERT_PDF\nPATH=%s\n' % (path,)
-        result = self.sendRequest(command)
-        return result
+        filename = os.path.basename(path)
+        data = open(path, 'rb').read()
+        return self.convertToPDF(filename, data)
 
     def convertFileToHTML(self, path):
         """Send a request to a running pyuno server to convert to HTML.
 
         The path of the document to be converted is given in ``path``.
+
+        The resulting document and all accompanied files (like images,
+        etc.) will reside in a new temporary directory. It is the
+        callers responsibility to remove that directory.
+
         """
-        command = 'CONVERT_HTML\nPATH=%s\n' % (path,)
-        result = self.sendRequest(command)
-        return result
+        filename = os.path.basename(path)
+        data = open(path, 'rb').read()
+        return self.convertToHTML(filename, data)
 
     def convertToHTML(self, filename, data):
         """Send a request to a running pyuno server to convert to HTML.
@@ -114,7 +124,10 @@ class PyUNOServerClient(object):
         """
         # Write data to file in temporary dir...
         absdocpath = self.writeToTempDir(filename, data)
-        return self.convertFileToHTML(absdocpath)
+        command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        result.message = self.copyResultToTempDir(absdocpath, result)
+        return result
 
     def convertToPDF(self, filename, data):
         """Send a request to a running pyuno server to convert to PDF.
@@ -128,7 +141,10 @@ class PyUNOServerClient(object):
         """
         # Write data to file in temporary dir...
         absdocpath = self.writeToTempDir(filename, data)
-        return self.convertFileToPDF(absdocpath)
+        command = 'CONVERT_PDF\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        result.message = self.copyResultToTempDir(absdocpath, result)
+        return result
 
     def writeToTempDir(self, filename, data):
         """Write data as file named ``filename`` in temporary dir.
@@ -139,3 +155,36 @@ class PyUNOServerClient(object):
         absdocpath = os.path.join(absdir, filename)
         open(absdocpath, 'wb').write(data)
         return absdocpath
+
+    def copyResultToTempDir(self, sourcepath, result):
+        """Copy the results to a fresh directory.
+
+        The source directory will be removed.
+
+        This way we make sure that for instance cache directories are not
+        passed to the outside world.
+        """
+        if result.status != 200:
+            try:
+                shutil.rmtree(os.path.dirname(sourcepath))
+            except:
+                # If conversion failed due to wrong source path, this
+                # is the wrong location to complain.
+                pass
+            return
+        
+        result_dir = os.path.dirname(result.message)
+        result_doc = os.path.basename(result.message)
+        src_dir = os.path.dirname(sourcepath)
+        src_doc = os.path.basename(sourcepath)
+
+        new_result_dir = tempfile.mkdtemp()
+        for filename in os.listdir(result_dir):
+            fullpath = os.path.join(result_dir, filename)
+            if not os.path.isfile(fullpath):
+                continue
+            if filename in ['MAINDOC', src_doc]:
+                continue
+            shutil.copy2(fullpath, os.path.join(new_result_dir, filename))
+        shutil.rmtree(src_dir)
+        return os.path.join(new_result_dir, result_doc)
