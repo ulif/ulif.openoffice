@@ -94,9 +94,12 @@ class PyUNOServerClient(object):
         directory. It is the callers responsibility to remove that
         directory.
         """
-        filename = os.path.basename(path)
-        data = open(path, 'rb').read()
-        return self.convertToPDF(filename, data)
+        absdocpath = os.path.abspath(path)
+        absdocpath = self.writeFileToTempDir(absdocpath)
+        command = 'CONVERT_PDF\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        result.message = self.copyResultToTempDir(absdocpath, result)
+        return result
 
     def convertFileToHTML(self, path):
         """Send a request to a running pyuno server to convert to HTML.
@@ -108,9 +111,12 @@ class PyUNOServerClient(object):
         callers responsibility to remove that directory.
 
         """
-        filename = os.path.basename(path)
-        data = open(path, 'rb').read()
-        return self.convertToHTML(filename, data)
+        absdocpath = os.path.abspath(path)
+        absdocpath = self.writeFileToTempDir(absdocpath)
+        command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
+        result = self.sendRequest(command)
+        result.message = self.copyResultToTempDir(absdocpath, result)
+        return result
 
     def convertToHTML(self, filename, data):
         """Send a request to a running pyuno server to convert to HTML.
@@ -124,9 +130,8 @@ class PyUNOServerClient(object):
         """
         # Write data to file in temporary dir...
         absdocpath = self.writeToTempDir(filename, data)
-        command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
-        result = self.sendRequest(command)
-        result.message = self.copyResultToTempDir(absdocpath, result)
+        result = self.convertFileToHTML(absdocpath)
+        shutil.rmtree(os.path.dirname(absdocpath))
         return result
 
     def convertToPDF(self, filename, data):
@@ -141,9 +146,8 @@ class PyUNOServerClient(object):
         """
         # Write data to file in temporary dir...
         absdocpath = self.writeToTempDir(filename, data)
-        command = 'CONVERT_PDF\nPATH=%s\n' % (absdocpath,)
-        result = self.sendRequest(command)
-        result.message = self.copyResultToTempDir(absdocpath, result)
+        result = self.convertFileToPDF(absdocpath)
+        shutil.rmtree(os.path.dirname(absdocpath))
         return result
 
     def writeToTempDir(self, filename, data):
@@ -156,6 +160,16 @@ class PyUNOServerClient(object):
         open(absdocpath, 'wb').write(data)
         return absdocpath
 
+    def writeFileToTempDir(self, path):
+        """Copy file `path` to temporary dir.
+
+        Returns the absolute path to the copied file.
+        """
+        absdir = tempfile.mkdtemp()
+        abstargetpath = os.path.join(absdir, os.path.basename(path))
+        shutil.copy2(path, abstargetpath)
+        return abstargetpath
+    
     def copyResultToTempDir(self, sourcepath, result):
         """Copy the results to a fresh directory.
 
