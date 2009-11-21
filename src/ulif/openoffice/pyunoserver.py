@@ -167,5 +167,6 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir):
     print "Server loop running in thread:", server_thread.getName()
     
     while 1:
+        sleep(0.001)
         # Run (nearly) forever...
         pass
