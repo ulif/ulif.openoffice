@@ -461,19 +461,116 @@ testsetup in the ``home`` directory:
 
 The home also contains the cache dir for the PyUNOServer.
 
-Clean up:
-
-
 Shut down the pyuno daemon:
+
     >>> print system(join('bin', 'pyunoctl') + ' stop')
     stopping pid ... done.
     <BLANKLINE>
+
+``pyunoctl`` -- RESTful mode
+============================
+
+This script starts a server in background that allows conversion of
+documents using the pyUNO API. It requires a running OO.org server in
+background (see above).
+
+Apart from usage in standard raw mode, `pyunoctl` can also be started
+as a RESTful HTTP daemon. This enables usage from remote, as all
+communication is done using the HTTP protocol (including sending and
+receiving files).
+
+The RESTful HTTP mode can be enabled by setting the::
+
+  --mode=rest
+
+option of `pyunoctl.
+
+We start `pyunoctl` in RESTful mode. The OOo daemon was already
+started before.
+
+    >>> print system(join('bin', 'pyunoctl') + ' --stdout=/tmp/out '
+    ...              + '--mode=rest start')
+    startung RESTful HTTP server, going into background...
+    started with pid ...
+    <BLANKLINE>
+
+.. note:: This script must be installed with a pyuno enabled Python interpreter!
+
+  See sections below on how to do/check this.
+
+We send a simple test request, that should give us a status:
+
+    >>> import httplib
+    >>> conn = httplib.HTTPConnection('localhost', 2009)
+    >>> conn.request('GET', '/TEST')
+    >>> r1 = conn.getresponse()
+    >>> r1.status, r1.reason
+    (200, 'OK')
+
+    >>> print r1.read()
+    ulif.openoffice.RESTful.HTTPServer 0.1dev
+    <BLANKLINE>
+
+We GET documents from the server by asking for an existing MD5sum. The
+MD5 sum of a document is also its resource name on the server. If a
+document does not exist, we get a 404 error:
+
+    >>> conn.request('GET', '/non-existing-url')
+    >>> r1 = conn.getresponse()
+    >>> r1.status, r1.reason
+    (404, 'File Not Found: /non-existing-url')
+
+    >>> conn.close()
+
+We ask for conversion (creating a resource), simply by POSTing a
+document. As creating POST request is a bit more complex, we use
+utility functions from the `util` module:
+
+    >>> from ulif.openoffice.util import encode_multipart_formdata
+    >>> fields = []
+    >>> files = [('document', 'simpledoc1.doc', 
+    ...           open(testdoc_path, 'rb').read())]
+    >>> content_type, body = encode_multipart_formdata(fields, files)
+    >>> headers = {
+    ...    'User-Agent': 'Test-Agent',
+    ...    'Content-Type': content_type
+    ... }
+
+The content type we use has to be ``multipart/form-data`` (instead of
+``x-application/urlencoded``):
+
+    >>> content_type
+    'multipart/form-data; boundary=---...'
+
+Actually, we can trigger the POST request:
+
+    >>> conn = httplib.HTTPConnection('localhost', 2009)
+    >>> conn.request('POST', '/', body, headers)
+    >>> r1 = conn.getresponse()
+    >>> r1.status, r1.reason
+    (200, 'OK')
+
+    >>> print r1.read()
+    Client: ('127.0.0.1', ...)
+    Path: /
+    Form data:
+    	Uploaded document (name=simpledoc1.doc; 64512 bytes)
+
+
+Shut down the pyuno daemon:
+
+    >>> print system(join('bin', 'pyunoctl') + ' stop')
+    stopping pid ... done.
+    <BLANKLINE>
+
 
 Shut down the oooctl daemon:
 
     >>> print system(join('bin', 'oooctl') + ' stop')
     stopping pid ... done.
     <BLANKLINE>
+
+Clean up:
 
     >>> os.close(tmp_fd)
     >>> os.unlink(tmp_path)
