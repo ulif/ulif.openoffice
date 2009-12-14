@@ -157,16 +157,7 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir):
     ip, port = server.server_address
 
     server.cache_manager = cache_manager
-    
-    # Start a thread with the server -- that thread will then start one
-    # more thread for each request
-    server_thread = threading.Thread(target=server.serve_forever)
-    # Exit the server thread when the main thread terminates
-    server_thread.setDaemon(True)
-    server_thread.start()
-    print "Server loop running in thread:", server_thread.getName()
-    
-    while 1:
-        sleep(0.001)
-        # Run (nearly) forever...
-        pass
+
+    # This will run until shutdown without consuming CPU cycles all
+    # the time...
+    server.serve_forever()
