@@ -23,7 +23,8 @@ import os
 import sys
 from optparse import OptionParser
 from ulif.openoffice.oooctl import daemonize, startstop
-from ulif.openoffice.pyunoserver import run
+from ulif.openoffice.pyunoserver import run as run_pyunoserver
+from ulif.openoffice.restserver import run as run_restserver
 
 PY_BIN = '/usr/bin/python'
 UNO_LIB_DIR = None
@@ -31,6 +32,7 @@ PIDFILE = '/tmp/pyunodaeomon.pid'
 
 PORT = 2009
 HOST = '127.0.0.1'
+MODE = 'raw'
 
 HOME = os.environ.get('HOME', None)
 CACHE_DIR = '.pyunocache'
@@ -101,6 +103,19 @@ def getOptions():
                "string, no caching will be performed.",
         default = default_cache_dir,
         )
+
+    parser.add_option(
+        "-m", "--mode", choices=['raw', 'rest'],
+        help = "mode the server should start in. One of `raw`, `rest`. "
+               "Makes only sense when starting the daemon. "
+               "If started in raw mode, clients must operate on the "
+               "same machine as the server. In rest mode a RESTful "
+               "HTTP server is started that is slower than the raw server "
+               "but can also be used from remote. See internal docs "
+               "for different modes and their protocols. "
+               "Default: %s" % (MODE,),
+        default = MODE,
+        )
     
     (options, args) = parser.parse_args()
 
@@ -125,10 +140,14 @@ def getOptions():
     return (cmd, options)
     
 
-def start(host, port, python_binary, uno_lib_dir, cache_dir):
+def start(host, port, python_binary, uno_lib_dir, cache_dir, mode):
     print "START PYUNO DAEMON"
-    run(host=host, port=port, python_binary=python_binary,
-        uno_lib_dir = uno_lib_dir, cache_dir = cache_dir)
+    if mode == 'rest':
+        run_restserver(host=host, port=port, python_binary=python_binary,
+                       uno_lib_dir=uno_lib_dir, cache_dir=cache_dir)
+    elif mode == 'raw':
+        run_pyunoserver(host=host, port=port, python_binary=python_binary,
+                        uno_lib_dir=uno_lib_dir, cache_dir=cache_dir)
 
 def main(argv=sys.argv):
     if os.name != 'posix':
@@ -136,16 +155,22 @@ def main(argv=sys.argv):
         sys.exit(-1)
         
     (cmd, options) = getOptions()
-
+    
     if cmd == 'start':
-        sys.stdout.write('starting pyUNO conversion server, ')
-        sys.stdout.flush()
+        if options.mode == 'rest':
+            sys.stdout.write('startung RESTful HTTP server, ')
+            sys.stdout.flush()
+        else:
+            sys.stdout.write('starting pyUNO conversion server, ')
+            sys.stdout.flush()
+            pass
     
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
+
     start(options.host, options.port, options.binarypath, UNO_LIB_DIR,
-          options.cache_dir)
+          options.cache_dir, options.mode)
 
     sys.exit(0)
