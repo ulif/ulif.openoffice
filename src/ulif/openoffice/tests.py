@@ -55,6 +55,7 @@ def test_suite():
     testfiles = [
         'cachemanager.txt',
         'README.txt',
+        'pyunoctl.txt',
         ]
     suite = unittest.TestSuite()
     for testfile in testfiles:
