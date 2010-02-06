@@ -1,0 +1,97 @@
+pyunoctl -- an interface to pyuno
+*********************************
+
+    >>> import os
+    >>> import ulif.openoffice
+    >>> path = os.path.dirname(ulif.openoffice.__file__)
+    >>> bin_path = os.path.abspath(os.path.join(
+    ...                path, '..', '..', '..', 'bin'))
+    >>> oooctl_path = os.path.join(bin_path, 'oooctl')
+    >>> pyunoctl_path = os.path.join(bin_path, 'pyunoctl')
+
+    >>> print system(oooctl_path + ' --stdout=/tmp/oooctl.log start')
+    starting OpenOffice.org server, going into background...
+    started with pid ...
+
+    >>> print system(pyunoctl_path + ' --stdout=/tmp/pyunoctl.log start')
+    starting pyUNO conversion server, going into background...
+    started with pid ...
+
+Testing the conversion daemon
+-----------------------------
+
+Once, the daemon started we can send requests. One of the commands we
+can send is to test environment, connection and all that. For this, we
+need a TCP client that can send commands for us and returns the
+results:
+
+    >>> import socket
+    >>> import os
+    >>> def send_request(ip, port, message):
+    ...   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ...   sock.connect((ip, port))
+    ...   f = sock.makefile('r', 0)
+    ...   f.write(message)
+    ...   response = f.readlines()
+    ...   sock.close()
+    ...   return response
+
+Commands sent always have to be closed by newlines:
+
+    >>> command = 'TEST\n'
+
+As the default port is 2009, we can call the client like this:
+
+    >>> print send_request('127.0.0.1', 2009, command)
+    ['OK 0 0.1dev\n']
+
+The response tells us that
+
+* the request could be handled ('OK'),
+
+* the status is zero (=no problems),
+
+* the version number of the server ('0.1dev').
+
+If we send garbage, we get an error:
+
+    >>> command = 'Blah\n'
+    >>> print send_request('127.0.0.1', 2009, command)
+    ['ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.\n']
+
+Here the server tells us, that
+
+* the request could not be handled ('ERR')
+
+* the status is 550 (=internal error)
+
+* a hint, what commands we can use to talk to it.
+
+
+Convert to PDF via the conversion daemon
+----------------------------------------
+
+Finally let's start a real conversion. We have a simple .doc document
+we'd like to have as PDF. The document is located here:
+
+    >>> import time
+    >>> time.sleep(2)
+
+    >>> import os
+    >>> import ulif.openoffice
+    >>> pkg_path = os.path.dirname(ulif.openoffice.__file__)
+    >>> testdoc_path = os.path.join(
+    ...                   pkg_path, 'tests', 'input', 'testdoc1.doc')
+    >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
+    >>> print send_request('127.0.0.1', 2009, command)
+    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../input/testdoc1.pdf']
+
+
+Clean up:    
+
+    >>> print system(pyunoctl_path + ' stop')
+    stopping pid ... done.
+
+    >>> print system(oooctl_path + ' stop')
+    stopping pid ... done.
+
