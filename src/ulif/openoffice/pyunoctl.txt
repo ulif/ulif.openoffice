@@ -83,9 +83,65 @@ we'd like to have as PDF. The document is located here:
     >>> testdoc_path = os.path.join(
     ...                   pkg_path, 'tests', 'input', 'testdoc1.doc')
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
-    >>> print send_request('127.0.0.1', 2009, command)
-    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../input/testdoc1.pdf']
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../testdoc1.pdf']
 
+The result really contains a PDF:
+
+    >>> result_dir = os.path.dirname(result[1].split(' ')[2])
+    >>> cat(result_dir, 'testdoc1.pdf')
+    %PDF-1.4...
+
+We have to remove the result ourselves as this is the callers job:
+
+    >>> import shutil
+    >>> shutil.rmtree(result_dir)
+
+If we do it again, we will get a result from the cache:
+
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../testdoc1.pdf']
+
+    >>> result_dir = os.path.dirname(result[1].split(' ')[2])
+    >>> cat(result_dir, 'testdoc1.pdf')
+    %PDF-1.4...
+
+    >>> shutil.rmtree(result_dir)
+
+
+Convert to HTML via the conversion daemon
+-----------------------------------------
+
+    >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../testdoc1.html']
+
+In the result dir there are other docs created:
+
+    >>> result_dir = os.path.dirname(result[1].split(' ')[2])
+    >>> ls(result_dir)
+    -  testdoc1.html
+    -  testdoc1_html_...jpg
+    -  testdoc1_html_...jpg
+    
+    >>> shutil.rmtree(result_dir)
+
+Again, we get a result from the cache when retrying:
+
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    ['path: /.../input/testdoc1.doc\n', 'OK 200 /.../testdoc1.html']
+
+    >>> result_dir = os.path.dirname(result[1].split(' ')[2])
+    >>> ls(result_dir)
+    -  testdoc1.html
+    -  testdoc1_html_...jpg
+    -  testdoc1_html_...jpg
+    
+    >>> shutil.rmtree(result_dir)
 
 Clean up:    
 

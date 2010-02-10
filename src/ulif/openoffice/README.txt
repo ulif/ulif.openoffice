@@ -308,10 +308,16 @@ lines::
 We start the conversion:
 
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
-    >>> print send_request('127.0.0.1', 2009, command)
-    OK 200 /sample-buildout/home/simpledoc1.pdf
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    OK 200 /tmp/.../simpledoc1.pdf
 
-The created file is generated at the same path as the source.
+.. note:: The created file is generated in a temporary directory only
+          for this purpose. It is the callers responsibility to remove
+          the temporary directory after use.
+
+    >>> result_dir = result.split(' ')[-1]
+    >>> shutil.rmtree(os.path.dirname(result_dir))
 
 We can also use the client component to get convert to PDFs:
 
@@ -384,8 +390,12 @@ lines::
 We start the conversion:
 
     >>> command = ('CONVERT_HTML\nPATH=%s\n' % testdoc_path)
-    >>> print send_request('127.0.0.1', 2009, command)
-    OK 200 /sample-buildout/home/simpledoc1.html
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    OK 200 /tmp/.../simpledoc1.html
+
+    >>> result_dir = result.split(' ')[-1]
+    >>> shutil.rmtree(os.path.dirname(result_dir))
 
 
 We can also use the client component to get convert to HTML:
@@ -456,8 +466,6 @@ testsetup in the ``home`` directory:
     d  .openoffice.org2
     d  .pyunocache
     -  simpledoc1.doc
-    -  simpledoc1.html
-    -  simpledoc1.pdf
 
 The home also contains the cache dir for the PyUNOServer.
 
@@ -466,6 +474,7 @@ Shut down the pyuno daemon:
     >>> print system(join('bin', 'pyunoctl') + ' stop')
     stopping pid ... done.
     <BLANKLINE>
+
 
 ``pyunoctl`` -- RESTful mode
 ============================
@@ -574,4 +583,3 @@ Clean up:
 
     >>> os.close(tmp_fd)
     >>> os.unlink(tmp_path)
-
