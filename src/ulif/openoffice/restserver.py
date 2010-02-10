@@ -98,11 +98,12 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(message)
         
-def run(host, port, python_binary, uno_lib_dir, cache_dir):
+def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     server_address = (host, port)
     cache_manager = CacheManager(cache_dir)
     httpd = HTTPServer(server_address, PyUNORestHandler)
     httpd.cache_manager = cache_manager
+    httpd.logger = logger
     httpd.serve_forever()
 
 if __name__ == '__main__':
