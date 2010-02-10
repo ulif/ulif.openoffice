@@ -186,19 +186,9 @@ class PyUNOServerClient(object):
                 # is the wrong location to complain.
                 pass
             return
-        
-        result_dir = os.path.dirname(result.message)
-        result_doc = os.path.basename(result.message)
-        src_dir = os.path.dirname(sourcepath)
-        src_doc = os.path.basename(sourcepath)
 
-        new_result_dir = tempfile.mkdtemp()
-        for filename in os.listdir(result_dir):
-            fullpath = os.path.join(result_dir, filename)
-            if not os.path.isfile(fullpath):
-                continue
-            if filename in ['MAINDOC', src_doc]:
-                continue
-            shutil.copy2(fullpath, os.path.join(new_result_dir, filename))
+        # We do not copy results anymore as this is now done by the
+        # pyunoserver itself.
+        src_dir = os.path.dirname(sourcepath)
         shutil.rmtree(src_dir)
-        return os.path.join(new_result_dir, result_doc)
+        return result.message
