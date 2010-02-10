@@ -34,4 +34,4 @@ must make sure, that you apt-get-installed the following packages:
 
 * ``openoffice.org-java-common``
 
-additional to the usual OOo packages.
+additionally to the usual OOo packages.
