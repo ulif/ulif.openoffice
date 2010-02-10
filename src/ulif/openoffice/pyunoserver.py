@@ -24,8 +24,11 @@
 Important code fragments are from regular Python documentation.
 """
 import os
+import shutil
 import socket
 import sys
+import tarfile
+import tempfile
 import threading
 import SocketServer
 from urlparse import urlsplit
@@ -75,6 +78,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
           Please make sure to start oooctl.
 
         """
+        logger = self.server.logger
         data = self.rfile.readline().strip()
         if "TEST" == data:
             self.wfile.write('OK 0 0.1dev\n')
@@ -99,13 +103,18 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
         # Ask cache before doing conversion...
         cm = self.server.cache_manager
-        dest_path = cm.getCachedDocPath(path, ext=extension)
+        dest_path = cm.getCachedFile(path, suffix=extension)
         if dest_path is not None:
+            # TODO: Here we might unpack stuff, copy to secure location etc.
+            dest_path = self.prepareCacheResults(path, dest_path, extension)
             self.wfile.write('OK 200 %s' % (dest_path,))
             return
             
         ret_val = -1
         dest_path = ''
+        # Copy source to safe destination...
+        path = self.prepareSource(path, extension)
+        path_dir = os.path.dirname(path)
         try:
             (ret_val, dest_paths) = convert(
                 filter_name=filter_name, extension=extension, paths=[path])
@@ -113,17 +122,84 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 dest_path = urlsplit(dest_paths[0])[2]
         except Exception, e:
             self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
+            shutil.rmtree(path_dir)
             return
         except:
             self.wfile.write('ERR 550 internal pyuno error \n')
         if ret_val != 0:
             self.wfile.write('ERR 550 conversion not finished: %s' % (
                     ret_val,))
+            shutil.rmtree(path_dir)
         else:
             # Notify cache manager...
-            cm.registerDoc(source_path=path, to_cache=dest_path)
+            cache_path = self.prepareCaching(path, dest_path, extension)
+            cm.registerDoc(source_path=path, to_cache=cache_path,
+                           suffix=extension)
+            # Remove source and tarfile from result...
+            if cache_path != dest_path:
+                os.unlink(cache_path)
+            os.unlink(path)
+            
             self.wfile.write('OK 200 %s' % (dest_path,))
         return
+
+    def prepareSource(self, src_path, extension):
+        """We move the source to a secure location.
+
+        This way we prevent results from being polluted by already
+        existing files not belonging to the result.
+        """
+        new_dir = tempfile.mkdtemp()
+        basename = os.path.basename(src_path)
+        safe_src_path = os.path.join(new_dir, basename)
+        shutil.copy2(src_path, safe_src_path)
+        return safe_src_path
+
+    def prepareCaching(self, src_path, result_path, extension):
+        """Before we can feed the cachemanager, we tar HTML results.
+        """
+        if extension == 'html':
+            basename = os.path.basename(result_path)
+            dirname = os.path.dirname(result_path)
+            tarname = basename + '.tar.gz'
+            result_path = os.path.join(dirname, tarname)
+            # Temporarily move source out of result dir...
+            fd, tmpfile = tempfile.mkstemp()
+            shutil.move(src_path, tmpfile)
+            # Create tarfile out of result dir...
+            tfile = tarfile.open(name=result_path, mode="w:gz")
+            tfile.add(dirname, 'result')
+            tfile.close()
+            # Move source back into result dir...
+            shutil.move(tmpfile, src_path)
+        return result_path
+    
+    def prepareCacheResults(self, src_path, result_path, extension):
+        """Move results to a secure destination.
+
+        If the result is HTML we try to untar the result file.
+        """
+        # copy results to safe location...
+        new_dir = tempfile.mkdtemp()
+        result_base = os.path.splitext(os.path.basename(src_path))[0]
+        safe_result_path = os.path.join(new_dir, '%s.%s' % (
+                result_base, extension))
+        # HTML results must be untarred...
+        if extension == 'html':
+            tar = tarfile.open(result_path, 'r:gz')
+            for tarinfo in tar:
+                tar.extract(tarinfo, new_dir)
+            tar.close()
+            # move files from result to upper dir...
+            resultdir = os.path.join(new_dir, 'result')
+            for filename in os.listdir(resultdir):
+                shutil.copy2(
+                    os.path.join(resultdir, filename),
+                    os.path.join(new_dir, filename))
+            shutil.rmtree(resultdir)
+        else:
+            shutil.copy2(result_path, safe_result_path)            
+        return safe_result_path
 
     def getKeyValue(self, line):
         if "=" not in line:
@@ -137,6 +213,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
 
     cache_manager = None
+    logger = None
     
     def server_bind(self):
         # We use SO_REUSEADDR to ensure, that we can reuse the port on
@@ -146,7 +223,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         return SocketServer.TCPServer.server_bind(self)
 
     
-def run(host, port, python_binary, uno_lib_dir, cache_dir):
+def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     print "START PYUNO DAEMON"
     # Port 0 means to select an arbitrary unused port
     #HOST, PORT = host, port"localhost", 2009
@@ -157,6 +234,7 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir):
     ip, port = server.server_address
 
     server.cache_manager = cache_manager
+    server.logger = logger
 
     # This will run until shutdown without consuming CPU cycles all
     # the time...
