@@ -19,6 +19,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
+import logging
 import os
 import sys
 from optparse import OptionParser
@@ -116,6 +117,17 @@ def getOptions():
                "Default: %s" % (MODE,),
         default = MODE,
         )
+
+    parser.add_option(
+        "-l", "--logconf",
+        help = "logging configuration file as explained in "
+               "http://docs.python.org/library/logging.html. "
+               "The configuration should define a logger for "
+               "'ulif.openoffice.pyunoserver'. Default: None.",
+        default = None,
+        )
+    
+
     
     (options, args) = parser.parse_args()
 
@@ -140,14 +152,30 @@ def getOptions():
     return (cmd, options)
     
 
-def start(host, port, python_binary, uno_lib_dir, cache_dir, mode):
+def start(host, port, python_binary, uno_lib_dir, cache_dir, mode, logger):
     print "START PYUNO DAEMON"
     if mode == 'rest':
         run_restserver(host=host, port=port, python_binary=python_binary,
-                       uno_lib_dir=uno_lib_dir, cache_dir=cache_dir)
+                       uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
+                       logger=None)
     elif mode == 'raw':
         run_pyunoserver(host=host, port=port, python_binary=python_binary,
-                        uno_lib_dir=uno_lib_dir, cache_dir=cache_dir)
+                        uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
+                        logger=None)
+
+def getLogger(logconf):
+    """Get a logger.
+    """
+    logger = logging.getLogger('ulif.openoffice.oooctl')
+    if logconf is not None:
+        return logger
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
 
 def main(argv=sys.argv):
     if os.name != 'posix':
@@ -155,6 +183,7 @@ def main(argv=sys.argv):
         sys.exit(-1)
         
     (cmd, options) = getOptions()
+    logger = getLogger(options.logconf)
     
     if cmd == 'start':
         if options.mode == 'rest':
@@ -171,6 +200,6 @@ def main(argv=sys.argv):
               pidfile=options.pidfile, action=cmd)
 
     start(options.host, options.port, options.binarypath, UNO_LIB_DIR,
-          options.cache_dir, options.mode)
+          options.cache_dir, options.mode, logger)
 
     sys.exit(0)
