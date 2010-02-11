@@ -27,6 +27,12 @@ start OpenOffice.org as in background on a system.
 
 The scripts in here were tested with Ubuntu and work.
 
+It is mandatory, that the system user running ``oooctl`` is a regular
+user with at least a home directory. OpenOffice.org relies on that
+directory to store information even in headless mode.
+
+Recent OpenOffice.org versions require no X-server for running.
+
 If you want to use a Ubuntu (or Debian) prepared install of OOo, you
 must make sure, that you apt-get-installed the following packages:
 
