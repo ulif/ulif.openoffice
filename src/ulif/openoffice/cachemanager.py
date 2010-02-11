@@ -22,7 +22,12 @@
 """A manager for storing generated files.
 """
 import filecmp
-import md5 # Deprecated but works also with Python2.4...
+try:
+    import hashlib
+    md5 = None
+except ImportError:
+    import md5 # Deprecated since Python 2.5
+    hashlib = None
 import os
 import shutil
 import sys
@@ -224,7 +229,11 @@ class CacheManager(object):
 
         Currently we compute the MD5 digest.
         """
-        return md5.new(open(path, 'r').read()).hexdigest()
+        if md5 is not None:
+            return md5.new(open(path, 'r').read()).hexdigest()
+        hash = hashlib.new('md5')
+        hash.update(open(path, 'r').read())
+        return hash.hexdigest()
 
     def contains(self, path, suffix=None):
         """Check, whether the file in ``path`` is already cached.
