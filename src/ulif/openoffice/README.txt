@@ -461,11 +461,13 @@ Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
 testsetup in the ``home`` directory:
 
-    >>> ls('home')
-    d  .fontconfig
+    >>> print "HOMEDIR>\n", ls('home')
+    HOMEDIR>
+    ...
     d  .openoffice.org2
     d  .pyunocache
     -  simpledoc1.doc
+    ...
 
 The home also contains the cache dir for the PyUNOServer.
 
