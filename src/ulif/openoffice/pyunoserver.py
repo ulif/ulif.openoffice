@@ -193,9 +193,14 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             # move files from result to upper dir...
             resultdir = os.path.join(new_dir, 'result')
             for filename in os.listdir(resultdir):
-                shutil.copy2(
-                    os.path.join(resultdir, filename),
-                    os.path.join(new_dir, filename))
+                src = os.path.join(resultdir, filename)
+                dest = os.path.join(new_dir, filename)
+                if filename.endswith('html'):
+                    # Make sure that blah.doc results in blah.html
+                    # even if it comes from cache and the original doc
+                    # was named foo.doc (generating foo.html)
+                    dest = safe_result_path
+                shutil.copy2(src, dest)
             shutil.rmtree(resultdir)
         else:
             shutil.copy2(result_path, safe_result_path)            
