@@ -493,7 +493,7 @@ The RESTful HTTP mode can be enabled by setting the::
 
   --mode=rest
 
-option of `pyunoctl.
+option of `pyunoctl`.
 
 We start `pyunoctl` in RESTful mode. The OOo daemon was already
 started before.
