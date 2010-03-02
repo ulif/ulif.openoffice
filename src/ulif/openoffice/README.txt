@@ -456,6 +456,27 @@ We must remove the result directory ourselve:
     >>> if os.path.isdir(result_dir):
     ...   shutil.rmtree(result_dir)
 
+When we sent the same file with a different name, we will get a cached
+copy but with the name of the new source applied:
+
+    >>> new_testdoc_path = os.path.join(
+    ...   os.path.dirname(testdoc_path), 'newdoc1.doc')
+    >>> shutil.copyfile(testdoc_path, new_testdoc_path)
+    >>> response = client.convertToHTML(
+    ...              os.path.basename(new_testdoc_path), contents)
+    >>> response.message
+    '/tmp/.../newdoc1.html'
+
+    >>> ls(os.path.dirname(response.message))
+    -  newdoc1.html
+
+We must remove the result directory ourselve:
+
+    >>> import shutil
+    >>> result_dir = os.path.dirname(response.message)
+    >>> if os.path.isdir(result_dir):
+    ...   shutil.rmtree(result_dir)
+    
 
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
@@ -465,6 +486,7 @@ testsetup in the ``home`` directory:
     HOMEDIR...
     d  .openoffice.or...
     d  .pyunocache
+    -  newdoc1.doc
     -  simpledoc1.doc
     ...
 
