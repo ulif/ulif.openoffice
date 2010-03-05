@@ -40,8 +40,8 @@ CACHE_DIR = '.pyunocache'
 
 
 def getOptions():
-    usage = "usage: %prog [options] start|stop|restart|status"
-    allowed_args = ['start', 'stop', 'restart', 'status']
+    usage = "usage: %prog [options] start|fg|stop|restart|status"
+    allowed_args = ['start', 'fg', 'stop', 'restart', 'status']
     default_cache_dir = HOME and os.path.join(HOME, CACHE_DIR) or None
     parser = OptionParser(usage=usage)
 
@@ -127,8 +127,6 @@ def getOptions():
         default = None,
         )
     
-
-    
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
@@ -147,7 +145,6 @@ def getOptions():
     if cmd not in allowed_args:
         parser.error("argument must be one of %s. Use option '-h' for help." %
                      ', '.join(["'%s'" % x for x in allowed_args]))
-
 
     return (cmd, options)
     
@@ -193,7 +190,7 @@ def main(argv=sys.argv):
             sys.stdout.write('starting pyUNO conversion server, ')
             sys.stdout.flush()
             pass
-    
+
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
@@ -202,4 +199,7 @@ def main(argv=sys.argv):
     start(options.host, options.port, options.binarypath, UNO_LIB_DIR,
           options.cache_dir, options.mode, logger)
 
+    # This point will not be reached as start() will run in TCPserver
+    # serve_forever() loop...
+    
     sys.exit(0)
