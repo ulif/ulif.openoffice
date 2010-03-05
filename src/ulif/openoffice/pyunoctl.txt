@@ -43,7 +43,7 @@ Commands sent always have to be closed by newlines:
 As the default port is 2009, we can call the client like this:
 
     >>> print send_request('127.0.0.1', 2009, command)
-    ['OK 0 0.1dev\n']
+    ['OK 0 0.2dev\n']
 
 The response tells us that
 
