@@ -24,6 +24,7 @@
 Important code fragments are from regular Python documentation.
 """
 import os
+import pkg_resources
 import shutil
 import socket
 import sys
@@ -81,7 +82,8 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
         logger = self.server.logger
         data = self.rfile.readline().strip()
         if "TEST" == data:
-            self.wfile.write('OK 0 0.1dev\n')
+            info = pkg_resources.get_distribution('ulif.openoffice')
+            self.wfile.write('OK 0 %s\n' % info.version)
             return
         if data not in ["CONVERT_PDF", "CONVERT_HTML"]:
             self.wfile.write('ERR 550 unknown command. Use CONVERT_HTML, '
