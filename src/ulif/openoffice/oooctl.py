@@ -33,8 +33,10 @@ Changes were made to handle whole process groups instead of single
 processes.
 
 """
-import sys
 import os
+import signal
+import socket
+import sys
 import time
 from optparse import OptionParser
 from signal import SIGTERM
@@ -138,10 +140,22 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
             daemonize(stdout,stderr,stdin,pidfile,startmsg)
             return
 
+        if 'fg' == action:
+            if check_port('localhost', 2002):
+                mess = "... aborted!\n"
+                mess += "Start aborted since the server seems to be running.\n"
+                sys.stderr.write(mess)
+                sys.exit(1)
+            if pid:
+                mess = "Start aborted since pid file '%s' exists.\n"
+                sys.stderr.write(mess % pidfile)
+                sys.exit(1)
+            sys.stderr.write("started.\n")
+            return
+
         if 'status' == action:
             if not pid:
                 sys.stderr.write('Status: Stopped\n')
-
             else: sys.stderr.write('Status: Running (PID %s) \n'%pid)
             sys.exit(0)
 
@@ -152,11 +166,12 @@ def start(binarypath):
         binarypath,
         '"-accept=socket,host=localhost,port=2002;urp;"',
         '-headless -nologo -nofirststartwizard -norestore')
-    os.system(cmd)
+    result = os.system(cmd)
+    return result
 
 def getOptions():
-    usage = "usage: %prog [options] start|stop|restart|status"
-    allowed_args = ['start', 'stop', 'restart', 'status']
+    usage = "usage: %prog [options] start|fg|stop|restart|status"
+    allowed_args = ['start', 'stop', 'restart', 'status', 'fg']
     parser = OptionParser(usage=usage)
 
     parser.add_option(
@@ -194,7 +209,6 @@ def getOptions():
         default = '/dev/null',
         )
 
-    
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
@@ -212,6 +226,26 @@ def getOptions():
                      ', '.join(["'%s'" % x for x in allowed_args]))
     return (cmd, options)
     
+def signal_handler(signal, frame):
+    print "Received SIGINT."
+    print "Stopping OpenOffice.org server."
+    sys.exit(0)
+
+def check_port(host, port):
+    """Returns True if the port is open, False otherwise.
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    target = socket.gethostbyname(host)
+    result = sock.connect_ex((target, port))
+    if result == 0:
+        sock.close()
+        return True
+    return False
+
+def wait_for_startup(host, port):
+    while not check_port(host, port):
+        time.sleep(1)
+    return
     
 def main(argv=sys.argv):
     if os.name != 'posix':
@@ -220,14 +254,27 @@ def main(argv=sys.argv):
 
     (cmd, options) = getOptions()
 
-    if cmd == 'start':
+    if cmd in ['start', 'fg']:
         sys.stdout.write('starting OpenOffice.org server, ')
         sys.stdout.flush()
     
-    # startstop() returns only in case of 'start' or 'restart' cmd...
+    # startstop() returns only in case of 'start', 'fg', or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
-    start(options.binarypath)
+    status = start(options.binarypath)
 
-    sys.exit(0)
+    if cmd == 'fg':
+        signal.signal(signal.SIGINT, signal_handler)
+        print "Installed signal handler for SIGINT (CTRL-C)"
+
+    wait_for_startup('localhost', 2002)
+    while True:
+        # Check for running server and restart when it is down...
+        if not check_port('localhost', 2002):
+            print "openoffice.org server seems to be down."
+            print "restarting..."
+            start(options.binarypath)
+            wait_for_startup('localhost', 2002)
+            print "restarted."
+        time.sleep(1)
