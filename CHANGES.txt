@@ -9,6 +9,9 @@ CHANGES
 * Added mode ``fg`` for ``oooctl``. Using ``oooctl fg`` one can start
   ``oooctl`` in foreground now.
 
+* Added mode ``fg`` for ``pyunoctl``. Using ``pyunoctl fg`` one can start
+  ``pyunoctl`` in foreground now.
+
 * Added state check for ``oooctl``: when OpenOffice.org server is down
   during runtime it is restarted automatically. The check happens
   every second.
