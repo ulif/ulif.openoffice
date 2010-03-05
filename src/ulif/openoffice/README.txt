@@ -178,10 +178,12 @@ Currently conversion from all OOo readable formats (.doc, .odt, .txt,
 document with OpenOffice.org, then this daemon can convert it to HTML
 or PDF-A.
 
-The conversion daemon starts a server in background which listens for
-conversion requests on a TCP port. It then calls OpenOffice.org via
-the pyUNO-API to perform the conversion and responses with the path of
-the generated doc (or an error message).
+The conversion daemon starts a server in background (unless you
+specify ``fg`` as startmode, which will keep the server attached to
+the invoking shell) which listens for conversion requests on a TCP
+port. It then calls OpenOffice.org via the pyUNO-API to perform the
+conversion and responses with the path of the generated doc (or an
+error message).
 
 The conversion server is a multithreaded asynchronous TCP daemon. So,
 several requests can be served at the same time.
@@ -189,7 +191,7 @@ several requests can be served at the same time.
 The script provides help with the ``-h`` switch:
 
     >>> print system(join('bin', 'pyunoctl') + ' -h')
-    Usage: pyunoctl [options] start|stop|restart|status
+    Usage: pyunoctl [options] start|fg|stop|restart|status
     ...
 
     >>> import os
