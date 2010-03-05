@@ -45,14 +45,17 @@ described below, as well):
 The script provides help with the ``-h`` switch:
 
     >>> print system(join('bin', 'oooctl') + ' -h')
-    Usage: oooctl [options] start|stop|restart|status
+    Usage: oooctl [options] start|fg|stop|restart|status
     ...
 
 The main actions are to call the script with one of the::
 
-  start|stop|restart|status
+  start|fg|stop|restart|status
 
-commands as argument.
+commands as argument, where ``fg`` means: start in foreground. This
+can be handy, if you want the process to be monitored by third-party
+tools like some supervisor daemon or similar. In that case the process
+will not detach from the invoking shell on startup.
 
 We set the `oooctl` path as a var for further use:
 
@@ -249,7 +252,7 @@ Commands sent always have to be closed by newlines:
 As the default port is 2009, we can call the client like this:
 
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 0 0.1dev
+    OK 0 0.2dev
 
 The response tells us that
 
@@ -257,7 +260,7 @@ The response tells us that
 
 * the status is zero (=no problems),
 
-* the version number of the server ('0.1dev').
+* the version number of the server ('0.2dev').
 
 If we send garbage, we get an error:
 
@@ -540,7 +543,7 @@ We send a simple test request, that should give us a status:
     (200, 'OK')
 
     >>> print r1.read()
-    ulif.openoffice.RESTful.HTTPServer 0.1dev
+    ulif.openoffice.RESTful.HTTPServer 0.2dev
     <BLANKLINE>
 
 We GET documents from the server by asking for an existing MD5sum. The
