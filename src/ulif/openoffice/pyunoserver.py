@@ -26,6 +26,7 @@ Important code fragments are from regular Python documentation.
 import os
 import pkg_resources
 import shutil
+import signal
 import socket
 import sys
 import tarfile
@@ -221,6 +222,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
     cache_manager = None
     logger = None
+    do_stop = False
     
     def server_bind(self):
         # We use SO_REUSEADDR to ensure, that we can reuse the port on
@@ -229,9 +231,16 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return SocketServer.TCPServer.server_bind(self)
 
-    
+    def serve_forever(self):
+        while not self.do_stop:
+            self.handle_request()
+
+    def shutdown(self):
+        self.do_stop = True
+
+
 def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
-    print "START PYUNO DAEMON"
+    #print "START PYUNO DAEMON"
     # Port 0 means to select an arbitrary unused port
     #HOST, PORT = host, port"localhost", 2009
 
@@ -243,6 +252,15 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     server.cache_manager = cache_manager
     server.logger = logger
 
+    def signal_handler(signal, frame):
+        print "Received SIGINT."
+        print "Stopping PyUNO server."
+        server.shutdown()
+        sys.exit(0)
+        
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    
     # This will run until shutdown without consuming CPU cycles all
     # the time...
     server.serve_forever()
