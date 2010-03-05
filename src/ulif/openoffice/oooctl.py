@@ -141,11 +141,6 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
             return
 
         if 'fg' == action:
-            if check_port('localhost', 2002):
-                mess = "... aborted!\n"
-                mess += "Start aborted since the server seems to be running.\n"
-                sys.stderr.write(mess)
-                sys.exit(1)
             if pid:
                 mess = "Start aborted since pid file '%s' exists.\n"
                 sys.stderr.write(mess % pidfile)
@@ -257,16 +252,24 @@ def main(argv=sys.argv):
     if cmd in ['start', 'fg']:
         sys.stdout.write('starting OpenOffice.org server, ')
         sys.stdout.flush()
-    
+
+    if cmd == 'fg':
+        if check_port('localhost', 2002):
+            mess = "start aborted!\n"
+            mess += "Start aborted since the server seems to be running.\n"
+            sys.stderr.write(mess)
+            sys.exit(1)
+        
     # startstop() returns only in case of 'start', 'fg', or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
               pidfile=options.pidfile, action=cmd)
-    status = start(options.binarypath)
 
     if cmd == 'fg':
         signal.signal(signal.SIGINT, signal_handler)
         print "Installed signal handler for SIGINT (CTRL-C)"
+    
+    status = start(options.binarypath)
 
     wait_for_startup('localhost', 2002)
     while True:
