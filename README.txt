@@ -44,6 +44,12 @@ additionally to the usual OOo packages, i.e.:
 
 * ``openoffice.org`` (at least for Ubuntu >= 9.04)
 
+* ``msttcorefonts``
+
+The latter is optional but needed to have the most common fonts used
+with OpenOffice.org documents available. Without the correct fonts
+installed, results of document transforms might be poor.
+
 Then, you need at least one Python version, which supports::
 
   $ python -c "import uno"
