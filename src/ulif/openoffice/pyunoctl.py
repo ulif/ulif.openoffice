@@ -20,6 +20,7 @@
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
 import logging
+import logging.config
 import os
 import sys
 from optparse import OptionParser
@@ -154,18 +155,21 @@ def start(host, port, python_binary, uno_lib_dir, cache_dir, mode, logger):
     if mode == 'rest':
         run_restserver(host=host, port=port, python_binary=python_binary,
                        uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
-                       logger=None)
+                       logger=logger)
     elif mode == 'raw':
         run_pyunoserver(host=host, port=port, python_binary=python_binary,
                         uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
-                        logger=None)
+                        logger=logger)
 
 def getLogger(logconf):
     """Get a logger.
     """
-    logger = logging.getLogger('ulif.openoffice.oooctl')
     if logconf is not None:
+        logging.config.fileConfig(logconf)
+        logger = logging.getLogger('ulif.openoffice.pyunoctl')
+        logger.info('start logging')
         return logger
+    logger = logging.getLogger('ulif.openoffice.pyunoctl')
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     formatter = logging.Formatter(

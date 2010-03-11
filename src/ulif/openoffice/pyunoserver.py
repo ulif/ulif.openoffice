@@ -81,6 +81,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
         """
         logger = self.server.logger
+        logger.debug('received conversion request')
         data = self.rfile.readline().strip()
         if "TEST" == data:
             info = pkg_resources.get_distribution('ulif.openoffice')
@@ -89,12 +90,16 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
         if data not in ["CONVERT_PDF", "CONVERT_HTML"]:
             self.wfile.write('ERR 550 unknown command. Use CONVERT_HTML, '
                              'CONVERT_PDF or TEST.\n')
+            logger.debug('receceived unknown command. Finishing request.')
             return
+        logger.debug('command: %s' % data)
         key, path = self.getKeyValue(self.rfile.readline())
         if key is None or key != "PATH":
             self.wfile.write('ERR 550 missing path.')
+            logger.info('no path given. transaction cancelled.')
             return
-        
+
+        logger.debug('path: %s' % path)
         if data == 'CONVERT_PDF':
             self.wfile.write('path: %s\n' % path)
             filter_name = "writer_pdf_Export"
@@ -111,7 +116,10 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             # TODO: Here we might unpack stuff, copy to secure location etc.
             dest_path = self.prepareCacheResults(path, dest_path, extension)
             self.wfile.write('OK 200 %s' % (dest_path,))
+            logger.info('200 OK. FOUND in cache. request completed')
+            logger.debug('result in %s' % dest_path)
             return
+        logger.debug('doc NOT FOUND in cache, start conversion.')
             
         ret_val = -1
         dest_path = ''
@@ -124,17 +132,23 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             if len(dest_paths):
                 dest_path = urlsplit(dest_paths[0])[2]
         except Exception, e:
-            self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message) )
+            self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message))
             shutil.rmtree(path_dir)
+            logger.warn('550 ERR conversion failed %s: %s' %(
+                    e.__class__, e.message))
             return
         except:
             self.wfile.write('ERR 550 internal pyuno error \n')
+            logger.warn('550 ERR internal pyuno error')
         if ret_val != 0:
             self.wfile.write('ERR 550 conversion not finished: %s' % (
+                    ret_val,))
+            logger.warn('550 ERR conversion not finished: %s' % (
                     ret_val,))
             shutil.rmtree(path_dir)
         else:
             # Notify cache manager...
+            logger.debug('conversion finished. updating cache.')
             cache_path = self.prepareCaching(path, dest_path, extension)
             cm.registerDoc(source_path=path, to_cache=cache_path,
                            suffix=extension)
@@ -144,6 +158,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             os.unlink(path)
             
             self.wfile.write('OK 200 %s' % (dest_path,))
+            logger.info('200 OK, doc converted: %s' % (dest_path,))
         return
 
     def prepareSource(self, src_path, extension):
@@ -234,8 +249,10 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def serve_forever(self):
         while not self.do_stop:
             self.handle_request()
+        self.logger.info('stopped accepting requests')
 
     def shutdown(self):
+        self.logger.info('shutting down server.')
         self.do_stop = True
 
 
@@ -256,6 +273,7 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
         print "Received SIGINT."
         print "Stopping PyUNO server."
         server.shutdown()
+        server.logger.info('exiting')
         sys.exit(0)
         
     signal.signal(signal.SIGINT, signal_handler)
