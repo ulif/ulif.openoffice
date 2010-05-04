@@ -220,8 +220,12 @@ def convert(
             filter_props = PropertyValue(
                 "FilterData", 0, uno.Any(
                     "[]com.sun.star.beans.PropertyValue", (
-                        PropertyValue("SelectPdfVersion", 0, 1L, 0),
-                        PropertyValue("UseTaggedPDF", 0, False, 0),
+                        # Disable PDF/A generation.
+                        # Some faulty 64-bit versions of OO.o produce
+                        # invalid PDF/A output.
+                        
+                        # PropertyValue("SelectPdfVersion", 0, 1L, 0),
+                        # PropertyValue("UseTaggedPDF", 0, False, 0),
                 )), 0)
             out_props.append(filter_props)
 
