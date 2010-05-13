@@ -4,6 +4,8 @@ CHANGES
 0.2 (unreleased)
 ================
 
+* Added sphinx docs.
+
 * Fixed wrong result path when returning cached HTML results.
 
 * Added mode ``fg`` for ``oooctl``. Using ``oooctl fg`` one can start
