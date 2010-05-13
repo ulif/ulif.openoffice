@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+
+<h1>{{ docstitle }}</h1>
+<p>
+  This is official documentation for ulif.openoffice {{ release }}.
+  {% if last_updated %}Last modifed on {{ last_updated }}.{% endif %}
+</p>
+
+<p><strong>Sections</strong></p>
+<table class="contentstable" align="center"><tr>
+  <td width="50%">
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("intro") }}">Introduction</a><br />
+      <span class="linkdescr">Get started with ulif.openoffice.</span>
+    </p>
+      
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("user_overview") }}">User documentation</a><br />
+    <span class="linkdescr">
+      Documentation for users and admins using ulif.openoffice.
+    </span></p>
+
+    </td><td width="50%">
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("changes") }}">What's new?</a><br />
+      <span class="linkdescr">Changes made in each release.</span>
+    </p>
+
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("api_overview") }}">Developer documentation</a><br />
+      <span class="linkdescr">
+	API and other pieces relevant for developers.
+      </span>
+    </p>
+	  
+  </td></tr>
+</table>
+
+<p><strong>Indices and tables</strong></p>
+<table class="contentstable" align="center"><tr>
+  <td width="50%">
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("contents") }}">Table of Contents</a><br />
+      <span class="linkdescr">Lists all sections and subsections.</span>
+    </p>
+    </td><td width="50%">
+
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("genindex") }}">Index</a><br />
+      <span class="linkdescr">All functions, classes, terms.</span>
+    </p>
+  </td></tr>
+</table>
+
+<p><strong>Further information</strong></p>
+<table class="contentstable" align="center"><tr>
+  <td width="50%">
+
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("bugs") }}">Reporting bugs</a><br />
+    </p>
+
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("README") }}">About the documentation</a><br />
+    </p>
+
+    </td><td width="50%">
+	      
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("license") }}">License</a><br />
+    </p>
+
+    <p class="biglink">
+      <a class="biglink" 
+	 href="{{ pathto("copyright") }}">Copyright</a><br />
+    </p>
+
+    </td></tr>
+</table>
+
+
+{% endblock %}

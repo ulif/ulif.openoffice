@@ -1,0 +1,20 @@
+
+@import "default.css";
+
+
+/* List item styles... */
+.loweralpha {
+ list-style-type: lower-alpha;
+ }
+
+.upperalpha { 
+ list-style-type: upper-alpha;
+}
+
+.lowerroman {
+ list-style-type: lower-roman;
+ }
+
+.upperroman { 
+ list-style-type: upper-roman;
+}

@@ -1,0 +1,90 @@
+Introduction
+************
+
+What ulif.openoffice is
+=======================
+
+``ulif.openoffice`` is a Python package to support document
+transformations using OpenOffice.org (OOo).
+
+It provides components to ask a running OOo-server for document
+conversions from office-type documents like .doc or .odt to HTML or
+PDF. Using ulif.openoffice you can trigger such conversions via
+commandline or via a Python-API that works also with Python versions
+without any PyUNO support.
+
+Furthermore, it provides a caching server that caches all documents
+once converted and delivers them in case a document is requested
+again. Depending on your needs this can speed-up things by factor 10
+or more.
+
+Sources
+=======
+
+``ulif.openoffice`` is hosted on:
+
+  http://pypi.python.org/ulif.openoffice
+
+where you can get latest released versions.
+
+The subversion repository of the sources is:
+
+  https://svn.gnufix.de/repos/main/ulif.openoffice/
+
+Requirements
+============
+
+``ulif.openoffice`` requires some PyUNO-capable Python somewhere to do
+the actual conversions. It also provides a client-API for Python code that
+does not provide that support. Current Debian-based distributions
+normally offer a package for PyUNO support.
+
+``ulif.openoffice`` is tested on Debian-based systems, most notably
+Ubuntu, and **won't work on Windows**.
+
+The package is designed for server-based deployments. While the
+OOo-server is running, you cannot use the office-suite on your desktop
+(at least at time of writing this). This is a limitation of OOo
+itself.
+
+
+Overview
+========
+
+``ulif.openoffice`` mainly provides three different components:
+
+* An ``oooctl`` server that runs in background, starts a local
+  OOo-server and monitors its status. If the OOo server process dies,
+  it is restarted by ``oooctl``.
+
+* A ``pyunoserver``, which is a TCP-server that implements an own
+  protocol to listen for conversion requests. When a valid request
+  arrives, it tries to contact a local OOo server to do the
+  conversion.
+
+  The ``pyunoserver`` also runs a cache manager that caches already
+  converted documents and delivers them in case the conversioned
+  version already exists.
+
+  This component needs access to the PyUNO library.
+
+* A client library to talk to the PyUNO server. This component does
+  not require PyUNO.
+
+
+The three components play together roughly as shown in the following
+figure:
+
+  .. figure:: overview.png
+
+     Fig. 1: Overview of ulif.openoffice components
+
+The blue lines show the way from a source document (in .doc
+format) to the OpenOffice.org server while the red lines show the
+way back of the converted document (PDF).
+
+Use of client-API, ``oooctl`` server and cache is optional.
+
+All this currently happens on the same machine. There are plans for
+support of multi-machine scenarios with distributed servers and
+load-balancing features.

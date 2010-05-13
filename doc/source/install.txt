@@ -1,0 +1,115 @@
+Prerequisites
+=============
+
+There are, unfortunately, zillions of possibilities why you cannot
+start OpenOffice.org as in background on a system.
+
+The scripts in here were tested with Ubuntu and work.
+
+It is mandatory, that the system user running ``oooctl`` is a regular
+user with at least a home directory. OpenOffice.org relies on that
+directory to store information even in headless mode.
+
+Recent OpenOffice.org versions require no X-server for running.
+
+If you want to use a Ubuntu (or Debian) prepared install of OOo, you
+must make sure, that you apt-get-installed the following packages:
+
+* ``openoffice.org-headless`` (for Ubuntu < 9.04, not needed for newer)
+
+* ``openoffice.org-java-common``
+
+additionally to the usual OOo packages, i.e.:
+
+* ``openoffice.org`` (at least for Ubuntu >= 9.04)
+
+* ``msttcorefonts``
+
+The latter is optional but needed to have the most common fonts used
+with OpenOffice.org documents available. Without the correct fonts
+installed, results of document transforms might be poor.
+
+Then, you need at least one Python version, which supports::
+
+  $ python -c "import uno"
+
+without raising any exceptions.
+
+On newer Ubuntu versions you can install::
+
+* ``python-uno`` (if available)
+
+The clients and other software apart from the oooctl-server and the
+pyuno-server can be run with a different Python version.
+
+If you successfully installed this package on a different system, we'd
+be glad to hear from you, especially, if you could tell, what
+system-packages you used.
+
+Building
+========
+
+Using ``zc.buildout`` and SVN checkout
+--------------------------------------
+
+To use buildout with an SVN-checkout of the package from somwhere
+below
+
+  https://svn.gnufix.de/repos/main/ulif.openoffice/
+
+First make sure, that you entered your UNO-supporting Python version
+in buildout.cfg. By default it will assume, that this is
+/usr/bin/python.
+
+If::
+
+  $ /usr/bin/python -c "import uno"
+
+gives an exception on your system, you must edit buildout.cfg, section
+``[unopython]``, to tell where the supporting Python can be found.
+
+Then run::
+
+  $ python bootstrap/bootstrap.py
+
+with the Python version, your client should later run with. This can
+be the UNO-supporting Python but don't has to.
+
+This way you can, for example, use the client components with Python
+2.4 while the ooo-server and pyuno-server will run with Python 2.6.
+
+After running bootstrap.py, do::
+
+  $ ./bin/buildout
+
+which will create all scripts in bin/.
+
+
+Using easy_install
+------------------
+
+Instead of using ``zc.buildout`` you can also use ``easy_install``.
+
+If using ``easy_install``, you might have to install the package
+twice: one time with a Python binary that support PyUNO and one time
+with a Python binary that will be used by your application.
+
+1) Make sure, you have at least one Python version that supports PyUNO.
+   See ``Prerequisites`` above.
+
+2) For this Python-version install ``easy_install`` (only needed if
+   not already existent, of course::
+
+     $ wget http://peak.telecommunity.com/dist/ez_setup.py
+     $ path/to/pyuno/supporting-python ez_setup.py
+
+3) Install ``ulif.openoffice`` for this Python-version::
+
+     $ path/to/pyuno/supporting-easy_install ulif.openoffice
+
+4) Do the same for the Python-version used by your application::
+
+     $ path/to/myapp/supporting-python ez_setup.py
+     $ path/to/myapp/supporting-easy_install ulif.openoffice
+
+It is generally useful to do this in ``virtualenv`` environments.
