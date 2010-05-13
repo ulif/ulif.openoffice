@@ -7,6 +7,12 @@ setup(name='ulif.openoffice',
       version=version,
       description="Helpers to bridge different Python envs and OpenOffice.org.",
       long_description=open("README.txt").read() + "\n\n" +
+                       open(os.path.join("doc", "source", "intro.txt"
+                                         )).read() + "\n\n" +
+                       open(os.path.join("doc", "source", "install.txt"
+                                         )).read() + "\n\n" +
+                       open(os.path.join("doc", "source", "usage.txt"
+                                         )).read() + "\n\n" +
                        open(os.path.join("src", "ulif", "openoffice",
                                          "README.txt")).read() + "\n\n" +
                        open("CHANGES.txt").read(),
@@ -31,11 +37,14 @@ setup(name='ulif.openoffice',
           'setuptools',
           'zc.buildout',
       ],
+      setup_requires=["Sphinx-PyPI-upload"],
       extras_require=dict(
         test = [
             'zope.testing',
             'zc.recipe.egg',
-            ]
+            ],
+        doc = ['Sphinx',
+               'z3c.recipe.sphinxdoc']
         ),
       entry_points="""
       [console_scripts]
