@@ -4,6 +4,9 @@ CHANGES
 0.2 (unreleased)
 ================
 
+* Added license and copyright file to comply with policy of major
+  Linux distributors.
+
 * Added sphinx docs.
 
 * Fixed wrong result path when returning cached HTML results.
