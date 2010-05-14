@@ -14,6 +14,8 @@ Contents:
    intro
    changes
    user_overview
+   install
+   usage
    api_overview
 
    bugs

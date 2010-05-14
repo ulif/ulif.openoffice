@@ -8,8 +8,6 @@ ulif.openoffice documentation contents
 
    intro
    user_overview
-   install
-   usage
    api_overview
    changes
    license
