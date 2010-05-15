@@ -1,8 +1,5 @@
-Detailed Description
-********************
-
-.. contents::
-
+Examples
+========
 
 ``oooctl`` -- the OOo daemon
 ============================
@@ -611,3 +608,5 @@ Clean up:
 
     >>> os.close(tmp_fd)
     >>> os.unlink(tmp_path)
+
+
