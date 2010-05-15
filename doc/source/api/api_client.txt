@@ -1,0 +1,5 @@
+``ulif.openoffice.client`` -- The Client API
+********************************************
+
+.. automodule:: ulif.openoffice.client
+   :members:

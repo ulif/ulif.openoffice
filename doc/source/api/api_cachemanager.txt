@@ -1,0 +1,10 @@
+``ulif.openoffice.cachemanager`` -- A Cache Manager
+***************************************************
+
+.. automodule:: ulif.openoffice.cachemanager
+   :members:
+
+Examples
+========
+
+.. include:: ../../../src/ulif/openoffice/cachemanager.txt

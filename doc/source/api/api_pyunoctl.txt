@@ -1,0 +1,10 @@
+``ulif.openoffice.pyunoctl`` -- A Server to communicate with OO.o
+*****************************************************************
+
+.. automodule:: ulif.openoffice.pyunoctl
+   :members:
+
+Examples
+========
+
+.. include:: ../../../src/ulif/openoffice/pyunoctl.txt
