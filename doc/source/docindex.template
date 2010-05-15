@@ -33,9 +33,10 @@
 
     <p class="biglink">
       <a class="biglink" 
-	 href="{{ pathto("api_overview") }}">Developer documentation</a><br />
+	 href="{{ pathto("developer_overview") }}">Developer documentation</a><br />
       <span class="linkdescr">
-	API and other pieces relevant for developers.
+	<a href="{{ pathto("api_overview") }}">API</a> and other pieces
+	relevant for developers.
       </span>
     </p>
 	  

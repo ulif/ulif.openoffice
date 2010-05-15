@@ -16,11 +16,12 @@ Contents:
    user_overview
    install
    usage
-   api_overview
+   developer_overview
 
    bugs
    contents
    license
+   documentation
    copyright
 
 
