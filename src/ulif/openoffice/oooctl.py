@@ -50,7 +50,8 @@ def run(cmd):
 
 def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
               pidfile=None, startmsg = 'started with pid %s' ):
-    
+    """Fork and daemonize a running process.
+    """
     try: 
         pid = os.fork() 
         if pid > 0:
@@ -95,6 +96,8 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
 def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
               pidfile='pid.txt', startmsg = 'started with pid %s',
               action='start' ):
+    """Start/stop a process.
+    """
     if action:
         try:
             pf  = file(pidfile,'r')
@@ -228,6 +231,8 @@ def signal_handler(signal, frame):
 
 def check_port(host, port):
     """Returns True if the port is open, False otherwise.
+
+    This function is non-blocking.
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     target = socket.gethostbyname(host)
@@ -243,6 +248,8 @@ def wait_for_startup(host, port):
     return
     
 def main(argv=sys.argv):
+    """Main script to daemonize.
+    """
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
