@@ -1,5 +1,5 @@
 ulif.openoffice.cachemanager -- A cache manager
-***********************************************
+===============================================
 
 A cache manager tries to cache converted files, so that already
 converted documents do not have to be converted again.
