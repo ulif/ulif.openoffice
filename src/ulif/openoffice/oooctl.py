@@ -1,5 +1,5 @@
 ##
-## ooo_handler.py
+## oooctl.py
 ## Login : <uli@pu.smp.net>
 ## Started on  Fri Mar 14 14:05:51 2008 Uli Fouquet
 ## $Id$
@@ -22,16 +22,9 @@
 """
 Start/stop a locally installed OpenOffice.org server instance.
 
-This script requires (beside an installed OOo server) a running X
-server.
-
-Many code inhere is stolen from the cookbook:
-
-  http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66012
-
-Changes were made to handle whole process groups instead of single
-processes.
-
+This script requires a locally installed OOo server. When running
+``bin/buildout`` this script is installed as executable script
+``oooctl``.
 """
 import os
 import signal
@@ -160,6 +153,8 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
 
 def start(binarypath):
+    """Start an instance of OpenOffice.org server on port 2002.
+    """
     cmd = "%s %s %s" % (
         binarypath,
         '"-accept=socket,host=localhost,port=2002;urp;"',
@@ -248,7 +243,9 @@ def wait_for_startup(host, port):
     return
     
 def main(argv=sys.argv):
-    """Main script to daemonize.
+    """Main script to start/stop an OOo server.
+
+    This function is called when calling ``bin/oooctl``.
     """
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
