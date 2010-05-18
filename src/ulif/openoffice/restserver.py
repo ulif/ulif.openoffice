@@ -20,6 +20,8 @@
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
 """A conversion server using REST.
+
+   This server is not in a usable state yet.
 """
 import cgi
 import os
