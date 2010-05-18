@@ -74,4 +74,10 @@ def encode_multipart_formdata(fields, files):
     return content_type, body
 
 def get_content_type(filename):
+    """Try to guess content-type of a file.
+
+    Returns a MIME type as string.
+
+    If none can be determined, ``application/octet-stram`` is returned.
+    """
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
