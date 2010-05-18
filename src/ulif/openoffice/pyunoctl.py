@@ -19,6 +19,19 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
+"""A script controlling a server to provide some PyUNO functionality
+   via network.
+
+   The server will listen for document conversion requests on port
+   2009. It requires a running OpenOffice.org server to accomplish
+   this task.
+
+   Also makes use of a cachemanager to cache document conversion
+   results.
+
+   The script is installed as executable script ``pyunoctl`` when
+   using `buildout`.
+"""
 import logging
 import logging.config
 import os
@@ -179,6 +192,8 @@ def getLogger(logconf):
     return logger
 
 def main(argv=sys.argv):
+    """The main function.
+    """
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
