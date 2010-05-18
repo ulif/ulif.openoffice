@@ -38,46 +38,82 @@ from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.convert import convert_to_pdf, convert
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
+    """A handler for the :class:`ThreadedTCPServer`.
 
+    It implements the protocol, the PyUNO server actually works with.
+    """
+
+    
     def handle(self):
-        """The protocol:
+        """
+        The protocol:
 
-        The request:
-        <REQUEST> := <CONVERT_CMD>|<TEST_CMD>
-        <CONVERT-CMD> := <CMD><PATH>
-        <CMD> := "CONVERT_PDF\n"|"CONVERT_HTML\n"
-        <TEST_CMD> := "TEST\n"
-        <PATH> := "PATH="<PATH-TO-DOCUMENT>"\n"
-        <PATH-TO-DOCUMENT> := file-path
+          The request:
 
-        Response:
-        <OK-RESULT>|<ERR-RESULT>|<VERSION-RESULT>
-        with:
-        <OK-RESULT> := "OK "<STATUS>" "<PATH-TO-RESULT>
-        <ERR-RESULT> := "ERR "<STATUS>" "<ERR-MSG>
-        <STATUS> := a number (?)
-        <PATH-TO-RESULT> := file-path
-        <ERR-MSG> := text (possibly several lines)
-        <VERSION-RESULT> := "OK 0 "server-version
-
-        Examples:
-        Request:
-          CONVERT_PDF
-          PATH=/home/foo/bar.odt
-        Response:
-          OK 0 /tmp/asdqwe.pdf
-
-        Request:
-          CONVERT_HTML
-          PATH=/home/foo/bar.docx
-        Response:
-          OK 0 /tmp/sdfwqer
+          .. productionlist::
+             REQUEST: CONVERT_CMD | TEST_CMD
+             CONVERT_CMD: CMD PATH
+             CMD: "CONVERT_PDF<NL>" | "CONVERT_HTML<NL>"
+             TEST_CMD: "TEST<NL>"
+             PATH: "PATH=" PATH_TO_DOCUMENT
+             PATH_TO_DOCUMENT: <file-path>
         
-        Request:
-          TEST
-        Response:
-          ERR -1 Could not reach OpenOffice.org server on port 2002
-          Please make sure to start oooctl.
+          Response:
+
+          .. productionlist::
+             RESPONSE: OK_RESULT | ERR_RESULT | VERSION_RESULT
+             OK_RESULT: "OK " STATUS PATH_TO_RESULT
+             ERR_RESULT: "ERR " STATUS ERR_MSG
+             STATUS: <integer-number>
+             PATH_TO_RESULT: <file-path>
+             ERR_MSG: <textblock>
+             VERSION_RESULT: "OK 0 " <server-version>
+
+          with:
+        
+          ``<NL>``
+            NewLine character
+
+          ``<file-path>``
+            a valid path to a local file
+
+          ``<integer-number>``
+            an integer number
+
+          ``<server-version>``
+            a string like ``0.1dev``
+
+          ``<text>``
+            a string, possibly containing several lines.
+          
+        Examples:
+        
+          Request::
+          
+            CONVERT_PDF
+            PATH=/home/foo/bar.odt
+            
+          Response::
+          
+            OK 0 /tmp/asdqwe.pdf
+
+          Request::
+          
+            CONVERT_HTML
+            PATH=/home/foo/bar.docx
+            
+          Response::
+          
+            OK 0 /tmp/sdfwqer
+        
+          Request::
+          
+            TEST
+            
+          Response::
+          
+            ERR -1 Could not reach OpenOffice.org server on port 2002
+            Please make sure to start oooctl.
 
         """
         logger = self.server.logger
@@ -235,14 +271,22 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """An asynchronous TCP server.
     """
 
+    #: The cache manager instance used by any server isntance.
     cache_manager = None
+
+    #: A logger instance.
     logger = None
-    do_stop = False
+
+    #: Marker to check while serving for stop-requests.
+    do_stop = False     
     
     def server_bind(self):
-        # We use SO_REUSEADDR to ensure, that we can reuse the port on
-        # restarts immediately. Otherwise we would be blocked by
-        # TIME_WAIT for several seconds or minutes.
+        """Bind server to socket.
+
+          We use ``SO_REUSEADDR`` to ensure, that we can reuse the
+          port on restarts immediately. Otherwise we would be blocked
+          by ``TIME_WAIT`` for several seconds or minutes.
+        """
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return SocketServer.TCPServer.server_bind(self)
 
@@ -257,10 +301,8 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 
 def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
-    #print "START PYUNO DAEMON"
-    # Port 0 means to select an arbitrary unused port
-    #HOST, PORT = host, port"localhost", 2009
-
+    """Start an instance of :class:`ThreadedTCPServer`.
+    """
     cache_manager = CacheManager(cache_dir)
     
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
