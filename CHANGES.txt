@@ -21,6 +21,8 @@ CHANGES
   during runtime it is restarted automatically. The check happens
   every second.
 
+* Use standard lib `doctest` instead of `zope.testing.doctest`.
+
 0.1 (2010-03-02)
 ================
 
