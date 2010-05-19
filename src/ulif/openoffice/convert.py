@@ -220,8 +220,8 @@ def convert(
             filter_props = PropertyValue(
                 "FilterData", 0, uno.Any(
                     "[]com.sun.star.beans.PropertyValue", (
-                        PropertyValue("SelectPdfVersion", 0, 1L, 0),
-                        PropertyValue("UseTaggedPDF", 0, False, 0),
+                        #PropertyValue("SelectPdfVersion", 0, 1L, 0),
+                        #PropertyValue("UseTaggedPDF", 0, False, 0),
                 )), 0)
             out_props.append(filter_props)
 

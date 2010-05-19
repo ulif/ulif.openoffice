@@ -23,6 +23,10 @@ CHANGES
 
 * Use standard lib `doctest` instead of `zope.testing.doctest`.
 
+* Changed PDF creation: by default now normal PDF (and not PDF/A) is
+  created when converting to PDF. This is due to an endianess bug in
+  many recent OpenOffice.org binaries running on 64-bit platforms.
+
 0.1 (2010-03-02)
 ================
 
