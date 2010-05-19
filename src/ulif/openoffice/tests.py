@@ -21,11 +21,12 @@
 ##
 """Test `ulif.openoffice`.
 """
+import doctest
 import os
 import re
 import unittest
 import zc.buildout.testing
-from zope.testing import doctest, renormalizing
+from zope.testing import renormalizing
 
 checker = renormalizing.RENormalizing([
     zc.buildout.testing.normalize_path,
