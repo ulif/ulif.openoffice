@@ -11,6 +11,10 @@ converting office documents from Python using OpenOffice.org but
 without the need to have PyUNO support with the Python binary that
 actually runs your Python application (like Plone, for instance).
 
+The complete documentation of the most recent release can be found at
+
+ http://packages.python.org/ulif.openoffice/
+
 .. contents::
 
 What does `ulif.openoffice` provide?
