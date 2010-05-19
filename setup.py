@@ -44,7 +44,7 @@ setup(name='ulif.openoffice',
             'zc.recipe.egg',
             ],
         doc = ['Sphinx',
-               'z3c.recipe.sphinxdoc']
+               'collective.recipe.sphinxbuilder']
         ),
       entry_points="""
       [console_scripts]
