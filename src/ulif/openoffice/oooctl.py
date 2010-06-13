@@ -29,6 +29,7 @@ This script requires a locally installed OOo server. When running
 import os
 import signal
 import socket
+import subprocess
 import sys
 import time
 from optparse import OptionParser
@@ -37,6 +38,7 @@ from signal import SIGTERM
 
 OOO_BINARY = '/usr/lib/openoffice/program/soffice'
 PIDFILE = '/tmp/ooodaeomon.pid'
+child_pid = None
 
 def run(cmd):
     pass
@@ -45,6 +47,7 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
               pidfile=None, startmsg = 'started with pid %s' ):
     """Fork and daemonize a running process.
     """
+    global child_pid
     try: 
         pid = os.fork() 
         if pid > 0:
@@ -152,15 +155,25 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
 
 
-def start(binarypath):
+def start(binarypath, foreground=False):
     """Start an instance of OpenOffice.org server on port 2002.
     """
     cmd = "%s %s %s" % (
         binarypath,
         '"-accept=socket,host=localhost,port=2002;urp;"',
         '-headless -nologo -nofirststartwizard -norestore')
-    result = os.system(cmd)
-    return result
+    if not foreground:
+        result = os.system(cmd)
+        return result
+
+    proc = subprocess.Popen(['sh %s' % cmd], 
+                        shell=True, 
+                        close_fds=True,
+                        preexec_fn=os.setsid,
+                        )
+    global child_pid
+    child_pid = proc.pid
+    return child_pid
 
 def getOptions():
     usage = "usage: %prog [options] start|fg|stop|restart|status"
@@ -222,6 +235,12 @@ def getOptions():
 def signal_handler(signal, frame):
     print "Received SIGINT."
     print "Stopping OpenOffice.org server."
+    global child_pid
+    print "CHILD: ", child_pid
+    print "MY PID: ", os.getpid()
+    if child_pid is not None:
+ 	os.killpg(child_pid, SIGTERM)
+        time.sleep(1)
     sys.exit(0)
 
 def check_port(host, port):
@@ -273,7 +292,7 @@ def main(argv=sys.argv):
         signal.signal(signal.SIGINT, signal_handler)
         print "Installed signal handler for SIGINT (CTRL-C)"
     
-    status = start(options.binarypath)
+    status = start(options.binarypath, foreground=(cmd=='fg'))
 
     wait_for_startup('localhost', 2002)
     while True:

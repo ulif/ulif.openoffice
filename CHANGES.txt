@@ -1,6 +1,22 @@
 CHANGES
 *******
 
+0.2.1 (unreleased)
+==================
+
+Bug fixes
+---------
+
+* Fixed fix to cope with pyuno monkey-patching standard __import__
+  function. More recent pyuno versions do not do that kind of stuff
+  any more (which is an improvement).
+
+* Fixed foreground start of ```oooctl``` server. It didn't work
+  correctly with more recent OpenOffice.org/pyuno installs. You now
+  don't have to press CTRL-C two times anymore when trying to stop a
+  oooctl server running in foreground.
+
+
 0.2 (2010-05-20)
 ================
 
