@@ -23,7 +23,7 @@ Sources
 
 ``ulif.openoffice`` is hosted on:
 
-  http://pypi.python.org/ulif.openoffice
+  http://pypi.python.org/pypi/ulif.openoffice
 
 where you can get latest released versions.
 
