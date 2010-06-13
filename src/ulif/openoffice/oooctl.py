@@ -29,6 +29,7 @@ This script requires a locally installed OOo server. When running
 import os
 import signal
 import socket
+import subprocess
 import sys
 import time
 from optparse import OptionParser
@@ -164,19 +165,15 @@ def start(binarypath, foreground=False):
     if not foreground:
         result = os.system(cmd)
         return result
-        #return os.system(cmd)
-    #result = os.system(cmd)
-    import subprocess
+
     proc = subprocess.Popen(['sh %s' % cmd], 
                         shell=True, 
                         close_fds=True,
                         preexec_fn=os.setsid,
                         )
-    print "CHILD PID: ", proc.pid
-    print "MY PID: ", os.getpid()
     global child_pid
     child_pid = proc.pid
-    return proc.pid # result
+    return child_pid
 
 def getOptions():
     usage = "usage: %prog [options] start|fg|stop|restart|status"
@@ -296,7 +293,6 @@ def main(argv=sys.argv):
         print "Installed signal handler for SIGINT (CTRL-C)"
     
     status = start(options.binarypath, foreground=(cmd=='fg'))
-    print "STATUS: ", status
 
     wait_for_startup('localhost', 2002)
     while True:
