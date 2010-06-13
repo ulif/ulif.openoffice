@@ -37,6 +37,11 @@ from os.path import splitext
 #
 import __builtin__
 _orig__import = __builtin__.__dict__['__import__']
+def register_uno_import():
+    pass
+def unregister_uno_import():
+    pass
+
 try:
     # We make uno import optional to support using this package with
     # Plone and other frameworks, that blindly import everything.
@@ -44,14 +49,14 @@ try:
     # Note, that using the server components is only possible, if uno
     # is available.
     import uno
-    _uno__import = uno.__dict__['_uno_import']
+    if '_uno_import' in uno.__dict__.keys():
+        _uno__import = uno.__dict__['_uno_import']
 
+        def register_uno_import():
+            __builtin__.__dict__['__import__'] = _uno__import
 
-    def register_uno_import():
-        __builtin__.__dict__['__import__'] = _uno__import
-
-    def unregister_uno_import():
-        __builtin__.__dict__['__import__'] = _orig__import
+        def unregister_uno_import():
+            __builtin__.__dict__['__import__'] = _orig__import
 
     unregister_uno_import()
 except ImportError:
