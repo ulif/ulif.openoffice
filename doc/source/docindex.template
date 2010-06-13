@@ -72,7 +72,7 @@
 
     <p class="biglink">
       <a class="biglink" 
-	 href="{{ pathto("README") }}">About the documentation</a><br />
+	 href="{{ pathto("documentation") }}">About the documentation</a><br />
     </p>
 
     </td><td width="50%">
