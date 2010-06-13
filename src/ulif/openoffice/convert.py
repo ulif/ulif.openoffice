@@ -37,6 +37,9 @@ from os.path import splitext
 #
 import __builtin__
 _orig__import = __builtin__.__dict__['__import__']
+
+# The default functions we use in case pyuno is recent enough not to
+# fiddle around with standard import function.
 def register_uno_import():
     pass
 def unregister_uno_import():
@@ -50,6 +53,9 @@ try:
     # is available.
     import uno
     if '_uno_import' in uno.__dict__.keys():
+        # More recent pyuno versions stopped misuse of the standard
+        # __import__ function.
+        # We have to care for older ones, though.
         _uno__import = uno.__dict__['_uno_import']
 
         def register_uno_import():
