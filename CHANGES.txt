@@ -4,6 +4,9 @@ CHANGES
 0.2.1 (unreleased)
 ==================
 
+Bug fixes
+---------
+
 * Fixed fix to cope with pyuno monkey-patching standard __import__
   function. More recent pyuno versions do not do that kind of stuff
   any more (which is an improvement).
