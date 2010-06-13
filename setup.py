@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.2.1dev'
+version = '0.2.2dev'
 
 setup(name='ulif.openoffice',
       version=version,
