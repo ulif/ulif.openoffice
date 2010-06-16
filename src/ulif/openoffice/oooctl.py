@@ -236,8 +236,6 @@ def signal_handler(signal, frame):
     print "Received SIGINT."
     print "Stopping OpenOffice.org server."
     global child_pid
-    print "CHILD: ", child_pid
-    print "MY PID: ", os.getpid()
     if child_pid is not None:
  	os.killpg(child_pid, SIGTERM)
         time.sleep(1)
