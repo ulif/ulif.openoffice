@@ -4,6 +4,8 @@ CHANGES
 0.2.2 (unreleased)
 ==================
 
+* Removed unwanted output when running in foreground mode.
+
 0.2.1 (2010-06-13)
 ==================
 
