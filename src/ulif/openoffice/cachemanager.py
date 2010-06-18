@@ -29,9 +29,13 @@ except ImportError:
     import md5 # Deprecated since Python 2.5
     hashlib = None
 import os
+import re
 import shutil
 import sys
 import cPickle as pickle
+
+HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')
+LEVEL_FORM = re.compile('^[0-9a-z]{2}$')
 
 def internal_suffix(suffix=None):
     """The suffix used internally in buckets.
@@ -147,7 +151,23 @@ class Bucket(object):
         local_result = os.path.join(self.resultdir, result_filename)
         shutil.copy2(result_path, local_result)
         return
-        
+
+    def getAllSourcePaths(self):
+        """Get the paths of all source files stored in this bucket.
+
+        Returns a generator of paths.
+        """
+        for filename in os.listdir(self.srcdir):
+            src_path = os.path.join(self.srcdir, filename)
+            filename_parts = filename.split('_', 2)
+            if len(filename_parts) < 2:
+                continue
+            if not filename.startswith('source'):
+                continue
+            #marker = filename_parts[1]
+            yield src_path
+        #yield (None, None)
+
 class CacheManager(object):
     """A cache manager.
 
@@ -239,3 +259,25 @@ class CacheManager(object):
         """Check, whether the file in ``path`` is already cached.
         """
         return self.getCachedFile(path, suffix=suffix) is not None
+
+    def getAllSources(self, parent=None, level=0):
+        """Return all source documents.
+        """
+        if parent is None:
+            parent = self.cache_dir
+        names = os.listdir(parent)
+        for name in names:
+            full_path = os.path.join(parent, name)
+            if level < self.level:
+                if not os.path.isdir(full_path):
+                    continue
+                if LEVEL_FORM.match(name) is None:
+                    continue
+                for x in self.getAllSources(full_path, level + 1):
+                    yield x
+                continue
+            if HASH_DIGEST_FORM.match(name) is None:
+                continue
+            bucket = self.getBucketFromHash(name)
+            for path in bucket.getAllSourcePaths():
+                yield path

@@ -246,3 +246,13 @@ source:
 
     >>> cat(cm_dir, 'so', 'somefakedhash', 'results', 'result_2__pdf')
     Fake result 3
+
+
+Cache Maintenance
+=================
+
+A cache manager can list all source files stored.
+
+    >>> cm = CacheManager(cache_dir='home/mycachedir')
+    >>> [x for x in cm.getAllSources()]
+    ['/.../mycachedir/08/08867237840fabae77b838e9c9226eb2/sources/source_1']
