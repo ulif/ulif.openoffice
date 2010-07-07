@@ -3,3 +3,6 @@
 
 .. automodule:: ulif.openoffice.oooctl
    :members:
+   :exclude-members: main
+
+   .. autofunction:: main(argv=sys.argv)

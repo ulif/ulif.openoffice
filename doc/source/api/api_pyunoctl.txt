@@ -3,6 +3,10 @@
 
 .. automodule:: ulif.openoffice.pyunoctl
    :members:
+   :exclude-members: main
+
+   .. autofunction:: main(argv=sys.argv)
+
 
 Examples
 ========
