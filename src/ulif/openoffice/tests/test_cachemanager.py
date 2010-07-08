@@ -66,6 +66,13 @@ class TestCacheBucket(unittest.TestCase):
         self.assertEqual(data['current_num'], 1)
         return
 
+    def test_curr_num(self):
+        bucket = Bucket(self.workdir)
+        self.assertEqual(bucket.getCurrentNum(), 0)
+        bucket.setCurrentNum(12)
+        self.assertEqual(bucket.getCurrentNum(), 12)
+        return
+    
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
         'ulif.openoffice.tests.test_cachemanager'
