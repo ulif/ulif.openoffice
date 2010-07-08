@@ -552,7 +552,7 @@ document does not exist, we get a 404 error:
     >>> conn.request('GET', '/non-existing-url')
     >>> r1 = conn.getresponse()
     >>> r1.status, r1.reason
-    (404, 'File Not Found: /non-existing-url')
+    (404, 'Not Found')
 
     >>> conn.close()
 
