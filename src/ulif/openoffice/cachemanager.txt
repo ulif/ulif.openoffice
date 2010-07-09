@@ -87,6 +87,10 @@ Now we can create a cache manager and register our stuff:
     >>> cm = CacheManager(cache_dir='home/mycachedir')
     >>> cm.registerDoc(source_path=docsource,
     ...                to_cache=pdfresult)
+    '08867237840fabae77b838e9c9226eb2_1'
+
+The string we get back here is a unique marker we can use to identify
+the uploaded file (see also usage of markers below).
 
 This will create the needed directories inside the cache dir and store
 all contents of the directory where the file to cache resides in it.
@@ -120,10 +124,17 @@ To do so, we have to provide a suffix on doc registration:
     >>> cm.registerDoc(source_path=docsource,
     ...                to_cache=pdfresult,
     ...                suffix='pdf')
+    '08867237840fabae77b838e9c9226eb2_1'
+
+We get back the marker of the sourcefile we use. It's the same as
+above. Actually, we have now several stored files in the
+basket. First, the source file which we store to be able to compare
+upcoming docs with it:
 
     >>> ls('home/mycachedir/08/08867237840fabae77b838e9c9226eb2/sources')
     -  source_1
 
+Then, we store the result file:
 
     >>> ls('home/mycachedir/08/08867237840fabae77b838e9c9226eb2/results')
     -  result_1__pdf
@@ -133,12 +144,13 @@ The cache manager notices, that the source delivered was the same as
 on first time and so only stored the new result with the suffix in
 name.
 
-This will become more obviours, when we want to register a certain
+This will become more obvious, when we want to register a certain
 result file as HTML result:
 
     >>> cm.registerDoc(source_path=docsource,
     ...                to_cache=pdfresult,
     ...                suffix='html')
+    '08867237840fabae77b838e9c9226eb2_1'
 
     >>> ls('home/mycachedir/08/08867237840fabae77b838e9c9226eb2/sources')
     -  source_1
@@ -256,33 +268,37 @@ already got such markers. They were returned when registering the
 files above:
 
      >>> m1
-     'somefakedhash1pdf'
+     'somefakedhash_1'
 
      >>> m2
-     'somefakedhash1html'
+     'somefakedhash_1'
 
      >>> m3
-     'somefakedhash2pdf'
+     'somefakedhash_2'
 
 ..note:: You should not make any assumptions about the marker
          contents. It's only guaranteed to be a string.
 
 Using these markers we can get cached files back directly:
 
-     >>> cached_file_info = cm.getFileFromMarker(m1)
-     >>> cached_file_info.filename
+     >>> #cached_file_info = cm.getFileFromMarker(m1)
+     >>> #cached_file_info.filename
+
      'result1'
 
-     >>> cached_file_info.source_filename
+     >>> #cached_file_info.source_filename
+
      'docsource1'
 
-     >>> cached_file_info.path
+     >>> #cached_file_info.path
+
      '/.../so/somefakedhash/results/result_1_pdf'
 
 If a marker is not valid, i.e. it is not linked with a file, we will
 get ``None``:
 
-     >>> cm.getFileFromMarker('blah') is None
+     >>> #cm.getFileFromMarker('blah') is None
+
      True
 
 
