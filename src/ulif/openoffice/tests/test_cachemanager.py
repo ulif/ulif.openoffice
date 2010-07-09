@@ -23,6 +23,7 @@ import filecmp
 import os
 import shutil
 import tempfile
+import types
 import unittest
 
 from ulif.openoffice.cachemanager import CacheManager, Bucket
@@ -233,7 +234,23 @@ class TestCacheBucket(unittest.TestCase):
     #    return
 
     def test_get_all_source_paths(self):
-        pass
+        bucket = Bucket(self.workdir)
+        paths = bucket.getAllSourcePaths()
+        self.assertTrue(
+            isinstance(paths, types.GeneratorType))
+        paths = list(paths)
+        self.assertEqual(paths, [])
+        bucket.storeResult(
+            self.src_path1, self.result_path1, suffix='foo')
+        paths = list(bucket.getAllSourcePaths())
+        self.assertTrue(paths[0].endswith('source_1'))
+        self.assertEqual(len(paths), 1)
+        
+        bucket.storeResult(
+            self.src_path2, self.result_path2, suffix='bar')
+        paths = list(bucket.getAllSourcePaths())
+        self.assertEqual(len(paths), 2)
+        return
         
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
