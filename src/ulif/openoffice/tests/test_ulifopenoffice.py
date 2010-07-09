@@ -43,7 +43,11 @@ checker = renormalizing.RENormalizing([
     (re.compile('#![^\n]+\n'), ''),
     (re.compile('-\S+-py\d[.]\d(-\S+)?.egg'),
      '-pyN.N.egg',),
-    (re.compile(VERSION), '<VERSION>',),
+    (re.compile(VERSION), '<VERSION>',), # This way we can write <VERSION>
+                                         # in tests and it will match with
+                                         # the current version of
+                                         # ulif.openoffice, i.e. '0.2.2dev'
+                                         # or similar.
     ])
 
 
