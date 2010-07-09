@@ -23,10 +23,13 @@
 """
 import doctest
 import os
+import pkg_resources
 import re
 import unittest
 import zc.buildout.testing
 from zope.testing import renormalizing
+
+VERSION = pkg_resources.get_distribution('ulif.openoffice').version
 
 checker = renormalizing.RENormalizing([
     zc.buildout.testing.normalize_path,
@@ -39,8 +42,8 @@ checker = renormalizing.RENormalizing([
      "'/z3c.recipe.i18n',"),
     (re.compile('#![^\n]+\n'), ''),
     (re.compile('-\S+-py\d[.]\d(-\S+)?.egg'),
-     '-pyN.N.egg',
-    ),
+     '-pyN.N.egg',),
+    (re.compile(VERSION), '<VERSION>',),
     ])
 
 
