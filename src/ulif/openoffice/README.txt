@@ -251,7 +251,7 @@ Commands sent always have to be closed by newlines:
 As the default port is 2009, we can call the client like this:
 
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 0 0.2.1dev
+    OK 0 <VERSION>
 
 The response tells us that
 
@@ -259,7 +259,7 @@ The response tells us that
 
 * the status is zero (=no problems),
 
-* the version number of the server ('0.2.1dev').
+* the version number of the server ('0.2.1dev' or similar).
 
 If we send garbage, we get an error:
 
@@ -542,8 +542,12 @@ We send a simple test request, that should give us a status:
     (200, 'OK')
 
     >>> print r1.read()
-    ulif.openoffice.RESTful.HTTPServer 0.2.1dev
+    Server: ulif.openoffice.RESTfulHTTPServer/<VERSION> Python/2.5.2
+    Date: ...
+    Content-Length:: 44
     <BLANKLINE>
+    ulif.openoffice.RESTful.HTTPServer <VERSION>
+
 
 We GET documents from the server by asking for an existing MD5sum. The
 MD5 sum of a document is also its resource name on the server. If a
