@@ -28,13 +28,22 @@ import unittest
 
 from ulif.openoffice.cachemanager import CacheManager, Bucket
 
-class TestCacheManager(unittest.TestCase):
+class CachingComponentsTestCase(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
+        self.inputdir = tempfile.mkdtemp()
+        self.src_path1 = os.path.join(self.inputdir, 'srcfile1')
+        self.src_path2 = os.path.join(self.inputdir, 'srcfile2')
+        self.result_path1 = os.path.join(self.inputdir, 'resultfile1')
+        self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
+        open(self.src_path1, 'wb').write('source1\n')
+        open(self.src_path2, 'wb').write('source2\n')
+        open(self.result_path1, 'wb').write('result1\n')
+        open(self.result_path2, 'wb').write('result2\n')
 
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        
+
+class TestCacheManager(CachingComponentsTestCase):
+
     def test_markerhandling(self):
         cm = CacheManager(self.workdir)
         marker_string = cm._getMarker(
@@ -49,22 +58,7 @@ class TestCacheManager(unittest.TestCase):
         self.assertEqual(cm._getHashFromMarker(object()), None)
         return
 
-class TestCacheBucket(unittest.TestCase):
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.inputdir = tempfile.mkdtemp()
-        self.src_path1 = os.path.join(self.inputdir, 'srcfile1')
-        self.src_path2 = os.path.join(self.inputdir, 'srcfile2')
-        self.result_path1 = os.path.join(self.inputdir, 'resultfile1')
-        self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
-        open(self.src_path1, 'wb').write('source1\n')
-        open(self.src_path2, 'wb').write('source2\n')
-        open(self.result_path1, 'wb').write('result1\n')
-        open(self.result_path2, 'wb').write('result2\n')
-
-    def tearDown(self):
-        shutil.rmtree(self.inputdir)
-        shutil.rmtree(self.workdir)
+class TestCacheBucket(CachingComponentsTestCase):
         
     def test_init(self):
         # Make sure, the dir is empty before we mess around...
