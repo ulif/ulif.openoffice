@@ -46,6 +46,37 @@ def internal_suffix(suffix=None):
 
 class Bucket(object):
     """A bucket where we store files with same hash sums.
+
+    .. warning:: :class:`Bucket` is not thread-safe!
+
+    Buckets store 'source' files and their representations. A
+    representation is simply another file, optionally marked with a
+    'suffix'. This is meant to be used like a certain office document
+    (the 'source' file) for which different converted representations
+    (for instance an HTML, or PDF version) might be stored.
+
+    For each source file there can be an arbitrary number of
+    representations, as long as each representation provides a
+    different 'suffix'. The :class:`Bucket` does not introspect the
+    files and makes no assumptions about the file-type or format. So,
+    you could store a PDF representation with an 'xhtml' suffix if you
+    like.
+
+    The 'suffix' for a representation is a simple string and can be
+    chosen by the user. Normally, you would choose something like
+    'pdf' for a PDF version of a certain source file.
+
+    Each bucket can hold several source files and knows which
+    representations belong to which source file.
+
+    To make a distinction between different sources inside the same
+    bucket, the bucket manages 'markers' which normally are simple
+    stringified numbers, one for each source and the representations
+    connected to it. You should, however, make no assumptions about
+    the marker, except that it is a string.
+
+    Currently, you can store as much source files in a bucket, as the
+    the maximum integer number can address.
     """
     
     def __init__(self, path):
@@ -87,6 +118,11 @@ class Bucket(object):
 
     def create(self):
         """Create the default dirs for this bucket.
+
+        This method is called when instantiating a bucket.
+
+        You should therefore be aware that constructing a bucket will
+        try to modify the file system.
         """
         for path in (self.path, self.srcdir, self.resultdir):
             if os.path.exists(path):
@@ -100,14 +136,15 @@ class Bucket(object):
         Returns a tuple (path, marker) or (None, None) if the source
         cannot be found.
         """
-        for filename in os.listdir(self.srcdir):
+        names = os.listdir(self.srcdir)
+        for filename in names:
             src_path = os.path.join(self.srcdir, filename)
             filename_parts = filename.split('_', 2)
             if len(filename_parts) < 2:
                 continue
             if not filename.startswith('source'):
                 continue
-            if not filecmp.cmp(path, src_path):
+            if not filecmp.cmp(path, src_path, shallow=False):
                 continue
             marker = filename_parts[1]
             return src_path, marker
@@ -129,11 +166,25 @@ class Bucket(object):
         return None
 
     def storeResult(self, src_path, result_path, suffix=None):
-        """Store file in result_path as result for source in src_path.
+        """Store file in ``result_path`` as representation of source in
+        ``src_path``.
 
-        Optionally store this result marked with a certain suffix.
+        Optionally store this result marked with a certain ``suffix``
+        string.
 
         The result has to be a path to a single file.
+
+        If `suffix` is given, the representation will be stored marked
+        with the suffix in order to be able to distinguish this
+        representation from possible others.
+
+        If the source file given by `src_path` already exist in the
+        bucket, the file in `result_path` will be stored as a
+        representation of the already existing source file.
+
+        We determine wether an identical source file already exists in
+        the bucket by comparing the given file in `src_path` with the
+        source files already stored in the bucket byte-wise.
         """
         suffix = internal_suffix(suffix)
         local_source, marker = self.getSourcePath(src_path)
@@ -145,12 +196,13 @@ class Bucket(object):
             marker = str(num)
             local_source = os.path.join(
                 self.srcdir, 'source_%s' % marker)
-            shutil.copy2(src_path, local_source)
+            shutil.copyfile(src_path, local_source)
+                
         # Store result file
         result_filename = 'result_%s_%s' % (marker, suffix)
         local_result = os.path.join(self.resultdir, result_filename)
-        shutil.copy2(result_path, local_result)
-        return
+        shutil.copyfile(result_path, local_result)
+        return marker
 
     def getAllSourcePaths(self):
         """Get the paths of all source files stored in this bucket.
@@ -168,6 +220,9 @@ class Bucket(object):
             yield src_path
         #yield (None, None)
 
+    def getPathFromMarker(self):
+        raise NotImplementedError()
+            
 class CacheManager(object):
     """A cache manager.
 
@@ -190,6 +245,49 @@ class CacheManager(object):
         self.cache_dir = cache_dir
         self.prepareCacheDir()
         self.level = level # How many dir levels will we create?
+
+    def _getMarker(self, hash_digest, bucket_marker, suffix=None):
+        """Get an official marker.
+
+        The cache manager's 'official' maker consists of a
+        hash_digest, a bucket marker (which is maintained by the
+        bucket alone) and a suffix.
+
+        You should not make any assumptions about how the marker is
+        constructed from these strings.
+
+        Currently, ``suffix`` is not part of marker. It's unlikely,
+        that it will ever be, but it might be convenient to have it in
+        derived instances.
+        """
+        if bucket_marker is not None:
+            bucket_marker = '_%s' % bucket_marker
+        else:
+            bucket_marker = ''
+        return "%s%s" % (hash_digest, bucket_marker)
+
+    def _getHashFromMarker(self, marker):
+        """Extract a hashdigest from marker.
+        """
+        if not isinstance(marker, basestring):
+            return None
+        if not '_' in marker:
+            return None
+        return marker.split('_')[0]
+    
+    def _getBucketPathFromHash(self, hash_digest):
+        """Get a bucket path from hash.
+
+        If a path cannot be computed (due to faulty hash or similar),
+        ``None`` is returned.
+        """
+        if len(hash_digest) % 2 == 1:
+            return None
+        dirs = [hash_digest[x*2:x*2+2]
+                for x in range((self.level+1))][:-1]
+        dirs.append(hash_digest)
+        bucket_path = os.path.join(self.cache_dir, *dirs)
+        return bucket_path
 
     def prepareCacheDir(self):
         """Prepare the cache dir, create dirs, etc.
@@ -219,7 +317,7 @@ class CacheManager(object):
         """
         md5_digest = self.getHash(path)
         return self.getBucketFromHash(md5_digest)
-
+    
     def getBucketFromHash(self, hash_digest):
         """Get a bucket in which a source with 'hash_digest' would be stored.
         """
@@ -237,12 +335,28 @@ class CacheManager(object):
         bucket = self.getBucketFromPath(path)
         return bucket.getResultPath(path, suffix=suffix)
 
+    def getCachedFileFromMarker(self, marker, suffix=None):
+        """Check whether a basket exists for marker and suffix.
+
+        A basket exists, if there was already registered a doc, which
+        returned that marker on registration.
+
+        The basket might contain a representation of type ``suffix``.
+        If this is true, the path to the file is returned, ``None``
+        else.
+        """
+        hash = self._getHashFromMarker(marker)
+        if hash is None:
+            return None
+        #if not os.path.exists(
+    
     def registerDoc(self, source_path, to_cache, suffix=None):
         """Store to_cache in bucket.
         """
-        bucket = self.getBucketFromPath(source_path)
-        bucket.storeResult(source_path, to_cache, suffix)
-        return
+        md5_digest = self.getHash(source_path)
+        bucket = self.getBucketFromHash(md5_digest)
+        bucket_marker = bucket.storeResult(source_path, to_cache, suffix)
+        return self._getMarker(md5_digest, bucket_marker, suffix)
 
     def getHash(self, path=None):
         """Get the hash of a file.
