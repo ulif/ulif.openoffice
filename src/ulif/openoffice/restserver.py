@@ -31,22 +31,44 @@ from urlparse import urlsplit
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.convert import convert_to_pdf, convert
 
+
 class PyUNORestHandler(BaseHTTPRequestHandler):
+
+    server_version = '%s/%s' % (
+        'ulif.openoffice.RESTfulHTTPServer',
+        pkg_resources.get_distribution('ulif.openoffice').version
+        )
+    
     def do_GET(self, *args, **kw):
         """Handle requests to existing documents.
         """
+        #self.send_error(404, 'Not Found')
+        #return
+        #self.sendTestReply()
+        #return
         path = self.path.split('/')[1:]
         if len(path) == 1 and path[0] == 'TEST':
             self.sendTestReply()
             return
+        
         if len(path) > 1:
             md5digest = path[0]
             ext = path[1].lower()
             cm = self.server.cache_manager
+            self.sendTestReply()
+            return
+
             dir = cm.getCacheDir(ext, md5digest)
             if os.path.exists(dir):
+                self.sendResponse(200)
+                self.send_header('Content-Length:', '3')
                 self.sendMessage('OK\n')
                 return
+
+        self.send_error(404, 'Not Found')
+        #self.sendTestReply()
+        return
+
         self.send_error(404, 'File Not Found: %s' % self.path)
 
     def do_POST(self):
@@ -89,8 +111,10 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         return
         
     def sendTestReply(self):
+        self.send_response(200)
         version = pkg_resources.get_distribution('ulif.openoffice').version
         response = "ulif.openoffice.RESTful.HTTPServer %s\n" % version
+        self.send_header('Content-Length:', str(len(response)))
         self.sendMessage(response)
         return
 
