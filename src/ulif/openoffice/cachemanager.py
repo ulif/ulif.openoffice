@@ -245,7 +245,7 @@ class CacheManager(object):
         self.prepareCacheDir()
         self.level = level # How many dir levels will we create?
 
-    def _getMarker(self, hash_digest, bucket_marker, suffix=None):
+    def _getMarker(self, hash_digest, bucket_marker):
         """Get an official marker.
 
         The cache manager's 'official' maker consists of a
@@ -254,10 +254,6 @@ class CacheManager(object):
 
         You should not make any assumptions about how the marker is
         constructed from these strings.
-
-        Currently, ``suffix`` is not part of marker. It's unlikely,
-        that it will ever be, but it might be convenient to have it in
-        derived instances.
         """
         if bucket_marker is not None:
             bucket_marker = '_%s' % bucket_marker
@@ -349,13 +345,13 @@ class CacheManager(object):
             return None
         #if not os.path.exists(
     
-    def registerDoc(self, source_path, to_cache, suffix=None):
+    def registerDoc(self, source_path, to_cache):
         """Store to_cache in bucket.
         """
         md5_digest = self.getHash(source_path)
         bucket = self.getBucketFromHash(md5_digest)
-        bucket_marker = bucket.storeResult(source_path, to_cache, suffix)
-        return self._getMarker(md5_digest, bucket_marker, suffix)
+        bucket_marker = bucket.storeResult(source_path, to_cache)
+        return self._getMarker(md5_digest, bucket_marker)
 
     def getHash(self, path=None):
         """Get the hash of a file.
