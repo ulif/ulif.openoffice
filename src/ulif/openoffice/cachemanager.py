@@ -23,11 +23,9 @@
 """
 import filecmp
 try:
-    import hashlib
-    md5 = None
+    from hashlib import md5
 except ImportError:
-    import md5 # Deprecated since Python 2.5
-    hashlib = None
+    from md5 import new as md5 # Deprecated since Python 2.5
 import os
 import re
 import shutil
@@ -330,7 +328,7 @@ class CacheManager(object):
         bucket = self.getBucketFromPath(path)
         return bucket.getResultPath(path, suffix=suffix)
 
-    def getCachedFileFromMarker(self, marker, suffix=None):
+    def getCachedFileFromMarker(self, marker):
         """Check whether a basket exists for marker and suffix.
 
         A basket exists, if there was already registered a doc, which
@@ -340,8 +338,8 @@ class CacheManager(object):
         If this is true, the path to the file is returned, ``None``
         else.
         """
-        hash = self._getHashFromMarker(marker)
-        if hash is None:
+        hash_digest = self._getHashFromMarker(marker)
+        if hash_digest is None:
             return None
         #if not os.path.exists(
     
@@ -358,11 +356,9 @@ class CacheManager(object):
 
         Currently we compute the MD5 digest.
         """
-        if md5 is not None:
-            return md5.new(open(path, 'r').read()).hexdigest()
-        hash = hashlib.new('md5')
-        hash.update(open(path, 'r').read())
-        return hash.hexdigest()
+        hash_value = md5()
+        hash_value.update(open(path, 'r').read())
+        return hash_value.hexdigest()
 
     def contains(self, path, suffix=None):
         """Check, whether the file in ``path`` is already cached.
