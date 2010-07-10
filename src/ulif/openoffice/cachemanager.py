@@ -158,7 +158,6 @@ class Bucket(object):
         src_path, marker = self.getSourcePath(path)
         if src_path is None:
             return None
-        filename = os.path.basename(src_path)
         result_filename = 'result_%s_%s' % (marker, suffix)
         result_path = os.path.join(self.resultdir, result_filename)
         if os.path.exists(result_path) and os.path.isfile(result_path):
