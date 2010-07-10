@@ -49,9 +49,6 @@ class TestCacheManager(CachingComponentsTestCase):
         marker_string = cm._getMarker(
             'somefakedhash', 3)
         self.assertEqual(marker_string, 'somefakedhash_3')
-        marker_string = cm._getMarker(
-            'somefakedhash', 3, suffix='foo')
-        self.assertEqual(marker_string, 'somefakedhash_3')
         hash = cm._getHashFromMarker('somefakedhash_3')
         self.assertEqual(hash, 'somefakedhash')
         self.assertEqual(cm._getHashFromMarker('asd'), None)
