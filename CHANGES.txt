@@ -9,6 +9,12 @@ CHANGES
 * Cachemanager now supports listing all sources contained in cache
   dir.
 
+* Fixed bug in cachemanager: under rare circumstances (two different
+  input files with same MD5 hash digest *and* identical file stats
+  were considered to be identical by the cachemanager and thus led to
+  inconsistencies in cache). We now check thoroughly whether two such
+  files differ.
+
 0.2.1 (2010-06-13)
 ==================
 
