@@ -103,7 +103,7 @@ class TestCacheBucket(CachingComponentsTestCase):
         self.assertNotEqual(os.listdir(self.workdir), [])
         return
 
-    def test_get_store_path(self):
+    def test_get_source_path(self):
         bucket = Bucket(self.workdir)
         path, marker = bucket.getSourcePath(self.src_path1)
         self.assertEqual((path, marker), (None, None))
@@ -121,6 +121,20 @@ class TestCacheBucket(CachingComponentsTestCase):
             )
         return
 
+    def test_get_source_path_ignore_nonsense(self):
+        # Nonsense files in sourcedir are ignored.
+        bucket = Bucket(self.workdir)
+        open(os.path.join(self.workdir, 'sources', 'source3'),
+             'wb').write('Hi')
+        open(os.path.join(self.workdir, 'sources', 'foo_3'),
+             'wb').write('Hi')
+        path, marker = bucket.getSourcePath(self.src_path1)
+        self.assertEqual((path, marker), (None, None))
+        bucket.storeResult(self.src_path1, self.result_path1)
+        path, marker = bucket.getSourcePath(self.src_path1)
+        self.assertEqual(marker, '1')
+        return
+
     def test_get_result_path(self):
         bucket = Bucket(self.workdir)
         path = bucket.getResultPath(self.src_path1)
@@ -131,6 +145,8 @@ class TestCacheBucket(CachingComponentsTestCase):
         bucket.storeResult(self.src_path1, self.result_path1, suffix='foo')
         path = bucket.getResultPath(self.src_path1, suffix='foo')
         self.assertTrue(path.endswith('result_1__foo'))
+        path = bucket.getResultPath(self.src_path1, suffix='bar')
+        self.assertEqual(path, None)
         return
 
     def test_store_result(self):
@@ -214,7 +230,7 @@ class TestCacheBucket(CachingComponentsTestCase):
     # We want a special layer for that kind of tests.
     #def test_curr_num_stress(self):
     #    bucket = Bucket(self.workdir)
-    #    stressnum = 50
+    #    stressnum = 250
     #    for x in xrange(stressnum):
     #        open(os.path.join(
     #                self.inputdir, 'stressource%s' % x), 'wb').write(
@@ -245,7 +261,20 @@ class TestCacheBucket(CachingComponentsTestCase):
         paths = list(bucket.getAllSourcePaths())
         self.assertEqual(len(paths), 2)
         return
-        
+
+    def test_get_all_source_paths_ignore_nonsense(self):
+        bucket = Bucket(self.workdir)
+        open(os.path.join(self.workdir, 'sources', 'source3'),
+             'wb').write('Hi')
+        open(os.path.join(self.workdir, 'sources', 'foo_3'),
+             'wb').write('Hi')
+        paths1 = list(bucket.getAllSourcePaths())
+        bucket.storeResult(
+            self.src_path1, self.result_path1, suffix='foo')
+        paths2 = list(bucket.getAllSourcePaths())
+        self.assertEqual(paths1, [])
+        self.assertEqual(len(paths2), 1)
+
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
         'ulif.openoffice.tests.test_cachemanager'
