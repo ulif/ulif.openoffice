@@ -343,12 +343,13 @@ class CacheManager(object):
             return None
         #if not os.path.exists(
     
-    def registerDoc(self, source_path, to_cache):
+    def registerDoc(self, source_path, to_cache, suffix=None):
         """Store to_cache in bucket.
         """
         md5_digest = self.getHash(source_path)
         bucket = self.getBucketFromHash(md5_digest)
-        bucket_marker = bucket.storeResult(source_path, to_cache)
+        bucket_marker = bucket.storeResult(source_path, to_cache,
+                                           suffix=suffix)
         return self._getMarker(md5_digest, bucket_marker)
 
     def getHash(self, path=None):
