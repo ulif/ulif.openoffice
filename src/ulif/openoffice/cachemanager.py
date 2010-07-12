@@ -293,11 +293,7 @@ class CacheManager(object):
         cache_dir = os.path.abspath(cache_dir)
     
         if os.path.exists(cache_dir) and not os.path.isdir(cache_dir):
-            sys.stderr.write('Cannot use cache dir. Not a directory: %s\n' % (
-                    cache_dir,))
-            sys.stderr.write('Caching disabled.\n')
-            self.cache_dir = None
-            return None
+            raise IOError('not a dir but a file: %s' % cache_dir)
 
         if not os.path.exists(cache_dir):
             os.mkdir(cache_dir)
