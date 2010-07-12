@@ -55,6 +55,16 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertEqual(cm._getHashFromMarker(object()), None)
         return
 
+    def test_init(self):
+        cm = CacheManager(self.workdir)
+        self.assertEqual(cm.level, 1)
+        self.assertEqual(cm.cache_dir, self.workdir)
+
+        # Create cache dir if it does not exist...
+        shutil.rmtree(self.workdir)
+        cm = CacheManager(self.workdir)
+        self.assertTrue(os.path.isdir(self.workdir))
+        
 class TestCacheBucket(CachingComponentsTestCase):
         
     def test_init(self):
