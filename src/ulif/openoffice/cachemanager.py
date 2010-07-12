@@ -303,6 +303,10 @@ class CacheManager(object):
 
     def getBucketFromPath(self, path):
         """Get a bucket in which the source given by path would be stored.
+
+        .. note:: This call creates the appropriate bucket in
+                  filesystem if it does not exist already!
+        
         """
         md5_digest = self.getHash(path)
         return self.getBucketFromHash(md5_digest)
