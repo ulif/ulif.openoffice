@@ -64,7 +64,14 @@ class TestCacheManager(CachingComponentsTestCase):
         shutil.rmtree(self.workdir)
         cm = CacheManager(self.workdir)
         self.assertTrue(os.path.isdir(self.workdir))
-        
+
+    def test_init_broken_cache_dir(self):
+        # If we get a file as cache dir (instead of a directory), we
+        # fail loudly...
+        broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
+        open(broken_cache_dir, 'wb').write('i am a file')
+        self.assertRaises(IOError, CacheManager, broken_cache_dir)
+
 class TestCacheBucket(CachingComponentsTestCase):
         
     def test_init(self):
