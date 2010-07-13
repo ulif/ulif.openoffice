@@ -432,7 +432,13 @@ class TestCacheManager(CachingComponentsTestCase):
         return
 
     def test_get_hash(self):
-        pass
+        cm = CacheManager(self.workdir)
+        hash1 = cm.getHash(self.src_path1)
+        hash2 = cm.getHash(self.src_path2)
+        self.assertEqual(hash1, '737b337e605199de28b3b64c674f9422')
+        self.assertEqual(hash2, 'd5aa51d7fb180729089d2de904f7dffe')
+        self.assertRaises(TypeError, cm.getHash)
+        return
 
     def test_contains(self):
         pass
