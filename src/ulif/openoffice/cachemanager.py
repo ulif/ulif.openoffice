@@ -217,9 +217,19 @@ class Bucket(object):
             yield src_path
         #yield (None, None)
 
-    def getPathFromMarker(self):
-        raise NotImplementedError()
-            
+    def getResultPathFromMarker(self, marker, suffix=None):
+        """Get path of a result file stored with marker ``marker`` and suffix
+        ``suffix``
+
+        If the path does not exist ``None`` is returned.
+        """
+        suffix = internal_suffix(suffix)
+        result_filename = 'result_%s_%s' % (marker, suffix)
+        local_result = os.path.join(self.resultdir, result_filename)
+        if os.path.isfile(local_result):
+            return local_result
+        return None
+
 class CacheManager(object):
     """A cache manager.
 
@@ -355,9 +365,12 @@ class CacheManager(object):
         bucket = Bucket(bucket_path)
         return bucket.getResultPath(path, suffix=suffix)
 
-    def getCachedFileFromMarker(self, marker):
+    def getCachedFileFromMarker(self, marker, suffix=None):
         """Check whether a basket exists for marker and suffix.
 
+        Returns the path to a file represented by that marker or
+        ``None``.
+        
         A basket exists, if there was already registered a doc, which
         returned that marker on registration.
 
@@ -368,8 +381,15 @@ class CacheManager(object):
         hash_digest, bucket_marker = self._dissolveMarker(marker)
         if hash_digest is None:
             return None
-        #if not os.path.exists(
-    
+        bucket_path = self._getBucketPathFromHash(hash_digest)
+        if bucket_path is None:
+            return None
+        if not os.path.exists(bucket_path):
+            return None
+        bucket = Bucket(bucket_path)
+        return bucket.getResultPathFromMarker(
+            bucket_marker, suffix=suffix)
+
     def registerDoc(self, source_path, to_cache, suffix=None):
         """Store to_cache in bucket.
         """
