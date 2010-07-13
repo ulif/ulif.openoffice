@@ -42,36 +42,6 @@ class CachingComponentsTestCase(unittest.TestCase):
         open(self.result_path2, 'wb').write('result2\n')
 
 
-class TestCacheManager(CachingComponentsTestCase):
-
-    def test_markerhandling(self):
-        cm = CacheManager(self.workdir)
-        marker_string = cm._getMarker(
-            'somefakedhash', 3)
-        self.assertEqual(marker_string, 'somefakedhash_3')
-        hash = cm._getHashFromMarker('somefakedhash_3')
-        self.assertEqual(hash, 'somefakedhash')
-        self.assertEqual(cm._getHashFromMarker('asd'), None)
-        self.assertEqual(cm._getHashFromMarker(object()), None)
-        return
-
-    def test_init(self):
-        cm = CacheManager(self.workdir)
-        self.assertEqual(cm.level, 1)
-        self.assertEqual(cm.cache_dir, self.workdir)
-
-        # Create cache dir if it does not exist...
-        shutil.rmtree(self.workdir)
-        cm = CacheManager(self.workdir)
-        self.assertTrue(os.path.isdir(self.workdir))
-
-    def test_init_broken_cache_dir(self):
-        # If we get a file as cache dir (instead of a directory), we
-        # fail loudly...
-        broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
-        open(broken_cache_dir, 'wb').write('i am a file')
-        self.assertRaises(IOError, CacheManager, broken_cache_dir)
-
 class TestCacheBucket(CachingComponentsTestCase):
         
     def test_init(self):
@@ -289,6 +259,102 @@ class TestCacheBucket(CachingComponentsTestCase):
         self.assertEqual(paths1, [])
         self.assertEqual(len(paths2), 1)
 
+
+class TestCacheManager(CachingComponentsTestCase):
+
+    def test_markerhandling(self):
+        cm = CacheManager(self.workdir)
+        marker_string = cm._getMarker(
+            'somefakedhash', 3)
+        self.assertEqual(marker_string, 'somefakedhash_3')
+        hash = cm._getHashFromMarker('somefakedhash_3')
+        self.assertEqual(hash, 'somefakedhash')
+        self.assertEqual(cm._getHashFromMarker('asd'), None)
+        self.assertEqual(cm._getHashFromMarker(object()), None)
+        return
+
+    def test_init(self):
+        cm = CacheManager(self.workdir)
+        self.assertEqual(cm.level, 1)
+        self.assertEqual(cm.cache_dir, self.workdir)
+
+        cm = CacheManager(self.workdir, level=3)
+        self.assertEqual(cm.level, 3)
+        
+        # Create cache dir if it does not exist...
+        shutil.rmtree(self.workdir)
+        cm = CacheManager(self.workdir)
+        self.assertTrue(os.path.isdir(self.workdir))
+
+        # If we get a file as cache dir (instead of a directory), we
+        # fail loudly...
+        broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
+        open(broken_cache_dir, 'wb').write('i am a file')
+        self.assertRaises(IOError, CacheManager, broken_cache_dir)
+
+    def test_get_bucket_path_from_path(self):
+        cm = CacheManager(self.workdir)
+        path = cm._getBucketPathFromPath(self.src_path1)
+        expected_path_end = os.path.join(
+            '73', '737b337e605199de28b3b64c674f9422')
+        self.assertEqual(os.listdir(self.workdir), [])
+        self.assertTrue(path.endswith(expected_path_end))
+
+    def test_get_bucket_path_from_hash(self):
+        cm = CacheManager(self.workdir)
+        hash_val = cm.getHash(self.src_path1)
+        path = cm._getBucketPathFromHash(hash_val)
+        expected_path_end = os.path.join(
+            '73', '737b337e605199de28b3b64c674f9422')
+        self.assertEqual(os.listdir(self.workdir), [])
+        self.assertTrue(path.endswith(expected_path_end))
+
+        path = cm._getBucketPathFromHash('nonsense')
+        self.assertEqual(path, None)
+        
+    def test_prepare_cache_dir(self):
+        new_cache_dir = os.path.join(self.workdir, 'newcache')
+        broken_cache_dir = os.path.join(self.workdir, 'broken')
+        open(broken_cache_dir, 'wb').write('broken')
+        cm = CacheManager(self.workdir)
+
+        cm.cache_dir = None
+        self.assertEqual(cm.prepareCacheDir(), None)
+        
+        cm.cache_dir = new_cache_dir
+        cm.prepareCacheDir()
+        self.assertTrue(os.path.isdir(new_cache_dir))
+        
+        cm.cache_dir = broken_cache_dir
+        self.assertRaises(IOError, cm.prepareCacheDir)        
+
+    def test_get_bucket_from_path(self):
+        cache_dir_len1 = len(os.listdir(self.workdir))
+        cm = CacheManager(self.workdir)
+        bucket1 = cm.getBucketFromPath(self.src_path1)
+        cache_dir_len2 = len(os.listdir(self.workdir))
+        self.assertTrue(isinstance(bucket1, Bucket))
+        self.assertTrue(cache_dir_len2 == cache_dir_len1+1)
+
+    def test_get_cached_file(self):
+        cm = CacheManager(self.workdir)
+        path = cm.getCachedFile(self.src_path1)
+        self.assertTrue(path is None)
+        self.assertEqual(os.listdir(self.workdir), [])
+
+
+    def test_register_doc(self):
+        pass
+
+    def test_get_hash(self):
+        pass
+
+    def test_contains(self):
+        pass
+
+    def test_get_all_sources(self):
+        pass
+        
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
         'ulif.openoffice.tests.test_cachemanager'
