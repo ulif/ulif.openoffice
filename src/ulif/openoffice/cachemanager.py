@@ -259,14 +259,22 @@ class CacheManager(object):
             bucket_marker = ''
         return "%s%s" % (hash_digest, bucket_marker)
 
-    def _getHashFromMarker(self, marker):
-        """Extract a hashdigest from marker.
+    def _dissolveMarker(self, marker):
+        """Extract a hashdigest and a bucket marker from marker.
+
+        A marker consists of a hash digest and a bucket marker. Both
+        parts here are extracted from a marker string if possible and
+        returned as a tuple ``(<hash_digest>, <bucket-marker>)``.
+
+        Both items of the tuple can be ``None`` if they could not be
+        extracted.
+        
         """
         if not isinstance(marker, basestring):
-            return None
+            return (None, None)
         if not '_' in marker:
-            return None
-        return marker.split('_')[0]
+            return (None, None)
+        return marker.split('_', 1)
     
     def _getBucketPathFromPath(self, path):
         """Get a bucket path from a path to a sourcefile.
@@ -357,7 +365,7 @@ class CacheManager(object):
         If this is true, the path to the file is returned, ``None``
         else.
         """
-        hash_digest = self._getHashFromMarker(marker)
+        hash_digest, bucket_marker = self._dissolveMarker(marker)
         if hash_digest is None:
             return None
         #if not os.path.exists(
