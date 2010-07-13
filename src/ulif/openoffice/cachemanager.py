@@ -424,10 +424,33 @@ class CacheManager(object):
         hash_value.update(open(path, 'r').read())
         return hash_value.hexdigest()
 
-    def contains(self, path, suffix=None):
-        """Check, whether the file in ``path`` is already cached.
+    def contains(self, path=None, marker=None, suffix=None):
+        """Check, whether the file in ``path`` or marked by ``marker`` and
+        with suffix ``suffix`` is already cached.
+
+        This is a convenience method for easy checking of caching
+        state for certain files. You can also get the information by
+        using other API methods of :class:`CacheManager`.
+
+        You must at least give one of ``path`` or ``marker``, not
+        both.
+
+        The ``suffix`` parameter is optional.
+
+        Returns ``True`` or ``False``.
         """
-        return self.getCachedFile(path, suffix=suffix) is not None
+        if path is None and marker is None:
+            raise TypeError(
+                "contains() takes at least one of `path' or `marker'")
+        if path is not None and marker is not None:
+            raise TypeError(
+                "contains() takes only one of `path' or `marker', not both")
+        result_path = None
+        if marker is not None:
+            result_path = self.getCachedFileFromMarker(marker, suffix=suffix)
+        else:
+            result_path = self.getCachedFile(path, suffix=suffix)
+        return result_path is not None
 
     def getAllSources(self, parent=None, level=0):
         """Return all source documents.
