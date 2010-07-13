@@ -335,9 +335,16 @@ class CacheManager(object):
     def getCachedFile(self, path, suffix=None):
         """Check, whether the file in ``path`` is already cached.
 
-        Returns the path of cached file or None.
+        Returns the path of cached file or ``None``. Only 'result'
+        files are looked up and returned, not sources.
+
+        This method does not modify the filesystem if an appropriate
+        bucket does not yet exist.
         """
-        bucket = self.getBucketFromPath(path)
+        bucket_path = self._getBucketPathFromPath(path)
+        if not os.path.exists(bucket_path):
+            return None
+        bucket = Bucket(bucket_path)
         return bucket.getResultPath(path, suffix=suffix)
 
     def getCachedFileFromMarker(self, marker):
