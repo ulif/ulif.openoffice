@@ -243,7 +243,7 @@ class CacheManager(object):
         self.prepareCacheDir()
         self.level = level # How many dir levels will we create?
 
-    def _getMarker(self, hash_digest, bucket_marker):
+    def _composeMarker(self, hash_digest, bucket_marker):
         """Get an official marker.
 
         The cache manager's 'official' maker consists of a
@@ -369,7 +369,7 @@ class CacheManager(object):
         bucket = self.getBucketFromHash(md5_digest)
         bucket_marker = bucket.storeResult(source_path, to_cache,
                                            suffix=suffix)
-        return self._getMarker(md5_digest, bucket_marker)
+        return self._composeMarker(md5_digest, bucket_marker)
 
     def getHash(self, path=None):
         """Get the hash of a file.
