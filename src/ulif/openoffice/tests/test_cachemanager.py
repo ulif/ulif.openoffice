@@ -398,17 +398,21 @@ class TestCacheManager(CachingComponentsTestCase):
     def test_get_cached_file_from_marker(self):
         cm = CacheManager(self.workdir)
         path1 = cm.getCachedFileFromMarker('not-a-marker')
+        path2 = cm.getCachedFileFromMarker('737b337e605199de28b3b64c674f9422_1')
+        path3 = cm.getCachedFileFromMarker('not-a-marker-with_underscore')
         marker1 = cm.registerDoc(
             self.src_path1, self.result_path1, suffix=None)
-        path2 = cm.getCachedFileFromMarker(marker1)
+        path4 = cm.getCachedFileFromMarker(marker1)
 
         marker2 = cm.registerDoc(
             self.src_path1, self.result_path2, suffix='foo')
-        path3 = cm.getCachedFileFromMarker(marker2, suffix='foo')
+        path5 = cm.getCachedFileFromMarker(marker2, suffix='foo')
 
         self.assertTrue(path1 is None)
-        self.assertTrue(path2 is not None)
-        self.assertTrue(path3 is not None)
+        self.assertTrue(path2 is None)
+        self.assertTrue(path3 is None)
+        self.assertTrue(path4 is not None)
+        self.assertTrue(path5 is not None)
         return
     
     def test_register_doc(self):
