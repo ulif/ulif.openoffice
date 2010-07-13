@@ -441,7 +441,30 @@ class TestCacheManager(CachingComponentsTestCase):
         return
 
     def test_contains(self):
-        pass
+        cm = CacheManager(self.workdir)
+        self.assertRaises(TypeError, cm.contains)
+        self.assertRaises(TypeError, cm.contains, path='foo', marker='bar')
+        self.assertFalse(
+            cm.contains(marker='737b337e605199de28b3b64c674f9422_1'))
+        
+        cm.registerDoc(
+            self.src_path1, self.result_path1, suffix=None)
+        cm.registerDoc(
+            self.src_path2, self.result_path2, suffix='foo')
+        result1 = cm.contains(path=self.src_path1)
+        result2 = cm.contains(marker='737b337e605199de28b3b64c674f9422_1')
+        result3 = cm.contains(marker='737b337e605199de28b3b64c674f9422_1',
+                              suffix='foo')
+        result4 = cm.contains(marker='737b337e605199de28b3b64c674f9422_1',
+                              suffix='bar')
+        result5 = cm.contains(marker='d5aa51d7fb180729089d2de904f7dffe_1',
+                              suffix='foo')
+        self.assertTrue(result1)
+        self.assertTrue(result2)
+        self.assertFalse(result3)
+        self.assertFalse(result4)
+        self.assertTrue(result5)
+        return
 
     def test_get_all_sources(self):
         pass
