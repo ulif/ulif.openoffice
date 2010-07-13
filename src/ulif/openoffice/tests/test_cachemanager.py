@@ -291,6 +291,7 @@ class TestCacheManager(CachingComponentsTestCase):
         broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
         open(broken_cache_dir, 'wb').write('i am a file')
         self.assertRaises(IOError, CacheManager, broken_cache_dir)
+        return
 
     def test_get_bucket_path_from_path(self):
         cm = CacheManager(self.workdir)
@@ -299,6 +300,7 @@ class TestCacheManager(CachingComponentsTestCase):
             '73', '737b337e605199de28b3b64c674f9422')
         self.assertEqual(os.listdir(self.workdir), [])
         self.assertTrue(path.endswith(expected_path_end))
+        return
 
     def test_get_bucket_path_from_hash(self):
         cm = CacheManager(self.workdir)
@@ -311,6 +313,7 @@ class TestCacheManager(CachingComponentsTestCase):
 
         path = cm._getBucketPathFromHash('nonsense')
         self.assertEqual(path, None)
+        return
         
     def test_prepare_cache_dir(self):
         new_cache_dir = os.path.join(self.workdir, 'newcache')
@@ -326,7 +329,8 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(os.path.isdir(new_cache_dir))
         
         cm.cache_dir = broken_cache_dir
-        self.assertRaises(IOError, cm.prepareCacheDir)        
+        self.assertRaises(IOError, cm.prepareCacheDir)
+        return
 
     def test_get_bucket_from_path(self):
         cache_dir_len1 = len(os.listdir(self.workdir))
@@ -335,6 +339,7 @@ class TestCacheManager(CachingComponentsTestCase):
         cache_dir_len2 = len(os.listdir(self.workdir))
         self.assertTrue(isinstance(bucket1, Bucket))
         self.assertTrue(cache_dir_len2 == cache_dir_len1+1)
+        return
 
     def test_get_cached_file(self):
         cm = CacheManager(self.workdir)
@@ -357,6 +362,7 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(path1 is None)
         self.assertTrue(path2 is None)
         self.assertTrue(path3 is not None)
+        return
 
     def test_register_doc(self):
         pass
