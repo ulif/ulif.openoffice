@@ -270,12 +270,18 @@ class TestCacheBucket(CachingComponentsTestCase):
         path1 = bucket.getResultPathFromMarker(marker1)
         path2 = bucket.getResultPathFromMarker(marker2, suffix='foo')
         path3 = bucket.getResultPathFromMarker(marker3, suffix='foo')
+        path4 = bucket.getResultPathFromMarker(marker3, suffix='bar')
+        path5 = bucket.getResultPathFromMarker('1')
+        path6 = bucket.getResultPathFromMarker('3')
         expected_path1 = os.path.join('results', 'result_1_default')
         expected_path2 = os.path.join('results', 'result_1__foo')
         expected_path3 = os.path.join('results', 'result_2__foo')
         self.assertTrue(path1.endswith(expected_path1))
         self.assertTrue(path2.endswith(expected_path2))
         self.assertTrue(path3.endswith(expected_path3))
+        self.assertTrue(path4 is None)
+        self.assertTrue(path5 is not None)
+        self.assertTrue(path6 is None)
 
 class TestCacheManager(CachingComponentsTestCase):
 
@@ -398,7 +404,7 @@ class TestCacheManager(CachingComponentsTestCase):
 
         marker2 = cm.registerDoc(
             self.src_path1, self.result_path2, suffix='foo')
-        path3 = cm.getCachedFileFromMarker(marker2)
+        path3 = cm.getCachedFileFromMarker(marker2, suffix='foo')
 
         self.assertTrue(path1 is None)
         self.assertTrue(path2 is not None)
