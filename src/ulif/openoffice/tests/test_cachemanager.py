@@ -467,7 +467,30 @@ class TestCacheManager(CachingComponentsTestCase):
         return
 
     def test_get_all_sources(self):
-        pass
+        cm = CacheManager(self.workdir)
+        result1 = cm.getAllSources()
+        self.assertTrue(isinstance(result1, types.GeneratorType))
+        self.assertEqual(list(result1), [])
+
+        cm.registerDoc(
+            self.src_path1, self.result_path1, suffix=None)
+        cm.registerDoc(
+            self.src_path2, self.result_path2, suffix='foo')
+        result2 = list(cm.getAllSources())
+        self.assertTrue(len(result2) == 2)
+
+        open(os.path.join(self.workdir, 'crapfile'), 'wb').write('crap')
+        result3 = list(cm.getAllSources())
+        self.assertFalse('crap' in result3)
+
+        os.mkdir(os.path.join(self.workdir, 'crapdir'))
+        result4 = list(cm.getAllSources())
+        self.assertFalse('crapdir' in result4)
+
+        os.makedirs(os.path.join(self.workdir, '66', 'invalid_hashdir'))
+        result5 = list(cm.getAllSources())
+        self.assertFalse('66' in result5)
+        return
         
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
