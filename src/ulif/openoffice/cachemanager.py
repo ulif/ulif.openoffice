@@ -268,6 +268,14 @@ class CacheManager(object):
             return None
         return marker.split('_')[0]
     
+    def _getBucketPathFromPath(self, path):
+        """Get a bucket path from a path to a sourcefile.
+
+        This does not modify the filesystem.
+        """
+        hash_digest = self.getHash(path)
+        return self._getBucketPathFromHash(hash_digest)
+
     def _getBucketPathFromHash(self, hash_digest):
         """Get a bucket path from hash.
 
