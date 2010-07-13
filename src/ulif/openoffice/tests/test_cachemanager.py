@@ -268,11 +268,11 @@ class TestCacheBucket(CachingComponentsTestCase):
         marker3 = bucket.storeResult(
             self.src_path2, self.result_path1, suffix='foo')
         path1 = bucket.getResultPathFromMarker(marker1)
-        path2 = bucket.getResultPathFromMarker(marker2)
-        path3 = bucket.getResultPathFromMarker(marker3)
-        expected_path1 = os.path.join('results', 'result1_default')
-        expected_path2 = os.path.join('results', 'result1__foo')
-        expected_path3 = os.path.join('results', 'result2__foo')
+        path2 = bucket.getResultPathFromMarker(marker2, suffix='foo')
+        path3 = bucket.getResultPathFromMarker(marker3, suffix='foo')
+        expected_path1 = os.path.join('results', 'result_1_default')
+        expected_path2 = os.path.join('results', 'result_1__foo')
+        expected_path3 = os.path.join('results', 'result_2__foo')
         self.assertTrue(path1.endswith(expected_path1))
         self.assertTrue(path2.endswith(expected_path2))
         self.assertTrue(path3.endswith(expected_path3))
@@ -399,10 +399,10 @@ class TestCacheManager(CachingComponentsTestCase):
         marker2 = cm.registerDoc(
             self.src_path1, self.result_path2, suffix='foo')
         path3 = cm.getCachedFileFromMarker(marker2)
-        
+
         self.assertTrue(path1 is None)
-        self.assertEqual(path2, '737b337e605199de28b3b64c674f9422_1')
-        self.assertEqual(path3, '737b337e605199de28b3b64c674f9422_1')
+        self.assertTrue(path2 is not None)
+        self.assertTrue(path3 is not None)
         return
     
     def test_register_doc(self):
