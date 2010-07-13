@@ -274,7 +274,7 @@ class CacheManager(object):
         If a path cannot be computed (due to faulty hash or similar),
         ``None`` is returned.
         """
-        if len(hash_digest) % 2 == 1:
+        if len(hash_digest) != 32:
             return None
         dirs = [hash_digest[x*2:x*2+2]
                 for x in range((self.level+1))][:-1]
@@ -306,13 +306,17 @@ class CacheManager(object):
 
         .. note:: This call creates the appropriate bucket in
                   filesystem if it does not exist already!
-        
+
         """
         md5_digest = self.getHash(path)
         return self.getBucketFromHash(md5_digest)
     
     def getBucketFromHash(self, hash_digest):
         """Get a bucket in which a source with 'hash_digest' would be stored.
+
+        .. note:: This call creates the appropriate bucket in
+                  filesystem if it does not exist already!
+
         """
         dirs = [hash_digest[x*2:x*2+2]
                 for x in range((self.level+1))][:-1]
@@ -359,6 +363,7 @@ class CacheManager(object):
         """
         hash_value = md5()
         hash_value.update(open(path, 'r').read())
+
         return hash_value.hexdigest()
 
     def contains(self, path, suffix=None):
