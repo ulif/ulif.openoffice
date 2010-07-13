@@ -213,9 +213,7 @@ class Bucket(object):
                 continue
             if not filename.startswith('source'):
                 continue
-            #marker = filename_parts[1]
             yield src_path
-        #yield (None, None)
 
     def getResultPathFromMarker(self, marker, suffix=None):
         """Get path of a result file stored with marker ``marker`` and suffix
