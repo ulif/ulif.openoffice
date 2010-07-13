@@ -293,6 +293,13 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertRaises(IOError, CacheManager, broken_cache_dir)
         return
 
+    def test_get_marker(self):
+        cm = CacheManager(self.workdir)
+        marker1 = cm._getMarker('some_hash_digest', None)
+        marker2 = cm._getMarker('some_hash_digest', 'bucket_marker')
+        self.assertEqual(marker1, 'some_hash_digest')
+        self.assertEqual(marker2, 'some_hash_digest_bucket_marker')
+        
     def test_get_bucket_path_from_path(self):
         cm = CacheManager(self.workdir)
         path = cm._getBucketPathFromPath(self.src_path1)
@@ -364,6 +371,9 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(path3 is not None)
         return
 
+    def test_get_cached_file_from_marker(self):
+        pass
+    
     def test_register_doc(self):
         pass
 
