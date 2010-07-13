@@ -391,7 +391,17 @@ class CacheManager(object):
             bucket_marker, suffix=suffix)
 
     def registerDoc(self, source_path, to_cache, suffix=None):
-        """Store to_cache in bucket.
+        """Store a representation of file found in ``source_path`` which
+        resides in ``to_cache`` to a bucket.
+
+        If ``suffix`` is not ``None`` the representation will be
+        stored under the suffix name. A suffix is only a name and the
+        cache manager makes no assumptions about file types or
+        similar.
+
+        Returns a marker string which can be used in conjunction with
+        the appropriate cache manager methods to retrieve the file
+        later on.
         """
         md5_digest = self.getHash(source_path)
         bucket = self.getBucketFromHash(md5_digest)
