@@ -264,7 +264,7 @@ class TestCacheManager(CachingComponentsTestCase):
 
     def test_markerhandling(self):
         cm = CacheManager(self.workdir)
-        marker_string = cm._getMarker(
+        marker_string = cm._composeMarker(
             'somefakedhash', 3)
         self.assertEqual(marker_string, 'somefakedhash_3')
         hash = cm._getHashFromMarker('somefakedhash_3')
@@ -293,10 +293,10 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertRaises(IOError, CacheManager, broken_cache_dir)
         return
 
-    def test_get_marker(self):
+    def test_compose_marker(self):
         cm = CacheManager(self.workdir)
-        marker1 = cm._getMarker('some_hash_digest', None)
-        marker2 = cm._getMarker('some_hash_digest', 'bucket_marker')
+        marker1 = cm._composeMarker('some_hash_digest', None)
+        marker2 = cm._composeMarker('some_hash_digest', 'bucket_marker')
         self.assertEqual(marker1, 'some_hash_digest')
         self.assertEqual(marker2, 'some_hash_digest_bucket_marker')
         
