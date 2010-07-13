@@ -342,6 +342,21 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(path is None)
         self.assertEqual(os.listdir(self.workdir), [])
 
+        cm.registerDoc(self.src_path1, self.result_path1, suffix=None)
+        path1 = cm.getCachedFile(self.src_path1)
+        path2 = cm.getCachedFile(self.src_path1, suffix='bar')
+        path3 = cm.getCachedFile(self.src_path1, suffix='foo')
+        self.assertTrue(path1 is not None)
+        self.assertTrue(path2 is None)
+        self.assertTrue(path3 is None)
+        
+        cm.registerDoc(self.src_path2, self.result_path1, suffix='foo')
+        path1 = cm.getCachedFile(self.src_path2)
+        path2 = cm.getCachedFile(self.src_path2, suffix='bar')
+        path3 = cm.getCachedFile(self.src_path2, suffix='foo')
+        self.assertTrue(path1 is None)
+        self.assertTrue(path2 is None)
+        self.assertTrue(path3 is not None)
 
     def test_register_doc(self):
         pass
