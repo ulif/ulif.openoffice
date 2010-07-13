@@ -267,10 +267,11 @@ class TestCacheManager(CachingComponentsTestCase):
         marker_string = cm._composeMarker(
             'somefakedhash', 3)
         self.assertEqual(marker_string, 'somefakedhash_3')
-        hash = cm._getHashFromMarker('somefakedhash_3')
+        hash, bucket_marker = cm._dissolveMarker('somefakedhash_3')
         self.assertEqual(hash, 'somefakedhash')
-        self.assertEqual(cm._getHashFromMarker('asd'), None)
-        self.assertEqual(cm._getHashFromMarker(object()), None)
+        self.assertEqual(bucket_marker, '3')
+        self.assertEqual(cm._dissolveMarker('asd'), (None, None))
+        self.assertEqual(cm._dissolveMarker(object()), (None, None))
         return
 
     def test_init(self):
