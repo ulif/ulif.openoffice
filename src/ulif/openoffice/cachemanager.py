@@ -409,14 +409,19 @@ class CacheManager(object):
                                            suffix=suffix)
         return self._composeMarker(md5_digest, bucket_marker)
 
-    def getHash(self, path=None):
-        """Get the hash of a file.
+    def getHash(self, path):
+        """Get the hash of a file stored in ``path``.
 
         Currently we compute the MD5 digest.
+
+        Note for derived classes, that the hash digest computed by
+        this method should give only chars that can easily be
+        processed as path elements in URLs. For instance slashes
+        (which can occur in Base64 encoded strings) could make things
+        difficult.
         """
         hash_value = md5()
         hash_value.update(open(path, 'r').read())
-
         return hash_value.hexdigest()
 
     def contains(self, path, suffix=None):
