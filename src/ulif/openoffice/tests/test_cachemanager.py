@@ -416,7 +416,20 @@ class TestCacheManager(CachingComponentsTestCase):
         return
     
     def test_register_doc(self):
-        pass
+        cm = CacheManager(self.workdir)
+        marker1 = cm.registerDoc(
+            self.src_path1, self.result_path1, suffix=None)
+        marker2 = cm.registerDoc(
+            self.src_path1, self.result_path1, suffix=None)
+        marker3 = cm.registerDoc(
+            self.src_path1, self.result_path2, suffix='foo')
+        marker4 = cm.registerDoc(
+            self.src_path2, self.result_path2, suffix='foo')
+        self.assertEqual(marker1, '737b337e605199de28b3b64c674f9422_1')
+        self.assertEqual(marker2, '737b337e605199de28b3b64c674f9422_1')
+        self.assertEqual(marker3, '737b337e605199de28b3b64c674f9422_1')
+        self.assertEqual(marker4, 'd5aa51d7fb180729089d2de904f7dffe_1')
+        return
 
     def test_get_hash(self):
         pass
