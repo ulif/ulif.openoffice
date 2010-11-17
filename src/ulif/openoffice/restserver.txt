@@ -129,7 +129,7 @@ as there is no doc stored yet:
     >>> conn.request('GET', '/docs/foobar')
     >>> response = conn.getresponse()
     >>> response.getheaders()
-	[('date', '...'), ('content-length', ': 44'), ('server', 'ulif.openoffice.RESTfulHTTPServer/<VERSION> Python/2.6.4')]
+	[('date', '...'), ('content-length', ': ...'), ('server', 'ulif.openoffice.RESTfulHTTPServer/<VERSION> Python/2.6.4')]
 
 
 

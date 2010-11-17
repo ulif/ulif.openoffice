@@ -548,7 +548,7 @@ We send a simple test request, that should give us a status:
     >>> print r1.read()
     Server: ulif.openoffice.RESTfulHTTPServer/<VERSION> Python/2.5.2
     Date: ...
-    Content-Length:: 44
+    Content-Length:: ...
     <BLANKLINE>
     ulif.openoffice.RESTful.HTTPServer <VERSION>
 
