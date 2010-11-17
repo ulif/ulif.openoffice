@@ -3,18 +3,18 @@
 ## Login : <uli@pu.smp.net>
 ## Started on  Fri Aug 28 02:13:03 2009 Uli Fouquet
 ## $Id$
-## 
+##
 ## Copyright (C) 2009 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -43,7 +43,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
     It implements the protocol, the PyUNO server actually works with.
     """
 
-    
+
     def handle(self):
         """
         The protocol:
@@ -57,7 +57,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
              TEST_CMD: "TEST<NL>"
              PATH: "PATH=" PATH_TO_DOCUMENT
              PATH_TO_DOCUMENT: <file-path>
-        
+
           Response:
 
           .. productionlist::
@@ -70,7 +70,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
              VERSION_RESULT: "OK 0 " <server-version>
 
           with:
-        
+
           ``<NL>``
             NewLine character
 
@@ -85,33 +85,33 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
           ``<text>``
             a string, possibly containing several lines.
-          
+
         Examples:
-        
+
           Request::
-          
+
             CONVERT_PDF
             PATH=/home/foo/bar.odt
-            
+
           Response::
-          
+
             OK 0 /tmp/asdqwe.pdf
 
           Request::
-          
+
             CONVERT_HTML
             PATH=/home/foo/bar.docx
-            
+
           Response::
-          
+
             OK 0 /tmp/sdfwqer
-        
+
           Request::
-          
+
             TEST
-            
+
           Response::
-          
+
             ERR -1 Could not reach OpenOffice.org server on port 2002
             Please make sure to start oooctl.
 
@@ -147,16 +147,17 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
         # Ask cache before doing conversion...
         cm = self.server.cache_manager
-        dest_path = cm.getCachedFile(path, suffix=extension)
-        if dest_path is not None:
-            # TODO: Here we might unpack stuff, copy to secure location etc.
-            dest_path = self.prepareCacheResults(path, dest_path, extension)
-            self.wfile.write('OK 200 %s' % (dest_path,))
-            logger.info('200 OK. FOUND in cache. request completed')
-            logger.debug('result in %s' % dest_path)
-            return
+        if cm:
+            dest_path = cm.getCachedFile(path, suffix=extension)
+            if dest_path is not None:
+                # TODO: Here we might unpack stuff, copy to secure location etc.
+                dest_path = self.prepareCacheResults(path, dest_path, extension)
+                self.wfile.write('OK 200 %s' % (dest_path,))
+                logger.info('200 OK. FOUND in cache. request completed')
+                logger.debug('result in %s' % dest_path)
+                return
         logger.debug('doc NOT FOUND in cache, start conversion.')
-            
+
         ret_val = -1
         dest_path = ''
         # Copy source to safe destination...
@@ -184,15 +185,17 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             shutil.rmtree(path_dir)
         else:
             # Notify cache manager...
-            logger.debug('conversion finished. updating cache.')
-            cache_path = self.prepareCaching(path, dest_path, extension)
-            cm.registerDoc(source_path=path, to_cache=cache_path,
-                           suffix=extension)
-            # Remove source and tarfile from result...
-            if cache_path != dest_path:
-                os.unlink(cache_path)
+            logger.debug('conversion finished.')
+            if cm:
+                logger.debug('updating cache.')
+                cache_path = self.prepareCaching(path, dest_path, extension)
+                cm.registerDoc(source_path=path, to_cache=cache_path,
+                               suffix=extension)
+                # Remove source and tarfile from result...
+                if cache_path != dest_path:
+                    os.unlink(cache_path)
             os.unlink(path)
-            
+
             self.wfile.write('OK 200 %s' % (dest_path,))
             logger.info('200 OK, doc converted: %s' % (dest_path,))
         return
@@ -227,7 +230,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             # Move source back into result dir...
             shutil.move(tmpfile, src_path)
         return result_path
-    
+
     def prepareCacheResults(self, src_path, result_path, extension):
         """Move results to a secure destination.
 
@@ -257,7 +260,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 shutil.copy2(src, dest)
             shutil.rmtree(resultdir)
         else:
-            shutil.copy2(result_path, safe_result_path)            
+            shutil.copy2(result_path, safe_result_path)
         return safe_result_path
 
     def getKeyValue(self, line):
@@ -278,8 +281,8 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     logger = None
 
     #: Marker to check while serving for stop-requests.
-    do_stop = False     
-    
+    do_stop = False
+
     def server_bind(self):
         """Bind server to socket.
 
@@ -303,12 +306,11 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     """Start an instance of :class:`ThreadedTCPServer`.
     """
-    cache_manager = CacheManager(cache_dir)
-    
     server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
 
-    server.cache_manager = cache_manager
+    if cache_dir:
+        server.cache_manager = CacheManager(cache_dir)
     server.logger = logger
 
     def signal_handler(signal, frame):
@@ -317,10 +319,10 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
         server.shutdown()
         server.logger.info('exiting')
         sys.exit(0)
-        
+
     signal.signal(signal.SIGINT, signal_handler)
-    
-    
+
+
     # This will run until shutdown without consuming CPU cycles all
     # the time...
     server.serve_forever()

@@ -43,7 +43,7 @@ Commands sent always have to be closed by newlines:
 As the default port is 2009, we can call the client like this:
 
     >>> print send_request('127.0.0.1', 2009, command)
-    ['OK 0 0.2.1dev\n']
+    ['OK 0 <VERSION>\n']
 
 The response tells us that
 
@@ -126,7 +126,7 @@ In the result dir there are other docs created:
     -  testdoc1.html
     -  testdoc1_html_...jpg
     -  testdoc1_html_...jpg
-    
+
     >>> shutil.rmtree(result_dir)
 
 Again, we get a result from the cache when retrying:
@@ -140,14 +140,13 @@ Again, we get a result from the cache when retrying:
     -  testdoc1.html
     -  testdoc1_html_...jpg
     -  testdoc1_html_...jpg
-    
+
     >>> shutil.rmtree(result_dir)
 
-Clean up:    
+Clean up:
 
     >>> print system(pyunoctl_path + ' stop')
     stopping pid ... done.
 
     >>> print system(oooctl_path + ' stop')
     stopping pid ... done.
-

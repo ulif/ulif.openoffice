@@ -3,18 +3,18 @@
 ## Login : <uli@pu.smp.net>
 ## Started on  Wed Jul  7 15:42:51 2010 Uli Fouquet
 ## $Id$
-## 
+##
 ## Copyright (C) 2010 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -43,11 +43,11 @@ class CachingComponentsTestCase(unittest.TestCase):
 
 
 class TestCacheBucket(CachingComponentsTestCase):
-        
+
     def test_init(self):
         # Make sure, the dir is empty before we mess around...
         self.assertEqual([], os.listdir(self.workdir))
-        
+
         bucket = Bucket(self.workdir)
 
         # Main subdirs were created...
@@ -167,21 +167,21 @@ class TestCacheBucket(CachingComponentsTestCase):
     def test_store_result_twice(self):
         bucket = Bucket(self.workdir)
         bucket.storeResult(self.src_path1, self.result_path1, suffix='foo')
-        
+
         listing = os.listdir(os.path.join(self.workdir, 'results'))
         self.assertEqual(listing, ['result_1__foo'])
-        
+
         bucket.storeResult(self.src_path1, self.result_path1)
         bucket.storeResult(self.src_path1, self.result_path2)
         bucket.storeResult(self.src_path1, self.result_path1)
-        
-        listing = os.listdir(os.path.join(self.workdir, 'results'))
+
+        listing = sorted(os.listdir(os.path.join(self.workdir, 'results')))
         self.assertEqual(listing, ['result_1__foo', 'result_1_default'])
-        
+
         curr_num = bucket.getCurrentNum()
         self.assertEqual(curr_num, 1)
         return
-        
+
     def test_store_result_with_suffix(self):
         bucket = Bucket(self.workdir)
         bucket.storeResult(self.src_path1, self.result_path1, suffix='foo')
@@ -239,7 +239,7 @@ class TestCacheBucket(CachingComponentsTestCase):
         paths = list(bucket.getAllSourcePaths())
         self.assertTrue(paths[0].endswith('source_1'))
         self.assertEqual(len(paths), 1)
-        
+
         bucket.storeResult(
             self.src_path2, self.result_path2, suffix='bar')
         paths = list(bucket.getAllSourcePaths())
@@ -304,7 +304,7 @@ class TestCacheManager(CachingComponentsTestCase):
 
         cm = CacheManager(self.workdir, level=3)
         self.assertEqual(cm.level, 3)
-        
+
         # Create cache dir if it does not exist...
         shutil.rmtree(self.workdir)
         cm = CacheManager(self.workdir)
@@ -323,7 +323,7 @@ class TestCacheManager(CachingComponentsTestCase):
         marker2 = cm._composeMarker('some_hash_digest', 'bucket_marker')
         self.assertEqual(marker1, 'some_hash_digest')
         self.assertEqual(marker2, 'some_hash_digest_bucket_marker')
-        
+
     def test_get_bucket_path_from_path(self):
         cm = CacheManager(self.workdir)
         path = cm._getBucketPathFromPath(self.src_path1)
@@ -345,7 +345,7 @@ class TestCacheManager(CachingComponentsTestCase):
         path = cm._getBucketPathFromHash('nonsense')
         self.assertEqual(path, None)
         return
-        
+
     def test_prepare_cache_dir(self):
         new_cache_dir = os.path.join(self.workdir, 'newcache')
         broken_cache_dir = os.path.join(self.workdir, 'broken')
@@ -354,11 +354,11 @@ class TestCacheManager(CachingComponentsTestCase):
 
         cm.cache_dir = None
         self.assertEqual(cm.prepareCacheDir(), None)
-        
+
         cm.cache_dir = new_cache_dir
         cm.prepareCacheDir()
         self.assertTrue(os.path.isdir(new_cache_dir))
-        
+
         cm.cache_dir = broken_cache_dir
         self.assertRaises(IOError, cm.prepareCacheDir)
         return
@@ -385,7 +385,7 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(path1 is not None)
         self.assertTrue(path2 is None)
         self.assertTrue(path3 is None)
-        
+
         cm.registerDoc(self.src_path2, self.result_path1, suffix='foo')
         path1 = cm.getCachedFile(self.src_path2)
         path2 = cm.getCachedFile(self.src_path2, suffix='bar')
@@ -414,7 +414,7 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertTrue(path4 is not None)
         self.assertTrue(path5 is not None)
         return
-    
+
     def test_register_doc(self):
         cm = CacheManager(self.workdir)
         marker1 = cm.registerDoc(
@@ -446,7 +446,7 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertRaises(TypeError, cm.contains, path='foo', marker='bar')
         self.assertFalse(
             cm.contains(marker='737b337e605199de28b3b64c674f9422_1'))
-        
+
         cm.registerDoc(
             self.src_path1, self.result_path1, suffix=None)
         cm.registerDoc(
@@ -491,7 +491,7 @@ class TestCacheManager(CachingComponentsTestCase):
         result5 = list(cm.getAllSources())
         self.assertFalse('66' in result5)
         return
-        
+
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(
         'ulif.openoffice.tests.test_cachemanager'

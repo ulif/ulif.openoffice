@@ -3,18 +3,18 @@
 ## Login : <uli@pu.smp.net>
 ## Started on  Thu Aug 27 01:50:30 2009 Uli Fouquet
 ## $Id$
-## 
+##
 ## Copyright (C) 2009 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -82,7 +82,7 @@ def getOptions():
             HOST),
         default = HOST,
         )
-    
+
     parser.add_option(
         "--pidfile",
         help = "absolute path of PID file. Default: %s" % PIDFILE,
@@ -140,7 +140,7 @@ def getOptions():
                "'ulif.openoffice.pyunoserver'. Default: None.",
         default = None,
         )
-    
+
     (options, args) = parser.parse_args()
 
     if len(args) > 1:
@@ -152,7 +152,7 @@ def getOptions():
 
     if options.port < 1:
         parser.error("option -p: port must be 1 or greater: %s" % options.port)
-        
+
     cmd = None
     if len(args) == 1:
         cmd = args[0]
@@ -160,8 +160,12 @@ def getOptions():
         parser.error("argument must be one of %s. Use option '-h' for help." %
                      ', '.join(["'%s'" % x for x in allowed_args]))
 
+    if not options.cache_dir:
+        #make sure it's None if not given
+        options.cache_dir = None
+
     return (cmd, options)
-    
+
 
 def start(host, port, python_binary, uno_lib_dir, cache_dir, mode, logger):
     print "START PYUNO DAEMON"
@@ -197,10 +201,10 @@ def main(argv=sys.argv):
     if os.name != 'posix':
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
-        
+
     (cmd, options) = getOptions()
     logger = getLogger(options.logconf)
-    
+
     if cmd == 'start':
         if options.mode == 'rest':
             sys.stdout.write('startung RESTful HTTP server, ')
@@ -220,5 +224,5 @@ def main(argv=sys.argv):
 
     # This point will not be reached as start() will run in TCPserver
     # serve_forever() loop...
-    
+
     sys.exit(0)

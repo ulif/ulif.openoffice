@@ -24,9 +24,13 @@ To do so we create a `buildout.cfg` file:
     ... parts = openoffice-ctl
     ... offline = true
     ...
+    ... [unopython]
+    ... executable = /usr/bin/python
+    ...
     ... [openoffice-ctl]
     ... recipe = zc.recipe.egg
     ... eggs = ulif.openoffice
+    ... python = unopython
     ... ''')
 
 Now we can run buildout to install our script (and other scripts,
@@ -78,7 +82,7 @@ For our local test we create an executable script which will fake a
 real OpenOffice.org binary:
 
     >>> import sys
-    >>> write('fake_soffice', 
+    >>> write('fake_soffice',
     ... '''#!%s
     ... import sys
     ... import pprint
@@ -111,7 +115,7 @@ server:
 We can get the daemon status:
 
     >>> print system(join('bin', 'oooctl') + ' status')
-    Status: Running (PID ...) 
+    Status: Running (PID ...)
     <BLANKLINE>
 
 
@@ -251,7 +255,7 @@ Commands sent always have to be closed by newlines:
 As the default port is 2009, we can call the client like this:
 
     >>> print send_request('127.0.0.1', 2009, command)
-    OK 0 <VERSION>
+    OK 0 ...
 
 The response tells us that
 
@@ -478,7 +482,7 @@ We must remove the result directory ourselve:
     >>> result_dir = os.path.dirname(response.message)
     >>> if os.path.isdir(result_dir):
     ...   shutil.rmtree(result_dir)
-    
+
 
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the
@@ -566,7 +570,7 @@ utility functions from the `util` module:
 
     >>> from ulif.openoffice.util import encode_multipart_formdata
     >>> fields = []
-    >>> files = [('document', 'simpledoc1.doc', 
+    >>> files = [('document', 'simpledoc1.doc',
     ...           open(testdoc_path, 'rb').read())]
     >>> content_type, body = encode_multipart_formdata(fields, files)
     >>> headers = {
@@ -612,5 +616,3 @@ Clean up:
 
     >>> os.close(tmp_fd)
     >>> os.unlink(tmp_path)
-
-

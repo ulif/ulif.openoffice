@@ -3,18 +3,18 @@
 ## Login : <uli@pu.smp.net>
 ## Started on  Tue Oct 27 12:03:38 2009 Uli Fouquet
 ## $Id$
-## 
+##
 ## Copyright (C) 2009 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -38,7 +38,7 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         'ulif.openoffice.RESTfulHTTPServer',
         pkg_resources.get_distribution('ulif.openoffice').version
         )
-    
+
     def do_GET(self, *args, **kw):
         """Handle requests to existing documents.
         """
@@ -50,7 +50,7 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         if len(path) == 1 and path[0] == 'TEST':
             self.sendTestReply()
             return
-        
+
         if len(path) > 1:
             md5digest = path[0]
             ext = path[1].lower()
@@ -80,7 +80,7 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
             return
         print "POST OK"
         form = cgi.FieldStorage(
-            fp=self.rfile, 
+            fp=self.rfile,
             headers=self.headers,
             environ={'REQUEST_METHOD':'POST',
                      'CONTENT_TYPE':self.headers['Content-Type'],
@@ -109,7 +109,7 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
                 # Regular form value
                 self.wfile.write('\t%s=%s\n' % (field, form[field].value))
         return
-        
+
     def sendTestReply(self):
         self.send_response(200)
         version = pkg_resources.get_distribution('ulif.openoffice').version
@@ -123,12 +123,14 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Length:', str(len(message)))
         self.end_headers()
         self.wfile.write(message)
-        
+
 def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     server_address = (host, port)
-    cache_manager = CacheManager(cache_dir)
     httpd = HTTPServer(server_address, PyUNORestHandler)
-    httpd.cache_manager = cache_manager
+    if cache_dir:
+        httpd.cache_manager = CacheManager(cache_dir)
+    else:
+        httpd.cache_manager = None
     httpd.logger = logger
     httpd.serve_forever()
 
