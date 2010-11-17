@@ -1,7 +1,7 @@
 CHANGES
 *******
 
-0.3 (unreleased)
+0.3 (2010-11-17)
 ================
 
 * Added option to disable caching completely: set ``--cache-dir`` to
