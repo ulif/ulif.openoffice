@@ -1,8 +1,12 @@
 CHANGES
 *******
 
-0.2.2 (unreleased)
-==================
+0.3 (unreleased)
+================
+
+* Added option to disable caching completely: set ``--cache-dir`` to
+  empty string to disable caching [Thanks to Adama Groszer for
+  patches!]
 
 * Removed unwanted output when running in foreground mode.
 
@@ -14,6 +18,8 @@ CHANGES
   were considered to be identical by the cachemanager and thus led to
   inconsistencies in cache). We now check thoroughly whether two such
   files differ.
+
+* Lots of test fixes [Thanks to Adam Groszer for patches!]
 
 0.2.1 (2010-06-13)
 ==================
