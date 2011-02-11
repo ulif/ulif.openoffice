@@ -36,6 +36,7 @@ import SocketServer
 from urlparse import urlsplit
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.convert import convert_to_pdf, convert
+from ulif.openoffice.find import find
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
     """A handler for the :class:`ThreadedTCPServer`.
@@ -51,9 +52,10 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
           The request:
 
           .. productionlist::
-             REQUEST: CONVERT_CMD | TEST_CMD
+             REQUEST: CONVERT_CMD | FIND_CMD | TEST_CMD
              CONVERT_CMD: CMD PATH
              CMD: "CONVERT_PDF<NL>" | "CONVERT_HTML<NL>"
+             FIND_CMD: "FIND<NL>"
              TEST_CMD: "TEST<NL>"
              PATH: "PATH=" PATH_TO_DOCUMENT
              PATH_TO_DOCUMENT: <file-path>
@@ -108,6 +110,16 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
           Request::
 
+            FIND
+            PATH=/home/foo/bar.docx
+            REGEX=regex
+
+          Response::
+
+            OK 0 [{'page':1},{'page':33}]
+
+          Request::
+
             TEST
 
           Response::
@@ -123,9 +135,9 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             info = pkg_resources.get_distribution('ulif.openoffice')
             self.wfile.write('OK 0 %s\n' % info.version)
             return
-        if data not in ["CONVERT_PDF", "CONVERT_HTML"]:
+        if data not in ["CONVERT_PDF", "CONVERT_HTML", "FIND"]:
             self.wfile.write('ERR 550 unknown command. Use CONVERT_HTML, '
-                             'CONVERT_PDF or TEST.\n')
+                             'CONVERT_PDF, FIND or TEST.\n')
             logger.debug('receceived unknown command. Finishing request.')
             return
         logger.debug('command: %s' % data)
@@ -136,6 +148,41 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             return
 
         logger.debug('path: %s' % path)
+        if data == 'FIND':
+            key, regex = self.getKeyValue(self.rfile.readline())
+            if key is None or key != "REGEX":
+                self.wfile.write('ERR 550 missing regex.')
+                logger.info('no regex given. transaction cancelled.')
+                return
+            self.wfile.write('path: %s\n' % path)
+            extension = ""
+            path = self.prepareSource(path, extension)
+            path_dir = os.path.dirname(path)
+            try:
+                (ret_val, matches) = find(regex=regex, paths=[path])
+            except Exception, e:
+                self.wfile.write('ERR 550 %s: %s\n' % (e.__class__, e.message))
+                shutil.rmtree(path_dir)
+                logger.warn('550 ERR search failed %s: %s' %(
+                        e.__class__, e.message))
+                return
+            except:
+                self.wfile.write('ERR 550 internal pyuno error \n')
+                logger.warn('550 ERR internal pyuno error')
+            if ret_val != 0:
+                self.wfile.write('ERR 550 search not finished: %s' % (
+                        ret_val,))
+                logger.warn('550 ERR search not finished: %s' % (
+                        ret_val,))
+                shutil.rmtree(path_dir)
+            else:
+                logger.debug('search finished.')
+                os.unlink(path)
+    
+                self.wfile.write('OK 200 %s' % matches)
+                logger.info('200 OK, doc searched: %s' % matches)
+            return
+
         if data == 'CONVERT_PDF':
             self.wfile.write('path: %s\n' % path)
             filter_name = "writer_pdf_Export"

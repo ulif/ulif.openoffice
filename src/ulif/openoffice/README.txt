@@ -269,7 +269,7 @@ If we send garbage, we get an error:
 
     >>> command = 'Blah\n'
     >>> print send_request('127.0.0.1', 2009, command)
-    ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.
+    ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF, FIND or TEST.
 
 Here the server tells us, that
 
@@ -314,6 +314,7 @@ lines::
 We start the conversion:
 
     >>> command = ('CONVERT_PDF\nPATH=%s\n' % testdoc_path)
+    >>> #time.sleep(60)
     >>> result = send_request('127.0.0.1', 2009, command)
     >>> print result
     OK 200 /tmp/.../simpledoc1.pdf
@@ -483,6 +484,88 @@ We must remove the result directory ourselve:
     >>> if os.path.isdir(result_dir):
     ...   shutil.rmtree(result_dir)
 
+
+Find matches of a regular expression in a document via the conversion daemon
+----------------------------------------------------------------------------
+
+Finally let's start a lookup. We have a really simple .doc
+document we'd like to search for matches of a given regular expression.
+
+We tell the machinery to find a regex by sending the following
+lines::
+
+    FIND
+    PATH=<path-to-source-document>
+    REGEX=<our-regex>
+
+We start the search with a regular expression that does not match
+our document:
+
+    >>> regex = "A long document\."
+    >>> command = ('FIND\nPATH=%s\nREGEX=%s\n' % (testdoc_path, regex))
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    OK 200 []
+
+The search was successfully done but returned no match.
+Now with a regular expression that does match the document.
+
+    >>> regex = "A simple document\."
+    >>> command = ('FIND\nPATH=%s\nREGEX=%s\n' % (testdoc_path, regex))
+    >>> result = send_request('127.0.0.1', 2009, command)
+    >>> print result
+    OK 200 [{'page': 1}]
+
+We can also use the client component to find our regex:
+
+    >>> from ulif.openoffice.client import PyUNOServerClient
+    >>> client = PyUNOServerClient()
+    >>> filecontent = open(testdoc_path, 'rb').read()
+    >>> response = client.findRegexInFile(testdoc_path,regex)
+
+The response will contain a status (HTTP equivalent number), a boolean
+flag indicating whether search was performed successfully and a
+message, which in case of success contains the list of matches.
+
+    >>> response.status
+    200
+
+    >>> response.ok
+    True
+
+    >>> response.message
+    "[{'page': 1}]"
+
+Instead of giving a path, we can also use the client with a
+``filename`` parameter and the contents of the file to be
+converted. For this, we use the clients ``convertToHTML`` method. This
+consumes slightly more time than the method above:
+
+    >>> contents = open(testdoc_path, 'rb').read()
+    >>> response = client.findRegex(
+    ...              os.path.basename(testdoc_path), contents, regex)
+
+Again, the ``message`` attribute of the response tells us, where the
+regular expression matched in the document:
+
+    >>> response.message
+    "[{'page': 1}]"
+
+This time the document was created inside a temporary directory,
+created only for this request. You should not make assumptions about
+this location. All accompanied documents like images, etc. are stored
+in the same directory.
+
+When we sent the same file with a different name, we will get a cached
+copy but with the name of the new source applied:
+
+    >>> new_testdoc_path = os.path.join(
+    ...   os.path.dirname(testdoc_path), 'newdoc1.doc')
+    >>> shutil.copyfile(testdoc_path, new_testdoc_path)
+    >>> response = client.findRegex(
+    ...              os.path.basename(new_testdoc_path), contents, regex)
+    >>> response.message
+    "[{'page': 1}]"
 
 Note, that the user that run OO.org server, will need a valid home
 directory where OOo stores data. We create such a home in the

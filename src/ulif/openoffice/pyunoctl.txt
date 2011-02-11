@@ -57,7 +57,7 @@ If we send garbage, we get an error:
 
     >>> command = 'Blah\n'
     >>> print send_request('127.0.0.1', 2009, command)
-    ['ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF or TEST.\n']
+    ['ERR 550 unknown command. Use CONVERT_HTML, CONVERT_PDF, FIND or TEST.\n']
 
 Here the server tells us, that
 

@@ -85,6 +85,21 @@ class PyUNOServerClient(object):
         sock.close()
         return PyUNOResponse(''.join(response))
 
+    def findRegexInFile(self, path, regex):
+        """Send a request to a running pyuno server to find a regex
+        in a file.
+
+        The path of the document to be searched is given in ``path``.
+
+        The resulting matches are returned.
+        """
+        absdocpath = os.path.abspath(path)
+        absdocpath = self.writeFileToTempDir(absdocpath)
+        command = 'FIND\nPATH=%s\nREGEX=%s\n' % (absdocpath,regex)
+        result = self.sendRequest(command)
+        #result.message = []
+        return result
+
     def convertFileToPDF(self, path):
         """Send a request to a running pyuno server to convert to PDF.
 
@@ -116,6 +131,18 @@ class PyUNOServerClient(object):
         command = 'CONVERT_HTML\nPATH=%s\n' % (absdocpath,)
         result = self.sendRequest(command)
         result.message = self.copyResultToTempDir(absdocpath, result)
+        return result
+
+    def findRegex(self, filename, data, regex):
+        """Send a request to a running pyuno server to find a regex.
+
+        The document contents is delivered by `data`, the filename by
+        `filename`.
+        """
+        # Write data to file in temporary dir...
+        absdocpath = self.writeToTempDir(filename, data)
+        result = self.findRegexInFile(absdocpath, regex)
+        shutil.rmtree(os.path.dirname(absdocpath))
         return result
 
     def convertToHTML(self, filename, data):
