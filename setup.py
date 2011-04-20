@@ -36,12 +36,16 @@ setup(name='ulif.openoffice',
       install_requires=[
           'setuptools',
           'zc.buildout',
+          'CherryPy',
       ],
       setup_requires=["Sphinx-PyPI-upload"],
       extras_require=dict(
         test = [
             'zope.testing',
             'zc.recipe.egg',
+            'twill',
+            'py-restclient',
+            'WebTest',
             ],
         doc = ['Sphinx',
                'collective.recipe.sphinxbuilder']
@@ -51,5 +55,6 @@ setup(name='ulif.openoffice',
       oooctl = ulif.openoffice.oooctl:main
       pyunoctl = ulif.openoffice.pyunoctl:main
       convert = ulif.openoffice.convert:main
+      restserver = ulif.openoffice.restserver2:main
       """,
       )
