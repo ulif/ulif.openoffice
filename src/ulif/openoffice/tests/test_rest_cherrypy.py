@@ -19,53 +19,46 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
-from StringIO import StringIO
-from restclient import RestClient, Resource 
 import cherrypy
 import unittest
- 
+from StringIO import StringIO
+from restclient import RestClient, Resource 
+from webtest import TestApp 
 from ulif.openoffice.restserver2 import Root, conf
 
+wsgi_app = None
+
 class TestHelloWorld(unittest.TestCase):
+
+    #layer = CherryPyServerLayer
+
     def setUp(self):
         # configure cherrypy to be quiet ;)
         cherrypy.config.update({ "environment": "embedded" })
-
-        # get WSGI app.
-        self.wsgi_app = cherrypy.tree.mount(Root(), '/', config=conf)
-
-        # initialize
-        cherrypy.server.start()
-
+        
         # Keep pyflakes happy
         self.output = StringIO()
 
-        self.resource = Resource('http://localhost:8080')
+        #self.resource = Resource('http://localhost:8080')
+
+        self.wsgi_app = cherrypy.Application(Root(), '/', config=conf)
+        self.app = TestApp(self.wsgi_app)
 
     def tearDown(self):
-        # shut down the cherrypy server.
-        cherrypy.server.stop()
-
-    def test_foo(self):
         pass
 
-    def test_bar(self):
-        page = self.resource.get('/sidewinder')
-        response = self.resource.get_response()
-        self.assertEqual(response.status, 200)
-        self.assertEqual(response.items(), 'asd')
-        self.assertEqual(dir(resource.get_response()), 'asd')
-        return 
-    
+    def test_foo(self):
+        response = self.app.get('/index')
+        self.assertTrue(response.body.startswith('<html>'))
+        pass
+
     def test_status_200(self):
-        page = self.resource.get('/sidewinder')
-        response = self.resource.get_response()
-        self.assertEqual(response.status, 200)
+        response = self.app.get('/sidewinder')
+        self.assertEqual(response.status, '200 OK')
         return
 
     def test_header_item(self):
-        page = self.resource.get('/sidewinder')
-        response = self.resource.get_response()
-        headers = dict(response.items())
-        self.assertTrue('content-type' in headers.keys())
+        response = self.app.get('/sidewinder')
+        headers = response.headers
+        self.assertTrue('content-type' in headers)
         self.assertEqual(headers.get('content-type', None), 'text/html')
