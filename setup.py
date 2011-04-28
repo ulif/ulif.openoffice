@@ -46,6 +46,8 @@ setup(name='ulif.openoffice',
             'twill',
             'py-restclient',
             'WebTest',
+            'pytest',
+            'unittest2',
             ],
         doc = ['Sphinx',
                'collective.recipe.sphinxbuilder']

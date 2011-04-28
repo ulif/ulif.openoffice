@@ -33,6 +33,16 @@ class Resource(object):
 
     def GET(self, num=None):
         return self.to_html().replace('</html>', '%s</html>' % num)
+        return """
+        <html><body>
+            <form action="pdf" method="post" enctype="multipart/form-data">
+            filename: <input type="file" name="myFile"/><br/>
+            <input type="submit"/>
+            </form>
+        </body></html>
+        """
+
+        return self.to_html().replace('</html>', '%s</html>' % num)
 
     def PUT(self):
         self.content = self.from_html(cherrypy.request.body.read())
@@ -60,7 +70,108 @@ class ResourceIndex(Resource):
         items = ''.join(items)
         return '<html>%s</html>Hello World!' % items
 
+#from cherrypy import cpg
+
+class Upload(Resource):
+    def to_html(self, myFile=None):
+        return """
+        <html><body>
+            myFile length: %s<br/>
+            myFile filename: %s<br/>
+            myFile mime-type: %s
+        </body></html>
+        """ % (
+            dir(myFile), myFile.filename, myFile.content_type
+            #cpg.request.filenameMap['myFile'],
+            #cpg.request.fileTypeMap['myFile']
+            )
+    def POST(self, myFile):
+        self.stuff = self.to_html(myFile=myFile)
+        return self.stuff
+        pass
+        #self.content = self.from_html(cherrypy.request.body.read())
+
+
+        
+        
+class PDFResource(object):
+    exposed = True
+    def __init__(self, content):
+        self.content = content
+
+    def POST(self, *args, **kw):
+        
+        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
+            value, name)
+        #items = map(html_item, self.content.items())
+        a = ('args', '%s %s' % (args, kw))
+        #print a
+        items = map(html_item, [('args', a)])
+        items = ''.join(items)
+        #import pdb; pdb.set_trace()
+        return '<html>%s</html>' % items #cherrypy.request.params #items
+
+    @staticmethod
+    def from_html(data):
+        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
+        items = [match.groups() for match in pattern.finditer(data)]
+        return dict(items)
+
+class DocumentRoot(object):
+    exposed = True
+    doc_ids = ['0', '23', '42']
+    def _cp_dispatch(self, vpath):
+        if vpath:
+            doc_id = vpath.pop(0)
+            #cherrypy.request.params['doc_id'] = doc_id
+            if doc_id in self.doc_ids:
+                return Document(doc_id)
+            elif doc_id == 'index':
+                return DocumentIndex(self.doc_ids)
+        if vpath:
+            return getattr(self, vpath[0], None)
+        return
+
+    def GET(self):
+        print 
+        return "Hi from doc root"
+
+    def POST(self, doc=None, SUBMIT=None):
+        self.doc_ids.append(doc)
+        return "Got %s" % self.doc_ids
+
+class Document(object):
+    def _cp_dispatch(self, vpath):
+        return getattr(self, vpath[0], None)
+    exposed = True
+    def __init__(self, doc_id):
+        self.doc_id = doc_id
+        
+    def GET(self):
+        return "Hi from doc %s" % self.doc_id
+
+class DocumentIndex(object):
+    exposed = True
+    def _cp_dispatch(self, vpath):
+        return getattr(self, vpath[0], None)
+    def __init__(self, ids):
+        self.ids = ids
+
+    def GET(self):
+        return """
+          <html>
+           <body>
+           Available IDs: %s <br />
+           <form action="/docs" method="POST">
+             ID: <input type="text" name="doc_id"> <br />
+             <input type="submit" name="SUBMIT" value="Add">
+           </form>
+           </body>
+          </html>
+          """ % self.ids
+
 class Root(object):
+        
     sidewinder = Resource({'color': 'red', 'weight': 176, 'type': 'stable'})
     teebird = Resource({'color': 'green', 'weight': 173, 'type': 'overstable'})
     blowfly = Resource({'color': 'purple', 'weight': 169, 'type': 'putter'})
@@ -68,6 +179,11 @@ class Root(object):
                             'teebird': 'teebird',
                             'blowfly': 'blowfly'}
                            )
+    pdf = PDFResource({})
+    docs = DocumentRoot()
+    
+    #def default(self, doc_id=None):
+    #    return 'Hi from default'
 
 root = Root()
     

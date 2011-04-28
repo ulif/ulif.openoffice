@@ -175,7 +175,7 @@ def start(binarypath, foreground=False):
     child_pid = proc.pid
     return child_pid
 
-def getOptions():
+def getOptions(argv=sys.argv):
     usage = "usage: %prog [options] start|fg|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status', 'fg']
     parser = OptionParser(usage=usage)
@@ -215,7 +215,7 @@ def getOptions():
         default = '/dev/null',
         )
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(args=argv[1:])
 
     if len(args) > 1:
         parser.error("only one argument allowed. Use option '-h' for help.")
@@ -268,7 +268,7 @@ def main(argv=sys.argv):
         print "This script only works on POSIX compliant machines."
         sys.exit(-1)
 
-    (cmd, options) = getOptions()
+    (cmd, options) = getOptions(argv=argv)
 
     if cmd in ['start', 'fg']:
         sys.stdout.write('starting OpenOffice.org server, ')
