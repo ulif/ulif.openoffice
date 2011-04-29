@@ -39,6 +39,19 @@ except:
     import unittest
 
 class TestRESTfulWSGISetup(unittest.TestCase):
+    """A setup that prepares a WSGI app with the RESTful cherrypy server.
+
+    The RESTful server provided in :mod:`ulif.openoffice` is a
+    cherry.py server that can also be accessed as a plain WSGI app.
+
+    This is excellent for testing as we don't have to start a real
+    webserver but can ask a locally created WSGI app directly. Tests
+    are also much faster using this technique.
+    
+    Use `self.app` for a :mod:`webtest` based HTTP-client client.
+
+    Use `self.wsgi_app` if you need access to the real WSGI app.
+    """
 
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
@@ -88,6 +101,10 @@ class TestRESTfulFunctionalSetup(unittest.TestCase):
 
     - Be prepared for slightly different test output when using an
       already running OO.org server instance.
+
+    .. note:: This testcase works only with :mod:`unittest2`!  For
+              more recent Python versions (Python >= 2.6) the default
+              :mod:`unittest` module is sufficient.
     
     """
     @classmethod
