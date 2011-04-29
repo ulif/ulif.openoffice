@@ -69,6 +69,27 @@ class TestRESTfulWSGISetup(unittest.TestCase):
         return
 
 class TestRESTfulFunctionalSetup(unittest.TestCase):
+    """A setup that starts an OO.org server in background
+
+    and shuts it down after tests in the accompanied test suite have
+    been run.
+
+    This setup is special in that it detects, whether an instance of
+    the openoffice server is already running and in that case uses
+    this instance.
+
+    For people running tests does that mean:
+
+    - You can decrease test time (dramatically) by starting `oooctl`
+      in backgroud before running tests.
+
+    - An already running instance of OO.org server will be still
+      running after tests.
+
+    - Be prepared for slightly different test output when using an
+      already running OO.org server instance.
+    
+    """
     @classmethod
     def setUpClass(cls):
         # Set clean HOME environment as OOO.org might scan it...
