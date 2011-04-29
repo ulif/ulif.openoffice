@@ -27,7 +27,7 @@ except:
     import unittest
 
 from ulif.openoffice.testing import (
-    TestRESTfulWSGISetup, TestRESTfulFunctionalSetup
+    TestRESTfulWSGISetup, TestOOServerSetup
     )
 
 class TestRESTful(TestRESTfulWSGISetup):
@@ -71,7 +71,7 @@ class TestRESTful(TestRESTfulWSGISetup):
         #self.assertEqual(1, 1)
 
 
-class TestRESTfulFunctional(TestRESTfulWSGISetup, TestRESTfulFunctionalSetup):
+class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def setUp(self):
         super(TestRESTfulFunctional, self).setUp()
         self.resultdir = None

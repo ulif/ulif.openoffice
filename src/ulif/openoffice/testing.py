@@ -81,13 +81,13 @@ class TestRESTfulWSGISetup(unittest.TestCase):
         del self.wsgi_app
         return
 
-class TestRESTfulFunctionalSetup(unittest.TestCase):
+class TestOOServerSetup(unittest.TestCase):
     """A setup that starts an OO.org server in background
 
     and shuts it down after tests in the accompanied test suite have
     been run.
 
-    This setup is special in that it detects, whether an instance of
+    This setup is special in that it detects whether an instance of
     the openoffice server is already running and in that case uses
     this instance.
 
