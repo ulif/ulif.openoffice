@@ -27,6 +27,7 @@ import os
 import shutil
 import tempfile
 import time
+import ulif.openoffice
 from webtest import TestApp
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.oooctl import check_port
