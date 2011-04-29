@@ -23,111 +23,120 @@
 RESTful server (cherry.py flavour)
 """
 import cherrypy
+from ulif.openoffice.cachemanager import CacheManager
 
-class Resource(object):
+#class Resource(object):
+#
+#    def __init__(self, content):
+#        self.content = content
+#
+#    exposed = True
+#
+#    def GET(self, num=None):
+#        return self.to_html().replace('</html>', '%s</html>' % num)
+#        return """
+#        <html><body>
+#            <form action="pdf" method="post" enctype="multipart/form-data">
+#            filename: <input type="file" name="myFile"/><br/>
+#            <input type="submit"/>
+#            </form>
+#        </body></html>
+#        """
 
-    def __init__(self, content):
-        self.content = content
+#        return self.to_html().replace('</html>', '%s</html>' % num)
 
-    exposed = True
+#    def PUT(self):
+#        self.content = self.from_html(cherrypy.request.body.read())
 
-    def GET(self, num=None):
-        return self.to_html().replace('</html>', '%s</html>' % num)
-        return """
-        <html><body>
-            <form action="pdf" method="post" enctype="multipart/form-data">
-            filename: <input type="file" name="myFile"/><br/>
-            <input type="submit"/>
-            </form>
-        </body></html>
-        """
+#    def to_html(self):
+#        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
+#            value, name)
+#        items = map(html_item, self.content.items())
+#        items = ''.join(items)
+#        return '<html>%s</html>' % items
 
-        return self.to_html().replace('</html>', '%s</html>' % num)
+#    @staticmethod
+#    def from_html(data):
+#        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
+#        items = [match.groups() for match in pattern.finditer(data)]
+#        return dict(items)
 
-    def PUT(self):
-        self.content = self.from_html(cherrypy.request.body.read())
-
-    def to_html(self):
-        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
-            value, name)
-        items = map(html_item, self.content.items())
-        items = ''.join(items)
-        return '<html>%s</html>' % items
-
-    @staticmethod
-    def from_html(data):
-        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
-        items = [match.groups() for match in pattern.finditer(data)]
-        return dict(items)
-
-class ResourceIndex(Resource):
-    def to_html(self):
-        html_item = lambda (
-            name,value
-            ): '<div><a href="%s">%s</a></div>' % (
-            value, name)
-        items = map(html_item, self.content.items())
-        items = ''.join(items)
-        return '<html>%s</html>Hello World!' % items
+#class ResourceIndex(Resource):
+#    def to_html(self):
+#        html_item = lambda (
+#            name,value
+#            ): '<div><a href="%s">%s</a></div>' % (
+#            value, name)
+#        items = map(html_item, self.content.items())
+#        items = ''.join(items)
+#        return '<html>%s</html>Hello World!' % items
 
 #from cherrypy import cpg
 
-class Upload(Resource):
-    def to_html(self, myFile=None):
-        return """
-        <html><body>
-            myFile length: %s<br/>
-            myFile filename: %s<br/>
-            myFile mime-type: %s
-        </body></html>
-        """ % (
-            dir(myFile), myFile.filename, myFile.content_type
-            #cpg.request.filenameMap['myFile'],
-            #cpg.request.fileTypeMap['myFile']
-            )
-    def POST(self, myFile):
-        self.stuff = self.to_html(myFile=myFile)
-        return self.stuff
-        pass
-        #self.content = self.from_html(cherrypy.request.body.read())
+#class Upload(object):
+#    def to_html(self, myFile=None):
+#        return """
+#        <html><body>
+#            myFile length: %s<br/>
+#            myFile filename: %s<br/>
+#            myFile mime-type: %s
+#        </body></html>
+#        """ % (
+#            dir(myFile), myFile.filename, myFile.content_type
+#            #cpg.request.filenameMap['myFile'],
+#            #cpg.request.fileTypeMap['myFile']
+#            )
+#    def POST(self, myFile):
+#        self.stuff = self.to_html(myFile=myFile)
+#        return self.stuff
+#        pass
+#        #self.content = self.from_html(cherrypy.request.body.read())
 
 
         
         
-class PDFResource(object):
-    exposed = True
-    def __init__(self, content):
-        self.content = content
+#class PDFResource(object):
+#    exposed = True
+#    def __init__(self, content):
+#        self.content = content
 
-    def POST(self, *args, **kw):
+#    def POST(self, *args, **kw):
         
-        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
-            value, name)
-        #items = map(html_item, self.content.items())
-        a = ('args', '%s %s' % (args, kw))
-        #print a
-        items = map(html_item, [('args', a)])
-        items = ''.join(items)
-        #import pdb; pdb.set_trace()
-        return '<html>%s</html>' % items #cherrypy.request.params #items
+#        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
+#            value, name)
+#        #items = map(html_item, self.content.items())
+#        a = ('args', '%s %s' % (args, kw))
+#        #print a
+#        items = map(html_item, [('args', a)])
+#        items = ''.join(items)
+#        #import pdb; pdb.set_trace()
+#        return '<html>%s</html>' % items #cherrypy.request.params #items
 
-    @staticmethod
-    def from_html(data):
-        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
-        items = [match.groups() for match in pattern.finditer(data)]
-        return dict(items)
+#    @staticmethod
+#    def from_html(data):
+#        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
+#        items = [match.groups() for match in pattern.finditer(data)]
+#        return dict(items)
 
 class DocumentRoot(object):
     exposed = True
     doc_ids = ['0', '23', '42']
+
+    def __init__(self, cache_manager=None):
+        self.cache_manager = cache_manager
+        return
+
     def _cp_dispatch(self, vpath):
         if vpath:
             doc_id = vpath.pop(0)
             #cherrypy.request.params['doc_id'] = doc_id
-            if doc_id in self.doc_ids:
-                return Document(doc_id)
-            elif doc_id == 'index':
-                return DocumentIndex(self.doc_ids)
+            if doc_id == 'index':
+                return DocumentIndex(cache_manager = self.cache_manager)
+            return Document(doc_id, cache_manager=self.cache_manager)
+            #if doc_id in self.doc_ids:
+            #    return Document(doc_id)
+            #elif doc_id == 'index':
+            #    return DocumentIndex(self.doc_ids)
         if vpath:
             return getattr(self, vpath[0], None)
         return
@@ -144,9 +153,12 @@ class Document(object):
     def _cp_dispatch(self, vpath):
         return getattr(self, vpath[0], None)
     exposed = True
-    def __init__(self, doc_id):
+
+    def __init__(self, doc_id, cache_manager=None):
+        self.cache_manager = None
         self.doc_id = doc_id
-        
+        return
+
     def GET(self):
         return "Hi from doc %s" % self.doc_id
 
@@ -154,8 +166,10 @@ class DocumentIndex(object):
     exposed = True
     def _cp_dispatch(self, vpath):
         return getattr(self, vpath[0], None)
-    def __init__(self, ids):
+
+    def __init__(self, cache_manager=None):
         self.ids = ids
+        self.cache_manager = cache_manager
 
     def GET(self):
         return """
@@ -172,16 +186,26 @@ class DocumentIndex(object):
 
 class Root(object):
         
-    sidewinder = Resource({'color': 'red', 'weight': 176, 'type': 'stable'})
-    teebird = Resource({'color': 'green', 'weight': 173, 'type': 'overstable'})
-    blowfly = Resource({'color': 'purple', 'weight': 169, 'type': 'putter'})
-    index = ResourceIndex({'sidewinder': 'sidewinder',
-                            'teebird': 'teebird',
-                            'blowfly': 'blowfly'}
-                           )
-    pdf = PDFResource({})
-    docs = DocumentRoot()
-    
+#    sidewinder = Resource({'color': 'red', 'weight': 176, 'type': 'stable'})
+#    teebird = Resource({'color': 'green', 'weight': 173, 'type': 'overstable'})
+#    blowfly = Resource({'color': 'purple', 'weight': 169, 'type': 'putter'})
+#    index = ResourceIndex({'sidewinder': 'sidewinder',
+#                            'teebird': 'teebird',
+#                            'blowfly': 'blowfly'}
+#                           )
+#    pdf = PDFResource({})
+    @property
+    def docs(self):
+        return DocumentRoot(cache_manager=self.cache_manager)
+    #docs = DocumentRoot()
+
+    def __init__(self, cachedir=None):
+        self.cache_manager = None
+        if cachedir is None:
+            return
+        self.cache_manager = CacheManager(cachedir)
+        return
+        
     #def default(self, doc_id=None):
     #    return 'Hi from default'
 
