@@ -27,12 +27,36 @@ from pkg_resources import iter_entry_points
 class BaseProcessor(object):
     prefix = 'base'         # The name under which this proc is known
     defaults = {}           # Option defaults. Each option needs one.
+    metadata = {}
 
     def __init__(self, options={}):
         self.options = self.get_own_options(options)
         self.normalize_options()
         self.validate_options()
+        self.metadata = {}
         return
+
+    def process(self, input, metadata):
+        """Process the input and return output.
+
+        `metadata` contains data maybe valuable for other
+        processors. Derived classes are encouraged to populate this
+        dictionary while it cannot be guaranteed that other processors
+        make use of this data.
+
+        `output` is expected to be a tuple
+
+          ``(<OUTPUT>, <METADATA>)``
+
+        where ``<OUTPUT>`` would normally be the path to a file and
+        ``<METADATA>`` the (maybe updated) `metadata` passed in.
+        """
+        raise NotImplemented("Please provide a process() method")
+
+    def validate_options(self):
+        """Examine `self.options` and raise `ValueError` if appropriate.
+        """
+        raise NotImplemented("Please provide a validate_options method")
 
     def get_own_options(self, options):
         """Get options for this class out of a dict of general options.
@@ -63,9 +87,6 @@ class BaseProcessor(object):
         for key in sorted(self.options):
             result += "%s=%s" % (key, self.options[key])
         return result
-
-    def validate_options(self):
-        raise NotImplemented("Please provide a validate_options method")
 
     def normalize_options(self):
         for key, val in self.options.items():
