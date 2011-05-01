@@ -22,8 +22,13 @@
 """
 Test processors defined in this package.
 """
-import unittest
 from ulif.openoffice.processor import MetaProcessor, OOConvProcessor
+from ulif.openoffice.testing import TestOOServerSetup
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -68,7 +73,7 @@ class TestMetaProcessor(unittest.TestCase):
         assert proc.avail_procs['oocp'] is OOConvProcessor
         assert len(proc.avail_procs.items()) > 0
 
-class TestOOConvProcessor(unittest.TestCase):
+class TestOOConvProcessor(TestOOServerSetup):
     def test_no_options(self):
         # We cope with no options set
         proc = OOConvProcessor()
