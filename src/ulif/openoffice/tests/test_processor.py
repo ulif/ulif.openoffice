@@ -73,6 +73,21 @@ class TestMetaProcessor(unittest.TestCase):
         assert proc.avail_procs['oocp'] is OOConvProcessor
         assert len(proc.avail_procs.items()) > 0
 
+    def test_build_pipeline_single(self):
+        proc = MetaProcessor(options={'meta.procord':'oocp'})
+        proc._build_pipeline()
+        assert proc._pipeline == (OOConvProcessor,)
+
+    def test_build_pipeline_twoitems(self):
+        proc = MetaProcessor(options={'meta.procord':'oocp, oocp'})
+        proc._build_pipeline()
+        assert proc._pipeline == (OOConvProcessor, OOConvProcessor)
+
+    def test_build_pipeline_empty(self):
+        proc = MetaProcessor(options={'meta.procord':''})
+        proc._build_pipeline()
+        assert proc._pipeline is ()
+        
 class TestOOConvProcessor(TestOOServerSetup):
     def test_no_options(self):
         # We cope with no options set
