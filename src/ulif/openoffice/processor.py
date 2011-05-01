@@ -142,6 +142,32 @@ class MetaProcessor(BaseProcessor):
                             option, item, avail_dict.keys()))
         return
 
+    def process(self, input=None, metadata={}):
+        """Run all processors defined in options.
+        """
+        self._build_pipeline()
+        output = None
+        for processor in self._pipeline:
+            output, metadata = processor.process(input, metadata)
+            input = output
+        return output, metadata
+
+    def _build_pipeline(self):
+        """Build a pipeline of processors according to options.
+        """
+        result = []
+        for option, avail_dict in [
+            ('prepord', self.avail_preps),
+            ('procord', self.avail_procs),
+            ('postpord', self.avail_postps)]:
+            for key in self.options[option].split(','):
+                if key == '':
+                    continue
+                result.append(avail_dict[key])
+        result = tuple(result)
+        self._pipeline = result
+        return
+
 class OOConvProcessor(BaseProcessor):
     """A processor that converts office docs into different formats.
     """
