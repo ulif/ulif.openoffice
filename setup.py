@@ -58,5 +58,9 @@ setup(name='ulif.openoffice',
       pyunoctl = ulif.openoffice.pyunoctl:main
       convert = ulif.openoffice.convert:main
       restserver = ulif.openoffice.restserver2:main
+      [ulif.openoffice.preprocessors]
+      [ulif.openoffice.processors]
+      oocp = ulif.openoffice.processor:OOConvProcessor
+      [ulif.openoffice.postprocessors]
       """,
       )
