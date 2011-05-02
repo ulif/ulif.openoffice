@@ -22,7 +22,7 @@
 """
 Processors for processing documents.
 """
-from pkg_resources import iter_entry_points
+from ulif.openoffice.helpers import get_entry_points
 
 class BaseProcessor(object):
     prefix = 'base'         # The name under which this proc is known
@@ -112,21 +112,15 @@ class MetaProcessor(BaseProcessor):
 
     @property
     def avail_preps(self):
-        return dict(
-            [(x.name, x.load()) for x in
-             iter_entry_points(group='ulif.openoffice.preprocessors')])
+        return get_entry_points('ulif.openoffice.preprocessors')
 
     @property
     def avail_procs(self):
-        return dict(
-            [(x.name, x.load()) for x in
-             iter_entry_points(group='ulif.openoffice.processors')])
+        return get_entry_points('ulif.openoffice.processors')
 
     @property
     def avail_postps(self):
-        return dict(
-            [(x.name, x.load()) for x in
-             iter_entry_points(group='ulif.openoffice.postprocessors')])
+        return get_entry_points('ulif.openoffice.postprocessors')
 
     def validate_options(self):
         """Make sure all options contain valid values.
@@ -177,6 +171,8 @@ class OOConvProcessor(BaseProcessor):
         'out_fmt': 'html',
         'pdf_version': None,
         'pdf_tagged': None,
+        'host' : 'localhost',
+        'port': 2002,
         }
 
     formats = {
@@ -186,10 +182,14 @@ class OOConvProcessor(BaseProcessor):
         "xhtml": "XHTML Writer File",
         }
 
-    def process(self, path, options):
-        myoptions = [(key, val) for key, val in options
-                     if key.startswith(self.prefix + '.')]
-        pass
+    def process(self, path, metadata):
+        extension = self.option['out_fmt']
+        filter_name = self.formats[extension]
+        url = 'uno:socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
+            self.options['host'], self.options['port'])
+        #status, result_path = convert(
+        #    url=url, extension=extension, filter_name=filter_name)
+        return None, metadata
 
     def validate_options(self):
         if not self.options['out_fmt'] in self.formats.keys():
