@@ -22,7 +22,11 @@
 """
 Test processors defined in this package.
 """
-from ulif.openoffice.processor import MetaProcessor, OOConvProcessor
+import os
+import shutil
+import tempfile
+from ulif.openoffice.processor import (
+    BaseProcessor, MetaProcessor, OOConvProcessor)
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -30,6 +34,37 @@ try:
 except ImportError:
     import unittest
 
+class SemiBaseProcessor(BaseProcessor):
+    # A BaseProcessor that does not raise NotImplemented on creation
+    def validate_options(self):
+        pass
+    
+class TestBaseProcessor(unittest.TestCase):
+
+    def notest_get_own_options_defaults(self):
+        proc = SemiBaseProcessor()
+        proc.defaults = {'key1': 'notset'}
+        result = proc.get_own_options()
+        assert result == {'key1': 'notset'}
+        
+    def test_get_own_options(self):
+        proc = SemiBaseProcessor()
+        proc.defaults = {'key1': 'notset'}
+        result = proc.get_own_options({'base.key1':'set'})
+        assert result == {'key1': 'set'}
+
+    def test_get_own_options_ignore_other(self):
+        # ignore options that have not the correct prefix
+        proc = SemiBaseProcessor()
+        proc.defaults = {'key1': 'notset'}
+        result = proc.get_own_options({'key1':'set'})
+        assert result == {'key1': 'notset'}
+
+    def test_option_ne_defaults(self):
+        # make sure after creation options are not the same object as defaults
+        proc = SemiBaseProcessor()
+        assert proc.options is not proc.defaults
+        
 class TestMetaProcessor(unittest.TestCase):
 
     def test_no_options(self):
@@ -89,6 +124,24 @@ class TestMetaProcessor(unittest.TestCase):
         assert result is ()
         
 class TestOOConvProcessor(TestOOServerSetup):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.result_path = None
+        return
+
+    def tearDown(self):
+        if os.path.exists(self.workdir):
+            shutil.rmtree(self.workdir)
+        if self.result_path is None:
+            return
+        if not os.path.exists(self.result_path):
+            return
+        if os.path.isfile(self.result_path):
+            self.result_path = os.path.dirname(self.result_path)
+        shutil.rmtree(self.result_path)
+        return
+
     def test_no_options(self):
         # We cope with no options set
         proc = OOConvProcessor()
@@ -100,3 +153,12 @@ class TestOOConvProcessor(TestOOServerSetup):
             ValueError,
             OOConvProcessor, options={'oocp.out_fmt':'odt'})
         return
+
+    def test_process_simple(self):
+        proc = OOConvProcessor()
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert self.result_path.endswith('sample.html')
+
