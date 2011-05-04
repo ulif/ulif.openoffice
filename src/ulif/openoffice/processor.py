@@ -22,7 +22,12 @@
 """
 Processors for processing documents.
 """
-from ulif.openoffice.helpers import get_entry_points
+import os
+import shutil
+from urlparse import urlparse
+from ulif.openoffice.convert import convert
+from ulif.openoffice.helpers import (
+    copy_to_secure_location, get_entry_points,)
 
 class BaseProcessor(object):
     prefix = 'base'         # The name under which this proc is known
@@ -62,8 +67,10 @@ class BaseProcessor(object):
         """Get options for this class out of a dict of general options.
         """
         options = dict([(key, val) for key, val in options.items()
-                    if key.startswith(self.prefix + '.')])
-        result = self.defaults
+                        if key.startswith(self.prefix + '.')])
+        result = dict()
+        result.update(self.defaults) # Make sure result is not the
+                                     # same as defaults
         for key, val in options.items():
             key = key[len(self.prefix)+1:]
             if key not in dict(self.defaults).keys():
@@ -182,18 +189,36 @@ class OOConvProcessor(BaseProcessor):
         "xhtml": "XHTML Writer File",
         }
 
+    options = {}
+
     def process(self, path, metadata):
-        extension = self.option['out_fmt']
+        basename = os.path.basename(path)
+        src = os.path.join(
+            copy_to_secure_location(path), basename)
+        if os.path.isfile(path):
+            path = os.path.dirname(path)
+        shutil.rmtree(path)
+        extension = self.options['out_fmt']
         filter_name = self.formats[extension]
         url = 'uno:socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
             self.options['host'], self.options['port'])
-        #status, result_path = convert(
-        #    url=url, extension=extension, filter_name=filter_name)
-        return None, metadata
+
+        status, result_paths = convert(
+            url=url,
+            extension=extension, filter_name=filter_name,
+            paths=[src])
+
+        metadata['oocp_status'] = status
+        if status != 0:
+            shutil.rmtree(src)
+            return None, metadata
+        result_path = urlparse(result_paths[0])[2]
+        return result_path, metadata
 
     def validate_options(self):
         if not self.options['out_fmt'] in self.formats.keys():
             raise ValueError(
-                "Invalid out_fmt: not in [%s]" % ", ".join(self.formats.keys())
+                "Invalid out_fmt: %s not in [%s]" % (
+                    self.options['out_fmt'], ", ".join(self.formats.keys()))
                 )
         return
