@@ -24,10 +24,11 @@ Processors for processing documents.
 """
 import os
 import shutil
+import tempfile
 from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points,)
+    copy_to_secure_location, get_entry_points, unzip)
 
 class BaseProcessor(object):
     prefix = 'base'         # The name under which this proc is known
@@ -143,7 +144,7 @@ class MetaProcessor(BaseProcessor):
                             option, item, avail_dict.keys()))
         return
 
-    def process(self, input=None, metadata={}):
+    def process(self, input=None, metadata={'error':False}):
         """Run all processors defined in options.
         """
         pipeline = self._build_pipeline()
@@ -210,6 +211,8 @@ class OOConvProcessor(BaseProcessor):
 
         metadata['oocp_status'] = status
         if status != 0:
+            metadata['error'] = True
+            metadata['error-descr'] = 'conversion problem'
             shutil.rmtree(src)
             return None, metadata
         result_path = urlparse(result_paths[0])[2]
@@ -222,3 +225,32 @@ class OOConvProcessor(BaseProcessor):
                     self.options['out_fmt'], ", ".join(self.formats.keys()))
                 )
         return
+
+class UnzipProcessor(BaseProcessor):
+    """A preprocessor that unzips delivered files if applicable.
+
+    The .zip file might contain only exactly one file.
+    """
+    prefix = 'unzip'
+
+    supported_extensions = ['.zip',]
+    def validate_options(self):
+        # No options to handle...
+        pass
+
+    def process(self, path, metadata):
+        ext = os.path.splitext(path)[1]
+        if not ext in self.supported_extensions:
+            return path, metadata
+        if ext == '.zip':
+            dst = tempfile.mkdtemp()
+            unzip(path, dst)
+            dirlist = os.listdir(dst)
+            if len(dirlist) != 1 or os.path.isdir(
+                os.path.join(dst, dirlist[0])):
+                metadata['error'] = True
+                metadata['error-descr'] = 'ambiguity problem: several files'
+                shutil.rmtree(dst)
+                return None, metadata
+            path = os.path.join(dst, dirlist[0])
+        return path, metadata
