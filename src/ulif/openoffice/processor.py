@@ -119,24 +119,13 @@ class MetaProcessor(BaseProcessor):
         }
 
     @property
-    def avail_preps(self):
-        return get_entry_points('ulif.openoffice.preprocessors')
-
-    @property
     def avail_procs(self):
         return get_entry_points('ulif.openoffice.processors')
-
-    @property
-    def avail_postps(self):
-        return get_entry_points('ulif.openoffice.postprocessors')
 
     def validate_options(self):
         """Make sure all options contain valid values.
         """
-        for option, avail_dict in [
-            ('prepord', self.avail_preps),
-            ('procord', self.avail_procs),
-            ('postpord', self.avail_postps)]:
+        for option, avail_dict in [('procord', self.avail_procs),]:
             for item in self.options[option].split(','):
                 item = item.strip()
                 if item != '' and item not in avail_dict.keys():
@@ -158,10 +147,7 @@ class MetaProcessor(BaseProcessor):
         """Build a pipeline of processors according to options.
         """
         result = []
-        for option, avail_dict in [
-            ('prepord', self.avail_preps),
-            ('procord', self.avail_procs),
-            ('postpord', self.avail_postps)]:
+        for option, avail_dict in [('procord', self.avail_procs),]:
             for key in self.options[option].split(','):
                 if key == '' or key == 'meta':
                     # Ignore non-processors...
