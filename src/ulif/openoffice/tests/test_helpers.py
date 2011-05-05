@@ -25,7 +25,7 @@ import tempfile
 import unittest
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points,)
+    copy_to_secure_location, get_entry_points, unzip)
 
 class TestHelpers(unittest.TestCase):
 
@@ -59,3 +59,16 @@ class TestHelpers(unittest.TestCase):
     def test_get_entry_points(self):
         result = get_entry_points('ulif.openoffice.processors')
         assert result['oocp'] is OOConvProcessor
+
+    def test_unzip(self):
+        # make sure we can unzip filetrees
+        zipfile = os.path.join(self.workdir, 'sample.zip')
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
+            zipfile)
+        dst = os.path.join(self.workdir, 'dst')
+        os.mkdir(dst)
+        unzip(zipfile, dst)
+        assert os.listdir(dst) == ['somedir']
+        level2_dir = os.path.join(dst, 'somedir')
+        assert os.listdir(level2_dir) == ['sample.txt', 'othersample.txt']
