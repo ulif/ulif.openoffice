@@ -26,7 +26,7 @@ import os
 import shutil
 import tempfile
 from ulif.openoffice.processor import (
-    BaseProcessor, MetaProcessor, OOConvProcessor)
+    BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor)
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -162,3 +162,41 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
 
+class TestUnzipProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.zipfile_path = os.path.join(self.workdir, 'sample2.zip') 
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample2.zip'),
+            self.zipfile_path)
+        self.zipfile2_path = os.path.join(self.workdir, 'sample1.zip')
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
+            self.zipfile2_path)
+        self.result_path = None
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        if self.result_path is None:
+            return
+        if not os.path.exists(self.result_path):
+            return
+        if os.path.isfile(self.result_path):
+            self.result_path = os.path.dirname(self.result_path)
+        shutil.rmtree(self.result_path)
+        return
+
+    def test_simple(self):
+        proc = UnzipProcessor()
+        self.result_path, metadata = proc.process(self.zipfile_path, {})
+        assert self.result_path.endswith('simple.txt')
+
+    def test_one_file_only(self):
+        # if a zip file contains more than one file, that's an error
+        proc = UnzipProcessor()
+        self.result_path, metadata = proc.process(self.zipfile2_path,
+                                                  {'error':False})
+        assert metadata['error'] is True
+        assert self.result_path is None
