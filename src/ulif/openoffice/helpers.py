@@ -25,6 +25,7 @@ Helpers for trivial jobs.
 import os
 import shutil
 import tempfile
+import zipfile
 from pkg_resources import iter_entry_points
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -136,3 +137,24 @@ def get_entry_points(group):
     return dict(
         [(x.name, x.load())
          for x in iter_entry_points(group=group)])
+
+def unzip(path, dst_dir):
+    """Unzip the files stored in zipfile `path` in `dst_dir`.
+    """
+    zf = zipfile.ZipFile(path)
+    # Create all dirs
+    dirs = sorted([name for name in zf.namelist() if name.endswith('/')])
+    for dir in dirs:
+        new_dir = os.path.join(dst_dir, dir)
+        if not os.path.exists(new_dir):
+            os.mkdir(new_dir)
+    # Create all files
+    for name in zf.namelist():
+        if name.endswith('/'):
+            continue
+        outfile = open(os.path.join(dst_dir, name), 'wb')
+        outfile.write(zf.read(name))
+        outfile.flush()
+        outfile.close()
+    zf.close()
+    return
