@@ -25,8 +25,10 @@ Test processors defined in this package.
 import os
 import shutil
 import tempfile
+import zipfile
 from ulif.openoffice.processor import (
-    BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor)
+    BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
+    ZipProcessor, )
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -70,14 +72,14 @@ class TestMetaProcessor(unittest.TestCase):
     def test_no_options(self):
         # We cope with no options set
         proc = MetaProcessor()
-        assert len(proc.options) == 3
-        assert 'prepord' in proc.options.keys()
+        assert len(proc.options) == 1
+        assert 'procord' in proc.options.keys()
         return
 
     def test_ignored_options(self):
         # We ignore keys not in default dict
         proc = MetaProcessor(options={'meta.foo':12})
-        assert len(proc.options) == 3
+        assert len(proc.options) == 1
         assert 'foo' not in proc.options.keys()
 
     def test_non_meta_options(self):
@@ -93,7 +95,7 @@ class TestMetaProcessor(unittest.TestCase):
     def test_options_as_strings(self):
         proc = MetaProcessor(options={'meta.procord':'oocp, oocp'})
         result = proc.get_options_as_string()
-        assert result == 'postpord=prepord=procord=oocp,oocp'
+        assert result == 'procord=oocp,oocp'
 
     def test_options_invalid(self):
         # Make sure that invalid options lead to exceptions
@@ -200,3 +202,36 @@ class TestUnzipProcessor(unittest.TestCase):
                                                   {'error':False})
         assert metadata['error'] is True
         assert self.result_path is None
+
+class TestZipProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.result_path = None
+        return
+
+    def tearDown(self):
+        if os.path.isdir(self.workdir):
+            shutil.rmtree(self.workdir)
+        if self.result_path is None:
+            return
+        if not os.path.exists(self.result_path):
+            return
+        if os.path.isfile(self.result_path):
+            self.result_path = os.path.dirname(self.result_path)
+        shutil.rmtree(self.result_path)
+        return
+
+    def test_simple(self):
+        sample_path = os.path.join(self.workdir, 'sample1.txt')
+        open(sample_path, 'wb').write('Hi there!')
+        open(
+            os.path.join(self.workdir, 'sample2.txt'),
+            'wb').write('Hello again')
+        proc = ZipProcessor()
+        self.result_path, metadata = proc.process(sample_path,
+                                                  {'error':False})
+        assert zipfile.is_zipfile(self.result_path)
+        zip_file = zipfile.ZipFile(self.result_path, 'r')
+        namelist = zip_file.namelist()
+        assert namelist == ['sample1.txt', 'sample2.txt']
