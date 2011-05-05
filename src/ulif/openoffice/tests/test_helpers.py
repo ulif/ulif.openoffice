@@ -23,9 +23,10 @@ import os
 import shutil
 import tempfile
 import unittest
+import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, unzip)
+    copy_to_secure_location, get_entry_points, unzip, zip)
 
 class TestHelpers(unittest.TestCase):
 
@@ -72,3 +73,28 @@ class TestHelpers(unittest.TestCase):
         assert os.listdir(dst) == ['somedir']
         level2_dir = os.path.join(dst, 'somedir')
         assert os.listdir(level2_dir) == ['sample.txt', 'othersample.txt']
+
+    def test_zip_file(self):
+        # make sure we can zip single files
+        new_dir = os.path.join(self.workdir, 'sampledir')
+        os.mkdir(new_dir)
+        sample_file = os.path.join(new_dir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.resultpath = zip(sample_file)
+        assert zipfile.is_zipfile(self.resultpath)
+
+    def test_zip_dir(self):
+        # make sure we can zip complete dir trees
+        new_dir = os.path.join(self.workdir, 'sampledir')
+        os.mkdir(new_dir)
+        os.mkdir(os.path.join(new_dir, 'subdir1'))
+        os.mkdir(os.path.join(new_dir, 'subdir2'))
+        os.mkdir(os.path.join(new_dir, 'subdir2', 'subdir21'))
+        sample_file = os.path.join(new_dir, 'subdir2', 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.resultpath = zip(new_dir)
+        zip_file = zipfile.ZipFile(self.resultpath, 'r')
+        result = sorted(zip_file.namelist())
+        assert result == ['subdir1/', 'subdir2/', 'subdir2/sample.txt',
+                          'subdir2/subdir21/']
+        assert zip_file.testzip() is None
