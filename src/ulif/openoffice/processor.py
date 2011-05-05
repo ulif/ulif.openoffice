@@ -28,11 +28,17 @@ import tempfile
 from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, unzip)
+    copy_to_secure_location, get_entry_points, zip, unzip)
 
 class BaseProcessor(object):
-    prefix = 'base'         # The name under which this proc is known
-    defaults = {}           # Option defaults. Each option needs one.
+    """A base for self-built document processors.
+    """
+    #: The name under which this processor is known. A simple string.
+    prefix = 'base'
+    
+    #: The option defaults. A dictionary. Each option supported by
+    #: this processor needs a default value set in this dictionary.
+    defaults = {}
     metadata = {}
 
     def __init__(self, options={}):
@@ -56,16 +62,22 @@ class BaseProcessor(object):
 
         where ``<OUTPUT>`` would normally be the path to a file and
         ``<METADATA>`` the (maybe updated) `metadata` passed in.
+
+        The default implementation raises :exc:`NotImplemented`.
         """
         raise NotImplemented("Please provide a process() method")
 
     def validate_options(self):
         """Examine `self.options` and raise `ValueError` if appropriate.
+
+        The default implementation raises :exc:`NotImplemented`.
         """
         raise NotImplemented("Please provide a validate_options method")
 
     def get_own_options(self, options):
         """Get options for this class out of a dict of general options.
+
+        Returns a dictionary normally set as `self.options`.
         """
         options = dict([(key, val) for key, val in options.items()
                         if key.startswith(self.prefix + '.')])
@@ -113,9 +125,7 @@ class MetaProcessor(BaseProcessor):
     """
     prefix = 'meta'         # The name under which this proc is known
     defaults = {            # Option defaults. Each option needs one.
-        'prepord': '',
         'procord': 'oocp',
-        'postpord': '',
         }
 
     @property
@@ -213,7 +223,7 @@ class OOConvProcessor(BaseProcessor):
         return
 
 class UnzipProcessor(BaseProcessor):
-    """A preprocessor that unzips delivered files if applicable.
+    """A processor that unzips delivered files if applicable.
 
     The .zip file might contain only exactly one file.
     """
@@ -240,3 +250,24 @@ class UnzipProcessor(BaseProcessor):
                 return None, metadata
             path = os.path.join(dst, dirlist[0])
         return path, metadata
+
+class ZipProcessor(BaseProcessor):
+    """A processor that zips the directory delivered.
+    """
+    prefix = 'zip'
+
+    supported_extensions = ['.zip']
+    def validate_options(self):
+        # No options to handle...
+        pass
+
+    def process(self, path, metadata):
+        if os.path.isfile(path):
+            basename = os.path.basename(path)
+        path = os.path.dirname(path)
+        zip_file = zip(path)
+        shutil.rmtree(path)
+        result_path = os.path.join(
+            os.path.dirname(zip_file), basename + '.zip')
+        os.rename(zip_file, result_path)
+        return result_path, metadata
