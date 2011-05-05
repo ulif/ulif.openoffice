@@ -140,6 +140,9 @@ def get_entry_points(group):
 
 def unzip(path, dst_dir):
     """Unzip the files stored in zipfile `path` in `dst_dir`.
+
+    `dst_dir` is the directory where all contents of the ZIP file is
+    stored into.
     """
     zf = zipfile.ZipFile(path)
     # Create all dirs
@@ -158,3 +161,48 @@ def unzip(path, dst_dir):
         outfile.close()
     zf.close()
     return
+
+def zip(path):
+    """Create a ZIP file out of `path`.
+
+    If `path` points to a file then a ZIP archive is created with this
+    file in compressed form in a newly created directory. The name of
+    the created zipfile is the basename of the input file with a
+    ``.zip`` extension appended.
+
+    If `path` points to a directory then files and directories
+    _inside_ this directory are added to the archive.
+
+    Also empty directories are added although it cannot be guaranteed
+    that these entries are recovered correctly later on with all tools
+    and utilities on all platforms.
+
+    .. note:: It is the callers responsibility to remove the directory
+              the zipfile is created in after usage.
+    """
+    if not os.path.isdir(path) and not os.path.isfile(path):
+        raise ValueError('Must be an existing path or directory: %s' % path)
+    
+    new_dir = tempfile.mkdtemp()
+    basename = os.path.basename(path)
+    new_path = os.path.join(new_dir, basename) + '.zip'
+    zout = zipfile.ZipFile(new_path, 'w', zipfile.ZIP_DEFLATED)
+
+    if os.path.isfile(path):
+        zout.write(path, basename)
+        zout.close()
+        return new_path
+    
+    for root, dirs, files in os.walk(path):
+        for dir in dirs:
+            # XXX: Maybe the wrong way to store directories?
+            dir_path = os.path.join(root, dir)
+            arc_name = dir_path[len(path)+1:] + '/'
+            info = zipfile.ZipInfo(arc_name)
+            zout.writestr(info, '')
+        for file in files:
+            file_path = os.path.join(root, file)
+            arc_name = file_path[len(path)+1:]
+            zout.write(file_path, arc_name)
+    zout.close()
+    return new_path
