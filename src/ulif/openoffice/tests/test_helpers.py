@@ -26,7 +26,7 @@ import unittest
 import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, unzip, zip)
+    copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir)
 
 class TestHelpers(unittest.TestCase):
 
@@ -98,3 +98,31 @@ class TestHelpers(unittest.TestCase):
         assert result == ['subdir1/', 'subdir2/', 'subdir2/sample.txt',
                           'subdir2/subdir21/']
         assert zip_file.testzip() is None
+
+    def test_remove_file_dir_none(self):
+        assert remove_file_dir(None) is None
+
+    def test_remove_file_dir_non_path(self):
+        assert remove_file_dir(object()) is None
+
+    def test_remove_file_dir_not_existiing(self):
+        assert remove_file_dir('not-existing-path') is None
+
+    def test_remove_file_dir_file(self):
+        # When we remove a file, also the containung dir is removed
+        sample_path = os.path.join(self.workdir, 'sampledir')
+        sample_file = os.path.join(sample_path, 'sample.txt')
+        os.mkdir(sample_path)
+        open(sample_file, 'wb').write('Hi!')
+        remove_file_dir(sample_file)
+        assert os.path.exists(self.workdir) is True
+        assert os.path.exists(sample_path) is False
+
+    def test_remove_file_dir_dir(self):
+        sample_path = os.path.join(self.workdir, 'sampledir')
+        sample_file = os.path.join(sample_path, 'sample.txt')
+        os.mkdir(sample_path)
+        open(sample_file, 'wb').write('Hi!')
+        remove_file_dir(sample_path)
+        assert os.path.exists(self.workdir) is True
+        assert os.path.exists(sample_path) is False
