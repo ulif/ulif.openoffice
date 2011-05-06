@@ -206,3 +206,19 @@ def zip(path):
             zout.write(file_path, arc_name)
     zout.close()
     return new_path
+
+def remove_file_dir(path):
+    """Remove a directory.
+
+    If `path` points to a file, the directory containing the file is
+    removed.
+    """
+    if not isinstance(path, basestring):
+        return
+    if not os.path.exists(path):
+        return
+    if os.path.isfile(path):
+        path = os.path.dirname(path)
+    assert path not in ['/', '/tmp'] # Safety belt
+    shutil.rmtree(path)
+    return
