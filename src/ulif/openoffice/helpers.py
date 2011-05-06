@@ -211,7 +211,7 @@ def remove_file_dir(path):
     """Remove a directory.
 
     If `path` points to a file, the directory containing the file is
-    removed.
+    removed. If `path` is a directory, this directory is removed.
     """
     if not isinstance(path, basestring):
         return
