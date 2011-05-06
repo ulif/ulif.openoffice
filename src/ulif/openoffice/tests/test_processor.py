@@ -43,10 +43,10 @@ class SemiBaseProcessor(BaseProcessor):
     
 class TestBaseProcessor(unittest.TestCase):
 
-    def notest_get_own_options_defaults(self):
+    def test_get_own_options_defaults(self):
         proc = SemiBaseProcessor()
         proc.defaults = {'key1': 'notset'}
-        result = proc.get_own_options()
+        result = proc.get_own_options({})
         assert result == {'key1': 'notset'}
         
     def test_get_own_options(self):
