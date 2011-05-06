@@ -10,6 +10,7 @@ API
    api_client
    api_convert
    api_oooctl
+   api_processors
    api_pyunoctl
    api_pyunoserver
    api_restserver
