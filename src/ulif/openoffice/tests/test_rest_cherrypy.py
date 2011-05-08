@@ -34,43 +34,14 @@ from ulif.openoffice.testing import (
 
 class TestRESTful(TestRESTfulWSGISetup):
 
-    def NOtest_foo(self):
-        response = self.app.get('/index')
-        self.assertTrue(response.body.startswith('<html>'))
-        pass
-
-    def NOtest_status_200(self):
-        response = self.app.get('/sidewinder')
-        self.assertEqual(response.status, '200 OK')
-        return
-
-    def NOtest_header_item(self):
-        response = self.app.get('/sidewinder')
-        headers = response.headers
-        self.assertTrue('content-type' in headers)
-        assert headers.get('content-type', None) == 'text/html;charset=utf-8'
-        #self.assertEqual(headers.get('content-type', None), 'text/html')
-
-    def NOtest_POST(self):
+    def test_POST_no_doc(self):
+        # If we do not pass a doc parameter, this is a bad request
         response = self.app.post(
-            '/pdf',
-            params={'var1':'value1'}, headers=None, extra_environ=None,
-            #status=None, content_type="text/html",
-            #upload_files = [('document', 'sample.txt', 'somecontent')],
-            upload_files = [
-                ('document', 'sample.txt', 'Some\nContent.\n'),
-                ('document2', 'sample2.txt', 'Some\nMore\nContent.\n'),
-                ],
+            '/docs',
+            params={'meta.procord':'oocp,zip'},
+            expect_errors = True,
             )
-        #    )
-        #, upload_files=[
-        #        ('document', 'sample.txt', u'Some\nContent.\n'),
-        #        ])
-        #print response.body
-        body = response.body
-        headers = response.headers
-        #assert body == 'asd'
-        #self.assertEqual(1, 1)
+        assert response.status == '400 Bad Request'
 
 
 class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
@@ -86,18 +57,6 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             if os.path.isdir(self.resultdir):
                 shutil.rmtree(self.resultdir)
         super(TestRESTfulFunctional, self).tearDown()
-        return
-
-    def test_foo(self):
-        from ulif.openoffice.convert import convert_to_html
-        src_file = os.path.join(self.workdir, 'mytest.txt')
-        open(src_file, 'wb').write('Some sample\nwith 2 lines')
-        status, paths = convert_to_html(path=src_file)
-        path = paths[0]
-        basename = os.path.basename(path)
-        assert self.resultdir is None
-        self.resultdir = path
-        assert basename == u'mytest.html'
         return
 
     def test_POST_oocp_only(self):
@@ -126,4 +85,3 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         zip_file = zipfile.ZipFile(StringIO(body), 'r')
         file_list = zip_file.namelist()
         assert 'testdoc1.html' in file_list
-        
