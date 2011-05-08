@@ -60,5 +60,7 @@ setup(name='ulif.openoffice',
       restserver = ulif.openoffice.restserver2:main
       [ulif.openoffice.processors]
       oocp = ulif.openoffice.processor:OOConvProcessor
+      unzip = ulif.openoffice.processor:UnzipProcessor
+      zip = ulif.openoffice.processor:ZipProcessor
       """,
       )
