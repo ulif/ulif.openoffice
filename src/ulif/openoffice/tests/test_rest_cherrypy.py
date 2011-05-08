@@ -98,27 +98,40 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         assert basename == u'mytest.html'
         return
 
-    def NOtest_POST(self):
+    def test_POST_oocp_only(self):
         response = self.app.post(
             '/docs',
-            params={'doc_id':'12'},
-            )
-        #    upload_files = [
-        #        ('document', 'sample.txt', 'Some\nContent.\n'),
-        #        ('document2', 'sample2.txt', 'Some\nMore\nContent.\n'),
-        #        ],
-        #    )
-        body = response.body
-        headers = response.headers
-        assert body == 'asd'
-
-    def test_POST2(self):
-        response = self.app.post(
-            '/docs',
+            params={'meta.procord':'oocp'},
             upload_files = [
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
             )
         body = response.body
         headers = response.headers
-        assert body == 'asd'
+        assert body.startswith('<!DOCTYPE HTML')
+
+    def test_POST_oocp_zip(self):
+        src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
+        response = self.app.post(
+            '/docs',
+            params={'meta.procord':'oocp,zip'},
+            upload_files = [
+                ('doc', 'testdoc1.doc', open(src, 'rb').read()),
+                ],
+            )
+        body = response.body
+        headers = response.headers
+        
+    def test_POST_oocp_zip_xhtml(self):
+        src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
+        response = self.app.post(
+            '/docs',
+            params={'meta.procord':'oocp,zip', 'oocp.out_fmt':'xhtml'},
+            upload_files = [
+                ('doc', 'testdoc1.doc', open(src, 'rb').read()),
+                ],
+            )
+        body = response.body
+        headers = response.headers
+
+        
