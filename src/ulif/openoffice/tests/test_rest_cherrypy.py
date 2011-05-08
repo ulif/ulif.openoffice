@@ -43,6 +43,14 @@ class TestRESTful(TestRESTfulWSGISetup):
             )
         assert response.status == '400 Bad Request'
 
+    def test_POST_doc_not_a_file(self):
+        # If the doc parameter is not a file, this is a bad request
+        response = self.app.post(
+            '/docs',
+            params={'doc':'some_string'},
+            expect_errors = True,
+            )
+        assert response.status == '400 Bad Request'
 
 class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def setUp(self):
