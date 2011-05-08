@@ -31,99 +31,6 @@ from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
 from ulif.openoffice.helpers import remove_file_dir
 
-#class Resource(object):
-#
-#    def __init__(self, content):
-#        self.content = content
-#
-#    exposed = True
-#
-#    def GET(self, num=None):
-#        return self.to_html().replace('</html>', '%s</html>' % num)
-#        return """
-#        <html><body>
-#            <form action="pdf" method="post" enctype="multipart/form-data">
-#            filename: <input type="file" name="myFile"/><br/>
-#            <input type="submit"/>
-#            </form>
-#        </body></html>
-#        """
-
-#        return self.to_html().replace('</html>', '%s</html>' % num)
-
-#    def PUT(self):
-#        self.content = self.from_html(cherrypy.request.body.read())
-
-#    def to_html(self):
-#        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
-#            value, name)
-#        items = map(html_item, self.content.items())
-#        items = ''.join(items)
-#        return '<html>%s</html>' % items
-
-#    @staticmethod
-#    def from_html(data):
-#        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
-#        items = [match.groups() for match in pattern.finditer(data)]
-#        return dict(items)
-
-#class ResourceIndex(Resource):
-#    def to_html(self):
-#        html_item = lambda (
-#            name,value
-#            ): '<div><a href="%s">%s</a></div>' % (
-#            value, name)
-#        items = map(html_item, self.content.items())
-#        items = ''.join(items)
-#        return '<html>%s</html>Hello World!' % items
-
-#from cherrypy import cpg
-
-#class Upload(object):
-#    def to_html(self, myFile=None):
-#        return """
-#        <html><body>
-#            myFile length: %s<br/>
-#            myFile filename: %s<br/>
-#            myFile mime-type: %s
-#        </body></html>
-#        """ % (
-#            dir(myFile), myFile.filename, myFile.content_type
-#            #cpg.request.filenameMap['myFile'],
-#            #cpg.request.fileTypeMap['myFile']
-#            )
-#    def POST(self, myFile):
-#        self.stuff = self.to_html(myFile=myFile)
-#        return self.stuff
-#        pass
-#        #self.content = self.from_html(cherrypy.request.body.read())
-
-
-        
-        
-#class PDFResource(object):
-#    exposed = True
-#    def __init__(self, content):
-#        self.content = content
-
-#    def POST(self, *args, **kw):
-        
-#        html_item = lambda (name,value): '<div><a href="%s">%s</a></div>' % (
-#            value, name)
-#        #items = map(html_item, self.content.items())
-#        a = ('args', '%s %s' % (args, kw))
-#        #print a
-#        items = map(html_item, [('args', a)])
-#        items = ''.join(items)
-#        #import pdb; pdb.set_trace()
-#        return '<html>%s</html>' % items #cherrypy.request.params #items
-
-#    @staticmethod
-#    def from_html(data):
-#        pattern = re.compile(r'\<div\>(?P<name>.*?)\:(?P<value>.*?)\</div\>')
-#        items = [match.groups() for match in pattern.finditer(data)]
-#        return dict(items)
-
 class DocumentRoot(object):
     exposed = True
     doc_ids = ['0', '23', '42']
@@ -132,7 +39,7 @@ class DocumentRoot(object):
         self.cache_manager = cache_manager
         return
 
-    def _cp_dispatch(self, vpath):
+    def not_cp_dispatch(self, vpath):
         if vpath:
             doc_id = vpath.pop(0)
             #cherrypy.request.params['doc_id'] = doc_id
@@ -148,17 +55,26 @@ class DocumentRoot(object):
         return
 
     def POST(self, doc, **data):
+        """Create a resource (converted document) and return it.
+        """
+        # Create a filesystem copy of the file retrieved
         workdir = tempfile.mkdtemp()
         file_path = os.path.join(workdir, doc.filename)
         open(file_path, 'wb').write(doc.file.read())
+
+        # Process input
         proc = MetaProcessor(options=data)
         result_path, metadata = proc.process(file_path)
         basename = os.path.basename(result_path)
         content_type = get_content_type(result_path)
+
+        # Create temporary return file
         result_file = tempfile.TemporaryFile()
         result_file.write(open(result_path, 'rb').read())
         result_file.flush()
         result_file.seek(0)
+
+        # Remove obsolete files/dirs
         remove_file_dir(result_path)
         remove_file_dir(workdir)
         return cherrypy.lib.static.serve_fileobj(
@@ -201,18 +117,9 @@ class DocumentIndex(object):
 
 class Root(object):
         
-#    sidewinder = Resource({'color': 'red', 'weight': 176, 'type': 'stable'})
-#    teebird = Resource({'color': 'green', 'weight': 173, 'type': 'overstable'})
-#    blowfly = Resource({'color': 'purple', 'weight': 169, 'type': 'putter'})
-#    index = ResourceIndex({'sidewinder': 'sidewinder',
-#                            'teebird': 'teebird',
-#                            'blowfly': 'blowfly'}
-#                           )
-#    pdf = PDFResource({})
     @property
     def docs(self):
         return DocumentRoot(cache_manager=self.cache_manager)
-    #docs = DocumentRoot()
 
     def __init__(self, cachedir=None):
         self.cache_manager = None
@@ -221,8 +128,6 @@ class Root(object):
         self.cache_manager = CacheManager(cachedir)
         return
         
-    #def default(self, doc_id=None):
-    #    return 'Hi from default'
 
 root = Root()
     
