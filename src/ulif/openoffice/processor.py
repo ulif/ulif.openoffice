@@ -28,7 +28,7 @@ import tempfile
 from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, zip, unzip)
+    copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -122,37 +122,96 @@ class MetaProcessor(BaseProcessor):
 
     When getting certain options, it constructs a pipeline of document
     processors.
+
+    The :class:`MetaProcessor` is a kind of processor dispatcher that
+    finds, setups and calls all requested processors in the wanted
+    order.
     """
-    prefix = 'meta'         # The name under which this proc is known
+    #: the meta processor is named 'meta'
+    prefix = 'meta'
+
+    #: We support a ``procord`` option which stands for
+    #: ``processororder``. The currently default order is:
+    #: ``'unzip,oocp,zip'`` which means: maybe unzip the input, then
+    #: convert it into HTML and afterwards zip the results.
     defaults = {            # Option defaults. Each option needs one.
-        'procord': 'oocp',
+        'procord': 'unzip,oocp,zip',
         }
 
     @property
     def avail_procs(self):
         return get_entry_points('ulif.openoffice.processors')
 
+    def __init__(self, options={}):
+        self.all_options = options
+        self.options = self.get_own_options(options)
+        self.normalize_options()
+        self.validate_options()
+        self.metadata = {}
+        return
+
     def validate_options(self):
         """Make sure all options contain valid values.
         """
-        for option, avail_dict in [('procord', self.avail_procs),]:
-            for item in self.options[option].split(','):
-                item = item.strip()
-                if item != '' and item not in avail_dict.keys():
-                    raise ValueError('Invalid %s value (%s not in %s)' % (
-                            option, item, avail_dict.keys()))
+        for item in self.options['procord'].split(','):
+            item = item.strip()
+            if item != '' and item not in self.avail_procs.keys():
+                raise ValueError('Invalid procord value (%s not in %s)' % (
+                        item, self.avail_procs.keys()))
         return
 
     def process(self, input=None, metadata={'error':False}):
         """Run all processors defined in options.
+
+        If all processors run successful, the output of the last along
+        with (maybe modified) metadata is returned.
+        
+        Each processor is fed with the `metadata` dict and an `input`
+        (normally a filepath). Feeding a processor means to call its
+        `process` method.
+
+        If a processor sets the ``error`` entry of `metadata` to
+        ``True`` this indicates some problem and the whole process is
+        aborted returning ``None`` as output and the `metadata`, maybe
+        containing some smart hints about the reasons.
+
+        If all processors work correctly, the output of the last
+        processor is returned along with the last `metadata`.
+
+        The set and order of processors called depends on the
+        ``procord`` option passed in. If this option is set to some
+        value like ``oocp,oocp`` then the ``oocp`` processor (which is
+        the :class:`OOConvProcessor`, registered under ``oocp`` in
+        `setup.py`) is called two times.
+
+        .. note:: after each processing, the (then old) input is
+                  removed.
         """
         pipeline = self._build_pipeline()
         output = None
         for processor in pipeline:
-            output, metadata = processor.process(input, metadata)
+            proc_instance = processor(self.all_options)
+            #try:
+            output, metadata = proc_instance.process(input, metadata)
+            #except:
+            #    metadata['error'] = True
+            if metadata['error'] is True:
+                metadata = self._handle_error(
+                    processor, input, output, metadata)
+                return None, metadata
+            if input != output:
+                remove_file_dir(input)
             input = output
-        return output, metadata
+        return input, metadata
 
+    def _handle_error(self, proc, input, output, metadata):
+        metadata['error-descr'] = metadata.get(
+            'error-descr',
+            'problem while processing %s' % proc.prefix)
+        remove_file_dir(input)
+        remove_file_dir(output)
+        return metadata
+        
     def _build_pipeline(self):
         """Build a pipeline of processors according to options.
         """
@@ -212,6 +271,11 @@ class OOConvProcessor(BaseProcessor):
             shutil.rmtree(src)
             return None, metadata
         result_path = urlparse(result_paths[0])[2]
+
+        # Remove input file if different from output
+        if os.path.exists(src):
+            if os.path.basename(result_path) != basename:
+                os.unlink(src)
         return result_path, metadata
 
     def validate_options(self):
@@ -262,6 +326,9 @@ class ZipProcessor(BaseProcessor):
         pass
 
     def process(self, path, metadata):
+        if isinstance(path, unicode):
+            # zipfile does not accept unicode encoded paths...
+            path = path.encode('utf-8')
         if os.path.isfile(path):
             basename = os.path.basename(path)
         path = os.path.dirname(path)
