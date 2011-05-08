@@ -29,6 +29,7 @@ import cherrypy
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
+from ulif.openoffice.helpers import remove_file_dir
 
 #class Resource(object):
 #
@@ -149,13 +150,19 @@ class DocumentRoot(object):
     def POST(self, doc, **data):
         workdir = tempfile.mkdtemp()
         file_path = os.path.join(workdir, doc.filename)
-        src = open(file_path, 'wb').write(doc.file.read())
+        open(file_path, 'wb').write(doc.file.read())
         proc = MetaProcessor(options=data)
         result_path, metadata = proc.process(file_path)
+        basename = os.path.basename(result_path)
         content_type = get_content_type(result_path)
-        # XXX: The result should be purged afterwards
-        return cherrypy.lib.static.serve_file(
-            result_path, content_type=content_type)
+        result_file = tempfile.TemporaryFile()
+        result_file.write(open(result_path, 'rb').read())
+        result_file.flush()
+        result_file.seek(0)
+        remove_file_dir(result_path)
+        remove_file_dir(workdir)
+        return cherrypy.lib.static.serve_fileobj(
+            result_file, content_type=content_type, name=basename)
 
 class Document(object):
     def _cp_dispatch(self, vpath):
