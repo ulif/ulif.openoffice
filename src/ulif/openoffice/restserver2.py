@@ -54,9 +54,16 @@ class DocumentRoot(object):
             return getattr(self, vpath[0], None)
         return
 
-    def POST(self, doc, **data):
+    def POST(self, doc=None, **data):
         """Create a resource (converted document) and return it.
         """
+        if doc is None:
+            raise cherrypy.HTTPError(
+                400, 'Request must contain `doc` parameter')
+        if getattr(doc, 'filename', None) is None:
+            raise cherrypy.HTTPError(
+                400, '`doc` must be a file')
+        
         # Create a filesystem copy of the file retrieved
         workdir = tempfile.mkdtemp()
         file_path = os.path.join(workdir, doc.filename)
