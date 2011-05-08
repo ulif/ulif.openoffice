@@ -21,11 +21,13 @@
 ##
 import os
 import shutil
+import zipfile
 try:
     import unittest2 as unittest
 except:
     import unittest
 
+from StringIO import StringIO
 from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
@@ -110,7 +112,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         headers = response.headers
         assert body.startswith('<!DOCTYPE HTML')
 
-    def test_POST_oocp_zip(self):
+    def test_POST_complex(self):
         src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
         response = self.app.post(
             '/docs',
@@ -121,17 +123,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             )
         body = response.body
         headers = response.headers
-        
-    def test_POST_oocp_zip_xhtml(self):
-        src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
-        response = self.app.post(
-            '/docs',
-            params={'meta.procord':'oocp,zip', 'oocp.out_fmt':'xhtml'},
-            upload_files = [
-                ('doc', 'testdoc1.doc', open(src, 'rb').read()),
-                ],
-            )
-        body = response.body
-        headers = response.headers
-
+        zip_file = zipfile.ZipFile(StringIO(body), 'r')
+        file_list = zip_file.namelist()
+        assert 'testdoc1.html' in file_list
         
