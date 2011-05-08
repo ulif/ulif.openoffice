@@ -22,8 +22,13 @@
 """
 RESTful server (cherry.py flavour)
 """
+import os
+import shutil
+import tempfile
 import cherrypy
 from ulif.openoffice.cachemanager import CacheManager
+from ulif.openoffice.processor import MetaProcessor
+from ulif.openoffice.util import get_content_type
 
 #class Resource(object):
 #
@@ -141,13 +146,16 @@ class DocumentRoot(object):
             return getattr(self, vpath[0], None)
         return
 
-    def GET(self):
-        print 
-        return "Hi from doc root"
-
-    def POST(self, doc=None, SUBMIT=None):
-        self.doc_ids.append(doc)
-        return "Got %s" % self.doc_ids
+    def POST(self, doc, **data):
+        workdir = tempfile.mkdtemp()
+        file_path = os.path.join(workdir, doc.filename)
+        src = open(file_path, 'wb').write(doc.file.read())
+        proc = MetaProcessor(options=data)
+        result_path, metadata = proc.process(file_path)
+        content_type = get_content_type(result_path)
+        # XXX: The result should be purged afterwards
+        return cherrypy.lib.static.serve_file(
+            result_path, content_type=content_type)
 
 class Document(object):
     def _cp_dispatch(self, vpath):
