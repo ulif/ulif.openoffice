@@ -26,6 +26,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
     ZipProcessor, )
@@ -68,6 +69,14 @@ class TestBaseProcessor(unittest.TestCase):
         assert proc.options is not proc.defaults
         
 class TestMetaProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+
+    def tearDown(self):
+        remove_file_dir(self.workdir)
+        remove_file_dir(self.resultpath)
 
     def test_no_options(self):
         # We cope with no options set
@@ -124,6 +133,34 @@ class TestMetaProcessor(unittest.TestCase):
         proc = MetaProcessor(options={'meta.procord':''})
         result = proc._build_pipeline()
         assert result is ()
+
+    def test_process_default(self):
+        proc = MetaProcessor(options={})
+        input_path = os.path.join(self.workdir, 'sample.txt')
+        open(input_path, 'wb').write('Hi there!')
+        self.resultpath, metadata = proc.process(input_path)
+        assert metadata == {'error': False, 'oocp_status':0}
+        assert self.resultpath.endswith('sample.html.zip')
+
+    def test_process_xhtml_unzipped(self):
+        proc = MetaProcessor(options={'oocp.out_fmt':'xhtml',
+                                      'meta.procord':'unzip,oocp'})
+        input_path = os.path.join(self.workdir, 'sample.txt')
+        open(input_path, 'wb').write('Hi there!')
+        self.resultpath, metadata = proc.process(input_path)
+        assert metadata == {'error': False, 'oocp_status':0}
+        assert self.resultpath.endswith('sample.xhtml')
+        #print open(self.resultpath, 'r').read()
+
+    def test_process_html_unzipped(self):
+        proc = MetaProcessor(options={'oocp.out_fmt':'html',
+                                      'meta.procord':'unzip,oocp'})
+        input_path = os.path.join(self.workdir, 'sample.txt')
+        open(input_path, 'wb').write('Hi there!')
+        self.resultpath, metadata = proc.process(input_path)
+        assert metadata == {'error': False, 'oocp_status':0}
+        assert self.resultpath.endswith('sample.html')
+
         
 class TestOOConvProcessor(TestOOServerSetup):
 
@@ -164,6 +201,16 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
 
+    def test_process_src_not_in_result(self):
+        # Make sure the input file does not remain in result dir
+        proc = OOConvProcessor()
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        dir_list = os.listdir(os.path.dirname(self.result_path))
+        assert 'sample.txt' not in dir_list
+        
 class TestUnzipProcessor(unittest.TestCase):
 
     def setUp(self):
