@@ -24,8 +24,10 @@ RESTful server (cherry.py flavour)
 """
 import os
 import shutil
+import sys
 import tempfile
 import cherrypy
+from optparse import OptionParser
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
@@ -135,19 +137,30 @@ class Root(object):
         self.cache_manager = CacheManager(cachedir)
         return
         
+userpassdict = {'bird' : 'bebop', 'ornette' : 'wayout'}
+checkpassword = cherrypy.lib.auth_basic.checkpassword_dict(userpassdict)
 
 root = Root()
     
-conf = {
+DEFAULT_CONFIG = {
     'global': {
         'server.socket_host': 'localhost',
         'server.socket_port': 8000,
         },
     '/': {
         'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+        #'tools.auth_basic.on': True,
+        'tools.auth_basic.realm': 'ulif.openoffice restful document server',
+        'tools.auth_basic.checkpassword': checkpassword,
         }
     }
 
-def main():
+def main(argv=sys.argv):
+    usage = "usage: %prog [options]"
+    parser = OptionParser(usage)
+    parser.add_option("-c", "--config", dest="config",
+                      help="use CONFIG as configuration file.",
+                      default=DEFAULT_CONFIG)
+    (options, args) = parser.parse_args(argv[1:])
 
-    cherrypy.quickstart(Root(), '/', conf)
+    cherrypy.quickstart(Root(), '/', options.config)
