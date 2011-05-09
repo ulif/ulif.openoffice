@@ -22,6 +22,7 @@
 import os
 import shutil
 import zipfile
+import cherrypy
 try:
     import unittest2 as unittest
 except:
@@ -51,6 +52,17 @@ class TestRESTful(TestRESTfulWSGISetup):
             expect_errors = True,
             )
         assert response.status == '400 Bad Request'
+
+    def test_POST_unauthorized(self):
+        # When basic auth is enabled, we cannot post docs.
+        cherrypy.config.update({'tools.auth_basic.on': True,})
+        response = self.app.post(
+            '/docs',
+            params={'doc':'some_string'},
+            expect_errors = True,
+            )
+        cherrypy.config.update({'tools.auth_basic.on': False,})
+        assert response.status == '401 Unauthorized'
 
 class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def setUp(self):
