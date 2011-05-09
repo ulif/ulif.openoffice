@@ -31,7 +31,7 @@ import ulif.openoffice
 from webtest import TestApp
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.oooctl import check_port
-from ulif.openoffice.restserver2 import Root, conf
+from ulif.openoffice.restserver2 import Root, DEFAULT_CONFIG
 
 try:
     import unittest2 as unittest
@@ -71,7 +71,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
             )
         
         self.wsgi_app = cherrypy.Application(
-            Root(cachedir=self.cachedir), '/', config=conf)
+            Root(cachedir=self.cachedir), '/', config=DEFAULT_CONFIG)
         self.app = TestApp(self.wsgi_app)
 
     def tearDown(self):
