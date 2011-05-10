@@ -39,7 +39,6 @@ import sys
 from optparse import OptionParser
 from ulif.openoffice.oooctl import daemonize, startstop
 from ulif.openoffice.pyunoserver import run as run_pyunoserver
-from ulif.openoffice.restserver import run as run_restserver
 
 PY_BIN = '/usr/bin/python'
 UNO_LIB_DIR = None
@@ -47,7 +46,6 @@ PIDFILE = '/tmp/pyunodaeomon.pid'
 
 PORT = 2009
 HOST = '127.0.0.1'
-MODE = 'raw'
 
 HOME = os.environ.get('HOME', None)
 CACHE_DIR = '.pyunocache'
@@ -120,19 +118,6 @@ def getOptions():
         )
 
     parser.add_option(
-        "-m", "--mode", choices=['raw', 'rest'],
-        help = "mode the server should start in. One of `raw`, `rest`. "
-               "Makes only sense when starting the daemon. "
-               "If started in raw mode, clients must operate on the "
-               "same machine as the server. In rest mode a RESTful "
-               "HTTP server is started that is slower than the raw server "
-               "but can also be used from remote. See internal docs "
-               "for different modes and their protocols. "
-               "Default: %s" % (MODE,),
-        default = MODE,
-        )
-
-    parser.add_option(
         "-l", "--logconf",
         help = "logging configuration file as explained in "
                "http://docs.python.org/library/logging.html. "
@@ -167,16 +152,11 @@ def getOptions():
     return (cmd, options)
 
 
-def start(host, port, python_binary, uno_lib_dir, cache_dir, mode, logger):
+def start(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     print "START PYUNO DAEMON"
-    if mode == 'rest':
-        run_restserver(host=host, port=port, python_binary=python_binary,
-                       uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
-                       logger=logger)
-    elif mode == 'raw':
-        run_pyunoserver(host=host, port=port, python_binary=python_binary,
-                        uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
-                        logger=logger)
+    run_pyunoserver(host=host, port=port, python_binary=python_binary,
+                    uno_lib_dir=uno_lib_dir, cache_dir=cache_dir,
+                    logger=logger)
 
 def getLogger(logconf):
     """Get a logger.
@@ -206,13 +186,9 @@ def main(argv=sys.argv):
     logger = getLogger(options.logconf)
 
     if cmd == 'start':
-        if options.mode == 'rest':
-            sys.stdout.write('startung RESTful HTTP server, ')
-            sys.stdout.flush()
-        else:
-            sys.stdout.write('starting pyUNO conversion server, ')
-            sys.stdout.flush()
-            pass
+        sys.stdout.write('starting pyUNO conversion server, ')
+        sys.stdout.flush()
+        pass
 
     # startstop() returns only in case of 'start' or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
@@ -220,7 +196,7 @@ def main(argv=sys.argv):
               pidfile=options.pidfile, action=cmd)
 
     start(options.host, options.port, options.binarypath, UNO_LIB_DIR,
-          options.cache_dir, options.mode, logger)
+          options.cache_dir, logger)
 
     # This point will not be reached as start() will run in TCPserver
     # serve_forever() loop...
