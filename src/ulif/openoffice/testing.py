@@ -31,7 +31,7 @@ import ulif.openoffice
 from webtest import TestApp
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.oooctl import check_port
-from ulif.openoffice.restserver2 import Root, DEFAULT_CONFIG
+from ulif.openoffice.restserver import Root, DEFAULT_CONFIG
 
 try:
     import unittest2 as unittest
