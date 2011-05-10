@@ -36,7 +36,7 @@ setup(name='ulif.openoffice',
       install_requires=[
           'setuptools',
           'zc.buildout',
-          'CherryPy',
+          'CherryPy>=3.2.0',
       ],
       setup_requires=["Sphinx-PyPI-upload"],
       extras_require=dict(
@@ -47,12 +47,15 @@ setup(name='ulif.openoffice',
             'py-restclient',
             'WebTest',
             'pytest',
+            'pytest-xdist',
             'unittest2',
             ],
         doc = ['Sphinx',
                'collective.recipe.sphinxbuilder']
         ),
       entry_points="""
+      [pytest11]
+      buildout-doctest = ulif.openoffice.testing_buildout
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
       pyunoctl = ulif.openoffice.pyunoctl:main
