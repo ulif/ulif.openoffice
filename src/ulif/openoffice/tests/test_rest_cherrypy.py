@@ -19,6 +19,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
+import base64
 import os
 import shutil
 import zipfile
@@ -27,11 +28,18 @@ try:
     import unittest2 as unittest
 except:
     import unittest
-
+    
 from StringIO import StringIO
 from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
+from ulif.openoffice.restserver import checkpassword
+
+checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
+    {'bird': 'bebop',
+     'ornette': 'wayout',
+     'testuser': 'secret',
+     })
 
 class TestRESTful(TestRESTfulWSGISetup):
 
@@ -64,6 +72,24 @@ class TestRESTful(TestRESTfulWSGISetup):
         cherrypy.config.update({'tools.auth_basic.on': False,})
         assert response.status == '401 Unauthorized'
 
+    def test_POST_invalid_creds(self):
+        # Invalid credentials will be noticed.
+        cherrypy.config.update({'tools.auth_basic.on': True,})
+        self.wsgi_app.config['/'].update(
+            {'tools.auth_basic.checkpassword': checkpassword_test,
+             })
+        response = self.app.post(
+            '/docs',
+            headers = [
+                ('Authorization', 'Basic %s' %(
+                        base64.encodestring('testuser:nonsense')[:-1])),
+                ],
+            params={'doc':'some_string'},
+            expect_errors = True,
+            )
+        cherrypy.config.update({'tools.auth_basic.on': False,})
+        assert response.status == '401 Unauthorized'
+
 class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def setUp(self):
         super(TestRESTfulFunctional, self).setUp()
@@ -71,6 +97,9 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         return
 
     def tearDown(self):
+        cherrypy.config.update(
+            {'tools.auth_basic.on': False,
+             })
         if self.resultdir is not None:
             if not os.path.isdir(self.resultdir):
                 self.resultdir = os.path.dirname(self.resultdir)
@@ -105,3 +134,24 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         zip_file = zipfile.ZipFile(StringIO(body), 'r')
         file_list = zip_file.namelist()
         assert 'testdoc1.html' in file_list
+
+    def test_POST_authorized(self):
+        # When basic auth is enabled, we can post docs.
+        cherrypy.config.update(
+            {'tools.auth_basic.on': True,
+             })
+        self.wsgi_app.config['/'].update(
+            {'tools.auth_basic.checkpassword': checkpassword_test,
+             })
+        response = self.app.post(
+            '/docs',
+            headers = [
+                ('Authorization', 'Basic %s' %(
+                        base64.encodestring('testuser:secret')[:-1])),
+                ],
+            upload_files = [
+                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ],
+            )
+        body = response.body
+        assert 'Unauthorized' not in body
