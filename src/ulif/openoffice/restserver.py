@@ -161,6 +161,14 @@ def main(argv=sys.argv):
     parser.add_option("-c", "--config", dest="config",
                       help="use CONFIG as configuration file.",
                       default=DEFAULT_CONFIG)
+    parser.add_option("-d", "--daemonize", dest="daemonize",
+                      help="run server as a daemon.",
+                      action="store_true",
+                      default=False)
     (options, args) = parser.parse_args(argv[1:])
 
+    from cherrypy.process.plugins import Daemonizer
+    if options.daemonize is True:
+        d = Daemonizer(cherrypy.engine)
+        d.subscribe()
     cherrypy.quickstart(Root(), '/', options.config)
