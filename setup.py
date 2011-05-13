@@ -60,7 +60,7 @@ setup(name='ulif.openoffice',
       oooctl = ulif.openoffice.oooctl:main
       pyunoctl = ulif.openoffice.pyunoctl:main
       convert = ulif.openoffice.convert:main
-      restserver = ulif.openoffice.restserver2:main
+      restserver = ulif.openoffice.restserver:main
       [ulif.openoffice.processors]
       oocp = ulif.openoffice.processor:OOConvProcessor
       unzip = ulif.openoffice.processor:UnzipProcessor
