@@ -211,6 +211,52 @@ class TestOOConvProcessor(TestOOServerSetup):
         dir_list = os.listdir(os.path.dirname(self.result_path))
         assert 'sample.txt' not in dir_list
 
+    def test_process_pdf_simple(self):
+        proc = OOConvProcessor(
+            options = {
+                'oocp.out_fmt': 'pdf',
+                }
+            )
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert self.result_path.endswith('sample.pdf')
+        #p = tempfile.mkdtemp()
+        #shutil.copy(self.result_path, p + '/sample1.pdf')
+        #print "P1: ", p
+
+
+    def test_process_pdf_as_pda(self):
+        # make sure we can produce PDF/A output
+        proc = OOConvProcessor(
+            options = {
+                'oocp.out_fmt': 'pdf',
+                'oocp.pdf_version': '1',
+                }
+            )
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' in open(
+            self.result_path, 'rb').read()
+
+    def test_process_pdf_as_non_pda(self):
+        # make sure we can produce non-PDF/A output
+        proc = OOConvProcessor(
+            options = {
+                'oocp.out_fmt': 'pdf',
+                'oocp.pdf_version': '0',
+                }
+            )
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
+            self.result_path, 'rb').read()
+
 class TestUnzipProcessor(unittest.TestCase):
 
     def setUp(self):
