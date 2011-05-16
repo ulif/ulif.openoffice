@@ -41,7 +41,7 @@ class SemiBaseProcessor(BaseProcessor):
     # A BaseProcessor that does not raise NotImplemented on creation
     def validate_options(self):
         pass
-    
+
 class TestBaseProcessor(unittest.TestCase):
 
     def test_get_own_options_defaults(self):
@@ -49,7 +49,7 @@ class TestBaseProcessor(unittest.TestCase):
         proc.defaults = {'key1': 'notset'}
         result = proc.get_own_options({})
         assert result == {'key1': 'notset'}
-        
+
     def test_get_own_options(self):
         proc = SemiBaseProcessor()
         proc.defaults = {'key1': 'notset'}
@@ -67,7 +67,7 @@ class TestBaseProcessor(unittest.TestCase):
         # make sure after creation options are not the same object as defaults
         proc = SemiBaseProcessor()
         assert proc.options is not proc.defaults
-        
+
 class TestMetaProcessor(unittest.TestCase):
 
     def setUp(self):
@@ -161,7 +161,7 @@ class TestMetaProcessor(unittest.TestCase):
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.html')
 
-        
+
 class TestOOConvProcessor(TestOOServerSetup):
 
     def setUp(self):
@@ -210,12 +210,12 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         dir_list = os.listdir(os.path.dirname(self.result_path))
         assert 'sample.txt' not in dir_list
-        
+
 class TestUnzipProcessor(unittest.TestCase):
 
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
-        self.zipfile_path = os.path.join(self.workdir, 'sample2.zip') 
+        self.zipfile_path = os.path.join(self.workdir, 'sample2.zip')
         shutil.copy(
             os.path.join(os.path.dirname(__file__), 'input', 'sample2.zip'),
             self.zipfile_path)
