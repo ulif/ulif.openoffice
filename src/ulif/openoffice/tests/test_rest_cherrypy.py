@@ -28,7 +28,7 @@ try:
     import unittest2 as unittest
 except:
     import unittest
-    
+
 from StringIO import StringIO
 from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
