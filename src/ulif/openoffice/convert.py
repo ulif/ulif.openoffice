@@ -67,7 +67,7 @@ try:
     unregister_uno_import()
 except ImportError:
     pass
-    
+
 def convert_file_to_html(
     url="uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
     # A list of internal filter names can be obtained at:
@@ -87,7 +87,7 @@ def convert_file_to_html(
     file and any subobjects (images, etc.) might reside.
 
     It is in the resposibility of the calling code to remove the directory!
-    
+
     """
     if data is None or filename is None:
         return ''
@@ -127,7 +127,7 @@ def convert_to_pdf(
     extension="pdf",
     path=None):
     """Convert the document in ``path`` to PDF.
-    
+
     Returns the PDF document as string. Any subobjects are placed as
     files in the document path.
     """
@@ -137,7 +137,8 @@ def convert(
     url="uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
     filter_name="Text (Encoded)",
     extension="txt",
-    paths=[]):
+    paths=[],
+    filter_props=()):
     """Do the real conversion.
     """
     # See head of file for what's happening here.
@@ -201,7 +202,6 @@ def convert(
     ret_val = 0
     doc = None
     stdout = False
-    filter_props = None
     dest_paths = []
 
     try:
@@ -225,15 +225,15 @@ def convert(
             PropertyValue("OutputStream", 0, OutputStream(), 0),
 	]
 
-        if filter_name == "writer_pdf_Export":
+        # Apply any filter_props if given...
+        if len(filter_props) > 0:
+            sub_props = tuple(
+                [PropertyValue(*x) for x in filter_props])
             # We have to pass the `FilterData` property very
             # carefully. It must be an `uno.Any` value.
             filter_props = PropertyValue(
                 "FilterData", 0, uno.Any(
-                    "[]com.sun.star.beans.PropertyValue", (
-                        #PropertyValue("SelectPdfVersion", 0, 1L, 0),
-                        #PropertyValue("UseTaggedPDF", 0, False, 0),
-                )), 0)
+                    "[]com.sun.star.beans.PropertyValue", sub_props), 0)
             out_props.append(filter_props)
 
         inProps = PropertyValue("Hidden" , 0 , True, 0),
@@ -293,7 +293,7 @@ def usage():
         "openoffice \"-accept=socket,host=localhost,port=2002;urp;\" \n"
         "\n"+
         "--stdout \n" +
-        "         Redirect output to stdout. Avoids writing to a file directly\n" + 
+        "         Redirect output to stdout. Avoids writing to a file directly\n" +
         "-c <connection-string> | --connection-string=<connection-string>\n" +
         "        The connection-string part of a uno url to where the\n" +
         "        the script should connect to in order to do the conversion.\n" +
@@ -303,7 +303,7 @@ def usage():
         "--pdf \n"
         "        Instead of the text filter, the pdf filter is used\n"
         )
-    
+
 
 def main(argv=sys.argv):
     try:
@@ -326,11 +326,11 @@ def main(argv=sys.argv):
                 extension  = "pdf"
 	    if o == "--stdout":
 	    	stdout = True
-                
+
         if not len(args):
             usage()
             sys.exit()
-            
+
         (ret_val, paths) = convert(url, filter_name, extension, args)
 
     except getopt.GetoptError,e:
