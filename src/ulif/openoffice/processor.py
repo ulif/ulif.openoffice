@@ -35,7 +35,7 @@ class BaseProcessor(object):
     """
     #: The name under which this processor is known. A simple string.
     prefix = 'base'
-    
+
     #: The option defaults. A dictionary. Each option supported by
     #: this processor needs a default value set in this dictionary.
     defaults = {}
@@ -165,7 +165,7 @@ class MetaProcessor(BaseProcessor):
 
         If all processors run successful, the output of the last along
         with (maybe modified) metadata is returned.
-        
+
         Each processor is fed with the `metadata` dict and an `input`
         (normally a filepath). Feeding a processor means to call its
         `process` method.
@@ -211,7 +211,7 @@ class MetaProcessor(BaseProcessor):
         remove_file_dir(input)
         remove_file_dir(output)
         return metadata
-        
+
     def _build_pipeline(self):
         """Build a pipeline of processors according to options.
         """
@@ -227,6 +227,12 @@ class MetaProcessor(BaseProcessor):
 
 class OOConvProcessor(BaseProcessor):
     """A processor that converts office docs into different formats.
+
+    XXX: we could support far more options. See
+
+         http://wiki.services.openoffice.org/wiki/API/Tutorials/PDF_export#How_to_use_it_from_OOo_Basic
+
+         only for a list of PDF export options.
     """
     prefix = 'oocp'
 
@@ -247,6 +253,20 @@ class OOConvProcessor(BaseProcessor):
 
     options = {}
 
+    def _get_filter_props(self):
+        props = []
+        if self.options['pdf_version'] is not None:
+            # allowed: 0L (PDF1.4), 1L (PDF1.3 aka PDF1/A)
+            value = long(self.options['pdf_version'])
+            props.append(
+                ("SelectPdfVersion", 0, value, 0))
+        if self.options['pdf_tagged'] is not None:
+            # allowed: True, False
+            value = self.options['pdf_tagged'].lower() in ['1', 'yes', 'true']
+            props.append(
+                ("UseTaggedPDF", 0, value, 0))
+        return props
+
     def process(self, path, metadata):
         basename = os.path.basename(path)
         src = os.path.join(
@@ -259,10 +279,12 @@ class OOConvProcessor(BaseProcessor):
         url = 'uno:socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
             self.options['host'], self.options['port'])
 
+        filter_props = self._get_filter_props()
         status, result_paths = convert(
             url=url,
             extension=extension, filter_name=filter_name,
-            paths=[src])
+            filter_props=filter_props, paths=[src]
+            )
 
         metadata['oocp_status'] = status
         if status != 0:
