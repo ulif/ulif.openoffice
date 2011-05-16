@@ -222,10 +222,6 @@ class TestOOConvProcessor(TestOOServerSetup):
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.pdf')
-        #p = tempfile.mkdtemp()
-        #shutil.copy(self.result_path, p + '/sample1.pdf')
-        #print "P1: ", p
-
 
     def test_process_pdf_as_pda(self):
         # make sure we can produce PDF/A output
