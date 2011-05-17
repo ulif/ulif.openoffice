@@ -378,7 +378,6 @@ class Tidy(BaseProcessor):
         basename = os.path.basename(path)
         src_path = os.path.join(
             copy_to_secure_location(path), basename)
-        print "\nSRC_PATH: ", src_path
         src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
 
