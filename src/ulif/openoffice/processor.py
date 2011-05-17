@@ -360,3 +360,31 @@ class ZipProcessor(BaseProcessor):
             os.path.dirname(zip_file), basename + '.zip')
         os.rename(zip_file, result_path)
         return result_path, metadata
+
+class Tidy(BaseProcessor):
+    """A processor for cleaning up HTML code produced by OO.org output.
+
+    This processor calls :cmd:`tidy` in a subshell. That means the
+    :cmd:`tidy` command must be installed in system to make this
+    processor work.
+    """
+    prefix = 'tidy'
+
+    def validate_options(self):
+        # No options to handle yet...
+        pass
+
+    def process(self, path, metadata):
+        basename = os.path.basename(path)
+        src_path = os.path.join(
+            copy_to_secure_location(path), basename)
+        print "\nSRC_PATH: ", src_path
+        src_dir = os.path.dirname(src_path)
+        remove_file_dir(path)
+
+        error_file = os.path.join(src_dir, 'tidy-errors')
+        cmd = 'tidy -asxhtml -clean -indent -modify -f %s %s' % (
+            error_file, src_path)
+        os.system(cmd)
+        os.unlink(error_file)
+        return src_path, metadata
