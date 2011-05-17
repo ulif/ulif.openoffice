@@ -37,6 +37,7 @@ setup(name='ulif.openoffice',
           'setuptools',
           'zc.buildout',
           'CherryPy>=3.2.0',
+          'BeautifulSoup',
       ],
       setup_requires=["Sphinx-PyPI-upload"],
       extras_require=dict(
@@ -65,5 +66,7 @@ setup(name='ulif.openoffice',
       oocp = ulif.openoffice.processor:OOConvProcessor
       unzip = ulif.openoffice.processor:UnzipProcessor
       zip = ulif.openoffice.processor:ZipProcessor
+      tidy = ulif.openoffice.processor:Tidy
+      error = ulif.openoffice.processor:Error
       """,
       )
