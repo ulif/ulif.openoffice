@@ -155,3 +155,17 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             )
         body = response.body
         assert 'Unauthorized' not in body
+
+    def test_POST_error(self):
+        # When the pipeline returns no result, we return any error-msg.
+        response = self.app.post(
+            '/docs',
+            params={'meta.procord': 'error'},
+            upload_files = [
+                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ],
+            expect_errors = True,
+            )
+        status = response.status
+        assert status == '503 Service Unavailable'
+        assert 'Intentional error' in response.body
