@@ -65,7 +65,7 @@ class DocumentRoot(object):
         if getattr(doc, 'filename', None) is None:
             raise cherrypy.HTTPError(
                 400, '`doc` must be a file')
-        
+
         # Create a filesystem copy of the file retrieved
         workdir = tempfile.mkdtemp()
         file_path = os.path.join(workdir, doc.filename)
@@ -74,6 +74,11 @@ class DocumentRoot(object):
         # Process input
         proc = MetaProcessor(options=data)
         result_path, metadata = proc.process(file_path)
+
+        if not isinstance(result_path, basestring):
+            return self.handle_error(metadata, workdir)
+        if metadata.get('error', False) is True:
+            return self.handle_error(metadata, workdir)
         basename = os.path.basename(result_path)
         content_type = get_content_type(result_path)
 
@@ -88,6 +93,12 @@ class DocumentRoot(object):
         remove_file_dir(workdir)
         return cherrypy.lib.static.serve_fileobj(
             result_file, content_type=content_type, name=basename)
+
+    def handle_error(self, metadata, workdir):
+        msg = metadata.get('error-descr', 'No error description available')
+        remove_file_dir(workdir)
+        raise cherrypy.HTTPError(503, msg)
+
 
 class Document(object):
     def _cp_dispatch(self, vpath):
@@ -125,7 +136,7 @@ class DocumentIndex(object):
           """ % self.ids
 
 class Root(object):
-        
+
     @property
     def docs(self):
         return DocumentRoot(cache_manager=self.cache_manager)
@@ -136,12 +147,12 @@ class Root(object):
             return
         self.cache_manager = CacheManager(cachedir)
         return
-        
+
 userpassdict = {'bird' : 'bebop', 'ornette' : 'wayout'}
 checkpassword = cherrypy.lib.auth_basic.checkpassword_dict(userpassdict)
 
 root = Root()
-    
+
 DEFAULT_CONFIG = {
     'global': {
         'server.socket_host': 'localhost',
