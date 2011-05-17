@@ -29,7 +29,7 @@ import zipfile
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
-    ZipProcessor, )
+    ZipProcessor, Tidy, )
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -324,3 +324,26 @@ class TestZipProcessor(unittest.TestCase):
         zip_file = zipfile.ZipFile(self.result_path, 'r')
         namelist = zip_file.namelist()
         assert namelist == ['sample1.txt', 'sample2.txt']
+
+class TestTidyProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        self.sample_path = os.path.join(self.workdir, 'sample.html')
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample1.html'),
+            self.sample_path)
+        return
+
+    def tearDown(self):
+        remove_file_dir(self.workdir)
+        remove_file_dir(self.resultpath)
+
+    def test_default_xhtml(self):
+        # make sure by default we get XHTML output from HTML.
+        proc = Tidy()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        assert '"-//W3C//DTD XHTML 1.0 Transitional//EN"' in contents
