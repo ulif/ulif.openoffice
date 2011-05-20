@@ -384,7 +384,7 @@ class Tidy(BaseProcessor):
         remove_file_dir(path)
 
         error_file = os.path.join(src_dir, 'tidy-errors')
-        cmd = 'tidy -asxhtml -clean -indent -modify -f %s %s' % (
+        cmd = 'tidy -asxhtml -clean -indent -modify -utf8 -f %s %s' % (
             error_file, src_path)
         os.system(cmd)
         os.unlink(error_file)
