@@ -29,9 +29,10 @@ import tempfile
 import cherrypy
 from optparse import OptionParser
 from ulif.openoffice.cachemanager import CacheManager
+from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
-from ulif.openoffice.helpers import remove_file_dir
+from ulif.openoffice.helpers import remove_file_dir, get_entry_points
 
 class DocumentRoot(object):
     exposed = True
@@ -135,11 +136,40 @@ class DocumentIndex(object):
           </html>
           """ % self.ids
 
+class Status(object):
+
+    exposed = True
+
+    @property
+    def avail_procs(self):
+        return get_entry_points('ulif.openoffice.processors')
+
+    def GET(self):
+        content = "<html><body>"
+        content += "<h1>Status Report</h1>"
+        content += "<h2>Installed doc processors: </h2>"
+        content += "<table><thead><tr><th>name</th><th>defaults</th>"
+        content += "</tr></thead><tbody>"
+        for name, proc in self.avail_procs.items():
+            content += "<tr><td>%s</td><td>%s</td></tr>" %(
+                name, proc.defaults)
+        content += "</tbody></table>"
+        content += "<h2>OpenOffice.org/LibreOffice Server:</h2>"
+        content += "<table><thead><tr><th>key</th><th>value</th>"
+        content += "</tr></thead><tbody>"
+        content += '<tr><td>Status</td><td id="ooo_status">%s</td></tr>' %(
+            check_port('localhost', 2002) and 'UP' or 'DOWN', )
+        content += "</tbody></table>"
+        content +="</body></html>"
+        return content
+
 class Root(object):
 
     @property
     def docs(self):
         return DocumentRoot(cache_manager=self.cache_manager)
+
+    status = Status()
 
     def __init__(self, cachedir=None):
         self.cache_manager = None
