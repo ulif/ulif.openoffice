@@ -43,7 +43,7 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-    
+
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
         open(sample_path, 'wb').write("Hi from sample")
