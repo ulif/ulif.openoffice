@@ -136,7 +136,7 @@ class MetaProcessor(BaseProcessor):
     #: ``'unzip,oocp,zip'`` which means: maybe unzip the input, then
     #: convert it into HTML and afterwards zip the results.
     defaults = {            # Option defaults. Each option needs one.
-        'procord': 'unzip,oocp,zip',
+        'procord': 'unzip,oocp,tidy,css_cleaner,zip',
         }
 
     @property
