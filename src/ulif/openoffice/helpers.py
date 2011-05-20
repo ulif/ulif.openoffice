@@ -26,6 +26,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+from BeautifulSoup import BeautifulSoup, Tag
 from pkg_resources import iter_entry_points
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -182,7 +183,7 @@ def zip(path):
     """
     if not os.path.isdir(path) and not os.path.isfile(path):
         raise ValueError('Must be an existing path or directory: %s' % path)
-    
+
     new_dir = tempfile.mkdtemp()
     basename = os.path.basename(path)
     new_path = os.path.join(new_dir, basename) + '.zip'
@@ -192,7 +193,7 @@ def zip(path):
         zout.write(path, basename)
         zout.close()
         return new_path
-    
+
     for root, dirs, files in os.walk(path):
         for dir in dirs:
             # XXX: Maybe the wrong way to store directories?
@@ -222,3 +223,47 @@ def remove_file_dir(path):
     assert path not in ['/', '/tmp'] # Safety belt
     shutil.rmtree(path)
     return
+
+
+def mangle_css(line):
+    line = "    " + line.strip()
+    if '{' in line:
+        parts = line.split('{', 1)
+        line = '%s{%s' % (parts[0].lower(), parts[1])
+    return line
+
+
+def flatten_css(input):
+
+    def _ok(line):
+        for text in ['CDATA', '<!--', '-->', '/*']:
+            if text in line:
+                return False
+        if len(line.strip()) == 0:
+            return False
+        return True
+
+    soup = BeautifulSoup(input)
+
+    comments = soup.findAll('style')
+    styles = soup.findAll('style')
+
+    strings = []
+    for num, style in enumerate(styles):
+        strings.append(style.string)
+        if num > 0:
+            style.extract()
+    new_lines = []
+    for string in strings:
+        new_lines.extend(string.splitlines())
+
+    new_content = '\n'.join(
+        [mangle_css(x) for x in new_lines if _ok(x)])
+    new_content = '/* <![CDATA[ */\n' + new_content + '\n   /* ]]> */'
+    new_tag = Tag(soup, 'style', [('type', 'text/css')])
+    new_tag.insert(0, new_content)
+    styles[0].replaceWith(new_tag)
+
+    new_soup = soup.prettify()
+    soup = BeautifulSoup(new_soup)
+    return soup.prettify()

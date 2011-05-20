@@ -389,52 +389,6 @@ class Tidy(BaseProcessor):
         os.unlink(error_file)
         return src_path, metadata
 
-    def flatten_css(self, input):
-        import BeautifulSoup
-        #from BeautifulSoup import BeautifulSoup as BS
-        soup = BeautifulSoup.BeautifulSoup(input)
-
-        comments = soup.findAll('style')
-        styles = soup.findAll('style')
-        #hook = styles[0].previous
-        strings = []
-        for num, style in enumerate(styles):
-            strings.append(style.string)
-            if num > 0:
-                style.extract()
-        new_lines = []
-        for string in strings:
-            new_lines.extend(string.splitlines())
-        #new_lines = ['<style type="text/css">'].extend(new_lines)
-        #new_lines.append('</style>')
-        new_content = '\n'.join(
-            [self._mangle_css(x) for x in new_lines if self._ok(x)])
-        new_content = '/* <![CDATA[ */\n' + new_content + '\n   /* ]]> */'
-        new_tag = BeautifulSoup.Tag(soup, 'style', [('type', 'text/css')])
-        new_tag.insert(0, new_content)
-        #new_tag['type'] = 'text/css'
-        styles[0].replaceWith(new_tag)
-
-        #import pdb; pdb.set_trace()
-        new_soup = soup.prettify()
-        soup = BeautifulSoup.BeautifulSoup(new_soup)
-        print soup.prettify()
-
-    def _ok(self, line):
-        for text in ['CDATA', '<!--', '-->', '/*']:
-            if text in line:
-                return False
-        if len(line.strip()) == 0:
-            return False
-        return True
-
-    def _mangle_css(self, line):
-        line = "    " + line.strip()
-        if '{' in line:
-            parts = line.split('{', 1)
-            line = '%s{%s' % (parts[0].lower(), parts[1])
-        return line
-
 class Error(BaseProcessor):
     """A processor that returns an error message.
 
