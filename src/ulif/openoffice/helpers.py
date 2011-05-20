@@ -252,7 +252,8 @@ def flatten_css(input):
             style.extract()
     new_lines = []
     for string in strings:
-        new_lines.extend(string.splitlines())
+        if isinstance(string, basestring):
+            new_lines.extend(string.splitlines())
 
     new_content = '\n'.join(
         [mangle_css(x) for x in new_lines if _ok(x)])
