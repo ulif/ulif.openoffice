@@ -185,9 +185,20 @@ class TestHelpers(unittest.TestCase):
          </body>
         </html>
         <BLANKLINE>
-
         """
         pass
+
+    def test_flatten_css_trash(self):
+        result = flatten_css("a")
+        assert result == "a\n"
+
+    def test_flatten_css_empty_styles(self):
+        result = flatten_css("<style></style>")
+        assert result == ''
+
+    def test_flatten_css_empty_closed_styles(self):
+        result = flatten_css("<style />")
+        assert result == ''
 
     def test_extract_css(self):
         """
@@ -262,3 +273,29 @@ class TestHelpers(unittest.TestCase):
         True
 
         """
+
+    def test_extract_css_trash(self):
+        # Also trashy docs can be handled
+        result, css = extract_css("", 'sample.html')
+        assert css is None
+        assert result == ""
+
+    def test_extract_css_empty_styles1(self):
+        # Also trashy docs can be handled
+        result, css = extract_css(
+            "<style></style>", 'sample.html')
+        assert css is None
+        assert result == ""
+
+    def test_extract_css_empty_styles2(self):
+        # Also trashy docs can be handled
+        result, css = extract_css(
+            "<html><style /></html>", 'sample.html')
+        assert css is None
+        assert result == "<html>\n</html>"
+
+    def test_extract_css_nested_styles(self):
+        # Trash in, trash out...
+        result, css = extract_css(
+            "<html><style>a<style>b</style></style></html>", 'sample.html')
+        assert css == u'a<style>b'

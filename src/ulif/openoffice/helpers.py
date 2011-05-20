@@ -246,6 +246,9 @@ def flatten_css(input):
     soup = BeautifulSoup(input)
     styles = soup.findAll('style')
     strings = []
+    if len(styles) == 0:
+        return soup.prettify()
+
     for num, style in enumerate(styles):
         strings.append(style.string)
         if num > 0:
@@ -255,15 +258,17 @@ def flatten_css(input):
         if isinstance(string, basestring):
             new_lines.extend(string.splitlines())
 
-    new_content = '\n'.join(
-        [mangle_css(x) for x in new_lines if _ok(x)])
-    new_content = '/* <![CDATA[ */\n' + new_content + '\n   /* ]]> */'
-    new_tag = Tag(soup, 'style', [('type', 'text/css')])
-    new_tag.insert(0, new_content)
-    styles[0].replaceWith(new_tag)
+    new_lines = [mangle_css(line) for line in new_lines if _ok(line)]
+    if len(new_lines) == 0:
+        # No CSS content. Remove styles completely.
+        styles[0].extract()
+    else:
+        new_content = '\n'.join(new_lines)
+        new_content = '/* <![CDATA[ */\n' + new_content + '\n   /* ]]> */'
+        new_tag = Tag(soup, 'style', [('type', 'text/css')])
+        new_tag.insert(0, new_content)
+        styles[0].replaceWith(new_tag)
 
-    new_soup = soup.prettify()
-    soup = BeautifulSoup(new_soup)
     return soup.prettify()
 
 def extract_css(html_input, basename):
@@ -284,6 +289,10 @@ def extract_css(html_input, basename):
     soup = BeautifulSoup(html_input)
     styles = soup.findAll('style')
     css_lines = []
+
+    if len(styles) == 0:
+        return soup.prettify(), None
+
     for num, style in enumerate(styles):
         if style.string is None:
             continue
@@ -301,7 +310,9 @@ def extract_css(html_input, basename):
             style.extract()
 
     if len(css_lines) == 0:
+        # There are styles but without any content. Remove it.
         css = None
+        styles[0].extract()
     else:
         css = '\n'.join(css_lines)
         css_name = os.path.splitext(basename)[0] + '.css'
