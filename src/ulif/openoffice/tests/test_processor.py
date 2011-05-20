@@ -29,7 +29,7 @@ import zipfile
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
-    ZipProcessor, Tidy, Error)
+    ZipProcessor, Tidy, CSSCleaner, Error)
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -351,6 +351,33 @@ class TestTidyProcessor(unittest.TestCase):
         #new = copy_to_secure_location(self.resultpath)
         #print "NEW: ", new
 
+class TestCSSCleanerProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        self.sample_path = os.path.join(self.workdir, 'sample.html')
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample2.html'),
+            self.sample_path)
+        return
+
+    def tearDown(self):
+        remove_file_dir(self.workdir)
+        remove_file_dir(self.resultpath)
+
+    def test_cleaner(self):
+        # make sure we get a new CSS file and a link to it in HTML
+        proc = CSSCleaner()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        snippet = "%s" % (
+            '<link rel="stylesheet" type="text/css" href="sample.css" />')
+        assert 'sample.css' in os.listdir(resultdir)
+        assert snippet in open(self.resultpath, 'rb').read()
 
 class TestErrorProcessor(unittest.TestCase):
 
