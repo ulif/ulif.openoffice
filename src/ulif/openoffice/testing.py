@@ -47,7 +47,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
     This is excellent for testing as we don't have to start a real
     webserver but can ask a locally created WSGI app directly. Tests
     are also much faster using this technique.
-    
+
     Use `self.app` for a :mod:`webtest` based HTTP-client client.
 
     Use `self.wsgi_app` if you need access to the real WSGI app.
@@ -59,7 +59,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
         self.access_log = os.path.join(self.workdir, 'access.log')
         self.error_log = os.path.join(self.workdir, 'error.log')
         self.cache_manager = CacheManager(self.cachedir)
-        
+
         # configure cherrypy to be quiet ;)
         cherrypy.config.update({ "environment": "embedded" })
 
@@ -69,7 +69,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
              'log.screen': False,
              }
             )
-        
+
         self.wsgi_app = cherrypy.Application(
             Root(cachedir=self.cachedir), '/', config=DEFAULT_CONFIG)
         self.app = TestApp(self.wsgi_app)
@@ -105,7 +105,7 @@ class TestOOServerSetup(unittest.TestCase):
     .. note:: This testcase works only with :mod:`unittest2`!  For
               more recent Python versions (Python >= 2.6) the default
               :mod:`unittest` module is sufficient.
-    
+
     """
     @classmethod
     def setUpClass(cls):
