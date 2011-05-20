@@ -356,6 +356,7 @@ class TestTidyProcessor(unittest.TestCase):
             self.sample_path, {'error':False})
         contents = open(self.resultpath, 'rb').read()
         assert 'Ü' in contents
+        assert '&Uuml;' not in contents
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
