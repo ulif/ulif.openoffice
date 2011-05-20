@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##
 ## test_processor.py
 ## Login : <uli@pu.smp.net>
@@ -347,9 +348,14 @@ class TestTidyProcessor(unittest.TestCase):
             self.sample_path, {'error':False})
         contents = open(self.resultpath, 'rb').read()
         assert '"-//W3C//DTD XHTML 1.0 Transitional//EN"' in contents
-        #from ulif.openoffice.helpers import copy_to_secure_location
-        #new = copy_to_secure_location(self.resultpath)
-        #print "NEW: ", new
+
+    def test_encoding_utf8(self):
+        # make sure we get UTF-8 output and no special stuff.
+        proc = Tidy()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        assert 'Ü' in contents
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
