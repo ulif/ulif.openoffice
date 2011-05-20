@@ -28,7 +28,8 @@ import tempfile
 from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,)
+    copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
+    flatten_css, extract_css,)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -387,6 +388,38 @@ class Tidy(BaseProcessor):
             error_file, src_path)
         os.system(cmd)
         os.unlink(error_file)
+        return src_path, metadata
+
+class CSSCleaner(BaseProcessor):
+    """A processor for cleaning up CSS parts of HTML code.
+
+    Normal converters leave CSS inside an HTML document. This
+    processor first aggregates these style parts and then puts it into
+    an external CSS file leaving only a link to that file.
+
+    This processor requires HTML/XHTML input.
+    """
+    prefix = 'css_cleaner'
+
+    def validate_options(self):
+        # No options to handle yet...
+        pass
+
+    def process(self, path, metadata):
+        basename = os.path.basename(path)
+        src_path = os.path.join(
+            copy_to_secure_location(path), basename)
+        src_dir = os.path.dirname(src_path)
+        remove_file_dir(path)
+
+        flattened_version = flatten_css(open(src_path, 'rb').read())
+        new_html, css = extract_css(flattened_version, basename)
+
+        css_file = os.path.splitext(src_path)[0] + '.css'
+        if css is not None:
+            open(css_file, 'wb').write(css)
+        open(src_path,'wb').write(new_html)
+
         return src_path, metadata
 
 class Error(BaseProcessor):
