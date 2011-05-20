@@ -225,8 +225,8 @@ def remove_file_dir(path):
     return
 
 
-def mangle_css(line):
-    line = "    " + line.strip()
+def mangle_css(line, num_cols=4):
+    line = " " * num_cols + line.strip()
     if '{' in line:
         parts = line.split('{', 1)
         line = '%s{%s' % (parts[0].lower(), parts[1])
@@ -244,10 +244,7 @@ def flatten_css(input):
         return True
 
     soup = BeautifulSoup(input)
-
-    comments = soup.findAll('style')
     styles = soup.findAll('style')
-
     strings = []
     for num, style in enumerate(styles):
         strings.append(style.string)
@@ -267,3 +264,49 @@ def flatten_css(input):
     new_soup = soup.prettify()
     soup = BeautifulSoup(new_soup)
     return soup.prettify()
+
+def extract_css(html_input, basename):
+    """Scan `html_input` and replace all styles with a link to a file.
+
+    Returns tuple ``<MODIFIED_HTML>, <CSS-CODE>``.
+
+    If the `html_input` contains any ``<style>`` tags, their content
+    is aggregated and returned in ``<CSS-CODE``.
+
+    The tags are all stripped from `html` input and replaced by a link
+    to a stylesheet file named ``<basename>.css``. Any extension in
+    `basename` is stripped. So ``sample.html`` as `basename` will
+    result in a link to ``sample.css``. The same applies for a
+    `basename` ``sample.css`` or ``sample``. The modified HTML code is
+    returned as first item of the result tuple.
+    """
+    soup = BeautifulSoup(html_input)
+    styles = soup.findAll('style')
+    css_lines = []
+    for num, style in enumerate(styles):
+        lines = style.string.splitlines()
+        for line in lines:
+            line = line.strip()
+            if line == '':
+                continue
+            if '<![CDATA' in line:
+                continue
+            if ']]>' in line:
+                continue
+            css_lines.append(line)
+        if num > 0:
+            style.extract()
+
+    if len(css_lines) == 0:
+        css = None
+    else:
+        css = '\n'.join(css_lines)
+        css_name = os.path.splitext(basename)[0] + '.css'
+        new_tag = Tag(soup, 'link', [
+                ('rel', 'stylesheet'),
+                ('type', 'text/css'),
+                ('href', css_name),
+                ])
+        styles[0].replaceWith(new_tag)
+    html = soup.prettify()
+    return html, css
