@@ -285,6 +285,8 @@ def extract_css(html_input, basename):
     styles = soup.findAll('style')
     css_lines = []
     for num, style in enumerate(styles):
+        if style.string is None:
+            continue
         lines = style.string.splitlines()
         for line in lines:
             line = line.strip()
