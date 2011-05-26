@@ -28,7 +28,7 @@ import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    extract_css,)
+    extract_css, cleanup_html,)
 
 class TestHelpers(unittest.TestCase):
 
@@ -264,3 +264,43 @@ class TestHelpers(unittest.TestCase):
         result, css = extract_css(html_input, 'sample.html')
         assert '/*' not in result
         return
+
+    def test_cleanup_html_fix_head_nums(self):
+        html_input = '<body><h1>1.1Heading</h1></body>'
+        result = cleanup_html(html_input)
+        expected = '<body><h1><span class="u-o-headnum">%s</span>'
+        expected += 'Heading</h1></body>'
+        assert result == expected % ('1.1')
+
+    def test_cleanup_html_fix_head_nums_no_nums(self):
+        html_input = '<body><h1>Heading</h1></body>'
+        result = cleanup_html(html_input)
+        assert result == '<body><h1>Heading</h1></body>'
+
+    def test_cleanup_html_fix_head_nums_trailing_dot(self):
+        html_input = '<body><h1>1.1.Heading</h1></body>'
+        result = cleanup_html(html_input)
+        expected = '<body><h1><span class="u-o-headnum">%s</span>'
+        expected += 'Heading</h1></body>'
+        assert result == expected % ('1.1.')
+
+    def test_cleanup_html_fix_head_nums_h6(self):
+        html_input = '<body><h6>1.1.Heading</h6></body>'
+        result = cleanup_html(html_input)
+        expected = '<body><h6><span class="u-o-headnum">%s</span>'
+        expected += 'Heading</h6></body>'
+        assert result == expected % ('1.1.')
+
+    def test_cleanup_html_fix_head_nums_tag_attrs(self):
+        html_input = '<body><h6 class="foo">1.1.Heading</h6></body>'
+        result = cleanup_html(html_input)
+        expected = '<body><h6 class="foo"><span class="u-o-headnum">%s'
+        expected += '</span>Heading</h6></body>'
+        assert result == expected % ('1.1.')
+
+    def test_cleanup_html_fix_head_nums_linebreaks(self):
+        html_input = '<body><h1>\n 1.1.Heading</h1></body>'
+        result = cleanup_html(html_input)
+        expected = '<body><h1>\n <span class="u-o-headnum">%s</span>'
+        expected += 'Heading</h1></body>'
+        assert result == expected % ('1.1.')
