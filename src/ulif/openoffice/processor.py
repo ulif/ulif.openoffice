@@ -29,7 +29,7 @@ from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
-    flatten_css, extract_css,)
+    extract_css,)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -412,8 +412,41 @@ class CSSCleaner(BaseProcessor):
         src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
 
-        flattened_version = flatten_css(open(src_path, 'rb').read())
-        new_html, css = extract_css(flattened_version, basename)
+        new_html, css = extract_css(open(src_path, 'rb').read(), basename)
+
+        css_file = os.path.splitext(src_path)[0] + '.css'
+        if css is not None:
+            open(css_file, 'wb').write(css)
+        open(src_path,'wb').write(new_html)
+
+        return src_path, metadata
+
+class HTMLImageOrder(BaseProcessor):
+    """A processor that renames all images and their links into an order.
+
+    All images linked in an HTML document are renamed to
+    ``<BASENAME>_<BASENAME-EXT>-<N>.<EXT>`` where <BASENAME> is the
+    basename of the input HTML document (without extension), ``<N>`` is a
+    number and <EXT> is the extension of the orginal image.
+
+    So, a file ``some_image.jpg`` which is part of some ``sample.doc``
+    document will be renamed to ``sample_doc-1.jpg``.
+    """
+
+    prefix = 'html_image_order'
+
+    def validate_options(self):
+        # No options to handle yet...
+        pass
+
+    def process(self, path, metadata):
+        basename = os.path.basename(path)
+        src_path = os.path.join(
+            copy_to_secure_location(path), basename)
+        src_dir = os.path.dirname(src_path)
+        remove_file_dir(path)
+
+        new_html, css = extract_css(open(src_path, 'rb'.read()), basename)
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
