@@ -29,7 +29,7 @@ from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
-    extract_css,)
+    extract_css, cleanup_html,)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -399,7 +399,7 @@ class CSSCleaner(BaseProcessor):
 
     This processor requires HTML/XHTML input.
     """
-    prefix = 'css_cleaner'
+    prefix = 'html_cleaner'
 
     def validate_options(self):
         # No options to handle yet...
@@ -417,6 +417,36 @@ class CSSCleaner(BaseProcessor):
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
             open(css_file, 'wb').write(css)
+        open(src_path,'wb').write(new_html)
+
+        return src_path, metadata
+
+class HTMLCleaner(BaseProcessor):
+    """A processor for cleaning up HTML produced by OO.org.
+
+    Fixes minor issues with HTML code produced by OO.org.
+
+    This processor expects XHTML input input.
+    """
+    prefix = 'html_cleaner'
+
+    defaults = {
+        'fix_head_nums': True,
+        }
+
+    def validate_options(self):
+        return
+
+    def process(self, path, metadata):
+        basename = os.path.basename(path)
+        src_path = os.path.join(
+            copy_to_secure_location(path), basename)
+        src_dir = os.path.dirname(src_path)
+        remove_file_dir(path)
+
+        new_html = cleanup_html(
+            open(src_path, 'rb').read(),
+            fix_head_nums=True)
         open(src_path,'wb').write(new_html)
 
         return src_path, metadata
