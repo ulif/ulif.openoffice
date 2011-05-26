@@ -202,6 +202,14 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
 
+    def test_process_umlauts(self):
+        proc = OOConvProcessor()
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample with umlauts: ä')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert self.result_path.endswith('sample.html')
+
     def test_process_src_not_in_result(self):
         # Make sure the input file does not remain in result dir
         proc = OOConvProcessor()
@@ -384,7 +392,8 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         snippet = "%s" % (
             '<link rel="stylesheet" type="text/css" href="sample.css" />')
         assert 'sample.css' in os.listdir(resultdir)
-        assert snippet in open(self.resultpath, 'rb').read()
+        assert snippet in contents
+        assert 'With umlaut: ä' in contents
 
 class TestErrorProcessor(unittest.TestCase):
 
