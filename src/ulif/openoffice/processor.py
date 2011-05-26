@@ -441,8 +441,8 @@ class HTMLCleaner(BaseProcessor):
                 self.options['fix_head_nums'] = False
             if fix_head_nums.lower() in ['1', 'yes', 'true']:
                 self.options['fix_head_nums'] = True
-            if self.options['fix_head_num'] not in [True, False]:
-                raise ValueError("`fix_head_num' must be true or false.")
+            if self.options['fix_head_nums'] not in [True, False]:
+                raise ValueError("`fix_head_nums' must be true or false.")
         return
 
     def process(self, path, metadata):
