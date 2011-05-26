@@ -429,6 +429,37 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         assert snippet2 in contents
         assert snippet3 in contents
 
+    def test_option_true(self):
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_head_nums': '1'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        snippet1 = "%s" % (
+            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
+        assert snippet1 in contents
+
+    def test_option_false(self):
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_head_nums': 'False'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        snippet1 = "%s" % (
+            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
+        assert snippet1 not in contents
+
+    def test_option_invalid(self):
+        self.assertRaises(
+            ValueError,
+            HTMLCleaner, options={'html_cleaner.fix_head_nums': 'foo'})
+
 class TestErrorProcessor(unittest.TestCase):
 
     def test_error(self):
