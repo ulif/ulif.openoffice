@@ -136,7 +136,7 @@ class MetaProcessor(BaseProcessor):
     #: ``'unzip,oocp,zip'`` which means: maybe unzip the input, then
     #: convert it into HTML and afterwards zip the results.
     defaults = {            # Option defaults. Each option needs one.
-        'procord': 'unzip,oocp,tidy,css_cleaner,zip',
+        'procord': 'unzip,oocp,tidy,html_cleaner,css_cleaner,zip',
         }
 
     @property
@@ -435,6 +435,14 @@ class HTMLCleaner(BaseProcessor):
         }
 
     def validate_options(self):
+        fix_head_nums = self.options.get('fix_head_nums')
+        if fix_head_nums is not True:
+            if fix_head_nums.lower() in ['0', 'no', 'false']:
+                self.options['fix_head_nums'] = False
+            if fix_head_nums.lower() in ['1', 'yes', 'true']:
+                self.options['fix_head_nums'] = True
+            if self.options['fix_head_num'] not in [True, False]:
+                raise ValueError("`fix_head_num' must be true or false.")
         return
 
     def process(self, path, metadata):
@@ -446,7 +454,7 @@ class HTMLCleaner(BaseProcessor):
 
         new_html = cleanup_html(
             open(src_path, 'rb').read(),
-            fix_head_nums=True)
+            fix_head_nums=self.options['fix_head_nums'])
         open(src_path,'wb').write(new_html)
 
         return src_path, metadata
