@@ -22,11 +22,13 @@
 """
 Helpers for trivial jobs.
 """
+import copy
 import os
+import re
 import shutil
 import tempfile
 import zipfile
-from BeautifulSoup import BeautifulSoup, Tag
+from BeautifulSoup import BeautifulSoup, Tag, CData
 from pkg_resources import iter_entry_points
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -224,55 +226,23 @@ def remove_file_dir(path):
     shutil.rmtree(path)
     return
 
+RE_CSS_TAG = re.compile('(.+?)(\.?\s*){')
+RE_CSS_STMT_START = re.compile('\s*(.*?{.*?)')
+RE_CURLY_OPEN = re.compile('{([^ ])')
+RE_CURLY_CLOSE = re.compile('([^ ])}')
+RE_EMPTY_COMMENTS = re.compile ('/\*\s*\*/')
 
-def mangle_css(line, num_cols=4):
-    line = " " * num_cols + line.strip()
-    if '{' in line:
-        parts = line.split('{', 1)
-        line = '%s{%s' % (parts[0].lower(), parts[1])
-    return line
+RE_CDATA_MASSAGE = '(((/\*)?<!\[CDATA\[(\*/)?)((.*?)<!--)?'
+RE_CDATA_MASSAGE += '(.*?)(-->(.*?))?((/\*)?]]>(\*/)?))'
 
+CDATA_MASSAGE = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+CDATA_MASSAGE.extend([
+            (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
+             lambda match: match.group(7))])
 
-def flatten_css(input):
-
-    def _ok(line):
-        for text in ['CDATA', '<!--', '-->', '/*']:
-            if text in line:
-                return False
-        if len(line.strip()) == 0:
-            return False
-        return True
-
-    soup = BeautifulSoup(input)
-    styles = soup.findAll('style')
-    strings = []
-    if len(styles) == 0:
-        return soup.prettify()
-
-    for num, style in enumerate(styles):
-        strings.append(style.string)
-        if num > 0:
-            style.extract()
-    new_lines = []
-    for string in strings:
-        if isinstance(string, basestring):
-            new_lines.extend(string.splitlines())
-
-    new_lines = [mangle_css(line) for line in new_lines if _ok(line)]
-    if len(new_lines) == 0:
-        # No CSS content. Remove styles completely.
-        styles[0].extract()
-    else:
-        new_content = '\n'.join(new_lines)
-        new_content = '/* <![CDATA[ */\n' + new_content + '\n   /* ]]> */'
-        new_tag = Tag(soup, 'style', [('type', 'text/css')])
-        new_tag.insert(0, new_content)
-        styles[0].replaceWith(new_tag)
-
-    return soup.prettify()
-
-def extract_css(html_input, basename):
-    """Scan `html_input` and replace all styles with a link to a file.
+def extract_css(html_input, basename='sample.html'):
+    """Scan `html_input` and replace all styles with single link to a CSS
+    file.
 
     Returns tuple ``<MODIFIED_HTML>, <CSS-CODE>``.
 
@@ -286,41 +256,42 @@ def extract_css(html_input, basename):
     `basename` ``sample.css`` or ``sample``. The modified HTML code is
     returned as first item of the result tuple.
     """
-    soup = BeautifulSoup(html_input)
-    styles = soup.findAll('style')
-    css_lines = []
+    # create HTML massage that removes CDATA and HTML comments in styles
+    soup = BeautifulSoup(html_input, markupMassage=CDATA_MASSAGE)
+    css = '\n'.join([style.text for style in soup.findAll('style')])
 
-    if len(styles) == 0:
-        return soup.prettify(), None
+    # lowercase leading tag names
+    css = re.sub(RE_CSS_TAG,
+                 lambda match:
+                     match.group(1).lower() + match.group(2) + '{', css)
 
-    for num, style in enumerate(styles):
-        if style.string is None:
-            continue
-        lines = style.string.splitlines()
-        for line in lines:
-            line = line.strip()
-            if line == '':
-                continue
-            if '<![CDATA' in line:
-                continue
-            if ']]>' in line:
-                continue
-            css_lines.append(line)
-        if num > 0:
+    # set indent of all CSS statement lines to nil.
+    css = re.sub(RE_CSS_STMT_START,
+                 lambda match: '\n' + match.group(1), css)
+
+    # insert spaces after and before curly brackets.
+    css = re.sub(RE_CURLY_OPEN, lambda match: '{ ' + match.group(1), css)
+    css = re.sub(RE_CURLY_CLOSE, lambda match: match.group(1) + ' }', css)
+    css_name = os.path.splitext(basename)[0] + '.css'
+
+    # Remove empty style comments
+    css = re.sub(RE_EMPTY_COMMENTS, lambda match: '', css)
+
+    if css.startswith('\n'):
+        css = css[1:]
+
+    for num, style in enumerate(soup.findAll('style')):
+        if num == 0 and css != '':
+            # replace first style with link to stylesheet
+            # if there are any styles contained
+            new_tag = Tag(soup, 'link', [
+                    ('rel', 'stylesheet'),
+                    ('type', 'text/css'),
+                    ('href', css_name),
+                    ])
+            style.replaceWith(new_tag)
+        else:
             style.extract()
-
-    if len(css_lines) == 0:
-        # There are styles but without any content. Remove it.
+    if css == '':
         css = None
-        styles[0].extract()
-    else:
-        css = '\n'.join(css_lines)
-        css_name = os.path.splitext(basename)[0] + '.css'
-        new_tag = Tag(soup, 'link', [
-                ('rel', 'stylesheet'),
-                ('type', 'text/css'),
-                ('href', css_name),
-                ])
-        styles[0].replaceWith(new_tag)
-    html = soup.prettify()
-    return html, css
+    return soup.prettify(), css
