@@ -68,6 +68,7 @@ setup(name='ulif.openoffice',
       zip = ulif.openoffice.processor:ZipProcessor
       tidy = ulif.openoffice.processor:Tidy
       css_cleaner = ulif.openoffice.processor:CSSCleaner
+      html_cleaner = ulif.openoffice.processor:HTMLCleaner
       error = ulif.openoffice.processor:Error
       """,
       )
