@@ -411,7 +411,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.resultpath)
 
     def test_cleaner(self):
-        # make sure we get a new CSS file and a link to it in HTML
+        # make sure erranous headings are fixed by default.
         proc = HTMLCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error':False})
@@ -430,6 +430,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         assert snippet3 in contents
 
     def test_option_true(self):
+        # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
             options = {
                 'html_cleaner.fix_head_nums': '1'})
@@ -443,6 +444,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         assert snippet1 in contents
 
     def test_option_false(self):
+        # Make sure we respect the `fix_head_nums` option if false.
         proc = HTMLCleaner(
             options = {
                 'html_cleaner.fix_head_nums': 'False'})
@@ -456,6 +458,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         assert snippet1 not in contents
 
     def test_option_invalid(self):
+        # Make sure we complain when trash is set as `fix_head_nums`.
         self.assertRaises(
             ValueError,
             HTMLCleaner, options={'html_cleaner.fix_head_nums': 'foo'})
