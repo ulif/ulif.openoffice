@@ -30,7 +30,7 @@ import zipfile
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
-    ZipProcessor, Tidy, CSSCleaner, Error)
+    ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error)
 from ulif.openoffice.testing import TestOOServerSetup
 
 try:
@@ -394,6 +394,40 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         assert 'sample.css' in os.listdir(resultdir)
         assert snippet in contents
         assert 'With umlaut: ä' in contents
+
+class TestHTMLCleanerProcessor(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        self.sample_path = os.path.join(self.workdir, 'sample.html')
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample3.html'),
+            self.sample_path)
+        return
+
+    def tearDown(self):
+        remove_file_dir(self.workdir)
+        remove_file_dir(self.resultpath)
+
+    def test_cleaner(self):
+        # make sure we get a new CSS file and a link to it in HTML
+        proc = HTMLCleaner()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        snippet1 = "%s" % (
+            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
+        snippet2 = "%s" % (
+            '<h2><span class="u-o-headnum">1.1</span>Heading1.1</h2>')
+        snippet3 = "%s%s" % (
+            '<h2 class="bar"><span class="u-o-headnum">1.2.',
+            '</span>Heading1.2.</h2>')
+        assert snippet1 in contents
+        assert snippet2 in contents
+        assert snippet3 in contents
 
 class TestErrorProcessor(unittest.TestCase):
 
