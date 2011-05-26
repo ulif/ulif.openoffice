@@ -295,3 +295,29 @@ def extract_css(html_input, basename='sample.html'):
     if css == '':
         css = None
     return soup.prettify(), css
+
+RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
+                         re.M + re.S)
+def cleanup_html(html_input, fix_head_nums=True):
+    """Clean up HTML code.
+
+    If `fix_head_nums` is ``True``, we look for heading contents of
+    style ``1.1Heading`` where the number is not separated from the
+    real heading text. In that case we wrap the heading number in a
+    ``<span class="u-o-headnum"> tag.
+
+    Returns the modified HTML code.
+    """
+    if fix_head_nums is not True:
+        return html_input
+    # Wrap leading num-dots in headings in own span-tag.
+    html_input = re.sub(
+        RE_HEAD_NUM,
+        lambda match: ''.join([
+                match.group(1),
+                '<span class="u-o-headnum">',
+                match.group(3),
+                '</span>',
+                match.group(4)]),
+        html_input)
+    return html_input
