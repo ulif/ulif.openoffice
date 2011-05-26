@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##
 ## test_helpers.py
 ## Login : <uli@pu.smp.net>
@@ -27,7 +28,7 @@ import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    flatten_css, extract_css,)
+    extract_css,)
 
 class TestHelpers(unittest.TestCase):
 
@@ -128,83 +129,11 @@ class TestHelpers(unittest.TestCase):
         assert os.path.exists(self.workdir) is True
         assert os.path.exists(sample_path) is False
 
-    def test_flatten_css(self):
-        """
-        Several CSS style parts in HTML are made into one:
-
-        >>> from ulif.openoffice.helpers import flatten_css
-        >>> input =  '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        ...    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        ... <html xmlns="http://www.w3.org/1999/xhtml">
-        ... <head>
-        ...  <meta name="generator" content=
-        ...  "HTML Tidy for Linux/x86 (vers 6 November 2007), see www.w3.org" />
-        ...  <meta http-equiv="CONTENT-TYPE" content=
-        ...  "text/html; charset=us-ascii" />
-        ...  <title></title>
-        ...  <meta name="GENERATOR" content="OpenOffice.org 2.4 (Linux)" />
-        ...  <style type="text/css">
-        ... /*<![CDATA[*/
-        ...     <!--
-        ...                @page { size: 21cm 29.7cm; margin: 2cm }
-        ...                P { margin-bottom: 0.21cm }
-        ...        -->
-        ...   /*]]>*/
-        ...   </style>
-        ...   <style type="text/css">
-        ... /*<![CDATA[*/
-        ...   span.c2 {font-family: DejaVu Sans Mono, sans-serif}
-        ...   p.c1 {margin-bottom: 0cm}
-        ...  /*]]>*/
-        ...   </style>
-        ... </head>
-        ... <body lang="de-DE" dir="ltr" xml:lang="de-DE"></body></html>
-        ... '''
-
-        >>> result = flatten_css(input)
-        >>> print result # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml">
-        <head>
-        <meta name="generator" content="HTML Tidy for Linux/x86 ...
-          <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8" />
-          <title>
-          </title>
-          <meta name="GENERATOR" content="OpenOffice.org 2.4 (Linux)" />
-          <style type="text/css">
-           /* <![CDATA[ */
-            @page { size: 21cm 29.7cm; margin: 2cm }
-            p { margin-bottom: 0.21cm }
-            span.c2 {font-family: DejaVu Sans Mono, sans-serif}
-            p.c1 {margin-bottom: 0cm}
-           /* ]]> */
-          </style>
-         </head>
-         <body lang="de-DE" dir="ltr" xml:lang="de-DE">
-         </body>
-        </html>
-        <BLANKLINE>
-        """
-        pass
-
-    def test_flatten_css_trash(self):
-        result = flatten_css("a")
-        assert result == "a\n"
-
-    def test_flatten_css_empty_styles(self):
-        result = flatten_css("<style></style>")
-        assert result == ''
-
-    def test_flatten_css_empty_closed_styles(self):
-        result = flatten_css("<style />")
-        assert result == ''
-
     def test_extract_css(self):
         """
 
-        >>> from ulif.openoffice.helpers import extract_css
-        >>> html, css = extract_css('''
+        >> from ulif.openoffice.helpers import extract_css
+        >> html, css = extract_css(u'''
         ... <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         ... "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         ... <html xmlns="http://www.w3.org/1999/xhtml">
@@ -232,7 +161,7 @@ class TestHelpers(unittest.TestCase):
 
       The returned css part contains all styles from input:
 
-        >>> print css
+        >> print css
         @page { size: 21cm 29.7cm; margin: 2cm }
         p { margin-bottom: 0.21cm }
         span.c2 {font-family: DejaVu Sans Mono, sans-serif}
@@ -240,7 +169,7 @@ class TestHelpers(unittest.TestCase):
 
       The returned HTML part has the styles replaced with a link:
 
-        >>> print html # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+        >> print html # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
          <html xmlns="http://www.w3.org/1999/xhtml">
@@ -257,21 +186,6 @@ class TestHelpers(unittest.TestCase):
          </body>
         </html>
 
-        If there are no styles, the css will be None:
-
-        >>> html, css = extract_css('''
-        ... <html>
-        ...  <head>
-        ...   </head>
-        ...   <body>
-        ...     hi!
-        ...   </body>
-        ... </html>
-        ... ''', 'sample.html')
-
-        >>> css is None
-        True
-
         """
 
     def test_extract_css_trash(self):
@@ -279,6 +193,14 @@ class TestHelpers(unittest.TestCase):
         result, css = extract_css("", 'sample.html')
         assert css is None
         assert result == ""
+
+    def test_extract_css_simple(self):
+        result, css = extract_css(
+            "<style>a, b</style>", 'sample.html')
+        link = '<link rel="stylesheet" type="text/css" '
+        link += 'href="sample.css" />\n'
+        assert css == 'a, b'
+        assert result == link
 
     def test_extract_css_empty_styles1(self):
         # Also trashy docs can be handled
@@ -298,4 +220,47 @@ class TestHelpers(unittest.TestCase):
         # Trash in, trash out...
         result, css = extract_css(
             "<html><style>a<style>b</style></style></html>", 'sample.html')
-        assert css == u'a<style>b'
+        assert css == u'a\nb'
+
+    def test_extract_css_utf8(self):
+        result, css = extract_css(
+            "<html><body>ä</body></html>", 'sample.html')
+        assert css is None
+        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
+
+    def test_extract_css_utf8_unicode(self):
+        result, css = extract_css(
+            u"<html><body>ä</body></html>", 'sample.html')
+        assert css is None
+        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
+        return
+
+    def test_extract_css_complex_html(self):
+        # Make sure we have styles purged and replaced by a link
+        html_input_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample2.html')
+        html_input = open(html_input_path, 'rb').read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert '<style' not in result
+        link = '<link rel="stylesheet" type="text/css" href="sample.css" />'
+        assert link in result
+        return
+
+    def test_extract_css_complex_css(self):
+        # Make sure we get proper external stylesheets.
+        html_input_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample2.html')
+        html_input = open(html_input_path, 'rb').read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert len(css) == 150
+        assert css.startswith('@page { size: 21cm')
+        return
+
+    def test_extract_css_no_empty_comments(self):
+        # Make sure there are no empty comments in CSS
+        html_input_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample2.html')
+        html_input = open(html_input_path, 'rb').read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert '/*' not in result
+        return
