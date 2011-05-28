@@ -28,7 +28,7 @@ import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    extract_css, cleanup_html,)
+    extract_css, cleanup_html, cleanup_css)
 
 class TestHelpers(unittest.TestCase):
 
@@ -304,3 +304,41 @@ class TestHelpers(unittest.TestCase):
         expected = '<body><h1>\n <span class="u-o-headnum">%s</span>'
         expected += 'Heading</h1></body>'
         assert result == expected % ('1.1.')
+
+    def test_cleanup_css_whitespace(self):
+        css_input = 'p {font-family: ; font-size: 12px }'
+        result, errors = cleanup_css(css_input)
+        assert result == 'p{font-size:12px}'
+
+    def test_cleanup_css_empty_style(self):
+        css_input = 'p {}'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop(self):
+        css_input = 'p {font-family: ;}'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop_no_colon(self):
+        css_input = 'p {font-family: }'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop_middle(self):
+        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
+        result, errors = cleanup_css(css_input)
+        assert result == 'p{foo:baz;bar:baz}'
+
+    def test_cleanup_css_complex(self):
+        css_sample = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample1.css')
+        css_input = open(css_sample, 'rb').read()
+        result, errors = cleanup_css(css_input)
+        assert 'font-family: ;' not in result
+
+    def test_cleanup_css_errors(self):
+        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
+        result, errors = cleanup_css(css_input)
+        assert 'ERROR CSSValue: Unknown syntax' in errors
+        assert 'WARNING Property: Unknown Property name' in errors
