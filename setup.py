@@ -38,6 +38,7 @@ setup(name='ulif.openoffice',
           'zc.buildout',
           'CherryPy>=3.2.0',
           'BeautifulSoup>=3.2.0',
+          'cssutils',
       ],
       setup_requires=["Sphinx-PyPI-upload"],
       extras_require=dict(
