@@ -151,7 +151,6 @@ class TestMetaProcessor(unittest.TestCase):
         self.resultpath, metadata = proc.process(input_path)
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.xhtml')
-        #print open(self.resultpath, 'r').read()
 
     def test_process_html_unzipped(self):
         proc = MetaProcessor(options={'oocp.out_fmt':'html',
@@ -394,6 +393,54 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         assert 'sample.css' in os.listdir(resultdir)
         assert snippet in contents
         assert 'With umlaut: ä' in contents
+
+    def test_cleaner_css_correct_css(self):
+        # make sure we get a new CSS file and a link to it in HTML
+        proc = CSSCleaner()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'rb').read()
+        assert 'font-family: ;' not in result_css
+
+    def test_cleaner_css_minified(self):
+        # make sure we can get minified CSS if we wish so.
+        proc = CSSCleaner(options={'css_cleaner.minified' : '1'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'rb').read()
+        assert 'p{margin-bottom:0.21cm}span.c2' in result_css
+
+    def test_cleaner_css_non_minified(self):
+        # make sure we can get non-minified CSS if we wish so.
+        proc = CSSCleaner(options={'css_cleaner.minified' : '0'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'rb').read()
+        assert 'p {\n    margin-bottom: 0.21cm\n    }\n' in result_css
+
+    def test_cleaner_css_default_minified(self):
+        # make sure we can get non-minified CSS if we wish so.
+        proc = CSSCleaner()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+
+        resultdir = os.path.dirname(self.resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'rb').read()
+        assert 'p{margin-bottom:0.21cm}' in result_css
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
