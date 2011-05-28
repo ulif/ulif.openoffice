@@ -23,12 +23,15 @@
 Helpers for trivial jobs.
 """
 import copy
+import cssutils
+import logging
 import os
 import re
 import shutil
 import tempfile
 import zipfile
 from BeautifulSoup import BeautifulSoup, Tag, CData
+from cStringIO import StringIO
 from pkg_resources import iter_entry_points
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -321,3 +324,29 @@ def cleanup_html(html_input, fix_head_nums=True):
                 match.group(4)]),
         html_input)
     return html_input
+
+def cleanup_css(css_input):
+    """Cleanup CSS code delivered in `css_input`, a string.
+
+    Returns 2-item tuple ``(<CSS>, <ERRORS>)`` where ``<CSS>`` is the
+    cleaned and minimized CSS code and ``<ERRORS>`` is a multiline
+    string containing warnings and errors occured during processing
+    the CSS.
+    """
+    # Set up a local logger for warnings and errors
+    local_log = StringIO()
+    handler = logging.StreamHandler(local_log)
+    handler.setFormatter(logging.Formatter('%(levelname)s %(message)s'))
+    handler.propagate = False
+    handler.setLevel(logging.WARNING)
+    old_level = cssutils.log.getEffectiveLevel()
+    logger = logging.getLogger()
+    logger.addHandler(handler)
+
+    cssutils.log.setLog(logger)
+    cssutils.ser.prefs.useMinified()
+
+    sheet = cssutils.parseString(css_input)
+
+    local_log.flush()
+    return sheet.cssText, local_log.getvalue()
