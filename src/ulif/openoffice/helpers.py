@@ -325,13 +325,17 @@ def cleanup_html(html_input, fix_head_nums=True):
         html_input)
     return html_input
 
-def cleanup_css(css_input):
+def cleanup_css(css_input, minified=True):
     """Cleanup CSS code delivered in `css_input`, a string.
 
     Returns 2-item tuple ``(<CSS>, <ERRORS>)`` where ``<CSS>`` is the
     cleaned and minimized CSS code and ``<ERRORS>`` is a multiline
     string containing warnings and errors occured during processing
     the CSS.
+
+    By default the ``<CSS>`` returned is minified to reduce network
+    load, etc. If you want pretty non-minified output, set `minified`
+    to ``False``.
     """
     # Set up a local logger for warnings and errors
     local_log = StringIO()
@@ -344,7 +348,9 @@ def cleanup_css(css_input):
     logger.addHandler(handler)
 
     cssutils.log.setLog(logger)
-    cssutils.ser.prefs.useMinified()
+    cssutils.ser.prefs.useDefaults()
+    if minified is True:
+        cssutils.ser.prefs.useMinified()
 
     sheet = cssutils.parseString(css_input)
 
