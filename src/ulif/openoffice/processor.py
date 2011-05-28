@@ -29,7 +29,7 @@ from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
-    extract_css, cleanup_html,)
+    extract_css, cleanup_html, cleanup_css)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -399,11 +399,22 @@ class CSSCleaner(BaseProcessor):
 
     This processor requires HTML/XHTML input.
     """
-    prefix = 'html_cleaner'
+    prefix = 'css_cleaner'
+
+    defaults = {
+        'minified': True,
+        }
 
     def validate_options(self):
-        # No options to handle yet...
-        pass
+        minified = self.options.get('minified')
+        if minified is not True:
+            if minified.lower() in ['0', 'no', 'false']:
+                self.options['minified'] = False
+            if minified.lower() in ['1', 'yes', 'true']:
+                self.options['minified'] = True
+            if self.options['minified'] not in [True, False]:
+                raise ValueError("`minified' must be true or false.")
+        return
 
     def process(self, path, metadata):
         basename = os.path.basename(path)
@@ -413,6 +424,7 @@ class CSSCleaner(BaseProcessor):
         remove_file_dir(path)
 
         new_html, css = extract_css(open(src_path, 'rb').read(), basename)
+        css, errors = cleanup_css(css, minified=self.options['minified'])
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
