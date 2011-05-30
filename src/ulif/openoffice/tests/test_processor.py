@@ -446,15 +446,29 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
 
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
+        self.workdir2 = tempfile.mkdtemp()
         self.resultpath = None
         self.sample_path = os.path.join(self.workdir, 'sample.html')
+        self.img_sample_path = os.path.join(self.workdir2, 'sample.html')
+        self.img_file_path = os.path.join(self.workdir2,
+                                     'image_sample_html_m20918026.gif')
         shutil.copy(
             os.path.join(os.path.dirname(__file__), 'input', 'sample3.html'),
             self.sample_path)
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input',
+                         'image_sample.html'),
+            self.img_sample_path)
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input',
+                         'image_sample_html_m20918026.gif'),
+            self.img_file_path
+            )
         return
 
     def tearDown(self):
         remove_file_dir(self.workdir)
+        remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
     def test_cleaner(self):
@@ -466,17 +480,16 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         snippet1 = "%s" % (
-            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
+            '<span class="u-o-headnum">1</span>Häding1')
         snippet2 = "%s" % (
-            '<h2><span class="u-o-headnum">1.1</span>Heading1.1</h2>')
-        snippet3 = "%s%s" % (
-            '<h2 class="bar"><span class="u-o-headnum">1.2.',
-            '</span>Heading1.2.</h2>')
+            '<span class="u-o-headnum">1.1</span>Heading1.1')
+        snippet3 = "%s" % (
+            '<span class="u-o-headnum">1.2.</span>Heading1.2.')
         assert snippet1 in contents
         assert snippet2 in contents
         assert snippet3 in contents
 
-    def test_option_true(self):
+    def test_option_fix_head_nums_true(self):
         # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
             options = {
@@ -487,10 +500,10 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         snippet1 = "%s" % (
-            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
+            '<span class="u-o-headnum">1</span>Häding1')
         assert snippet1 in contents
 
-    def test_option_false(self):
+    def test_option_fix_head_nums_false(self):
         # Make sure we respect the `fix_head_nums` option if false.
         proc = HTMLCleaner(
             options = {
@@ -504,11 +517,90 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
         assert snippet1 not in contents
 
+    def test_option_fix_img_links_false(self):
+        # Make sure we respect the `fix_head_nums` option if true
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_img_links': '0'})
+        self.resultpath, metadata = proc.process(
+            self.img_sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        resultdir = os.path.dirname(self.resultpath)
+        snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
+        list_dir = os.listdir(resultdir)
+        assert snippet in contents
+        assert 'image_sample_html_m20918026.gif' in list_dir
+        assert 'sample_1.gif' not in list_dir
+
+    def test_option_fix_img_links_true(self):
+        # Make sure we respect the `fix_img_links` option if true
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_img_links': '1'})
+        self.resultpath, metadata = proc.process(
+            self.img_sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        resultdir = os.path.dirname(self.resultpath)
+        snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
+        list_dir = os.listdir(resultdir)
+        assert snippet not in contents
+        assert 'image_sample_html_m20918026.gif' not in list_dir
+        assert 'sample_1.gif' in list_dir
+
     def test_option_invalid(self):
         # Make sure we complain when trash is set as `fix_head_nums`.
         self.assertRaises(
             ValueError,
             HTMLCleaner, options={'html_cleaner.fix_head_nums': 'foo'})
+        self.assertRaises(
+            ValueError,
+            HTMLCleaner, options={'html_cleaner.fix_img_links': 'foo'})
+
+    def test_rename_img_files(self):
+        proc = HTMLCleaner(
+            options = {'html_cleaner.fix_img_links': '1'})
+        proc.rename_img_files(
+            self.workdir2,
+            {'image_sample_html_m20918026.gif': 'sample_1.gif'}
+            )
+        list_dir = os.listdir(self.workdir2)
+        assert 'sample_1.gif' in list_dir
+        assert 'image_sample_html_m20918026.gif' not in list_dir
+
+    def test_rename_img_files_no_src(self):
+        # We cope with not existing source files
+        proc = HTMLCleaner(
+            options = {'html_cleaner.fix_img_links': '1'})
+        proc.rename_img_files(
+            self.workdir2,
+            {'not-existing-filename': 'sample_1.gif'}
+            )
+        list_dir = os.listdir(self.workdir2)
+        assert 'sample_1.gif' not in list_dir
+
+    def test_rename_img_files_dst_exists_already(self):
+        # We cope with dest files that already exist
+        proc = HTMLCleaner(
+            options = {'html_cleaner.fix_img_links': '1'})
+        proc.rename_img_files(
+            self.workdir2,
+            {'image_sample_html_m20918026.gif':
+                 'image_sample_html_m20918026.gif'}
+            )
+        list_dir = os.listdir(self.workdir2)
+        assert 'image_sample_html_m20918026.gif' in list_dir
+
+    def test_rename_img_files_src_is_dir(self):
+        # We cope with src files that are in fact dirs
+        proc = HTMLCleaner(
+            options = {'html_cleaner.fix_img_links': '1'})
+        os.mkdir(os.path.join(self.workdir2, 'some_dir'))
+        proc.rename_img_files(
+            self.workdir2,
+            {'some_dir': 'sample.jpg'}
+            )
+        list_dir = os.listdir(self.workdir2)
+        assert 'sample.jpg' not in list_dir
 
 class TestErrorProcessor(unittest.TestCase):
 
