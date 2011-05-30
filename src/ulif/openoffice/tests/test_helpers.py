@@ -265,42 +265,50 @@ class TestHelpers(unittest.TestCase):
         assert '/*' not in result
         return
 
+    def test_cleanup_html_fix_img_links(self):
+        html_input_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'image_sample.html')
+        html_input = open(html_input_path, 'rb').read()
+        result, img_map = cleanup_html(
+            html_input, 'sample.html', fix_img_links=True)
+        assert len(img_map) == 4
+
     def test_cleanup_html_fix_head_nums(self):
         html_input = '<body><h1>1.1Heading</h1></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         expected = '<body><h1><span class="u-o-headnum">%s</span>'
         expected += 'Heading</h1></body>'
         assert result == expected % ('1.1')
 
     def test_cleanup_html_fix_head_nums_no_nums(self):
         html_input = '<body><h1>Heading</h1></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         assert result == '<body><h1>Heading</h1></body>'
 
     def test_cleanup_html_fix_head_nums_trailing_dot(self):
         html_input = '<body><h1>1.1.Heading</h1></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         expected = '<body><h1><span class="u-o-headnum">%s</span>'
         expected += 'Heading</h1></body>'
         assert result == expected % ('1.1.')
 
     def test_cleanup_html_fix_head_nums_h6(self):
         html_input = '<body><h6>1.1.Heading</h6></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         expected = '<body><h6><span class="u-o-headnum">%s</span>'
         expected += 'Heading</h6></body>'
         assert result == expected % ('1.1.')
 
     def test_cleanup_html_fix_head_nums_tag_attrs(self):
         html_input = '<body><h6 class="foo">1.1.Heading</h6></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         expected = '<body><h6 class="foo"><span class="u-o-headnum">%s'
         expected += '</span>Heading</h6></body>'
         assert result == expected % ('1.1.')
 
     def test_cleanup_html_fix_head_nums_linebreaks(self):
         html_input = '<body><h1>\n 1.1.Heading</h1></body>'
-        result = cleanup_html(html_input)
+        result, img_map = cleanup_html(html_input, 'sample.html')
         expected = '<body><h1>\n <span class="u-o-headnum">%s</span>'
         expected += 'Heading</h1></body>'
         assert result == expected % ('1.1.')
@@ -363,7 +371,7 @@ class TestHelpers(unittest.TestCase):
     def test_rename_html_img_links_no_ext(self):
         html_input = '<img src="filename_without_ext" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert html_output == '<img src="sample_1" />\n'
+        assert html_output == '<img src="sample_1" />'
         assert img_map == {u'filename_without_ext': u'sample_1'}
 
     def test_rename_html_img_links_unicode_filenames(self):
