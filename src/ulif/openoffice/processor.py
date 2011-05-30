@@ -444,17 +444,21 @@ class HTMLCleaner(BaseProcessor):
 
     defaults = {
         'fix_head_nums': True,
+        'fix_img_links': True,
         }
 
     def validate_options(self):
-        fix_head_nums = self.options.get('fix_head_nums')
-        if fix_head_nums is not True:
-            if fix_head_nums.lower() in ['0', 'no', 'false']:
-                self.options['fix_head_nums'] = False
-            if fix_head_nums.lower() in ['1', 'yes', 'true']:
-                self.options['fix_head_nums'] = True
-            if self.options['fix_head_nums'] not in [True, False]:
-                raise ValueError("`fix_head_nums' must be true or false.")
+        for option_name in ['fix_head_nums', 'fix_img_links']:
+
+            opt_value = self.options.get(option_name)
+            if opt_value is not True:
+                if opt_value.lower() in ['0', 'no', 'false']:
+                    self.options[option_name] = False
+                if opt_value.lower() in ['1', 'yes', 'true']:
+                    self.options[option_name] = True
+                if self.options[option_name] not in [True, False]:
+                    raise ValueError(
+                        "`%s' must be true or false." % option_name)
         return
 
     def process(self, path, metadata):
@@ -464,46 +468,28 @@ class HTMLCleaner(BaseProcessor):
         src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
 
-        new_html = cleanup_html(
-            open(src_path, 'rb').read(),
-            fix_head_nums=self.options['fix_head_nums'])
+        new_html, img_name_map = cleanup_html(
+            open(src_path, 'rb').read(), basename,
+            fix_head_nums=self.options['fix_head_nums'],
+            fix_img_links=self.options['fix_img_links'],
+            )
         open(src_path,'wb').write(new_html)
-
+        # Rename images
+        self.rename_img_files(src_dir, img_name_map)
         return src_path, metadata
 
-class HTMLImageOrder(BaseProcessor):
-    """A processor that renames all images and their links into an order.
-
-    All images linked in an HTML document are renamed to
-    ``<BASENAME>_<BASENAME-EXT>-<N>.<EXT>`` where <BASENAME> is the
-    basename of the input HTML document (without extension), ``<N>`` is a
-    number and <EXT> is the extension of the orginal image.
-
-    So, a file ``some_image.jpg`` which is part of some ``sample.doc``
-    document will be renamed to ``sample_doc-1.jpg``.
-    """
-
-    prefix = 'html_image_order'
-
-    def validate_options(self):
-        # No options to handle yet...
-        pass
-
-    def process(self, path, metadata):
-        basename = os.path.basename(path)
-        src_path = os.path.join(
-            copy_to_secure_location(path), basename)
-        src_dir = os.path.dirname(src_path)
-        remove_file_dir(path)
-
-        new_html, css = extract_css(open(src_path, 'rb'.read()), basename)
-
-        css_file = os.path.splitext(src_path)[0] + '.css'
-        if css is not None:
-            open(css_file, 'wb').write(css)
-        open(src_path,'wb').write(new_html)
-
-        return src_path, metadata
+    def rename_img_files(self, src_dir, img_name_map):
+        for old_img, new_img in img_name_map.items():
+            old_path = os.path.join(src_dir, old_img)
+            new_path = os.path.join(src_dir, new_img)
+            if not os.path.isfile(old_path):
+                # XXX: Update error messages
+                continue
+            if os.path.exists(new_path):
+                # XXX: Update error messages
+                continue
+            shutil.move(old_path, new_path)
+        return
 
 class Error(BaseProcessor):
     """A processor that returns an error message.
