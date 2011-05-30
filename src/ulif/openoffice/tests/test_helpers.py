@@ -28,7 +28,7 @@ import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    extract_css, cleanup_html, cleanup_css)
+    extract_css, cleanup_html, cleanup_css, rename_html_img_links)
 
 class TestHelpers(unittest.TestCase):
 
@@ -347,3 +347,42 @@ class TestHelpers(unittest.TestCase):
         css_input = 'p { foo: baz ; bar: baz}'
         result, errors = cleanup_css(css_input, minified=False)
         assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
+
+    def test_rename_html_img_links(self):
+        # Make sure img links are modified
+        html_input_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'image_sample.html')
+        html_input = open(html_input_path, 'rb').read()
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert 'image_sample_html_10a8ad02.jpg' not in html_output
+        assert 'sample_4.jpg' in html_output
+        assert len(img_map.keys()) == 4 # 4 images are in doc
+        assert 'image_sample_html_10a8ad02.jpg' in img_map.keys()
+        assert 'sample_4.jpg' in img_map.values()
+
+    def test_rename_html_img_links_no_ext(self):
+        html_input = '<img src="filename_without_ext" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert html_output == '<img src="sample_1" />\n'
+        assert img_map == {u'filename_without_ext': u'sample_1'}
+
+    def test_rename_html_img_links_unicode_filenames(self):
+        html_input = '<img src="filename_without_ext" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        key = img_map.keys()[0]
+        val = img_map.values()[0]
+        assert isinstance(key, unicode)
+        assert isinstance(val, unicode)
+
+    def test_rename_html_img_links_only_local(self):
+        # We do not convert links to external images
+        html_input = '<img src="http://sample/image.gif" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert len(img_map.keys()) == 0
+        assert 'http://sample/image.gif' in html_output
+
+    def test_rename_html_img_links_umlauts(self):
+        # We can handle umlauts in filenames
+        html_input = '<img src="file with ümlaut.gif" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert img_map == {u'file with \xfcmlaut.gif': u'sample_1.gif'}
