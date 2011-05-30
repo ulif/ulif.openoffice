@@ -33,6 +33,7 @@ import zipfile
 from BeautifulSoup import BeautifulSoup, Tag, CData
 from cStringIO import StringIO
 from pkg_resources import iter_entry_points
+from urlparse import urlparse
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """Recursively copy an entire directory tree rooted at `src`. The
@@ -301,7 +302,8 @@ def extract_css(html_input, basename='sample.html'):
 
 RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
                          re.M + re.S)
-def cleanup_html(html_input, fix_head_nums=True):
+def cleanup_html(html_input, basename,
+                 fix_head_nums=True, fix_img_links=True):
     """Clean up HTML code.
 
     If `fix_head_nums` is ``True``, we look for heading contents of
@@ -309,10 +311,19 @@ def cleanup_html(html_input, fix_head_nums=True):
     real heading text. In that case we wrap the heading number in a
     ``<span class="u-o-headnum"> tag.
 
-    Returns the modified HTML code.
+    If `fix_img_links` is ``True`` we run
+    :func:`rename_html_img_links` over the result.
+
+    Returns a tuple ``(<HTML_OUTPUT>, <IMG_NAME_MAP>)`` where
+    ``<HTML_OUTPUT>`` is the modified HTML code and ``<IMG_NAME_MAP>``
+    a mapping from old filenames to new ones (see
+    :func:`rename_html_img_links`) for details.
     """
+    img_name_map = {}
+    if fix_img_links is True:
+        html_input, img_name_map = rename_html_img_links(html_input, basename)
     if fix_head_nums is not True:
-        return html_input
+        return html_input, img_name_map
     # Wrap leading num-dots in headings in own span-tag.
     html_input = re.sub(
         RE_HEAD_NUM,
@@ -323,7 +334,7 @@ def cleanup_html(html_input, fix_head_nums=True):
                 '</span>',
                 match.group(4)]),
         html_input)
-    return html_input
+    return html_input, img_name_map
 
 def cleanup_css(css_input, minified=True):
     """Cleanup CSS code delivered in `css_input`, a string.
@@ -356,3 +367,53 @@ def cleanup_css(css_input, minified=True):
 
     local_log.flush()
     return sheet.cssText, local_log.getvalue()
+
+def rename_html_img_links(html_input, basename):
+    """Rename all ``<img>`` tag ``src`` attributes based on `basename`.
+
+    Each `src` of each ``<img>`` tag in `html_input` is renamed to a
+    new location of form ``<BASENAME>_<NUM>.<EXT>`` where
+    ``<BASENAME>`` is the basename of `basename`, ``<NUM>`` a unique
+    number starting with 1 (one) and ``<EXT>`` the filename extension
+    of the original ``src`` file.
+
+    For example:
+
+    ``<img src="foo_m1234.jpeg">``
+
+    with a `basename` ``sample.html`` will be replaced by
+
+    ``<img src="sample_1.jpeg">``
+
+    if this is the first ``<img>`` tag in the document.
+
+    Returns a tuple ``<HTML_OUTPUT>, <NAME_MAP>`` where
+    ``<HTML_OUTPUT>`` is the modified HTML and ``<NAME_MAP>`` is a
+    dictionary with a mapping from old filenames to new ones. The
+    latter can be used to rename any real files (which is not done by
+    this function).
+
+    Links to 'external' sources (http and similar) are ignored.
+    """
+    soup = BeautifulSoup(html_input)
+    img_tags = soup.findAll('img')
+    img_map = {}
+    num = 1
+    basename = os.path.splitext(basename)[0]
+    basename = basename.replace('.', '_')
+    for tag in img_tags:
+        src = tag.get('src', None)
+        if src is None:
+            continue
+        scheme = urlparse(src)[0]
+        if scheme not in ['file', '']:
+            # only handle local files
+            continue
+        ext = ''
+        if '.' in src:
+            ext = os.path.splitext(src)[1]
+        new_src = u'%s_%s%s' % (basename, num, ext)
+        num += 1
+        tag['src'] = new_src
+        img_map[src] = new_src
+    return str(soup), img_map
