@@ -394,3 +394,12 @@ class TestHelpers(unittest.TestCase):
         html_input = '<img src="file with ümlaut.gif" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert img_map == {u'file with \xfcmlaut.gif': u'sample_1.gif'}
+
+    def test_rename_html_img_links_multiple_img(self):
+        # Check that multiple links to same file get same target
+        html_input = '<img src="a.gif" /><img src="a.gif" /><img src="b.gif" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert img_map == {u'a.gif': u'sample_1.gif', u'b.gif': u'sample_2.gif'}
+        assert html_output == '%s%s' % (
+            '<img src="sample_1.gif" /><img src="sample_1.gif" />',
+            '<img src="sample_2.gif" />')

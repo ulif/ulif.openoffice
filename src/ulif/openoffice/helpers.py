@@ -405,6 +405,10 @@ def rename_html_img_links(html_input, basename):
         src = tag.get('src', None)
         if src is None:
             continue
+        if src in img_map.keys():
+            # We found a link to the same image already
+            tag['src'] = img_map[src]
+            continue
         scheme = urlparse(src)[0]
         if scheme not in ['file', '']:
             # only handle local files
