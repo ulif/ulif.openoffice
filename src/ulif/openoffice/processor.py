@@ -449,7 +449,6 @@ class HTMLCleaner(BaseProcessor):
 
     def validate_options(self):
         for option_name in ['fix_head_nums', 'fix_img_links']:
-
             opt_value = self.options.get(option_name)
             if opt_value is not True:
                 if opt_value.lower() in ['0', 'no', 'false']:
