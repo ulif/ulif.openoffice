@@ -348,7 +348,7 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_css_errors(self):
         css_input = 'p { foo: baz ; font-family: ; bar: baz}'
         result, errors = cleanup_css(css_input)
-        assert 'ERROR CSSValue: Unknown syntax' in errors
+        assert 'ERROR PropertyValue: Unknown syntax' in errors
         assert 'WARNING Property: Unknown Property name' in errors
 
     def test_cleanup_css_non_minified(self):
