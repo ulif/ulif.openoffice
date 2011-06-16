@@ -76,7 +76,7 @@ class Bucket(object):
     Currently, you can store as much source files in a bucket, as the
     the maximum integer number can address.
     """
-    
+
     def __init__(self, path):
         self.path = path
         self.srcdir = os.path.join(self.path, 'sources')
@@ -101,7 +101,7 @@ class Bucket(object):
         return pickle.load(open(data_path, 'rb'))
 
     data = property(_getInternalData, _setInternalData)
-    
+
     def getCurrentNum(self):
         """Get current source num.
         """
@@ -194,7 +194,7 @@ class Bucket(object):
             local_source = os.path.join(
                 self.srcdir, 'source_%s' % marker)
             shutil.copyfile(src_path, local_source)
-                
+
         # Store result file
         result_filename = 'result_%s_%s' % (marker, suffix)
         local_result = os.path.join(self.resultdir, result_filename)
@@ -276,14 +276,14 @@ class CacheManager(object):
 
         Both items of the tuple can be ``None`` if they could not be
         extracted.
-        
+
         """
         if not isinstance(marker, basestring):
             return (None, None)
         if not '_' in marker:
             return (None, None)
         return marker.split('_', 1)
-    
+
     def _getBucketPathFromPath(self, path):
         """Get a bucket path from a path to a sourcefile.
 
@@ -313,9 +313,9 @@ class CacheManager(object):
 
         if cache_dir is None:
             return
-        
+
         cache_dir = os.path.abspath(cache_dir)
-    
+
         if os.path.exists(cache_dir) and not os.path.isdir(cache_dir):
             raise IOError('not a dir but a file: %s' % cache_dir)
 
@@ -334,7 +334,7 @@ class CacheManager(object):
         """
         md5_digest = self.getHash(path)
         return self.getBucketFromHash(md5_digest)
-    
+
     def getBucketFromHash(self, hash_digest):
         """Get a bucket in which a source with 'hash_digest' would be stored.
 
@@ -368,7 +368,7 @@ class CacheManager(object):
 
         Returns the path to a file represented by that marker or
         ``None``.
-        
+
         A basket exists, if there was already registered a doc, which
         returned that marker on registration.
 
