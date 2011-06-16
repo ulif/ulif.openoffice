@@ -41,6 +41,9 @@ class CachingComponentsTestCase(unittest.TestCase):
         open(self.result_path1, 'wb').write('result1\n')
         open(self.result_path2, 'wb').write('result2\n')
 
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        shutil.rmtree(self.inputdir)
 
 class TestCacheBucket(CachingComponentsTestCase):
 
