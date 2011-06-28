@@ -303,7 +303,7 @@ def extract_css(html_input, basename='sample.html'):
 RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
                          re.M + re.S)
 def cleanup_html(html_input, basename,
-                 fix_head_nums=True, fix_img_links=True):
+                 fix_head_nums=True, fix_img_links=True, fix_sdfields=True):
     """Clean up HTML code.
 
     If `fix_head_nums` is ``True``, we look for heading contents of
@@ -314,6 +314,9 @@ def cleanup_html(html_input, basename,
     If `fix_img_links` is ``True`` we run
     :func:`rename_html_img_links` over the result.
 
+    If `fix_sdfields` is ``True`` we rename all ``<sdfield>`` tags to
+    ``<span>``. See :func:`rename_sdfield_tags` for details.
+
     Returns a tuple ``(<HTML_OUTPUT>, <IMG_NAME_MAP>)`` where
     ``<HTML_OUTPUT>`` is the modified HTML code and ``<IMG_NAME_MAP>``
     a mapping from old filenames to new ones (see
@@ -322,6 +325,8 @@ def cleanup_html(html_input, basename,
     img_name_map = {}
     if fix_img_links is True:
         html_input, img_name_map = rename_html_img_links(html_input, basename)
+    if fix_sdfields is True:
+        html_input = rename_sdfield_tags(html_input)
     if fix_head_nums is not True:
         return html_input, img_name_map
     # Wrap leading num-dots in headings in own span-tag.
@@ -421,3 +426,17 @@ def rename_html_img_links(html_input, basename):
         tag['src'] = new_src
         img_map[src] = new_src
     return str(soup), img_map
+
+RE_SDFIELD_OPEN = re.compile('<sdfield([^>]*)>', re.M + re.S)
+RE_SDFIELD_CLOSE = re.compile('</sdfield>', re.M + re.S)
+
+def rename_sdfield_tags(html_input):
+    """Rename all ``<sdfield>`` tags to ``<span class="sdfield">``
+
+    Any attributes are preserved.
+    """
+    html_input = re.sub(
+        RE_SDFIELD_OPEN, lambda match: '<span %s%s>' % (
+            'class="sdfield"', match.group(1)), html_input)
+    return re.sub(
+        RE_SDFIELD_CLOSE, lambda match: '</span>', html_input)

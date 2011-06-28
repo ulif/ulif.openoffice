@@ -547,6 +547,28 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         assert 'image_sample_html_m20918026.gif' not in list_dir
         assert 'sample_1.gif' in list_dir
 
+    def test_option_fix_sdfields_false(self):
+        # Make sure we respect the `fix_sdtags` option if false
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_sdfields': '0'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        snippet = '<sdfield type="PAGE">'
+        assert snippet in contents
+
+    def test_option_fix_sdfields_true(self):
+        # Make sure we respect the `fix_sdtags` option if false
+        proc = HTMLCleaner(
+            options = {
+                'html_cleaner.fix_sdfields': '1'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error':False})
+        contents = open(self.resultpath, 'rb').read()
+        snippet = '<sdfield type="PAGE">'
+        assert snippet not in contents
+
     def test_option_invalid(self):
         # Make sure we complain when trash is set as `fix_head_nums`.
         self.assertRaises(
@@ -555,6 +577,10 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         self.assertRaises(
             ValueError,
             HTMLCleaner, options={'html_cleaner.fix_img_links': 'foo'})
+        self.assertRaises(
+            ValueError,
+            HTMLCleaner, options={'html_cleaner.fix_sdfields': 'foo'})
+
 
     def test_rename_img_files(self):
         proc = HTMLCleaner(

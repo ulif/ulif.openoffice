@@ -445,10 +445,11 @@ class HTMLCleaner(BaseProcessor):
     defaults = {
         'fix_head_nums': True,
         'fix_img_links': True,
+        'fix_sdfields': True,
         }
 
     def validate_options(self):
-        for option_name in ['fix_head_nums', 'fix_img_links']:
+        for option_name in ['fix_head_nums', 'fix_img_links', 'fix_sdfields']:
             opt_value = self.options.get(option_name)
             if opt_value is not True:
                 if opt_value.lower() in ['0', 'no', 'false']:
@@ -471,6 +472,7 @@ class HTMLCleaner(BaseProcessor):
             open(src_path, 'rb').read(), basename,
             fix_head_nums=self.options['fix_head_nums'],
             fix_img_links=self.options['fix_img_links'],
+            fix_sdfields=self.options['fix_sdfields'],
             )
         open(src_path,'wb').write(new_html)
         # Rename images

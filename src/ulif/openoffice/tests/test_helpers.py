@@ -28,7 +28,8 @@ import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    extract_css, cleanup_html, cleanup_css, rename_html_img_links)
+    extract_css, cleanup_html, cleanup_css, rename_html_img_links,
+    rename_sdfield_tags)
 
 class TestHelpers(unittest.TestCase):
 
@@ -312,6 +313,36 @@ class TestHelpers(unittest.TestCase):
         expected = '<body><h1>\n <span class="u-o-headnum">%s</span>'
         expected += 'Heading</h1></body>'
         assert result == expected % ('1.1.')
+
+    def test_cleanup_html_fix_sdfields(self):
+        html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
+        result, img_map = cleanup_html(html_input, 'sample.html')
+        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
+        assert result == expected
+
+    def test_cleanup_html_dont_fix_sdfields(self):
+        html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
+        result, img_map = cleanup_html(html_input, 'sample.html',
+                                       fix_sdfields=False)
+        assert html_input == result
+
+    def test_rename_sdfield_tags(self):
+        html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
+        assert result == expected
+
+    def test_rename_sdfield_tags_empty(self):
+        html_input = '<p>Blah</p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah</p>'
+        assert result == expected
+
+    def test_rename_sdfield_tags_nested(self):
+        html_input = '<p>Blah<sdfield>12<span>b</span></sdfield></p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah<span class="sdfield">12<span>b</span></span></p>'
+        assert result == expected
 
     def test_cleanup_css_whitespace(self):
         css_input = 'p {font-family: ; font-size: 12px }'
