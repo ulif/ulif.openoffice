@@ -427,8 +427,8 @@ def rename_html_img_links(html_input, basename):
         img_map[src] = new_src
     return str(soup), img_map
 
-RE_SDFIELD_OPEN = re.compile('<sdfield([^>]*)>', re.M + re.S)
-RE_SDFIELD_CLOSE = re.compile('</sdfield>', re.M + re.S)
+RE_SDFIELD_OPEN = re.compile('<sdfield([^>]*)>', re.M + re.S + re.I)
+RE_SDFIELD_CLOSE = re.compile('</sdfield>', re.M + re.S + re.I)
 
 def rename_sdfield_tags(html_input):
     """Rename all ``<sdfield>`` tags to ``<span class="sdfield">``
