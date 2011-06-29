@@ -29,7 +29,7 @@ from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
-    extract_css, cleanup_html, cleanup_css)
+    extract_css, cleanup_html, cleanup_css, rename_sdfield_tags)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -382,6 +382,10 @@ class Tidy(BaseProcessor):
             copy_to_secure_location(path), basename)
         src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
+
+        # Remove <SDFIELD> tags if any
+        cleaned_html = rename_sdfield_tags(open(src_path, 'rb').read())
+        open(src_path, 'wb').write(cleaned_html)
 
         error_file = os.path.join(src_dir, 'tidy-errors')
         cmd = 'tidy -asxhtml -clean -indent -modify -utf8 -f %s %s' % (

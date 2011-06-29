@@ -332,6 +332,12 @@ class TestHelpers(unittest.TestCase):
         expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
         assert result == expected
 
+    def test_rename_sdfield_tags_uppercase(self):
+        html_input = '<P>Blah<SDFIELD TYPE="PAGE">8</SDFIELD></P>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
+        assert result == expected
+
     def test_rename_sdfield_tags_empty(self):
         html_input = '<p>Blah</p>'
         result = rename_sdfield_tags(html_input)
