@@ -1,0 +1,6 @@
+``ulif.openoffice.find`` -- Find text in documents
+***************************************************
+
+.. automodule:: ulif.openoffice.find
+   :members:
+

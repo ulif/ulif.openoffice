@@ -9,10 +9,10 @@ API
    api_cachemanager
    api_client
    api_convert
+   api_find
    api_oooctl
    api_processors
    api_pyunoctl
    api_pyunoserver
    api_restserver
    api_util
-
