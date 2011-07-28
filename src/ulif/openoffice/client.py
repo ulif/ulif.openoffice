@@ -65,16 +65,16 @@ class PyUNOResponse(object):
             isok = True
         message = parts[2]
         return (isok, status, message)
-        
+
 
 class PyUNOServerClient(object):
     """A basic client to communicate with a running pyunoserver.
     """
-    
+
     def __init__(self, ip='127.0.0.1', port=PYUNO_PORT):
         self.ip = ip
         self.port = port
-    
+
     def sendRequest(self, message):
         (ip, port) = self.ip, self.port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -196,7 +196,7 @@ class PyUNOServerClient(object):
         abstargetpath = os.path.join(absdir, os.path.basename(path))
         shutil.copy2(path, abstargetpath)
         return abstargetpath
-    
+
     def copyResultToTempDir(self, sourcepath, result):
         """Copy the results to a fresh directory.
 
