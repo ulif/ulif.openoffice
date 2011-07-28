@@ -44,7 +44,7 @@ class Resource(object):
 
     def _get_data(self):
         return None
-    
+
     def getData(self):
         pass
 
@@ -53,7 +53,7 @@ def copy_to_secure_location(path):
     new_loc = os.path.join(dir, os.path.basename(path))
     shutil.copy2(path, new_loc)
     return (new_loc, dir)
-    
+
 def create_resource(file_path, cache_manager=None, params=None):
     """Try to create a resource.
 
