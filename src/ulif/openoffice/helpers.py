@@ -22,6 +22,7 @@
 """
 Helpers for trivial jobs.
 """
+import base64
 import copy
 import cssutils
 import logging
@@ -440,3 +441,21 @@ def rename_sdfield_tags(html_input):
             'class="sdfield"', match.group(1)), html_input)
     return re.sub(
         RE_SDFIELD_CLOSE, lambda match: '</span>', html_input)
+
+def base64url_encode(string):
+    """Get a base64url encoding of string.
+
+    base64url is regular base64 encoding with ``/`` and ``+`` in the
+    result substituted by ``_`` and ``-`` respectively.
+
+    This encoding is better suited for generating file system paths
+    out of binary data.
+    """
+    return base64.urlsafe_b64encode(string)
+
+def base64url_decode(string):
+    """Decode the base64url encoded `string`.
+
+    .. seealso:: base64url_encode
+    """
+    return base64.urlsafe_b64decode(string)
