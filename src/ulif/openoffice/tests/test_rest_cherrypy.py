@@ -43,6 +43,12 @@ checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
 
 class TestRESTful(TestRESTfulWSGISetup):
 
+    def tearDown(self):
+        super(TestRESTful, self).tearDown()
+        # Disable authentication
+        cherrypy.config.update({'tools.auth_basic.on': False,})
+        return
+
     def test_POST_no_doc(self):
         # If we do not pass a doc parameter, this is a bad request
         response = self.app.post(
@@ -89,6 +95,36 @@ class TestRESTful(TestRESTfulWSGISetup):
             )
         cherrypy.config.update({'tools.auth_basic.on': False,})
         assert response.status == '401 Unauthorized'
+
+    def test_GET_state_authorized(self):
+        # We can get a status report
+        cherrypy.config.update({'tools.auth_basic.on': True,})
+        self.wsgi_app.config['/'].update(
+            {'tools.auth_basic.checkpassword': checkpassword_test,
+             })
+        response = self.app.get(
+            '/status',
+            headers = [
+                ('Authorization',
+                 'Basic %s' % 'testuser:secret'.encode('base64'))],
+            )
+        assert '<h1>Status Report</h1>' in response.body
+
+    def test_GET_state_unauthorized(self):
+        # We cannot get a status report if unauthorized
+        cherrypy.config.update({'tools.auth_basic.on': True,})
+        self.wsgi_app.config['/'].update(
+            {'tools.auth_basic.checkpassword': checkpassword_test,
+             })
+        response = self.app.get(
+            '/status',
+            headers = [
+                ('Authorization',
+                 'Basic %s' % 'testuser:nonsense'.encode('base64'))],
+            expect_errors = True,
+            )
+        assert response.status == '401 Unauthorized'
+
 
 class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def setUp(self):
