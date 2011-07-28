@@ -23,7 +23,6 @@
 RESTful server (cherry.py flavour)
 """
 import os
-import shutil
 import sys
 import tempfile
 import cherrypy
@@ -36,7 +35,6 @@ from ulif.openoffice.helpers import remove_file_dir, get_entry_points
 
 class DocumentRoot(object):
     exposed = True
-    doc_ids = ['0', '23', '42']
 
     def __init__(self, cache_manager=None):
         self.cache_manager = cache_manager
