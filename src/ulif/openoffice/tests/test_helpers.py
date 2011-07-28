@@ -29,7 +29,7 @@ from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_html_img_links,
-    rename_sdfield_tags)
+    rename_sdfield_tags, base64url_encode, base64url_decode)
 
 class TestHelpers(unittest.TestCase):
 
@@ -440,3 +440,11 @@ class TestHelpers(unittest.TestCase):
         assert html_output == '%s%s' % (
             '<img src="sample_1.gif" /><img src="sample_1.gif" />',
             '<img src="sample_2.gif" />')
+
+    def test_base64url_encode(self):
+        assert base64url_encode(chr(251)+chr(239)) == '--8='
+        assert base64url_encode(chr(255)*2) == '__8='
+
+    def test_base64url_decode(self):
+        assert base64url_decode('--8=') == chr(251) + chr(239)
+        assert base64url_decode('__8=') == chr(255) * 2
