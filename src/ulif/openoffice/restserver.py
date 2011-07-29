@@ -27,17 +27,19 @@ import sys
 import tempfile
 import cherrypy
 from optparse import OptionParser
-from ulif.openoffice.cachemanager import CacheManager
+from ulif.openoffice.cachemanager import CACHE_SINGLE, CACHE_PER_USER
 from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
-from ulif.openoffice.helpers import remove_file_dir, get_entry_points
+from ulif.openoffice.helpers import (
+    remove_file_dir, get_entry_points, string_to_bool)
 
 class DocumentRoot(object):
     exposed = True
 
-    def __init__(self, cache_manager=None):
-        self.cache_manager = cache_manager
+    def __init__(self, cache_dir=None, cache_layout=CACHE_SINGLE):
+        self.cache_dir = cache_dir
+        self.cache_layout = cache_layout
         return
 
     def not_cp_dispatch(self, vpath):
@@ -45,8 +47,9 @@ class DocumentRoot(object):
             doc_id = vpath.pop(0)
             #cherrypy.request.params['doc_id'] = doc_id
             if doc_id == 'index':
-                return DocumentIndex(cache_manager = self.cache_manager)
-            return Document(doc_id, cache_manager=self.cache_manager)
+                return DocumentIndex(
+                    cache_dir = self.cache_dir, cache_layout=self.cache_layout)
+            return Document(doc_id, cache_dir=self.cache_dir)
             #if doc_id in self.doc_ids:
             #    return Document(doc_id)
             #elif doc_id == 'index':
@@ -55,9 +58,24 @@ class DocumentRoot(object):
             return getattr(self, vpath[0], None)
         return
 
+    def mangle_allow_cached(self, data):
+        """Pick ``allow_cached`` keyword from data.
+
+        If the mentioned keyword is part of data dict, turn its string
+        value unto bool (default is ``False``) and return this value.
+        """
+        allow = string_to_bool(data.get('allow_cached', False))
+        if 'allow_cached' in data.keys():
+            del data['allow_cached']
+        if allow is None:
+            allow = False
+        user = cherrypy.request.login  # Maybe None
+        return allow
+
     def POST(self, doc=None, **data):
         """Create a resource (converted document) and return it.
         """
+
         if doc is None:
             raise cherrypy.HTTPError(
                 400, 'Request must contain `doc` parameter')
@@ -71,7 +89,12 @@ class DocumentRoot(object):
         open(file_path, 'wb').write(doc.file.read())
 
         # Process input
-        proc = MetaProcessor(options=data)
+        user = cherrypy.request.login  # Maybe None
+        allow_cached = self.mangle_allow_cached(data)
+        proc = MetaProcessor(
+            options=data, allow_cache=allow_cached, cache_dir=self.cache_dir,
+            cache_layout=self.cache_layout, user=user
+            )
         result_path, metadata = proc.process(file_path)
 
         if not isinstance(result_path, basestring):
@@ -117,8 +140,7 @@ class DocumentIndex(object):
     def _cp_dispatch(self, vpath):
         return getattr(self, vpath[0], None)
 
-    def __init__(self, cache_manager=None):
-        self.ids = ids
+    def __init__(self, cache_manager=None, cache_layout=CACHE_SINGLE):
         self.cache_manager = cache_manager
 
     def GET(self):
@@ -165,15 +187,14 @@ class Root(object):
 
     @property
     def docs(self):
-        return DocumentRoot(cache_manager=self.cache_manager)
+        return DocumentRoot(
+            cache_dir=self.cache_dir, cache_layout=self.cache_layout)
 
     status = Status()
 
-    def __init__(self, cachedir=None):
-        self.cache_manager = None
-        if cachedir is None:
-            return
-        self.cache_manager = CacheManager(cachedir)
+    def __init__(self, cache_dir=None, cache_layout=CACHE_SINGLE):
+        self.cache_dir = cache_dir
+        self.cache_layout = cache_layout
         return
 
 userpassdict = {'bird' : 'bebop', 'ornette' : 'wayout'}
@@ -204,10 +225,13 @@ def main(argv=sys.argv):
                       help="run server as a daemon.",
                       action="store_true",
                       default=False)
+    parser.add_option("-p", "--cacheurl", dest="cachedir",
+                      help="use CACHEURL to cache results.",
+                      default=None)
     (options, args) = parser.parse_args(argv[1:])
 
     from cherrypy.process.plugins import Daemonizer
     if options.daemonize is True:
         d = Daemonizer(cherrypy.engine)
         d.subscribe()
-    cherrypy.quickstart(Root(), '/', options.config)
+    cherrypy.quickstart(Root(cache_dir=options.cachedir), '/', options.config)
