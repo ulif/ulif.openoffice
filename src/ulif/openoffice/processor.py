@@ -29,7 +29,8 @@ from urlparse import urlparse
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
-    extract_css, cleanup_html, cleanup_css, rename_sdfield_tags)
+    extract_css, cleanup_html, cleanup_css, rename_sdfield_tags,
+    string_to_bool)
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -264,7 +265,7 @@ class OOConvProcessor(BaseProcessor):
                 ("SelectPdfVersion", 0, value, 0))
         if self.options['pdf_tagged'] is not None:
             # allowed: True, False
-            value = self.options['pdf_tagged'].lower() in ['1', 'yes', 'true']
+            value = string_to_bool(self.options['pdf_tagged']) or False
             props.append(
                 ("UseTaggedPDF", 0, value, 0))
         return props
@@ -412,11 +413,8 @@ class CSSCleaner(BaseProcessor):
     def validate_options(self):
         minified = self.options.get('minified')
         if minified is not True:
-            if minified.lower() in ['0', 'no', 'false']:
-                self.options['minified'] = False
-            if minified.lower() in ['1', 'yes', 'true']:
-                self.options['minified'] = True
-            if self.options['minified'] not in [True, False]:
+            self.options['minified'] = string_to_bool(minified)
+            if self.options['minified'] is None:
                 raise ValueError("`minified' must be true or false.")
         return
 
@@ -456,11 +454,8 @@ class HTMLCleaner(BaseProcessor):
         for option_name in ['fix_head_nums', 'fix_img_links', 'fix_sdfields']:
             opt_value = self.options.get(option_name)
             if opt_value is not True:
-                if opt_value.lower() in ['0', 'no', 'false']:
-                    self.options[option_name] = False
-                if opt_value.lower() in ['1', 'yes', 'true']:
-                    self.options[option_name] = True
-                if self.options[option_name] not in [True, False]:
+                self.options[option_name] = string_to_bool(opt_value)
+                if self.options[option_name] is None:
                     raise ValueError(
                         "`%s' must be true or false." % option_name)
         return
