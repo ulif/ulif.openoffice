@@ -35,6 +35,10 @@ import cPickle as pickle
 HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')
 LEVEL_FORM = re.compile('^[0-9a-z]{2}$')
 
+# Cache dir layouts
+CACHE_SINGLE = 'single' #: Use single base dir for all cached doc
+CACHE_PER_USER = 'per_user' #: Use a dir per 'user' for caching
+
 def internal_suffix(suffix=None):
     """The suffix used internally in buckets.
     """
