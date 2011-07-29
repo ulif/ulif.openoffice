@@ -26,6 +26,8 @@ import os
 import shutil
 import tempfile
 from urlparse import urlparse
+from ulif.openoffice.cachemanager import (
+    CacheManager, CACHE_SINGLE, CACHE_PER_USER)
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
@@ -144,12 +146,17 @@ class MetaProcessor(BaseProcessor):
     def avail_procs(self):
         return get_entry_points('ulif.openoffice.processors')
 
-    def __init__(self, options={}):
+    def __init__(self, options={}, allow_cache=None, cache_dir=None,
+                 cache_layout=CACHE_SINGLE, user=None):
         self.all_options = options
         self.options = self.get_own_options(options)
         self.normalize_options()
         self.validate_options()
         self.metadata = {}
+        self.allow_cache = allow_cache
+        self.cachedir = cache_dir
+        self.cachelayout = cache_layout
+        self.user = user
         return
 
     def validate_options(self):
