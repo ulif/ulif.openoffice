@@ -29,7 +29,7 @@ from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_html_img_links,
-    rename_sdfield_tags, base64url_encode, base64url_decode)
+    rename_sdfield_tags, base64url_encode, base64url_decode, string_to_bool)
 
 class TestHelpers(unittest.TestCase):
 
@@ -448,3 +448,15 @@ class TestHelpers(unittest.TestCase):
     def test_base64url_decode(self):
         assert base64url_decode('--8=') == chr(251) + chr(239)
         assert base64url_decode('__8=') == chr(255) * 2
+
+    def test_string_to_bool(self):
+        assert string_to_bool('yes') is True
+        assert string_to_bool('1') is True
+        assert string_to_bool('tRuE') is True
+        assert string_to_bool('nO') is False
+        assert string_to_bool('0') is False
+        assert string_to_bool('FaLsE') is False
+        assert string_to_bool(True) is True
+        assert string_to_bool(False) is False
+        assert string_to_bool('nonsense') is None
+        assert string_to_bool(object()) is None
