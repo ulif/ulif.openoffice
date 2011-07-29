@@ -459,3 +459,26 @@ def base64url_decode(string):
     .. seealso:: base64url_encode
     """
     return base64.urlsafe_b64decode(string)
+
+def string_to_bool(string):
+    """Turn string into a boolean value.
+
+    ``yes``, ``1``, and ``true`` are considered as ``True``. ``no``,
+    ``0``, and ``false`` are considered ``False``. If none of that
+    applies, ``None`` is returned. The case does not matter, so you
+    can use upper, lower or mixed case.
+
+    If, by accident, you pass in a boolean value this will be returned
+    unchanged.
+
+    Other values result in ``None``.
+    """
+    if not isinstance(string, basestring):
+        if string is True or string is False:
+            return string
+        return None
+    if string.lower() in ['yes', '1', 'true']:
+        return True
+    if string.lower() in ['no', '0', 'false']:
+        return False
+    return None
