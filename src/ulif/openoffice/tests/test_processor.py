@@ -27,6 +27,8 @@ import os
 import shutil
 import tempfile
 import zipfile
+from ulif.openoffice.cachemanager import (
+    CacheManager, CACHE_PER_USER)
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
@@ -74,6 +76,12 @@ class TestMetaProcessor(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.resultpath = None
+        self.cachedir = os.path.join(self.workdir, 'test_cache')
+        os.mkdir(self.cachedir)
+        self.input = os.path.join(self.workdir, 'sample.txt')
+        self.output = os.path.join(self.workdir, 'result.txt')
+        open(self.input, 'w').write('Hi there!')
+        open(self.output, 'w').write('I am a (fake) converted doc')
 
     def tearDown(self):
         remove_file_dir(self.workdir)
@@ -161,6 +169,98 @@ class TestMetaProcessor(unittest.TestCase):
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.html')
 
+    def test_init_allow_cache(self):
+        proc1 = MetaProcessor(options={})
+        proc2 = MetaProcessor(options={}, allow_cache=True)
+        proc3 = MetaProcessor(options={}, allow_cache=False)
+        assert proc1.allow_cache is True
+        assert proc2.allow_cache is True
+        assert proc3.allow_cache is False
+
+    def test_get_marker(self):
+        proc1 = MetaProcessor(options={})
+        proc2 = MetaProcessor(options={'b':'0', 'a':'1'})
+        proc3 = MetaProcessor(options={'a':'1', 'b':'0'})
+        result1 = proc1._get_marker()
+        result2 = proc2._get_marker()
+        result3 = proc3._get_marker()
+        assert result1 == 'W10'
+        assert result2 == result3
+        assert result2 != result1
+
+    def test_get_cached_doc_uncached(self):
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir)
+        result = proc._get_cached_doc(self.input)
+        assert result == ('W10', None)
+
+    def test_get_cached_doc_no_cachedir(self):
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=None)
+        result = proc._get_cached_doc(self.input)
+        assert result == ('W10', None)
+
+    def test_get_cached_doc_user_layout_no_user(self):
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir,
+            cache_layout=CACHE_PER_USER, user=None)
+        result = proc._get_cached_doc(self.input)
+        assert result == ('W10', None)
+
+    def test_get_cached_doc_user_layout_uncached(self):
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir,
+            cache_layout=CACHE_PER_USER, user='manfred')
+        result = proc._get_cached_doc(self.input)
+        assert result == ('W10', None)
+
+    def test_get_cached_doc_cached(self):
+        cm = CacheManager(self.cachedir)
+        cm.registerDoc(
+            source_path=self.input, to_cache=self.output, suffix='W10')
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir)
+        marker, path = proc._get_cached_doc(self.input)
+        assert isinstance(path, basestring)
+        assert os.path.exists(path)
+        assert open(path, 'r').read() == 'I am a (fake) converted doc'
+
+    def test_get_cached_doc_user_layout_cached(self):
+        cachedir = os.path.join(self.cachedir, 'manfred')
+        cm = CacheManager(cachedir)
+        cm.registerDoc(
+            source_path=self.input, to_cache=self.output, suffix='W10')
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir,
+            cache_layout=CACHE_PER_USER, user='manfred')
+        marker, path = proc._get_cached_doc(self.input)
+        assert isinstance(path, basestring)
+        assert os.path.exists(path)
+        assert open(path, 'r').read() == 'I am a (fake) converted doc'
+
+    def test_cache_doc(self):
+        marker = 'W10'
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir)
+        proc._cache_doc(self.input, self.output, marker)
+        cm = CacheManager(self.cachedir)
+        path = cm.getCachedFile(self.input, marker)
+        assert isinstance(path, basestring)
+        assert os.path.exists(path)
+        assert open(path, 'r').read() == 'I am a (fake) converted doc'
+
+    def test_cache_doc_per_user_layout(self):
+        marker = 'W10'
+        cachedir = os.path.join(self.cachedir, 'manfred')
+        proc = MetaProcessor(
+            options={}, allow_cache=True, cache_dir=self.cachedir,
+            cache_layout=CACHE_PER_USER, user='manfred')
+        proc._cache_doc(self.input, self.output, marker)
+        cm = CacheManager(cachedir)
+        path = cm.getCachedFile(self.input, marker)
+        assert isinstance(path, basestring)
+        assert os.path.exists(path)
+        assert open(path, 'r').read() == 'I am a (fake) converted doc'
 
 class TestOOConvProcessor(TestOOServerSetup):
 
