@@ -152,13 +152,14 @@ class MetaProcessor(BaseProcessor):
         self.options = self.get_own_options(options)
         self.normalize_options()
         self.validate_options()
-        self.metadata = {}
+        self.metadata = {'cached': False}
         self.allow_cache = allow_cache
         if self.allow_cache not in [True, False]:
             self.allow_cache = True
         self.cachedir = cache_dir
         self.cachelayout = cache_layout
         self.user = user
+        self._do_cache = False
         return
 
     def validate_options(self):
@@ -171,7 +172,7 @@ class MetaProcessor(BaseProcessor):
                         item, self.avail_procs.keys()))
         return
 
-    def process(self, input=None, metadata={'error':False}):
+    def process(self, input=None, metadata={'error':False,'cached':False}):
         """Run all processors defined in options.
 
         If all processors run successful, the output of the last along
@@ -210,8 +211,9 @@ class MetaProcessor(BaseProcessor):
             metadata.update(dict(cached=True))
             return output, metadata
         # Maintain a copy for caching
-        input_copy = os.path.join(
-            copy_to_secure_location(input), os.path.basename(input))
+        if self._do_cache:
+            input_copy = os.path.join(
+                copy_to_secure_location(input), os.path.basename(input))
 
         for processor in pipeline:
             proc_instance = processor(self.all_options)
@@ -226,9 +228,10 @@ class MetaProcessor(BaseProcessor):
             input = output
 
         # Store result in cache
-        if input is not None and output is not None:
-            self._cache_doc(input_copy, output, marker)
-        remove_file_dir(input_copy) # We do not need that copy any more.
+        if self._do_cache:
+            if input is not None and output is not None:
+                self._cache_doc(input_copy, output, marker)
+            remove_file_dir(input_copy) # We do not need that copy any more.
         return input, metadata
 
     def _handle_error(self, proc, input, output, metadata):
@@ -283,6 +286,7 @@ class MetaProcessor(BaseProcessor):
         cachedir = self.cachedir
         if self.cachelayout == CACHE_PER_USER:
             cachedir = os.path.join(cachedir, self.user)
+        self._do_cache = True
         cm = CacheManager(cachedir)
         result = cm.getCachedFile(input, marker)
         return marker, result
