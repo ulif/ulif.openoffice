@@ -58,17 +58,17 @@ class DocumentRoot(object):
             return getattr(self, vpath[0], None)
         return
 
-    def mangle_allow_cached(self, data):
+    def mangle_allow_cached(self, data, default=True):
         """Pick ``allow_cached`` keyword from data.
 
         If the mentioned keyword is part of data dict, turn its string
         value unto bool (default is ``False``) and return this value.
         """
-        allow = string_to_bool(data.get('allow_cached', False))
+        allow = string_to_bool(data.get('allow_cached', default))
         if 'allow_cached' in data.keys():
             del data['allow_cached']
         if allow is None:
-            allow = False
+            allow = default
         user = cherrypy.request.login  # Maybe None
         return allow
 
