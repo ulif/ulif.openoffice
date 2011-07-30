@@ -78,8 +78,10 @@ class TestMetaProcessor(unittest.TestCase):
         self.resultpath = None
         self.cachedir = os.path.join(self.workdir, 'test_cache')
         os.mkdir(self.cachedir)
-        self.input = os.path.join(self.workdir, 'sample.txt')
-        self.output = os.path.join(self.workdir, 'result.txt')
+        os.mkdir(os.path.join(self.workdir, 'input'))
+        os.mkdir(os.path.join(self.workdir, 'output'))
+        self.input = os.path.join(self.workdir, 'input', 'sample.txt')
+        self.output = os.path.join(self.workdir, 'output', 'result.txt')
         open(self.input, 'w').write('Hi there!')
         open(self.output, 'w').write('I am a (fake) converted doc')
 
@@ -145,29 +147,33 @@ class TestMetaProcessor(unittest.TestCase):
 
     def test_process_default(self):
         proc = MetaProcessor(options={})
-        input_path = os.path.join(self.workdir, 'sample.txt')
-        open(input_path, 'wb').write('Hi there!')
-        self.resultpath, metadata = proc.process(input_path)
+        self.resultpath, metadata = proc.process(self.input)
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.html.zip')
 
     def test_process_xhtml_unzipped(self):
         proc = MetaProcessor(options={'oocp.out_fmt':'xhtml',
                                       'meta.procord':'unzip,oocp'})
-        input_path = os.path.join(self.workdir, 'sample.txt')
-        open(input_path, 'wb').write('Hi there!')
-        self.resultpath, metadata = proc.process(input_path)
+        self.resultpath, metadata = proc.process(self.input)
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.xhtml')
 
     def test_process_html_unzipped(self):
         proc = MetaProcessor(options={'oocp.out_fmt':'html',
                                       'meta.procord':'unzip,oocp'})
-        input_path = os.path.join(self.workdir, 'sample.txt')
-        open(input_path, 'wb').write('Hi there!')
-        self.resultpath, metadata = proc.process(input_path)
+        self.resultpath, metadata = proc.process(self.input)
         assert metadata == {'error': False, 'oocp_status':0}
         assert self.resultpath.endswith('sample.html')
+
+    def test_process_caching_store(self):
+        proc = MetaProcessor(
+            options={'oocp.out_fmt':'html', 'meta.procord':'unzip,oocp'},
+            allow_cache=True, cache_dir=self.cachedir)
+        self.resultpath, metadata = proc.process(self.input)
+        assert metadata == {'error': False, 'oocp_status':0}
+        assert self.resultpath.endswith('sample.html')
+        # There is now an entry in the cache
+        assert len(os.listdir(self.cachedir)) == 1
 
     def test_init_allow_cache(self):
         proc1 = MetaProcessor(options={})
