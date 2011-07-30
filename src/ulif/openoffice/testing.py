@@ -71,7 +71,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
             )
 
         self.wsgi_app = cherrypy.Application(
-            Root(cachedir=self.cachedir), '/', config=DEFAULT_CONFIG)
+            Root(cache_dir=self.cachedir), '/', config=DEFAULT_CONFIG)
         self.app = TestApp(self.wsgi_app)
 
     def tearDown(self):
