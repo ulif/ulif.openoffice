@@ -209,9 +209,9 @@ class MetaProcessor(BaseProcessor):
             output = copy_to_secure_location(cached_path)
             metadata.update(dict(cached=True))
             return output, metadata
-
-        input_copy = copy_to_secure_location(input) # Maintain a copy for
-                                                    # caching
+        # Maintain a copy for caching
+        input_copy = os.path.join(
+            copy_to_secure_location(input), os.path.basename(input))
 
         for processor in pipeline:
             proc_instance = processor(self.all_options)
@@ -228,7 +228,7 @@ class MetaProcessor(BaseProcessor):
         # Store result in cache
         if input is not None and output is not None:
             self._cache_doc(input_copy, output, marker)
-            remove_file_dir(input_copy) # We do not need that copy any more.
+        remove_file_dir(input_copy) # We do not need that copy any more.
         return input, metadata
 
     def _handle_error(self, proc, input, output, metadata):
