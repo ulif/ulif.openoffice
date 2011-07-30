@@ -128,8 +128,17 @@ class MetaProcessor(BaseProcessor):
     processors.
 
     The :class:`MetaProcessor` is a kind of processor dispatcher that
-    finds, setups and calls all requested processors in the wanted
+    finds, setups and calls all requested processors in the requested
     order.
+
+    MetaProcessors support caching. If caching is enabled, for each
+    request we ask a cache manager for some already created result. If
+    one can be found, we skip the pipeline and return it. Otherwise we
+    run the pipeline and store the request and result in cache
+    afterwards. For each caching request (storing or retrieval) we use
+    a special key created from the options passed. That ensures, that
+    the same set of options passed with the same document will be
+    processed much faster when requested more than one time.
     """
     #: the meta processor is named 'meta'
     prefix = 'meta'
@@ -195,6 +204,10 @@ class MetaProcessor(BaseProcessor):
         value like ``oocp,oocp`` then the ``oocp`` processor (which is
         the :class:`OOConvProcessor`, registered under ``oocp`` in
         `setup.py`) is called two times.
+
+        The metadata will also contain a 'cached' attribute which
+        tells a calling component whether the result was created
+        running the whole pipeline or fetched from cache.
 
         .. note:: after each processing, the (then old) input is
                   removed.
