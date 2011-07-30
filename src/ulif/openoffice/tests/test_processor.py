@@ -73,6 +73,10 @@ class TestBaseProcessor(unittest.TestCase):
 
 class TestMetaProcessor(unittest.TestCase):
 
+    def create_input(self):
+        os.mkdir(os.path.join(self.workdir, 'input'))
+        open(self.input, 'w').write('Hi there!')
+
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.resultpath = None
@@ -148,21 +152,21 @@ class TestMetaProcessor(unittest.TestCase):
     def test_process_default(self):
         proc = MetaProcessor(options={})
         self.resultpath, metadata = proc.process(self.input)
-        assert metadata == {'error': False, 'oocp_status':0}
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html.zip')
 
     def test_process_xhtml_unzipped(self):
         proc = MetaProcessor(options={'oocp.out_fmt':'xhtml',
                                       'meta.procord':'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
-        assert metadata == {'error': False, 'oocp_status':0}
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.xhtml')
 
     def test_process_html_unzipped(self):
         proc = MetaProcessor(options={'oocp.out_fmt':'html',
                                       'meta.procord':'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
-        assert metadata == {'error': False, 'oocp_status':0}
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html')
 
     def test_process_caching_store(self):
@@ -170,10 +174,20 @@ class TestMetaProcessor(unittest.TestCase):
             options={'oocp.out_fmt':'html', 'meta.procord':'unzip,oocp'},
             allow_cache=True, cache_dir=self.cachedir)
         self.resultpath, metadata = proc.process(self.input)
-        assert metadata == {'error': False, 'oocp_status':0}
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html')
         # There is now an entry in the cache
         assert len(os.listdir(self.cachedir)) == 1
+        assert metadata['cached'] is False
+
+    def test_process_caching_retrieve(self):
+        proc = MetaProcessor(
+            options={'oocp.out_fmt':'html', 'meta.procord':'unzip,oocp'},
+            allow_cache=True, cache_dir=self.cachedir)
+        proc.process(self.input)
+        self.create_input()
+        self.resultpath, metadata = proc.process(self.input)
+        assert metadata['cached'] is True
 
     def test_init_allow_cache(self):
         proc1 = MetaProcessor(options={})
