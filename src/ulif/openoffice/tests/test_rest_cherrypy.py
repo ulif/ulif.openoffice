@@ -206,3 +206,18 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         status = response.status
         assert status == '503 Service Unavailable'
         assert 'Intentional error' in response.body
+
+    def test_POST_CACHED(self):
+        # We can request cached results
+        response = self.app.post(
+            '/docs',
+            params={'meta.procord':'oocp', 'allow_cached': '1'},
+            upload_files = [
+                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ],
+            expect_errors = True,
+            )
+        body = response.body
+        assert body == 'asd'
+        headers = response.headers
+        assert body.startswith('<!DOCTYPE HTML')
