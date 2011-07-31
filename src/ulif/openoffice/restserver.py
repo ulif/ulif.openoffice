@@ -27,12 +27,72 @@ import sys
 import tempfile
 import cherrypy
 from optparse import OptionParser
-from ulif.openoffice.cachemanager import CACHE_SINGLE, CACHE_PER_USER
+from ulif.openoffice.cachemanager import (
+    CacheManager, CACHE_SINGLE, CACHE_PER_USER)
+from ulif.openoffice.helpers import (
+    remove_file_dir, get_entry_points, string_to_bool, base64url_encode)
 from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
-from ulif.openoffice.helpers import (
-    remove_file_dir, get_entry_points, string_to_bool)
+
+def get_marker(options=dict()):
+    """Compute a unique marker for a set of options.
+
+    The returned marker is a string suitable for use in
+    filessystems. Different sets of options will result in different
+    markers where order of options does not matter.
+
+    In :mod:`ulif.openoffice` we use the marker to feed the cache
+    manager.
+    """
+    result = sorted(options.items())
+    result = '%s' % result
+    return base64url_encode(result).replace('=', '')
+
+def get_cached_doc(self, input):
+    """Return a cached document for input if available.
+
+    Returns tuple ``<MARKER>, <PATH>`` where ``<MARKER>`` is the
+    marker string used with cache manager and ``<PATH>`` is the
+    resultpath of the cached document. If no such path can be found,
+    ``<PATH>`` is ``None``.
+    """
+    marker = self._get_marker()
+    if self.allow_cache is False or self.cachedir is None:
+        return (marker, None)
+    if self.cachelayout == CACHE_PER_USER and self.user is None:
+        return (marker, None)
+    cachedir = self.cachedir
+    if self.cachelayout == CACHE_PER_USER:
+        cachedir = os.path.join(cachedir, self.user)
+    self._do_cache = True
+    cm = CacheManager(cachedir)
+    result = cm.getCachedFile(input, marker)
+    return marker, result
+
+def cache_doc(self, input, output, marker):
+    """Store generated file in cache.
+
+    `input` and `output` are paths giving the output file created from
+    input file. `marker` is the (distinct) 'suffix' under which we
+    store different output files for same `input`.
+
+    If local options (`allow_cache`, etc.) are not suitable, we do not
+    cache the files.
+    """
+    if self.allow_cache is False or self.cachedir is None:
+        return
+    if self.cachelayout == CACHE_PER_USER and self.user is None:
+        return
+    cachedir = self.cachedir
+    if self.cachelayout == CACHE_PER_USER:
+        cachedir = os.path.join(cachedir, self.user)
+    if cachedir is None:
+        return
+    cm = CacheManager(cachedir)
+    cm.registerDoc(
+        source_path=input, to_cache=output, suffix=marker)
+    return
 
 class DocumentRoot(object):
     exposed = True
@@ -91,10 +151,7 @@ class DocumentRoot(object):
         # Process input
         user = cherrypy.request.login  # Maybe None
         allow_cached = self.mangle_allow_cached(data)
-        proc = MetaProcessor(
-            options=data, allow_cache=allow_cached, cache_dir=self.cache_dir,
-            cache_layout=self.cache_layout, user=user
-            )
+        proc = MetaProcessor(options=data)
         result_path, metadata = proc.process(file_path)
 
         if not isinstance(result_path, basestring):

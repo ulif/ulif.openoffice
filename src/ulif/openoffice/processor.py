@@ -131,14 +131,6 @@ class MetaProcessor(BaseProcessor):
     finds, setups and calls all requested processors in the requested
     order.
 
-    MetaProcessors support caching. If caching is enabled, for each
-    request we ask a cache manager for some already created result. If
-    one can be found, we skip the pipeline and return it. Otherwise we
-    run the pipeline and store the request and result in cache
-    afterwards. For each caching request (storing or retrieval) we use
-    a special key created from the options passed. That ensures, that
-    the same set of options passed with the same document will be
-    processed much faster when requested more than one time.
     """
     #: the meta processor is named 'meta'
     prefix = 'meta'
@@ -155,20 +147,12 @@ class MetaProcessor(BaseProcessor):
     def avail_procs(self):
         return get_entry_points('ulif.openoffice.processors')
 
-    def __init__(self, options={}, allow_cache=True, cache_dir=None,
-                 cache_layout=CACHE_SINGLE, user=None):
+    def __init__(self, options={}):
         self.all_options = options
         self.options = self.get_own_options(options)
         self.normalize_options()
         self.validate_options()
-        self.metadata = {'cached': False}
-        self.allow_cache = allow_cache
-        if self.allow_cache not in [True, False]:
-            self.allow_cache = True
-        self.cachedir = cache_dir
-        self.cachelayout = cache_layout
-        self.user = user
-        self._do_cache = False
+        self.metadata = {}
         return
 
     def validate_options(self):
@@ -181,7 +165,7 @@ class MetaProcessor(BaseProcessor):
                         item, self.avail_procs.keys()))
         return
 
-    def process(self, input=None, metadata={'error':False,'cached':False}):
+    def process(self, input=None, metadata={'error':False}):
         """Run all processors defined in options.
 
         If all processors run successful, the output of the last along
@@ -205,10 +189,6 @@ class MetaProcessor(BaseProcessor):
         the :class:`OOConvProcessor`, registered under ``oocp`` in
         `setup.py`) is called two times.
 
-        The metadata will also contain a 'cached' attribute which
-        tells a calling component whether the result was created
-        running the whole pipeline or fetched from cache.
-
         .. note:: after each processing, the (then old) input is
                   removed.
         """
@@ -216,35 +196,16 @@ class MetaProcessor(BaseProcessor):
         pipeline = self._build_pipeline()
         output = None
 
-        # Try to fetch a cached copy
-        marker, cached_path = self._get_cached_doc(input)
-        if cached_path is not None:
-            # We hit. Copy file from in-cache location
-            output = copy_to_secure_location(cached_path)
-            metadata.update(dict(cached=True))
-            return output, metadata
-        # Maintain a copy for caching
-        if self._do_cache:
-            input_copy = os.path.join(
-                copy_to_secure_location(input), os.path.basename(input))
-
         for processor in pipeline:
             proc_instance = processor(self.all_options)
             output, metadata = proc_instance.process(input, metadata)
             if metadata['error'] is True:
-                remove_file_dir(input_copy)
                 metadata = self._handle_error(
                     processor, input, output, metadata)
                 return None, metadata
             if input != output:
                 remove_file_dir(input)
             input = output
-
-        # Store result in cache
-        if self._do_cache:
-            if input is not None and output is not None:
-                self._cache_doc(input_copy, output, marker)
-            remove_file_dir(input_copy) # We do not need that copy any more.
         return input, metadata
 
     def _handle_error(self, proc, input, output, metadata):
@@ -268,65 +229,6 @@ class MetaProcessor(BaseProcessor):
         result = tuple(result)
         return result
 
-    def _get_marker(self):
-        """Compute a unique marker for a set of options.
-
-        The returned marker is a string suitable for use in
-        filessystems. Different sets of options will result in
-        different markers where order of options does not matter.
-
-        In :mod:`ulif.openoffice` we use the marker to feed the cache
-        manager.
-        """
-        options = sorted(self.all_options.items())
-        options = '%s' % options
-        options = base64url_encode(options).replace('=', '')
-        return options
-
-    def _get_cached_doc(self, input):
-        """Return a cached document for input if available.
-
-        Returns tuple ``<MARKER>, <PATH>`` where ``<MARKER>`` is the
-        marker string used with cache manager and ``<PATH>`` is the
-        resultpath of the cached document. If no such path can be
-        found, ``<PATH>`` is ``None``.
-        """
-        marker = self._get_marker()
-        if self.allow_cache is False or self.cachedir is None:
-            return (marker, None)
-        if self.cachelayout == CACHE_PER_USER and self.user is None:
-            return (marker, None)
-        cachedir = self.cachedir
-        if self.cachelayout == CACHE_PER_USER:
-            cachedir = os.path.join(cachedir, self.user)
-        self._do_cache = True
-        cm = CacheManager(cachedir)
-        result = cm.getCachedFile(input, marker)
-        return marker, result
-
-    def _cache_doc(self, input, output, marker):
-        """Store generated file in cache.
-
-        `input` and `output` are paths giving the output file created
-        from input file. `marker` is the (distinct) 'suffix' under
-        which we store different output files for same `input`.
-
-        If local options (`allow_cache`, etc.) are not suitable, we do
-        not cache the files.
-        """
-        if self.allow_cache is False or self.cachedir is None:
-            return
-        if self.cachelayout == CACHE_PER_USER and self.user is None:
-            return
-        cachedir = self.cachedir
-        if self.cachelayout == CACHE_PER_USER:
-            cachedir = os.path.join(cachedir, self.user)
-        if cachedir is None:
-            return
-        cm = CacheManager(cachedir)
-        cm.registerDoc(
-            source_path=input, to_cache=output, suffix=marker)
-        return
 
 
 
