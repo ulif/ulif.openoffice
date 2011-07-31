@@ -195,17 +195,6 @@ class TestMetaProcessor(unittest.TestCase):
         assert proc2.allow_cache is True
         assert proc3.allow_cache is False
 
-    def NOtest_get_marker(self):
-        proc1 = MetaProcessor(options={})
-        proc2 = MetaProcessor(options={'b':'0', 'a':'1'})
-        proc3 = MetaProcessor(options={'a':'1', 'b':'0'})
-        result1 = proc1._get_marker()
-        result2 = proc2._get_marker()
-        result3 = proc3._get_marker()
-        assert result1 == 'W10'
-        assert result2 == result3
-        assert result2 != result1
-
     def NOtest_get_cached_doc_uncached(self):
         proc = MetaProcessor(
             options={}, allow_cache=True, cache_dir=self.cachedir)
