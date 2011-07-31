@@ -170,10 +170,10 @@ class Bucket(object):
         """Store file in ``result_path`` as representation of source in
         ``src_path``.
 
-        Optionally store this result marked with a certain ``suffix``
+        Optionally store this result marked with a certain `suffix`
         string.
 
-        The result has to be a path to a single file.
+        The `result_path` has to be a path to a single file.
 
         If `suffix` is given, the representation will be stored marked
         with the suffix in order to be able to distinguish this
@@ -186,6 +186,8 @@ class Bucket(object):
         We determine wether an identical source file already exists in
         the bucket by comparing the given file in `src_path` with the
         source files already stored in the bucket byte-wise.
+
+        Returns a unique string as marker for later retrieval.
         """
         suffix = internal_suffix(suffix)
         local_source, marker = self.getSourcePath(src_path)
@@ -401,7 +403,7 @@ class CacheManager(object):
         cache manager makes no assumptions about file types or
         similar.
 
-        Returns a marker string which can be used in conjunction with
+        Returns a marker string which can be used in connection with
         the appropriate cache manager methods to retrieve the file
         later on.
         """
