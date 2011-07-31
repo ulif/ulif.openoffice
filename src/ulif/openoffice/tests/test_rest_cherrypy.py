@@ -22,6 +22,7 @@
 import base64
 import os
 import shutil
+import tempfile
 import zipfile
 import cherrypy
 try:
@@ -33,13 +34,38 @@ from StringIO import StringIO
 from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
-from ulif.openoffice.restserver import checkpassword
+from ulif.openoffice.restserver import (
+    checkpassword, get_marker)
 
 checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
     {'bird': 'bebop',
      'ornette': 'wayout',
      'testuser': 'secret',
      })
+
+class TestRESTfulHelpers(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.input = os.path.join(self.workdir, 'input', 'sample.txt')
+        os.mkdir(os.path.dirname(self.input))
+        open(self.input, 'wb').write('Hi there!')
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        return
+
+    def test_get_marker(self):
+        # Make sure, sorted dicts get the same marker
+        result1 = get_marker()
+        result2 = get_marker(options={})
+        result3 = get_marker(options={'b':'0', 'a':'1'})
+        result4 = get_marker(options={'a':'1', 'b':'0'})
+        assert result1 == 'W10'
+        assert result2 == 'W10'
+        assert result3 == result4
+        assert result2 != result3
 
 class TestRESTful(TestRESTfulWSGISetup):
 
