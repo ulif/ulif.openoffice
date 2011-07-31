@@ -31,11 +31,15 @@ except:
     import unittest
 
 from StringIO import StringIO
+from ulif.openoffice.cachemanager import (
+    CacheManager, CACHE_SINGLE, CACHE_PER_USER)
+from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
 from ulif.openoffice.restserver import (
-    checkpassword, get_marker)
+    checkpassword, get_marker, get_cached_doc, cache_doc, mangle_allow_cached,
+    get_cachedir, process_doc)
 
 checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
     {'bird': 'bebop',
@@ -43,17 +47,34 @@ checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
      'testuser': 'secret',
      })
 
-class TestRESTfulHelpers(unittest.TestCase):
+class TestRESTfulHelpers(TestOOServerSetup):
+
+    def create_input(self):
+        os.mkdir(os.path.dirname(self.input))
+        open(self.input, 'wb').write('Hi there!')
 
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
+        self.cachedir = os.path.join(self.workdir, 'test_cache')
+        os.mkdir(self.cachedir)
         self.input = os.path.join(self.workdir, 'input', 'sample.txt')
-        os.mkdir(os.path.dirname(self.input))
-        open(self.input, 'wb').write('Hi there!')
+        self.create_input()
+        self.output = os.path.join(self.workdir, 'output', 'sample.txt')
+        os.mkdir(os.path.dirname(self.output))
+        open(self.output, 'wb').write('Faked output')
+        self.data = {
+            'oocp.out_fmt':'html',
+            'meta.procord':'unzip,oocp'
+            }
+        self.marker = 'WygnbWV0YS5wcm9jb3JkJywgJ3VuemlwLG9vY3AnKSwgKCd'
+        self.marker += 'vb2NwLm91dF9mbXQnLCAnaHRtbCcpXQ'
+        self.etag = '396199333edbf40ad43e62a1c1397793_1'
+        self.resultpath = None  # For resultpaths generated in tests
         return
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
+        remove_file_dir(self.resultpath)
         return
 
     def test_get_marker(self):
@@ -66,6 +87,106 @@ class TestRESTfulHelpers(unittest.TestCase):
         assert result2 == 'W10'
         assert result3 == result4
         assert result2 != result3
+
+    def test_get_cached_doc_no_cachedir(self):
+        # If we pass no cache dir, we get None
+        result = get_cached_doc(self.input, 'nonsense', cache_dir=None)
+        assert result is None
+
+    def test_get_cached_doc_uncached(self):
+        # We get None if everything is okay but the doc simply not cached
+        result = get_cached_doc(self.input, 'W10', cache_dir=self.cachedir)
+        assert result is None
+
+    def test_get_cached_doc(self):
+        # If a cached doc is available, we can get it from cache
+        cm = CacheManager(self.cachedir)
+        cm.registerDoc(
+            source_path=self.input, to_cache=self.output, suffix='W10')
+        path = get_cached_doc(self.input, 'W10', cache_dir=self.cachedir)
+        assert isinstance(path, basestring)
+        assert open(path, 'r').read() == 'Faked output'
+
+    def test_cache_doc(self):
+        # We can cache away docs
+        etag = cache_doc(self.input, self.output, 'W10', self.cachedir)
+        assert etag == '396199333edbf40ad43e62a1c1397793_1'
+        cm = CacheManager(self.cachedir)
+        cached = cm.getCachedFile(self.input, 'W10')
+        assert open(cached, 'r').read() == 'Faked output'
+
+    def test_cache_doc_wo_cachedir(self):
+        # No cachedir, no caching
+        etag = cache_doc(self.input, self.output, 'W10', None)
+        assert etag is None
+
+    def test_mangle_allow_cached(self):
+        # Make sure we get sensible values
+        result1 = mangle_allow_cached(dict(allow_cached='0'), True)
+        result2 = mangle_allow_cached(dict(allow_cached='1'), True)
+        result3 = mangle_allow_cached(dict(allow_cached='0'), False)
+        result4 = mangle_allow_cached(dict(allow_cached='1'), False)
+        result5 = mangle_allow_cached(dict(), True)
+        result6 = mangle_allow_cached(dict(), False)
+        result7 = mangle_allow_cached(dict(allow_cached='nonsense'), True)
+        assert result1 is False
+        assert result2 is True
+        assert result3 is False
+        assert result4 is True
+        assert result5 is True
+        assert result6 is False
+        assert result7 is True
+
+    def test_get_cachedir(self):
+        # Make sure we get an appropriate cachedir
+        result1 = get_cachedir(True, self.cachedir, CACHE_SINGLE, 'fred')
+        result2 = get_cachedir(False, self.cachedir, CACHE_SINGLE, 'fred')
+        result3 = get_cachedir(True, None, CACHE_SINGLE, 'fred')
+        result4 = get_cachedir(True, self.cachedir, CACHE_PER_USER, 'fred')
+        result5 = get_cachedir(True, self.cachedir, CACHE_PER_USER, None)
+        assert result1 is not None
+        assert result2 is None
+        assert result3 is None
+        assert result4.endswith('fred')
+        assert result5 is None
+
+    def test_process_doc(self):
+        # Process uncached doc
+        self.resultpath, etag, metadata, cached = process_doc(
+            self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
+        assert etag == self.etag
+        assert metadata == {'error': False, 'oocp_status': 0}
+        assert cached is False
+        assert '<!DOCTYPE' in open(self.resultpath, 'r').read()
+
+    def test_process_doc_retrieve_cached(self):
+        # We retrieve a cached doc if it is available
+        cm = CacheManager(self.cachedir)
+        cm.registerDoc(
+            source_path=self.input, to_cache=self.output, suffix=self.marker)
+        path, etag, metadata, cached = process_doc(
+            self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
+        assert cached is True
+        assert open(path, 'r').read() == 'Faked output'
+
+    def test_process_doc_cached_away(self):
+        # The doc gets cached if sent for the first time
+        self.resultpath, etag, metadata, cached = process_doc(
+            self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
+        self.create_input() # Processing will remove the original input
+        cm = CacheManager(self.cachedir)
+        path = cm.getCachedFile(self.input, self.marker)
+        assert path is not None
+        assert '<!DOCTYPE' in open(path, 'r').read()
+
+    def test_process_doc_wo_cachedir(self):
+        # No cachedir, no caching
+        self.resultpath, etag, metadata, cached = process_doc(
+            self.input, self.data, True, None, CACHE_SINGLE, 'fred')
+        assert etag is None
+        assert metadata == {'error': False, 'oocp_status': 0}
+        assert cached is False
+        assert '<!DOCTYPE' in open(self.resultpath, 'r').read()
 
 class TestRESTful(TestRESTfulWSGISetup):
 
