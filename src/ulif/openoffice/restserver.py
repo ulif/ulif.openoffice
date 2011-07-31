@@ -43,7 +43,9 @@ def get_marker(options=dict()):
     markers where order of options does not matter.
 
     In :mod:`ulif.openoffice` we use the marker to feed the cache
-    manager.
+    manager and to mark different results for the same input file as
+    different option sets will result in different output for same
+    input.
     """
     result = sorted(options.items())
     result = '%s' % result
@@ -141,7 +143,6 @@ class DocumentRoot(object):
     def POST(self, doc=None, **data):
         """Create a resource (converted document) and return it.
         """
-
         if doc is None:
             raise cherrypy.HTTPError(
                 400, 'Request must contain `doc` parameter')
@@ -156,18 +157,6 @@ class DocumentRoot(object):
 
         # Process input
         user = cherrypy.request.login  # Maybe None
-
-        # allow_cached = self.mangle_allow_cached(data)
-        # result_path = None
-        # metadata = dict(error=False, cached=False)
-        # #if allow_cached and self.cachedir is not None:
-        #     # Ask cache for already stored copy
-        #     #local_cachedir = get_cachedir(
-        #     #    self.cache_dir, allow_cached, self.cache_layout, user)
-        #     #result_path = get_cached_doc(file_path, data, cachedir=cache_dir)
-        # #if result_path is None:
-        # proc = MetaProcessor(options=data)
-        # result_path, metadata = proc.process(file_path)
         result_path, metadata, cached_result = process_doc(
             file_path, data, True, self.cache_dir, self.cache_layout, user)
 
