@@ -30,10 +30,15 @@ from optparse import OptionParser
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
 from ulif.openoffice.helpers import (
-    remove_file_dir, get_entry_points, string_to_bool, base64url_encode)
+    remove_file_dir, get_entry_points, string_to_bool, base64url_encode,
+    copy_to_secure_location)
 from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.util import get_content_type
+
+#
+# Helper functions
+#
 
 def get_marker(options=dict()):
     """Compute a unique marker for a set of options.
@@ -51,15 +56,20 @@ def get_marker(options=dict()):
     result = '%s' % result
     return base64url_encode(result).replace('=', '')
 
-def get_cached_doc(input, options, cache_dir=None):
+def get_cached_doc(input, marker, cache_dir=None):
     """Return a cached document for input if available.
+
+    If you want a special output variant of `input` you can pass
+    `marker`, a string returned by cache manager when storing a
+    document conversion.
+
+    `cache_dir` is a filesystem path.
 
     The returned string is the resultpath of the cached document. If
     no such path can be found, you get ``None``.
     """
     if cache_dir is None:
         return None
-    marker = get_marker(options)
     cm = CacheManager(cache_dir)
     return cm.getCachedFile(input, marker)
 
@@ -72,11 +82,9 @@ def cache_doc(input, output, marker, cache_dir=None,):
     path to the cache.
     """
     if cache_dir is None:
-        return
+        return None
     cm = CacheManager(cache_dir)
-    cm.registerDoc(
-        source_path=input, to_cache=output, suffix=marker)
-    return
+    return cm.registerDoc(source_path=input, to_cache=output, suffix=marker)
 
 def mangle_allow_cached(data, default=True):
     """Pick ``allow_cached`` keyword from data.
@@ -87,34 +95,102 @@ def mangle_allow_cached(data, default=True):
     """
     allow = string_to_bool(data.get('allow_cached', default))
     if 'allow_cached' in data.keys():
+        # This is not data for processors
         del data['allow_cached']
     if allow is None:
         allow = default
     return allow
 
 def get_cachedir(allow_cached, cache_dir, cache_layout, user):
+    """Get a cachedir based on the given parameters.
+
+    `allow_cached` is a boolean indicating, whether caching should be
+    enabled. `cache_dir` is the path to a cache
+    directory. `cache_layout` tells what kind of cache layout we want
+    to use. Currenty we support :data:`CACHE_SINGLE` (share a single cache
+    for all users) and :data:`CACHE_PER_USER` where each user gets an own
+    part of cache. Both constants are importable from
+    :mod:`ulif.openoffice.cachemanager`.
+
+    Returns a path as string.
+    """
     if cache_dir is None or not allow_cached:
         return None
     if cache_layout == CACHE_PER_USER:
+        if user is None:
+            return None
         cache_dir = os.path.join(cache_dir, user)
     return cache_dir
 
 def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
-    allow_cached = mangle_allow_cached(data, cached_default)
+    """Process `doc` according to the other parameters.
+
+    `doc` is the path to the source document. `data` is a dict of
+    options for processing, passed to the processors.
+
+    Other parameters influence the caching behaviour: `cached_default`
+    is a boolean indicating whether caching is allowed generally for
+    this document. `cache_dir` gives the basic caching directory and
+    `cache_layout` tells whether cached copies are stored in a shared
+    cache (same docs for all users) or a 'private' cache. If we want a
+    private cache, we have to pass `u.o.cachemanager.CACHE_PER_USER`
+    and a username in `user`.
+
+    Depending on the parameters we start by looking up a copy for the
+    requested document conversion in the cache. If none is found (or
+    caching forbidden/impossible) we generate a fresh conversion
+    calling :class:`ulif.openoffice.processor.MetaProcessor` with
+    `data` as parameters.
+
+    Afterwards the conversion result is stored in cache (if
+    allowed/possible) for speedup of upcoming requests.
+
+    Returns a quadruple
+
+      ``(<PATH>, <ETAG>, <METADATA>, <CACHED_COPY>)``
+
+    where ``<PATH>`` is the path to the resulting document, ``<ETAG>``
+    an identifier to retrieve a generated doc from cache on future
+    requests, ``<METADATA>`` is a dict of values returned during
+    request (and set by the document processors, notably setting the
+    `error` keyword), and ``<CACHED_COPY>`` is a boolean indicating
+    whether the result was retrieved from cache or generated.
+
+    If retrieved from cache ``<ETAG>`` is normally
+    ``None``. Same applies if errors happened or caching is forbidden.
+    """
     result_path = None
-    metadata = dict(error=False, cached=False)
+    etag = None
+    allow_cached = mangle_allow_cached(data, cached_default)
+    allow_cached = allow_cached and cache_dir is not None
+    marker = get_marker(data)  # Create unique marker out of options
+    metadata = dict(error=False)
     if allow_cached and cache_dir is not None:
         # Ask cache for already stored copy
         real_cachedir = get_cachedir(
             allow_cached, cache_dir, cache_layout, user)
-        result_path = get_cached_doc(doc, data, cache_dir=cache_dir)
+        result_path = get_cached_doc(doc, marker, cache_dir=cache_dir)
         cached_result = True
     if result_path is None:
         # Generate result
-        proc = MetaProcessor(options=data)
+        input_copy = None
+        if allow_cached:
+            input_copy = copy_to_secure_location(doc)
+            input_copy = os.path.join(input_copy, os.path.basename(doc))
+        proc = MetaProcessor(options=data) # Removes original doc
         result_path, metadata = proc.process(doc)
         cached_result = False
-    return result_path, metadata, cached_result
+        error_state = metadata.get('error', False)
+        if allow_cached and not error_state and result_path is not None:
+            # Cache away generated doc
+            etag = cache_doc(input_copy, result_path, marker, cache_dir)
+        if input_copy and os.path.isfile(input_copy):
+            remove_file_dir(input_copy)
+    return result_path, etag, metadata, cached_result
+
+#
+# Real server stuff
+#
 
 class DocumentRoot(object):
     exposed = True
@@ -157,7 +233,7 @@ class DocumentRoot(object):
 
         # Process input
         user = cherrypy.request.login  # Maybe None
-        result_path, metadata, cached_result = process_doc(
+        result_path, etag, metadata, cached_result = process_doc(
             file_path, data, True, self.cache_dir, self.cache_layout, user)
 
         if not isinstance(result_path, basestring):
