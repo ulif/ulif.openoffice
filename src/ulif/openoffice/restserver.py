@@ -1,5 +1,5 @@
 ##
-## restserver2.py
+## restserver.py
 ## Login : <uli@pu.smp.net>
 ## Started on  Wed Apr 20 03:01:13 2011 Uli Fouquet
 ## $Id$
@@ -49,50 +49,70 @@ def get_marker(options=dict()):
     result = '%s' % result
     return base64url_encode(result).replace('=', '')
 
-def get_cached_doc(self, input):
+def get_cached_doc(input, options, cache_dir=None):
     """Return a cached document for input if available.
 
-    Returns tuple ``<MARKER>, <PATH>`` where ``<MARKER>`` is the
-    marker string used with cache manager and ``<PATH>`` is the
-    resultpath of the cached document. If no such path can be found,
-    ``<PATH>`` is ``None``.
+    The returned string is the resultpath of the cached document. If
+    no such path can be found, you get ``None``.
     """
-    marker = self._get_marker()
-    if self.allow_cache is False or self.cachedir is None:
-        return (marker, None)
-    if self.cachelayout == CACHE_PER_USER and self.user is None:
-        return (marker, None)
-    cachedir = self.cachedir
-    if self.cachelayout == CACHE_PER_USER:
-        cachedir = os.path.join(cachedir, self.user)
-    self._do_cache = True
-    cm = CacheManager(cachedir)
-    result = cm.getCachedFile(input, marker)
-    return marker, result
+    if cache_dir is None:
+        return None
+    marker = get_marker(options)
+    cm = CacheManager(cache_dir)
+    return cm.getCachedFile(input, marker)
 
-def cache_doc(self, input, output, marker):
+def cache_doc(input, output, marker, cache_dir=None,):
     """Store generated file in cache.
 
     `input` and `output` are paths giving the output file created from
     input file. `marker` is the (distinct) 'suffix' under which we
-    store different output files for same `input`.
-
-    If local options (`allow_cache`, etc.) are not suitable, we do not
-    cache the files.
+    store different output files for same `input`. `cache_dir` is the
+    path to the cache.
     """
-    if self.allow_cache is False or self.cachedir is None:
+    if cache_dir is None:
         return
-    if self.cachelayout == CACHE_PER_USER and self.user is None:
-        return
-    cachedir = self.cachedir
-    if self.cachelayout == CACHE_PER_USER:
-        cachedir = os.path.join(cachedir, self.user)
-    if cachedir is None:
-        return
-    cm = CacheManager(cachedir)
+    cm = CacheManager(cache_dir)
     cm.registerDoc(
         source_path=input, to_cache=output, suffix=marker)
     return
+
+def mangle_allow_cached(data, default=True):
+    """Pick ``allow_cached`` keyword from data.
+
+    If the mentioned keyword is part of data dict, turn its string
+    value unto bool (default as per `default` parameter) and
+    return this value.
+    """
+    allow = string_to_bool(data.get('allow_cached', default))
+    if 'allow_cached' in data.keys():
+        del data['allow_cached']
+    if allow is None:
+        allow = default
+    return allow
+
+def get_cachedir(allow_cached, cache_dir, cache_layout, user):
+    if cache_dir is None or not allow_cached:
+        return None
+    if cache_layout == CACHE_PER_USER:
+        cache_dir = os.path.join(cache_dir, user)
+    return cache_dir
+
+def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
+    allow_cached = mangle_allow_cached(data, cached_default)
+    result_path = None
+    metadata = dict(error=False, cached=False)
+    if allow_cached and cache_dir is not None:
+        # Ask cache for already stored copy
+        real_cachedir = get_cachedir(
+            allow_cached, cache_dir, cache_layout, user)
+        result_path = get_cached_doc(doc, data, cache_dir=cache_dir)
+        cached_result = True
+    if result_path is None:
+        # Generate result
+        proc = MetaProcessor(options=data)
+        result_path, metadata = proc.process(doc)
+        cached_result = False
+    return result_path, metadata, cached_result
 
 class DocumentRoot(object):
     exposed = True
@@ -118,20 +138,6 @@ class DocumentRoot(object):
             return getattr(self, vpath[0], None)
         return
 
-    def mangle_allow_cached(self, data, default=True):
-        """Pick ``allow_cached`` keyword from data.
-
-        If the mentioned keyword is part of data dict, turn its string
-        value unto bool (default is ``False``) and return this value.
-        """
-        allow = string_to_bool(data.get('allow_cached', default))
-        if 'allow_cached' in data.keys():
-            del data['allow_cached']
-        if allow is None:
-            allow = default
-        user = cherrypy.request.login  # Maybe None
-        return allow
-
     def POST(self, doc=None, **data):
         """Create a resource (converted document) and return it.
         """
@@ -150,9 +156,20 @@ class DocumentRoot(object):
 
         # Process input
         user = cherrypy.request.login  # Maybe None
-        allow_cached = self.mangle_allow_cached(data)
-        proc = MetaProcessor(options=data)
-        result_path, metadata = proc.process(file_path)
+
+        # allow_cached = self.mangle_allow_cached(data)
+        # result_path = None
+        # metadata = dict(error=False, cached=False)
+        # #if allow_cached and self.cachedir is not None:
+        #     # Ask cache for already stored copy
+        #     #local_cachedir = get_cachedir(
+        #     #    self.cache_dir, allow_cached, self.cache_layout, user)
+        #     #result_path = get_cached_doc(file_path, data, cachedir=cache_dir)
+        # #if result_path is None:
+        # proc = MetaProcessor(options=data)
+        # result_path, metadata = proc.process(file_path)
+        result_path, metadata, cached_result = process_doc(
+            file_path, data, True, self.cache_dir, self.cache_layout, user)
 
         if not isinstance(result_path, basestring):
             return self.handle_error(metadata, workdir)
