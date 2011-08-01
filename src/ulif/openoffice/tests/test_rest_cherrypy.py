@@ -91,19 +91,21 @@ class TestRESTfulHelpers(TestOOServerSetup):
     def test_get_cached_doc_no_cachedir(self):
         # If we pass no cache dir, we get None
         result = get_cached_doc(self.input, 'nonsense', cache_dir=None)
-        assert result is None
+        assert result == (None, None)
 
     def test_get_cached_doc_uncached(self):
         # We get None if everything is okay but the doc simply not cached
         result = get_cached_doc(self.input, 'W10', cache_dir=self.cachedir)
-        assert result is None
+        assert result == (None, None)
 
     def test_get_cached_doc(self):
         # If a cached doc is available, we can get it from cache
         cm = CacheManager(self.cachedir)
         cm.registerDoc(
             source_path=self.input, to_cache=self.output, suffix='W10')
-        path = get_cached_doc(self.input, 'W10', cache_dir=self.cachedir)
+        path, marker = get_cached_doc(
+            self.input, 'W10', cache_dir=self.cachedir)
+        assert marker == '396199333edbf40ad43e62a1c1397793_1'
         assert isinstance(path, basestring)
         assert open(path, 'r').read() == 'Faked output'
 
@@ -354,8 +356,8 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         assert status == '503 Service Unavailable'
         assert 'Intentional error' in response.body
 
-    def test_POST_CACHED(self):
-        # We can request cached results
+    def test_POST_etag(self):
+        # We get an Etag for each cached doc
         response = self.app.post(
             '/docs',
             params={'meta.procord':'oocp', 'allow_cached': '1'},
@@ -364,7 +366,6 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
                 ],
             expect_errors = True,
             )
-        body = response.body
-        assert body == 'asd'
         headers = response.headers
-        assert body.startswith('<!DOCTYPE HTML')
+        assert 'Etag' in headers.keys()
+        assert headers['Etag'] == '"5d97a19fc021506b297005c0af01cf4f_1"'
