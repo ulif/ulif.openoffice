@@ -75,6 +75,9 @@ def get_cached_doc(input, marker, cache_dir=None):
 
     ``<CACHE-MARKER>`` is a marker you can use to retrieve the cached
     doc from the cache manager. Suitable also for etags.
+
+    If ``<RESULT-PATH>`` is ``None``, also ``<CACHE-MARKER>`` will be
+    ``None``.
     """
     etag = None
     if cache_dir is None:
