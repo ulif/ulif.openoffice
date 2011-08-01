@@ -154,6 +154,9 @@ class Bucket(object):
 
     def getResultPath(self, path, suffix=None):
         """Get the cached result for path.
+
+        Returns path and marker as tuple if successful, (None, None)
+        otherwise.
         """
         marker = None
         suffix = internal_suffix(suffix)
@@ -233,6 +236,20 @@ class Bucket(object):
         if os.path.isfile(local_result):
             return local_result
         return None
+
+    @classmethod
+    def getMarkerFromBucketFilePath(cls, path):
+        """Get the internal bucket marker from `path`.
+
+        `path` must be a file (source or result) stored in cache.
+        """
+        print path
+        filename = os.path.basename(path)
+        filename_parts = filename.split('_', 2)
+        print filename_parts
+        if len(filename_parts) < 2:
+            return None
+        return filename_parts[1]
 
 class CacheManager(object):
     """A cache manager.
@@ -477,3 +494,71 @@ class CacheManager(object):
             bucket = self.getBucketFromHash(name)
             for path in bucket.getAllSourcePaths():
                 yield path
+
+    def getMarkerFromPath(self, path, suffix=None):
+        """Get a marker for file stored in path.
+
+        This marker is suitable for later retrieval via marker-based
+        methods. The marker can only be computed, if an appropriate
+        source is already stored in the cache. If the given file is
+        not cached already, you will get ``None``.
+
+        The marker is not dependent from any suffix.
+        """
+        if path is None or not os.path.exists(path):
+            return None
+        hash_digest = self.getHash(path)
+        bucket_path = self._getBucketPathFromHash(hash_digest)
+        if not os.path.exists(bucket_path):
+            return None
+        bucket = Bucket(bucket_path)
+        source_path, marker = bucket.getSourcePath(path)
+        return self._composeMarker(hash_digest, marker)
+
+    def _getHashFromInCachePath(self, path):
+        """Extract hash string from path to in-cache file.
+
+        Very efficient, no filesystem modifications. You can pass in
+        source file paths as well as result file paths.
+
+        If `path` does not point into our cache dir or contains not
+        enough cache levels (directories), ``None`` is returned.
+
+        This method does not guarantee that the given path really
+        exists.
+        """
+        if path is None:
+            return None
+        if not path.startswith(self.cache_dir):
+            return None
+        parts = path[len(self.cache_dir):].split(os.sep)
+        if len(parts) <= self.level+1:
+            return None
+        return parts[self.level+1]
+
+    def getMarkerFromInCachePath(self, path):
+        """Reconstruct marker string from path to incache file.
+
+        The marker string normally contains some hash and a bucket
+        marker. You should not rely on any assumptions about the
+        format of cache path files, though. Use this method to turn a
+        path to some in-cache file into a marker string suitable for
+        use other methods of :class:`CacheManager`.
+
+        Very efficient, no filesystem modifications. You can pass in
+        source file paths as well as result file paths.
+
+        If `path` does not point into our cache dir or contains not
+        enough cache levels (directories), ``None`` is returned.
+
+        This method does not guarantee that the given path really
+        exists.
+        """
+        if path is None:
+            return None
+        hash_digest = self._getHashFromInCachePath(path)
+        if hash_digest is None:
+            return None
+        marker = Bucket.getMarkerFromBucketFilePath(path)
+        print hash_digest, marker
+        return self._composeMarker(hash_digest, marker)
