@@ -286,6 +286,20 @@ class TestCacheBucket(CachingComponentsTestCase):
         self.assertTrue(path5 is not None)
         self.assertTrue(path6 is None)
 
+    def test_get_marker_from_bucket_file_path(self):
+        # We can extract a bucket marker from a result path
+        bucket = Bucket(self.workdir)
+        marker1 = bucket.storeResult(
+            self.src_path1, self.result_path1, suffix=None)
+        marker2 = bucket.storeResult(
+            self.src_path1, self.result_path1, suffix='foo')
+        path1 = bucket.getResultPathFromMarker(marker1)
+        path2 = bucket.getResultPathFromMarker(marker2, suffix='foo')
+        result1 = bucket.getMarkerFromBucketFilePath(path1)
+        result2 = bucket.getMarkerFromBucketFilePath(path2)
+        self.assertEqual(result1, '1')
+        self.assertEqual(result2, '1')
+
 class TestCacheManager(CachingComponentsTestCase):
 
     def test_markerhandling(self):
@@ -495,7 +509,58 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertFalse('66' in result5)
         return
 
-def test_suite():
-    return unittest.TestLoader().loadTestsFromName(
-        'ulif.openoffice.tests.test_cachemanager'
-        )
+    def test_get_marker_from_path(self):
+        cm = CacheManager(self.workdir)
+        cm.registerDoc(
+            self.src_path1, self.result_path1, suffix='foo')
+        result = cm.getMarkerFromPath(self.src_path1)
+        self.assertEqual(result, '737b337e605199de28b3b64c674f9422_1')
+
+    def test_get_marker_from_in_cache_path(self):
+        cm = CacheManager(self.workdir)
+        marker1 = cm.registerDoc(
+            self.src_path1, self.result_path1, suffix='foo')
+        marker2 = cm.registerDoc(
+            self.src_path2, self.result_path2, suffix=None)
+        result_path1 = cm.getCachedFileFromMarker(marker1, suffix='foo')
+        result_path2 = cm.getCachedFileFromMarker(marker2, suffix=None)
+        src_path = sorted(list(cm.getAllSources()))[0]
+        result1 = cm.getMarkerFromInCachePath(result_path1)
+        result2 = cm.getMarkerFromInCachePath(result_path2)
+        result3 = cm.getMarkerFromInCachePath(src_path)
+        self.assertEqual(result1, '737b337e605199de28b3b64c674f9422_1')
+        self.assertEqual(result2, 'd5aa51d7fb180729089d2de904f7dffe_1')
+        self.assertEqual(result3, '737b337e605199de28b3b64c674f9422_1')
+
+    def test_get_hash_from_incache_path(self):
+        cm = CacheManager(self.workdir, level=2)
+        path1 = '/nonsense/not-in-cache'
+        path2 = os.path.join(self.workdir, 'Nonsense')
+        path3 = os.path.join(self.workdir, 'foo', 'bar')
+        path4 = os.path.join(self.workdir, 'foo', 'bar', 'baz')
+        path5 = os.path.join(self.workdir, 'foo', 'bar', 'baz', 'boo')
+        path6 = os.path.join(self.workdir,
+                             'foo', 'bar', 'baz', 'boo', 'result_1__foo')
+        self.assertTrue(cm._getHashFromInCachePath(None) is None)
+        self.assertTrue(cm._getHashFromInCachePath(path1) is None)
+        self.assertTrue(cm._getHashFromInCachePath(path2) is None)
+        self.assertTrue(cm._getHashFromInCachePath(path3) is None)
+        self.assertEqual(cm._getHashFromInCachePath(path4), 'baz')
+        self.assertEqual(cm._getHashFromInCachePath(path5), 'baz')
+        self.assertEqual(cm._getHashFromInCachePath(path6), 'baz')
+
+    def test_get_hash_from_incache_path_source_paths(self):
+        # Make sure we also get markers from source file paths
+        cm = CacheManager(self.workdir, level=2)
+        marker1 = cm.registerDoc(
+            self.src_path1, self.result_path1, suffix='foo')
+        marker2 = cm.registerDoc(
+            self.src_path2, self.result_path2, suffix=None)
+        # sources = list(cm.getAllSources())
+        src_path1, src_path2 = cm.getAllSources()
+        self.assertEqual(
+            cm._getHashFromInCachePath(src_path1),
+            '737b337e605199de28b3b64c674f9422')
+        self.assertEqual(
+            cm._getHashFromInCachePath(src_path2),
+            'd5aa51d7fb180729089d2de904f7dffe')
