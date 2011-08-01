@@ -57,7 +57,8 @@ def get_marker(options=dict()):
     return base64url_encode(result).replace('=', '')
 
 def get_cached_doc(input, marker, cache_dir=None):
-    """Return a cached document for input if available.
+    """Return a cached document and its cache marker for `input` if
+    available.
 
     If you want a special output variant of `input` you can pass
     `marker`, a string returned by cache manager when storing a
@@ -65,13 +66,24 @@ def get_cached_doc(input, marker, cache_dir=None):
 
     `cache_dir` is a filesystem path.
 
-    The returned string is the resultpath of the cached document. If
-    no such path can be found, you get ``None``.
+    Returns a tuple
+
+       ``(<RESULT-PATH>, <CACHE-MARKER>)``
+
+    where ``<RESULT-PATH>``, a string, is the resultpath of the cached
+    document. If no such path can be found, you get ``None``.
+
+    ``<CACHE-MARKER>`` is a marker you can use to retrieve the cached
+    doc from the cache manager. Suitable also for etags.
     """
+    etag = None
     if cache_dir is None:
-        return None
+        return (None, None)
     cm = CacheManager(cache_dir)
-    return cm.getCachedFile(input, marker)
+    result_path = cm.getCachedFile(input, marker)
+    if result_path is not None:
+        etag = cm.getMarkerFromInCachePath(result_path)
+    return result_path, etag
 
 def cache_doc(input, output, marker, cache_dir=None,):
     """Store generated file in cache.
@@ -169,7 +181,7 @@ def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
         # Ask cache for already stored copy
         real_cachedir = get_cachedir(
             allow_cached, cache_dir, cache_layout, user)
-        result_path = get_cached_doc(doc, marker, cache_dir=cache_dir)
+        result_path, etag = get_cached_doc(doc, marker, cache_dir=cache_dir)
         cached_result = True
     if result_path is None:
         # Generate result
@@ -252,6 +264,10 @@ class DocumentRoot(object):
         # Remove obsolete files/dirs
         remove_file_dir(result_path)
         remove_file_dir(workdir)
+
+        if etag is not None:
+            # Set Etag header if we have one
+            cherrypy.response.headers['Etag'] = '"%s"' % etag
         return cherrypy.lib.static.serve_fileobj(
             result_file, content_type=content_type, name=basename)
 
