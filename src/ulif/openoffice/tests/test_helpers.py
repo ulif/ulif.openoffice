@@ -225,9 +225,9 @@ class TestHelpers(unittest.TestCase):
 
     def test_extract_css_utf8(self):
         result, css = extract_css(
-            "<html><body>ä</body></html>", 'sample.html')
+            "<html><body>äö</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
+        assert result == '<html>\n <body>\n  äö\n </body>\n</html>'
 
     def test_extract_css_utf8_unicode(self):
         result, css = extract_css(
@@ -428,7 +428,7 @@ class TestHelpers(unittest.TestCase):
 
     def test_rename_html_img_links_umlauts(self):
         # We can handle umlauts in filenames
-        html_input = '<img src="file with ümlaut.gif" />'
+        html_input = u'<img src="file with ümlaut.gif" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert img_map == {u'file with \xfcmlaut.gif': u'sample_1.gif'}
 
