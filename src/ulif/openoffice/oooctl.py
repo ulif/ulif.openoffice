@@ -223,7 +223,7 @@ def getOptions(argv=sys.argv):
     if not os.path.isfile(options.binarypath):
         parser.error("no such file: %s. Use -b to set the binary path. "
                      "Use -h to see all options." % options.binarypath)
-        
+
     cmd = None
     if len(args) == 1:
         cmd = args[0]
@@ -231,7 +231,7 @@ def getOptions(argv=sys.argv):
         parser.error("argument must be one of %s. Use option '-h' for help." %
                      ', '.join(["'%s'" % x for x in allowed_args]))
     return (cmd, options)
-    
+
 def signal_handler(signal, frame):
     print "Received SIGINT."
     print "Stopping OpenOffice.org server."
@@ -258,7 +258,7 @@ def wait_for_startup(host, port):
     while not check_port(host, port):
         time.sleep(1)
     return
-    
+
 def main(argv=sys.argv):
     """Main script to start/stop an OOo server.
 
@@ -280,7 +280,7 @@ def main(argv=sys.argv):
             mess += "Start aborted since the server seems to be running.\n"
             sys.stderr.write(mess)
             sys.exit(1)
-        
+
     # startstop() returns only in case of 'start', 'fg', or 'restart' cmd...
     startstop(stderr=options.stderr, stdout=options.stdout,
               stdin=options.stdin,
@@ -289,7 +289,7 @@ def main(argv=sys.argv):
     if cmd == 'fg':
         signal.signal(signal.SIGINT, signal_handler)
         print "Installed signal handler for SIGINT (CTRL-C)"
-    
+
     status = start(options.binarypath, foreground=(cmd=='fg'))
 
     wait_for_startup('localhost', 2002)
