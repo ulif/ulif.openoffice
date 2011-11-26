@@ -337,7 +337,7 @@ class TestZipProcessor(unittest.TestCase):
         assert zipfile.is_zipfile(self.result_path)
         zip_file = zipfile.ZipFile(self.result_path, 'r')
         namelist = zip_file.namelist()
-        assert namelist == ['sample1.txt', 'sample2.txt']
+        assert sorted(namelist) == ['sample1.txt', 'sample2.txt']
 
 class TestTidyProcessor(unittest.TestCase):
 
