@@ -49,10 +49,11 @@ checker = renormalizing.RENormalizing([
                                          # the current version of
                                          # ulif.openoffice, i.e. '0.2.2dev'
                                          # or similar.
+    (re.compile('uli'), '<ULI>'),
     ])
 
 
-def setUp(test):
+def doctestSetUp(test):
     zc.buildout.testing.buildoutSetUp(test)
     zc.buildout.testing.install_develop('ulif.openoffice', test)
     zc.buildout.testing.install_develop('zc.recipe.egg', test)
@@ -60,11 +61,26 @@ def setUp(test):
     os.mkdir('home')
     os.environ['HOME'] = os.path.abspath(os.path.join(os.getcwd(), 'home'))
 
+def doctestTearDown(test):
+    pass
+
+path = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'cachemanager.txt')
+mytest = doctest.DocFileSuite(
+    path,
+    module_relative = False,
+    setUp = doctestSetUp,
+    tearDown = doctestTearDown,
+    optionflags = doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE,
+    checker = checker,
+    )
+
+
 def test_suite():
     testfiles = [
         'cachemanager.txt',
-        'README.txt',
-        'pyunoctl.txt',
+        #'README.txt',
+        #'pyunoctl.txt',
         'restserver.txt'
         ]
     suite = unittest.TestSuite()
@@ -80,12 +96,11 @@ def test_suite():
             doctest.DocFileSuite(
                 abspath,
                 module_relative = False,
-                setUp = setUp,
-                tearDown = zc.buildout.testing.buildoutTearDown,
+                setUp = doctestSetUp,
+                tearDown = doctestTearDown,
                 optionflags = doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE,
                 checker = checker,
                 ))
-    return suite
+    return
 
-if __name__ == '__main__':
-    unittest.main(defaultTests='test_suite')
+suite = test_suite
