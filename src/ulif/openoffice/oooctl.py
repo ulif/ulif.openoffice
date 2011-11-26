@@ -3,18 +3,18 @@
 ## Login : <uli@pu.smp.net>
 ## Started on  Fri Mar 14 14:05:51 2008 Uli Fouquet
 ## $Id$
-## 
+##
 ## Copyright (C) 2008 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -48,30 +48,30 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
     """Fork and daemonize a running process.
     """
     global child_pid
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             # exit first parent
-            sys.exit(0) 
-    except OSError, e: 
-        print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror) 
+            sys.exit(0)
+    except OSError, e:
+        print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
         sys.exit(1)
 
     # decouple from parent environment
-    os.chdir("/") 
-    os.setsid() 
-    os.umask(0) 
+    os.chdir("/")
+    os.setsid()
+    os.umask(0)
 
     # do second fork
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             # exit from second parent, print eventual PID before
-            sys.exit(0) 
-    except OSError, e: 
-        print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror) 
+            sys.exit(0)
+    except OSError, e:
+        print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
         sys.exit(1)
-        
+
     if (not stderr):
 	stderr = stdout
 
@@ -83,7 +83,7 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
     sys.stderr.flush()
     if pidfile: file(pidfile,'w+').write("%s\n" % pid)
 
-    
+
     # Standard Ein-/Ausgaben auf die Dateien umleiten
     os.dup2(si.fileno(), sys.stdin.fileno())
     os.dup2(so.fileno(), sys.stdout.fileno())
@@ -101,7 +101,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
             pf.close()
         except IOError:
             pid = None
-         
+
         if 'stop' == action or 'restart' == action:
             if not pid:
                 mess = "Could not stop, pid file '%s' missing.\n"
@@ -128,7 +128,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                   else:
                       print str(err)
                       sys.exit(1)
-        
+
         if 'start' == action:
             if pid:
                 mess = "Start aborted since pid file '%s' exists.\n"
@@ -166,8 +166,8 @@ def start(binarypath, foreground=False):
         result = os.system(cmd)
         return result
 
-    proc = subprocess.Popen(['sh %s' % cmd], 
-                        shell=True, 
+    proc = subprocess.Popen(['sh %s' % cmd],
+                        shell=True,
                         close_fds=True,
                         preexec_fn=os.setsid,
                         )
