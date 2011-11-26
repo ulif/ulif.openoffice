@@ -92,7 +92,9 @@ class DoctestItem(pytest.Item):
             return super(DoctestItem, self).repr_failure(excinfo)
 
     def reportinfo(self):
-        return self.fspath, None, "[buildout-doctest]"
+        name = self.fspath.basename
+        return self.fspath, None, "[buildout-doctest (%s)]" % (
+            name,)
 
 
 
@@ -100,13 +102,21 @@ def doctestsetup(test):
     zc.buildout.testing.buildoutSetUp(test)
     zc.buildout.testing.install_develop('ulif.openoffice', test)
     zc.buildout.testing.install_develop('zc.recipe.egg', test)
+
+    # Set up all packages we rely on...
+    req_pkgs = pkg_resources.get_distribution('ulif.openoffice').requires()
+    req_pkgs = [x.project_name for x in req_pkgs
+                if x.project_name not in ['setuptools', 'zc.buildout']]
+    for requirement in req_pkgs:
+            zc.buildout.testing.install_develop(requirement, test)
+
     # Create a home that openoffice.org can fiddle around with...
     os.mkdir('home')
     os.environ['HOME'] = os.path.abspath(os.path.join(os.getcwd(), 'home'))
 
     teardowns = test.globs['__tear_downs']
     test.__myteardowns = [x for x in test.globs['__tear_downs']]
-    
+
 def doctestteardown(test):
     for x in test.__myteardowns: x()
 
