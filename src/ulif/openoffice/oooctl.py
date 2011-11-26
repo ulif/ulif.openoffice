@@ -35,8 +35,8 @@ import time
 from optparse import OptionParser
 from signal import SIGTERM
 
-
-OOO_BINARY = '/usr/lib/openoffice/program/soffice'
+DEFAULT_BIN_PATHS = (
+        '/usr/bin/soffice', '/usr/lib/openoffice/program/soffice')
 PIDFILE = '/tmp/ooodaeomon.pid'
 child_pid = None
 
@@ -182,10 +182,10 @@ def getOptions(argv=sys.argv):
 
     parser.add_option(
         "-b", "--binarypath",
-        help = "absolute path to OpenOffice.org binary. This option "
-               "makes only sense when starting the daemon. Default: %s" %
-        OOO_BINARY,
-        default = OOO_BINARY,
+        help = "absolute path to OpenOffice.org/LibreOffice binary. This "
+               "option makes only sense when starting the daemon. Default "
+               "paths looked up: %s" %
+        (', '.join(DEFAULT_BIN_PATHS)),
         )
 
     parser.add_option(
@@ -220,6 +220,14 @@ def getOptions(argv=sys.argv):
     if len(args) > 1:
         parser.error("only one argument allowed. Use option '-h' for help.")
 
+    if options.binarypath is None:
+        for path in DEFAULT_BIN_PATHS:
+            if os.path.isfile(path):
+                options.binarypath = path
+    if options.binarypath is None:
+        parser.error("cannot find a valid path to soffice binary. "
+                     "Use -b to set a valid path. Use -h to see all "
+                     "options.")
     if not os.path.isfile(options.binarypath):
         parser.error("no such file: %s. Use -b to set the binary path. "
                      "Use -h to see all options." % options.binarypath)
@@ -296,7 +304,7 @@ def main(argv=sys.argv):
     while True:
         # Check for running server and restart when it is down...
         if not check_port('localhost', 2002):
-            print "openoffice.org server seems to be down."
+            print "openoffice.org/libreoffice server seems to be down."
             print "restarting..."
             start(options.binarypath)
             wait_for_startup('localhost', 2002)
