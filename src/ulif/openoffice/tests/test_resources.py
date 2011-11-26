@@ -62,17 +62,16 @@ class TestResources(TestOOServerSetup):
         assert status != 0
         assert hash is None
         assert path is None
-        
+
     def test_create_invalid(self):
         # If we pass an unprocessable doc, we will get no result
-        invalid_stuff = os.path.join(self.workdir, 'trash.jpg')
-        open(invalid_stuff, 'wb').write('nonsense')
+        invalid_stuff = os.path.join(self.workdir, 'trash.ill')
+        open(invalid_stuff, 'wb').write('')
         status, hash, path = create_resource(invalid_stuff)
         self.remove_resultfiles(path)
         assert status != 0
         assert hash is None
         assert path is None
-        
 
     def test_create_simple_got_file(self):
         # If we give no further parameters, we will get a document...
