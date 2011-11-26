@@ -369,3 +369,26 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         headers = response.headers
         assert 'Etag' in headers.keys()
         assert headers['Etag'] == '"5d97a19fc021506b297005c0af01cf4f_1"'
+
+    def test_POST_etag_cached_previously(self):
+        # We get an Etag also if the doc was already cached.
+        response1 = self.app.post(
+            '/docs',
+            params={'meta.procord':'oocp', 'allow_cached': '1'},
+            upload_files = [
+                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ],
+            expect_errors = True,
+            )
+        # Send again. The doc should now be cached.
+        response = self.app.post(
+            '/docs',
+            params={'meta.procord':'oocp', 'allow_cached': '1'},
+            upload_files = [
+                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ],
+            expect_errors = True,
+            )
+        headers = response.headers
+        assert 'Etag' in headers.keys()
+        assert headers['Etag'] == '"5d97a19fc021506b297005c0af01cf4f_1"'
