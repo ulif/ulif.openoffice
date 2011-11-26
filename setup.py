@@ -48,9 +48,10 @@ setup(name='ulif.openoffice',
             'twill',
             'py-restclient',
             'WebTest',
-            'pytest',
+            'pytest >= 2.0.3',
             'pytest-xdist',
             'unittest2',
+            'nose >= 1.0.0',
             ],
         doc = ['Sphinx',
                'collective.recipe.sphinxbuilder']
@@ -58,6 +59,7 @@ setup(name='ulif.openoffice',
       entry_points="""
       [pytest11]
       buildout-doctest = ulif.openoffice.testing_buildout
+      mydoctest = ulif.openoffice.pytest_doctest
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
       pyunoctl = ulif.openoffice.pyunoctl:main
