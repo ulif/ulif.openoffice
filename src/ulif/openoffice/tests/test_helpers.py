@@ -75,7 +75,8 @@ class TestHelpers(unittest.TestCase):
         unzip(zipfile, dst)
         assert os.listdir(dst) == ['somedir']
         level2_dir = os.path.join(dst, 'somedir')
-        assert os.listdir(level2_dir) == ['sample.txt', 'othersample.txt']
+        assert sorted(os.listdir(level2_dir)) == [
+            'othersample.txt', 'sample.txt']
 
     def test_zip_file(self):
         # make sure we can zip single files
@@ -98,8 +99,8 @@ class TestHelpers(unittest.TestCase):
         self.resultpath = zip(new_dir)
         zip_file = zipfile.ZipFile(self.resultpath, 'r')
         result = sorted(zip_file.namelist())
-        assert result == ['subdir1/', 'subdir2/', 'subdir2/sample.txt',
-                          'subdir2/subdir21/']
+        assert sorted(result) == [
+            'subdir1/', 'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
         assert zip_file.testzip() is None
 
     def test_remove_file_dir_none(self):
