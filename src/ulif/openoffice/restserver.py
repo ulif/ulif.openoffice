@@ -42,10 +42,6 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
     def do_GET(self, *args, **kw):
         """Handle requests to existing documents.
         """
-        #self.send_error(404, 'Not Found')
-        #return
-        #self.sendTestReply()
-        #return
         path = self.path.split('/')[1:]
         if len(path) == 1 and path[0] == 'TEST':
             self.sendTestReply()
@@ -66,10 +62,7 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
                 return
 
         self.send_error(404, 'Not Found')
-        #self.sendTestReply()
         return
-
-        self.send_error(404, 'File Not Found: %s' % self.path)
 
     def do_POST(self):
         # Parse the form data posted
@@ -78,7 +71,6 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
             # We currently require multipart/form-data...
             self.send_error(406)
             return
-        print "POST OK"
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
@@ -92,14 +84,11 @@ class PyUNORestHandler(BaseHTTPRequestHandler):
         self.wfile.write('Client: %s\n' % str(self.client_address))
         self.wfile.write('Path: %s\n' % self.path)
         self.wfile.write('Form data:\n')
-        #return
 
         # Echo back information about what was posted in the form
         for field in form.keys():
             field_item = form[field]
             if field_item.filename:
-                #if field_item.filename:
-                # The field contains an uploaded file
                 file_data = field_item.file.read()
                 file_len = len(file_data)
                 del file_data
