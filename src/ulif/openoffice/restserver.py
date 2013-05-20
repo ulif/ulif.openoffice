@@ -4,7 +4,7 @@
 ## Started on  Wed Apr 20 03:01:13 2011 Uli Fouquet
 ## $Id$
 ## 
-## Copyright (C) 2011 Uli Fouquet
+## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -218,17 +218,10 @@ class DocumentRoot(object):
     def not_cp_dispatch(self, vpath):
         if vpath:
             doc_id = vpath.pop(0)
-            #cherrypy.request.params['doc_id'] = doc_id
             if doc_id == 'index':
                 return DocumentIndex(
                     cache_dir = self.cache_dir, cache_layout=self.cache_layout)
             return Document(doc_id, cache_dir=self.cache_dir)
-            #if doc_id in self.doc_ids:
-            #    return Document(doc_id)
-            #elif doc_id == 'index':
-            #    return DocumentIndex(self.doc_ids)
-        if vpath:
-            return getattr(self, vpath[0], None)
         return
 
     def POST(self, doc=None, **data):
