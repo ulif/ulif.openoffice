@@ -135,4 +135,4 @@ def run(host, port, python_binary, uno_lib_dir, cache_dir, logger):
     httpd.serve_forever()
 
 if __name__ == '__main__':
-    run('localhost', 8000, None, None, '/home/uli/.pyunocache')
+    run('localhost', 8000, None, None, None)
