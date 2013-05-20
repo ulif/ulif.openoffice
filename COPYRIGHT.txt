@@ -1,1 +1,1 @@
-Uli Fouquet
+Copyright (c) 2013 Uli Fouquet
