@@ -13,6 +13,10 @@ Major rewrite of the whole package.
   much more!), the `convert` script is not provided as a script any
   more. Simply use `unoconv` instead.
 
+* `oooctl` is now a daemonizer for ``unoconv -l``.
+
+* Apply PEP 8 rules to cachemanager.py.
+
 0.4 (2011-02-11)
 ================
 
