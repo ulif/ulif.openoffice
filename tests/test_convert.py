@@ -39,3 +39,15 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(result_doc[:10], b'<!DOCTYPE ')
         shutil.rmtree(result_dir) # clean up
         return
+
+    def test_convert_outdir(self):
+        # the outdir parameter is respected
+        path = os.path.join(self.tmpdir, 'sample.txt')
+        open(path, 'w').write('Hi there!\n')
+        status, result_dir = convert(
+            out_format='pdf', path=path, out_dir=self.tmpdir)
+        self.assertEqual(0, status)
+        # input and output are in the same dir
+        self.assertEqual(
+            ['sample.pdf', 'sample.txt'], os.listdir(self.tmpdir))
+        return
