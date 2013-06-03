@@ -55,7 +55,7 @@ setup(name='ulif.openoffice',
           'beautifulsoup4',
           'cssutils',
       ],
-      setup_requires=["Sphinx-PyPI-upload"],
+      setup_requires=[],
       extras_require=dict(
         tests = [
             #'zope.testing',
