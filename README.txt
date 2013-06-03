@@ -1,15 +1,19 @@
 ulif.openoffice
 ***************
 
-Bridging Python and OpenOffice.org.
+LibreOffice/OpenOffice as a RESTful webservice.
 
-This package provides tools like daemons and converters to ease access
-to OpenOffice.org installations for Python programmers.
+This package provides tools like WSGI apps and converters to ease
+access to OpenOffice.org/LibreOffice installations for Python
+programmers.
 
 The main purpose of the whole package is to provide support for
-converting office documents from Python using OpenOffice.org but
-without the need to have PyUNO support with the Python binary that
-actually runs your Python application (like Plone, for instance).
+converting office documents from Python using
+OpenOffice.org/LibreOffice but without the need to have PyUNO support
+with the Python binary that actually runs your Python application
+(like Plone, for instance).
+
+It is based on `unoconv` to do the actual conversions.
 
 The complete documentation of the most recent release can be found at
 
