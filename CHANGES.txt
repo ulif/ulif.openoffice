@@ -1,8 +1,17 @@
 CHANGES
 *******
 
-0.4.1 (unreleased)
-==================
+1.0dev (unreleased)
+===================
+
+Major rewrite of the whole package.
+
+* `convert` now uses the commandline tool `unoconv`. You need this
+  tool to use the package.
+
+* As `unoconv` has all you want from the package script `convert` (and
+  much more!), the `convert` script is not provided as a script any
+  more. Simply use `unoconv` instead.
 
 0.4 (2011-02-11)
 ================
