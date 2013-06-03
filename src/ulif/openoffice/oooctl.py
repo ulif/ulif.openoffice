@@ -1,10 +1,7 @@
 ##
 ## oooctl.py
-## Login : <uli@pu.smp.net>
-## Started on  Fri Mar 14 14:05:51 2008 Uli Fouquet
-## $Id$
 ##
-## Copyright (C) 2008 Uli Fouquet
+## Copyright (C) 2008, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -22,9 +19,9 @@
 """
 Start/stop a locally installed OpenOffice.org server instance.
 
-This script requires a locally installed OOo server. When running
-``bin/buildout`` this script is installed as executable script
-``oooctl``.
+It runs `unoconv -l` and monitors status.
+
+This script is installed as executable script ``oooctl``.
 """
 import os
 import signal
@@ -37,7 +34,9 @@ from signal import SIGTERM
 
 DEFAULT_BIN_PATHS = (
         '/usr/bin/soffice', '/usr/lib/openoffice/program/soffice')
-PIDFILE = '/tmp/ooodaeomon.pid'
+DEFAULT_BIN_PATHS = (
+        '/usr/bin/unoconv',) # '/usr/lib/openoffice/program/soffice')
+PIDFILE = '/tmp/ooodaemon.pid'
 child_pid = None
 
 def run(cmd):
@@ -84,7 +83,7 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
     if pidfile: file(pidfile,'w+').write("%s\n" % pid)
 
 
-    # Standard Ein-/Ausgaben auf die Dateien umleiten
+    # Redirect standard input/output streams
     os.dup2(si.fileno(), sys.stdin.fileno())
     os.dup2(so.fileno(), sys.stdout.fileno())
     os.dup2(se.fileno(), sys.stderr.fileno())
@@ -149,7 +148,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
         if 'status' == action:
             if not pid:
-                sys.stderr.write('Status: Stopped\n')
+                sys.stderr.write('Status: Not running\n')
             else: sys.stderr.write('Status: Running (PID %s) \n'%pid)
             sys.exit(0)
 
@@ -158,10 +157,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
 def start(binarypath, foreground=False):
     """Start an instance of OpenOffice.org server on port 2002.
     """
-    cmd = "%s %s %s" % (
-        binarypath,
-        '"-accept=socket,host=localhost,port=2002;urp;"',
-        '-headless -nologo -nofirststartwizard -norestore')
+    cmd = "%s -l" % (binarypath,)
     if not foreground:
         result = os.system(cmd)
         return result
@@ -182,8 +178,8 @@ def getOptions(argv=sys.argv):
 
     parser.add_option(
         "-b", "--binarypath",
-        help = "absolute path to OpenOffice.org/LibreOffice binary. This "
-               "option makes only sense when starting the daemon. Default "
+        help = "absolute path to unoconv executable. This "
+               "option makes only sense if starting the daemon. Default "
                "paths looked up: %s" %
         (', '.join(DEFAULT_BIN_PATHS)),
         )
