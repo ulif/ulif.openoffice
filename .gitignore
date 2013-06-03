@@ -1,0 +1,6 @@
+.coverage
+.tox
+docs/_build
+htmlcov
+*.egg-info
+*.py[cod]
