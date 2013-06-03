@@ -1,20 +1,17 @@
 ##
 ## cachemanager.py
-## Login : <uli@pu.smp.net>
-## Started on  Mon Sep  7 13:48:00 2009 Uli Fouquet
-## $Id$
-## 
-## Copyright (C) 2009 Uli Fouquet
+##
+## Copyright (C) 2009, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -22,22 +19,20 @@
 """A manager for storing generated files.
 """
 import filecmp
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import new as md5 # Deprecated since Python 2.5
 import os
 import re
 import shutil
 import sys
 import cPickle as pickle
+from hashlib import md5
 
 HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')
 LEVEL_FORM = re.compile('^[0-9a-z]{2}$')
 
 # Cache dir layouts
-CACHE_SINGLE = 'single' #: Use single base dir for all cached doc
-CACHE_PER_USER = 'per_user' #: Use a dir per 'user' for caching
+CACHE_SINGLE = 'single'      #: Use single base dir for all cached doc
+CACHE_PER_USER = 'per_user'  #: Use a dir per 'user' for caching
+
 
 def internal_suffix(suffix=None):
     """The suffix used internally in buckets.
@@ -45,6 +40,7 @@ def internal_suffix(suffix=None):
     if suffix is None:
         return 'default'
     return '_' + suffix
+
 
 class Bucket(object):
     """A bucket where we store files with same hash sums.
@@ -80,7 +76,6 @@ class Bucket(object):
     Currently, you can store as much source files in a bucket, as the
     the maximum integer number can address.
     """
-
     def __init__(self, path):
         self.path = path
         self.srcdir = os.path.join(self.path, 'sources')
@@ -93,25 +88,25 @@ class Bucket(object):
                 )
         self._data = self.data
 
-    def _setInternalData(self, data):
+    def _set_internal_data(self, data):
         data_path = os.path.join(self.path, 'data')
         pickle.dump(data, open(data_path, 'wb'))
         return
 
-    def _getInternalData(self):
+    def _get_internal_data(self):
         data_path = os.path.join(self.path, 'data')
         if not os.path.exists(data_path):
             return None
         return pickle.load(open(data_path, 'rb'))
 
-    data = property(_getInternalData, _setInternalData)
+    data = property(_get_internal_data, _set_internal_data)
 
-    def getCurrentNum(self):
+    def get_current_num(self):
         """Get current source num.
         """
         return self.data['current_num']
 
-    def setCurrentNum(self, num):
+    def set_current_num(self, num):
         """Set current source num.
         """
         self._data['current_num'] = num
@@ -132,7 +127,7 @@ class Bucket(object):
             os.makedirs(path)
         return
 
-    def getSourcePath(self, path):
+    def get_source_path(self, path):
         """Get a path to a source file that equals file stored in path.
 
         Returns a tuple (path, marker) or (None, None) if the source
@@ -152,7 +147,7 @@ class Bucket(object):
             return src_path, marker
         return (None, None)
 
-    def getResultPath(self, path, suffix=None):
+    def get_result_path(self, path, suffix=None):
         """Get the cached result for path.
 
         Returns path and marker as tuple if successful, (None, None)
@@ -160,7 +155,7 @@ class Bucket(object):
         """
         marker = None
         suffix = internal_suffix(suffix)
-        src_path, marker = self.getSourcePath(path)
+        src_path, marker = self.get_source_path(path)
         if src_path is None:
             return None
         result_filename = 'result_%s_%s' % (marker, suffix)
@@ -169,7 +164,7 @@ class Bucket(object):
             return result_path
         return None
 
-    def storeResult(self, src_path, result_path, suffix=None):
+    def store_result(self, src_path, result_path, suffix=None):
         """Store file in ``result_path`` as representation of source in
         ``src_path``.
 
@@ -193,12 +188,12 @@ class Bucket(object):
         Returns a unique string as marker for later retrieval.
         """
         suffix = internal_suffix(suffix)
-        local_source, marker = self.getSourcePath(src_path)
+        local_source, marker = self.get_source_path(src_path)
         if local_source is None:
             # Create new source
-            num = self.getCurrentNum()
+            num = self.get_current_num()
             num += 1
-            self.setCurrentNum(num)
+            self.set_current_num(num)
             marker = str(num)
             local_source = os.path.join(
                 self.srcdir, 'source_%s' % marker)
@@ -210,7 +205,7 @@ class Bucket(object):
         shutil.copyfile(result_path, local_result)
         return marker
 
-    def getAllSourcePaths(self):
+    def get_all_source_paths(self):
         """Get the paths of all source files stored in this bucket.
 
         Returns a generator of paths.
@@ -224,7 +219,7 @@ class Bucket(object):
                 continue
             yield src_path
 
-    def getResultPathFromMarker(self, marker, suffix=None):
+    def get_result_path_from_marker(self, marker, suffix=None):
         """Get path of a result file stored with marker ``marker`` and suffix
         ``suffix``
 
@@ -238,7 +233,7 @@ class Bucket(object):
         return None
 
     @classmethod
-    def getMarkerFromBucketFilePath(cls, path):
+    def get_marker_from_bucket_file_path(cls, path):
         """Get the internal bucket marker from `path`.
 
         `path` must be a file (source or result) stored in cache.
@@ -250,6 +245,7 @@ class Bucket(object):
         if len(filename_parts) < 2:
             return None
         return filename_parts[1]
+
 
 class CacheManager(object):
     """A cache manager.
@@ -271,10 +267,10 @@ class CacheManager(object):
     """
     def __init__(self, cache_dir, level=1):
         self.cache_dir = cache_dir
-        self.prepareCacheDir()
-        self.level = level # How many dir levels will we create?
+        self.prepare_cache_dir()
+        self.level = level  # How many dir levels will we create?
 
-    def _composeMarker(self, hash_digest, bucket_marker):
+    def _compose_marker(self, hash_digest, bucket_marker):
         """Get an official marker.
 
         The cache manager's 'official' maker consists of a
@@ -290,7 +286,7 @@ class CacheManager(object):
             bucket_marker = ''
         return "%s%s" % (hash_digest, bucket_marker)
 
-    def _dissolveMarker(self, marker):
+    def _dissolve_marker(self, marker):
         """Extract a hashdigest and a bucket marker from marker.
 
         A marker consists of a hash digest and a bucket marker. Both
@@ -307,15 +303,15 @@ class CacheManager(object):
             return (None, None)
         return marker.split('_', 1)
 
-    def _getBucketPathFromPath(self, path):
+    def _get_bucket_path_from_path(self, path):
         """Get a bucket path from a path to a sourcefile.
 
         This does not modify the filesystem.
         """
-        hash_digest = self.getHash(path)
-        return self._getBucketPathFromHash(hash_digest)
+        hash_digest = self.get_hash(path)
+        return self._get_bucket_path_from_hash(hash_digest)
 
-    def _getBucketPathFromHash(self, hash_digest):
+    def _get_bucket_path_from_hash(self, hash_digest):
         """Get a bucket path from hash.
 
         If a path cannot be computed (due to faulty hash or similar),
@@ -323,13 +319,13 @@ class CacheManager(object):
         """
         if len(hash_digest) != 32:
             return None
-        dirs = [hash_digest[x*2:x*2+2]
-                for x in range((self.level+1))][:-1]
+        dirs = [hash_digest[x * 2:x * 2 + 2]
+                for x in range((self.level + 1))][:-1]
         dirs.append(hash_digest)
         bucket_path = os.path.join(self.cache_dir, *dirs)
         return bucket_path
 
-    def prepareCacheDir(self):
+    def prepare_cache_dir(self):
         """Prepare the cache dir, create dirs, etc.
         """
         cache_dir = self.cache_dir
@@ -348,30 +344,30 @@ class CacheManager(object):
         self.cache_dir = cache_dir
         return
 
-    def getBucketFromPath(self, path):
+    def get_bucket_from_path(self, path):
         """Get a bucket in which the source given by path would be stored.
 
         .. note:: This call creates the appropriate bucket in
                   filesystem if it does not exist already!
 
         """
-        md5_digest = self.getHash(path)
-        return self.getBucketFromHash(md5_digest)
+        md5_digest = self.get_hash(path)
+        return self.get_bucket_from_hash(md5_digest)
 
-    def getBucketFromHash(self, hash_digest):
+    def get_bucket_from_hash(self, hash_digest):
         """Get a bucket in which a source with 'hash_digest' would be stored.
 
         .. note:: This call creates the appropriate bucket in
                   filesystem if it does not exist already!
 
         """
-        dirs = [hash_digest[x*2:x*2+2]
-                for x in range((self.level+1))][:-1]
+        dirs = [hash_digest[x * 2:x * 2 + 2]
+                for x in range((self.level + 1))][:-1]
         dirs.append(hash_digest)
         bucket_path = os.path.join(self.cache_dir, *dirs)
         return Bucket(bucket_path)
 
-    def getCachedFile(self, path, suffix=None):
+    def get_cached_file(self, path, suffix=None):
         """Check, whether the file in ``path`` is already cached.
 
         Returns the path of cached file or ``None``. Only 'result'
@@ -380,13 +376,13 @@ class CacheManager(object):
         This method does not modify the filesystem if an appropriate
         bucket does not yet exist.
         """
-        bucket_path = self._getBucketPathFromPath(path)
+        bucket_path = self._get_bucket_path_from_path(path)
         if not os.path.exists(bucket_path):
             return None
         bucket = Bucket(bucket_path)
-        return bucket.getResultPath(path, suffix=suffix)
+        return bucket.get_result_path(path, suffix=suffix)
 
-    def getCachedFileFromMarker(self, marker, suffix=None):
+    def get_cached_file_from_marker(self, marker, suffix=None):
         """Check whether a basket exists for marker and suffix.
 
         Returns the path to a file represented by that marker or
@@ -399,19 +395,19 @@ class CacheManager(object):
         If this is true, the path to the file is returned, ``None``
         else.
         """
-        hash_digest, bucket_marker = self._dissolveMarker(marker)
+        hash_digest, bucket_marker = self._dissolve_marker(marker)
         if hash_digest is None:
             return None
-        bucket_path = self._getBucketPathFromHash(hash_digest)
+        bucket_path = self._get_bucket_path_from_hash(hash_digest)
         if bucket_path is None:
             return None
         if not os.path.exists(bucket_path):
             return None
         bucket = Bucket(bucket_path)
-        return bucket.getResultPathFromMarker(
+        return bucket.get_result_path_from_marker(
             bucket_marker, suffix=suffix)
 
-    def registerDoc(self, source_path, to_cache, suffix=None):
+    def register_doc(self, source_path, to_cache, suffix=None):
         """Store a representation of file found in ``source_path`` which
         resides in ``to_cache`` to a bucket.
 
@@ -424,13 +420,13 @@ class CacheManager(object):
         the appropriate cache manager methods to retrieve the file
         later on.
         """
-        md5_digest = self.getHash(source_path)
-        bucket = self.getBucketFromHash(md5_digest)
-        bucket_marker = bucket.storeResult(source_path, to_cache,
+        md5_digest = self.get_hash(source_path)
+        bucket = self.get_bucket_from_hash(md5_digest)
+        bucket_marker = bucket.store_result(source_path, to_cache,
                                            suffix=suffix)
-        return self._composeMarker(md5_digest, bucket_marker)
+        return self._compose_marker(md5_digest, bucket_marker)
 
-    def getHash(self, path):
+    def get_hash(self, path):
         """Get the hash of a file stored in ``path``.
 
         Currently we compute the MD5 digest.
@@ -468,12 +464,13 @@ class CacheManager(object):
                 "contains() takes only one of `path' or `marker', not both")
         result_path = None
         if marker is not None:
-            result_path = self.getCachedFileFromMarker(marker, suffix=suffix)
+            result_path = self.get_cached_file_from_marker(
+                marker, suffix=suffix)
         else:
-            result_path = self.getCachedFile(path, suffix=suffix)
+            result_path = self.get_cached_file(path, suffix=suffix)
         return result_path is not None
 
-    def getAllSources(self, parent=None, level=0):
+    def get_all_sources(self, parent=None, level=0):
         """Return all source documents.
         """
         if parent is None:
@@ -486,16 +483,16 @@ class CacheManager(object):
                     continue
                 if LEVEL_FORM.match(name) is None:
                     continue
-                for x in self.getAllSources(full_path, level + 1):
+                for x in self.get_all_sources(full_path, level + 1):
                     yield x
                 continue
             if HASH_DIGEST_FORM.match(name) is None:
                 continue
-            bucket = self.getBucketFromHash(name)
-            for path in bucket.getAllSourcePaths():
+            bucket = self.get_bucket_from_hash(name)
+            for path in bucket.get_all_source_paths():
                 yield path
 
-    def getMarkerFromPath(self, path, suffix=None):
+    def get_marker_from_path(self, path, suffix=None):
         """Get a marker for file stored in path.
 
         This marker is suitable for later retrieval via marker-based
@@ -507,15 +504,15 @@ class CacheManager(object):
         """
         if path is None or not os.path.exists(path):
             return None
-        hash_digest = self.getHash(path)
-        bucket_path = self._getBucketPathFromHash(hash_digest)
+        hash_digest = self.get_hash(path)
+        bucket_path = self._get_bucket_path_from_hash(hash_digest)
         if not os.path.exists(bucket_path):
             return None
         bucket = Bucket(bucket_path)
-        source_path, marker = bucket.getSourcePath(path)
-        return self._composeMarker(hash_digest, marker)
+        source_path, marker = bucket.get_source_path(path)
+        return self._compose_marker(hash_digest, marker)
 
-    def _getHashFromInCachePath(self, path):
+    def _get_hash_from_in_cache_path(self, path):
         """Extract hash string from path to in-cache file.
 
         Very efficient, no filesystem modifications. You can pass in
@@ -532,11 +529,11 @@ class CacheManager(object):
         if not path.startswith(self.cache_dir):
             return None
         parts = path[len(self.cache_dir):].split(os.sep)
-        if len(parts) <= self.level+1:
+        if len(parts) <= self.level + 1:
             return None
-        return parts[self.level+1]
+        return parts[self.level + 1]
 
-    def getMarkerFromInCachePath(self, path):
+    def get_marker_from_in_cache_path(self, path):
         """Reconstruct marker string from path to incache file.
 
         The marker string normally contains some hash and a bucket
@@ -556,9 +553,9 @@ class CacheManager(object):
         """
         if path is None:
             return None
-        hash_digest = self._getHashFromInCachePath(path)
+        hash_digest = self._get_hash_from_in_cache_path(path)
         if hash_digest is None:
             return None
-        marker = Bucket.getMarkerFromBucketFilePath(path)
+        marker = Bucket.get_marker_from_bucket_file_path(path)
         print hash_digest, marker
-        return self._composeMarker(hash_digest, marker)
+        return self._compose_marker(hash_digest, marker)
