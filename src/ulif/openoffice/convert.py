@@ -28,16 +28,18 @@ def threadsafe(func):
 @threadsafe
 def convert(
     url="socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
-    out_format = 'text', path = None, filter_props = (), template = None,
-    timeout = 5, doctype = 'document', executable='unoconv'):
+    out_format = 'text', path = None, out_dir=None, filter_props = (),
+    template = None, timeout = 5, doctype = 'document',
+    executable='unoconv'):
     """Convert some document using `unoconv`.
 
     Converts the document given in `path` to `out_format` and return a
     tuple containing status (0 if everything worked okay) as well as a
     directory path holding the result document.
 
-    The returned directory path is created freshly. It is the caller's
-    responsibility to remove this directory after use.
+    The returned directory path is created freshly (unless `outdir` is
+    given and exists). It is the caller's responsibility to remove
+    this directory after use.
 
     `url` - connection string passed as `-c` parameter.
 
@@ -45,6 +47,9 @@ def convert(
        formats provided by `unoconv --show`.
 
     `path` - an absolute path to the document to be converted.
+
+    `out_dir` - an (existing) directory to place the results in. If no
+      such dir is given, we create a new one.
 
     `filter_props` - a list of tuples containing filter setting for
       the requested conversion filter. Each tuple must contain a
@@ -70,7 +75,9 @@ def convert(
     if not path:
         return None, []
     logger = logging.getLogger('ulif.openoffice.convert')
-    new_dir = tempfile.mkdtemp()
+    new_dir = out_dir
+    if new_dir is None:
+        new_dir = tempfile.mkdtemp()
     logger.debug('Created dir: %s' % new_dir)
     cmd = '%s -c %s -f %s -o %s' % (
         executable, url, out_format, new_dir)
