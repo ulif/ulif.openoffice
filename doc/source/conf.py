@@ -24,7 +24,7 @@ import pkg_resources
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.ifconfig',
-              'sphinx.ext.autodoc']
+              'sphinx.ext.autodoc', 'sphinx.ext.doctest']
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ulif.openoffice'
-copyright = u'2010, Uli Fouquet'
+copyright = u'2010-2013, Uli Fouquet'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
