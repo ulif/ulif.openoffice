@@ -17,6 +17,8 @@ Major rewrite of the whole package.
 
 * Apply PEP 8 rules to cachemanager.py.
 
+* Moved unittests to dedicated ``tests/`` dir in package root.
+
 0.4 (2011-02-11)
 ================
 
