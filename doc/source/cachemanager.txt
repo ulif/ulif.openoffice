@@ -52,12 +52,6 @@ be found. We create a dummy file for this purpose:
     >>> cm.contains(docsource, suffix='pdf')
     False
 
-We can also pass the file contents as argument:
-
-    >>> #cm.contains(extension = 'pdf', data = docsource_contents)
-
-    False
-
 The cache is based on MD5 sums of source files. Source documents are
 not stored.
 
@@ -214,7 +208,6 @@ We create a cache manager with a trivial hash algorithm to see this:
 
 We create two sources to store:
 
-    >>> import os
     >>> open('dummysource1.doc', 'w').write('Just a dummy file.')
     >>> open('dummysource2.doc', 'w').write('Another dummy file.')
     >>> docsource1 = os.path.abspath('dummysource1.doc')
@@ -243,6 +236,7 @@ Now we create some dummy result files and register both pairs of them:
     >>> m4 = cm.register_doc(source_path=docsource2,
     ...                      to_cache=result4,
     ...                      suffix='html')
+
 
 All these sources give the same hash and are therefore stored in the
 same basket:
@@ -276,42 +270,41 @@ Markers: Unique identifiers for cached files
 ++++++++++++++++++++++++++++++++++++++++++++
 
 We can use unique markers to distiguish between different files in a
-bucket. The markers are distributed by the cachemanager. Actually we
-already got such markers. They were returned when registering the
-files above:
+bucket. The markers are distributed by the cachemanager, when
+registering a doc.
 
-     >>> m1
-     'somefakedhash_1'
+    >>> cm = CacheManager(cache_dir='home/mycachedir', level=2)
+    >>> marker = cm.register_doc(source_path=docsource1,
+    ...                          to_cache=result1,
+    ...                          suffix='pdf')
 
-     >>> m2
-     'somefakedhash_1'
+    >>> marker
+    '08867237840fabae77b838e9c9226eb2_1'
 
-     >>> m3
-     'somefakedhash_2'
+.. note:: We should not make assumptions about what marker we get for
+          a certain file. But we can be sure that we will always get
+          the same marker for the same source file, regardless of the
+          'suffix'.
 
-..note:: You should not make any assumptions about the marker
-         contents. It's only guaranteed to be a string.
+The same source file with a different 'suffix' will get the same
+marker:
 
-Using these markers we can get cached files back directly:
+    >>> cm.register_doc(source_path=docsource1,
+    ...                 to_cache=result2,
+    ...                 suffix='html')
+    '08867237840fabae77b838e9c9226eb2_1'
 
-     >>> #cached_file_info = cm.getFileFromMarker(m1)
-     >>> #cached_file_info.filename
+The marker can be used to retrieve the path of the stored file. This
+time we have to tell what 'flavour' of result we want by giving a
+'suffix':
 
-     'result1'
-
-     >>> #cached_file_info.source_filename
-
-     'docsource1'
-
-     >>> #cached_file_info.path
-
-     '/.../so/somefakedhash/results/result_1_pdf'
+    >>> cm.get_cached_file_from_marker(marker, suffix='pdf')
+    '/tmp/.../home/mycachedir/...226eb2/results/result_1__pdf'
 
 If a marker is not valid, i.e. it is not linked with a file, we will
 get ``None``:
 
-     >>> #cm.getFileFromMarker('blah') is None
-
+     >>> cm.get_cached_file_from_marker('blah') is None
      True
 
 
