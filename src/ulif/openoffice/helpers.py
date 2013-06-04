@@ -1,20 +1,17 @@
 ##
 ## helpers.py
-## Login : <uli@pu.smp.net>
-## Started on  Mon May  2 00:44:52 2011 Uli Fouquet
-## $Id$
-## 
-## Copyright (C) 2011 Uli Fouquet
+##
+## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -31,10 +28,16 @@ import re
 import shutil
 import tempfile
 import zipfile
-from BeautifulSoup import BeautifulSoup, Tag, CData
-from cStringIO import StringIO
+from bs4 import BeautifulSoup, Tag, CData
+try:
+    from cStringIO import StringIO  # Python 2.x
+except ImportError:
+    from io import StringIO         # Python 3.x
 from pkg_resources import iter_entry_points
-from urlparse import urlparse
+try:
+    from urlparse import urlparse         # Python 2.x
+except ImportError:
+    from urllib import parse as urlparse  # Python 3.x
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """Recursively copy an entire directory tree rooted at `src`. The
@@ -240,7 +243,14 @@ RE_EMPTY_COMMENTS = re.compile ('/\*\s*\*/')
 RE_CDATA_MASSAGE = '(((/\*)?<!\[CDATA\[(\*/)?)((.*?)<!--)?'
 RE_CDATA_MASSAGE += '(.*?)(-->(.*?))?((/\*)?]]>(\*/)?))'
 
-CDATA_MASSAGE = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+MARKUP_MASSAGE = [
+    (re.compile('(<[^<>]*)/>'), lambda x: x.group(1) + ' />'),
+    (re.compile('<!\s+([^<>]*)>'),
+     lambda x: '<!' + x.group(1) + '>')
+    ]
+
+#CDATA_MASSAGE = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+CDATA_MASSAGE = MARKUP_MASSAGE
 CDATA_MASSAGE.extend([
             (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
              lambda match: match.group(7))])

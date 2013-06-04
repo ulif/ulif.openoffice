@@ -45,7 +45,7 @@ We lookup a certain document which, as the cache is yet empty, cannot
 be found. We create a dummy file for this purpose:
 
     >>> import os
-    >>> open('dummysource.doc', 'w').write('Just a dummy file.')
+    >>> fd = open('dummysource.doc', 'w').write('Just a dummy file.')
     >>> docsource = os.path.abspath('dummysource.doc')
     >>> docsource_contents = open(docsource, 'r').read()
 
@@ -82,11 +82,11 @@ To demonstrate this, we create a dummy source file and a dummy
 conversioned file:
 
     >>> import os
-    >>> open('dummysource.doc', 'w').write('Just a dummy file.')
+    >>> fd = open('dummysource.doc', 'w').write('Just a dummy file.')
     >>> docsource = os.path.abspath('dummysource.doc')
     >>> docsource_contents = open(docsource, 'r').read()
 
-    >>> open('dummyresult.pdf', 'w').write('I am not a real PDF.')
+    >>> fd = open('dummyresult.pdf', 'w').write('I am not a real PDF.')
     >>> pdfresult = os.path.abspath('dummyresult.pdf')
 
 Now we can create a cache manager and register our stuff:
@@ -208,17 +208,17 @@ We create a cache manager with a trivial hash algorithm to see this:
 
 We create two sources to store:
 
-    >>> open('dummysource1.doc', 'w').write('Just a dummy file.')
-    >>> open('dummysource2.doc', 'w').write('Another dummy file.')
+    >>> fd = open('dummysource1.doc', 'w').write('Just a dummy file.')
+    >>> fd = open('dummysource2.doc', 'w').write('Another dummy file.')
     >>> docsource1 = os.path.abspath('dummysource1.doc')
     >>> docsource2 = os.path.abspath('dummysource2.doc')
 
 Now we create some dummy result files and register both pairs of them:
 
-    >>> open('dummyresult1.pdf', 'w').write('Fake result 1')
-    >>> open('dummyresult1.html', 'w').write('Fake result 2')
-    >>> open('dummyresult2.pdf', 'w').write('Fake result 3')
-    >>> open('dummyresult2.html', 'w').write('Fake result 4')
+    >>> fd = open('dummyresult1.pdf', 'w').write('Fake result 1')
+    >>> fd = open('dummyresult1.html', 'w').write('Fake result 2')
+    >>> fd = open('dummyresult2.pdf', 'w').write('Fake result 3')
+    >>> fd = open('dummyresult2.html', 'w').write('Fake result 4')
     >>> result1 = os.path.abspath('dummyresult1.pdf')
     >>> result2 = os.path.abspath('dummyresult1.html')
     >>> result3 = os.path.abspath('dummyresult2.pdf')

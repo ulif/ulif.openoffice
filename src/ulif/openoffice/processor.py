@@ -25,7 +25,10 @@ Processors for processing documents.
 import os
 import shutil
 import tempfile
-from urlparse import urlparse
+try:
+    from urlparse import urlparse         # Python 2.x
+except ImportError:
+    from urllib import parse as urlparse  # Python 3.x
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
 from ulif.openoffice.convert import convert
