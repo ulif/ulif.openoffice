@@ -17,6 +17,10 @@
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
 """A manager for storing generated files.
+
+.. note:: The API of this module changed completely in v1.0 to apply
+          to PEP 8. Mainly CamelCase names turned to
+          names_with_underscores.
 """
 import filecmp
 import os
