@@ -4,6 +4,19 @@ ulif.openoffice.cachemanager -- A cache manager
 A cache manager tries to cache converted files, so that already
 converted documents do not have to be converted again.
 
+.. testsetup::
+
+    >>> import os
+    >>> import shutil
+    >>> import tempfile
+    >>> from ulif.openoffice.testing import ls, cat
+    >>> _root = tempfile.mkdtemp()
+    >>> _home = os.path.join(_root, 'home')
+    >>> _old_root = os.getcwd()
+    >>> os.mkdir(_home)
+    >>> os.chdir(_root)
+
+
 Cache Manager
 =============
 
@@ -85,7 +98,7 @@ conversioned file:
 Now we can create a cache manager and register our stuff:
 
     >>> cm = CacheManager(cache_dir='home/mycachedir')
-    >>> cm.registerDoc(source_path=docsource,
+    >>> cm.register_doc(source_path=docsource,
     ...                to_cache=pdfresult)
     '08867237840fabae77b838e9c9226eb2_1'
 
@@ -121,7 +134,7 @@ a PDF and an HTML version of the same file.
 
 To do so, we have to provide a suffix on doc registration:
 
-    >>> cm.registerDoc(source_path=docsource,
+    >>> cm.register_doc(source_path=docsource,
     ...                to_cache=pdfresult,
     ...                suffix='pdf')
     '08867237840fabae77b838e9c9226eb2_1'
@@ -147,7 +160,7 @@ name.
 This will become more obvious, when we want to register a certain
 result file as HTML result:
 
-    >>> cm.registerDoc(source_path=docsource,
+    >>> cm.register_doc(source_path=docsource,
     ...                to_cache=pdfresult,
     ...                suffix='html')
     '08867237840fabae77b838e9c9226eb2_1'
@@ -169,18 +182,18 @@ Getting cache results
 
 When we want to get the result for some input file, we can do so:
 
-    >>> cm.getCachedFile(docsource)
-    '/sample-buildout/home/mycachedir/.../results/result_1_default'
+    >>> cm.get_cached_file(docsource)
+    '/.../home/mycachedir/.../results/result_1_default'
 
-    >>> cm.getCachedFile(docsource, suffix='pdf')
-    '/sample-buildout/home/mycachedir/.../results/result_1__pdf'
+    >>> cm.get_cached_file(docsource, suffix='pdf')
+    '/.../home/mycachedir/.../results/result_1__pdf'
 
-    >>> cm.getCachedFile(docsource, suffix='html')
-    '/sample-buildout/home/mycachedir/.../results/result_1__html'
+    >>> cm.get_cached_file(docsource, suffix='html')
+    '/.../home/mycachedir/.../results/result_1__html'
 
 If a file was not cached yet, we will get None:
 
-    >>> cm.getCachedFile(docsource, suffix='blah') is None
+    >>> cm.get_cached_file(docsource, suffix='blah') is None
     True
 
 Collision Handling
@@ -193,7 +206,7 @@ We create a cache manager with a trivial hash algorithm to see this:
 
     >>> from ulif.openoffice.cachemanager import CacheManager
     >>> class NotHashingCacheManager(CacheManager):
-    ...   def getHash(self, path=None):
+    ...   def get_hash(self, path=None):
     ...     return 'somefakedhash'
 
     >>> cm_dir = 'home/newcachedir'
@@ -218,18 +231,18 @@ Now we create some dummy result files and register both pairs of them:
     >>> result3 = os.path.abspath('dummyresult2.pdf')
     >>> result4 = os.path.abspath('dummyresult2.html')
 
-    >>> m1 = cm.registerDoc(source_path=docsource1,
-    ...                     to_cache=result1,
-    ...                     suffix='pdf')
-    >>> m2 = cm.registerDoc(source_path=docsource1,
-    ...                     to_cache=result2,
-    ...                     suffix='html')
-    >>> m3 = cm.registerDoc(source_path=docsource2,
-    ...                     to_cache=result3,
-    ...                     suffix='pdf')
-    >>> m4 = cm.registerDoc(source_path=docsource2,
-    ...                     to_cache=result4,
-    ...                     suffix='html')
+    >>> m1 = cm.register_doc(source_path=docsource1,
+    ...                      to_cache=result1,
+    ...                      suffix='pdf')
+    >>> m2 = cm.register_doc(source_path=docsource1,
+    ...                      to_cache=result2,
+    ...                      suffix='html')
+    >>> m3 = cm.register_doc(source_path=docsource2,
+    ...                      to_cache=result3,
+    ...                      suffix='pdf')
+    >>> m4 = cm.register_doc(source_path=docsource2,
+    ...                      to_cache=result4,
+    ...                      suffix='html')
 
 All these sources give the same hash and are therefore stored in the
 same basket:
@@ -308,5 +321,10 @@ Cache Maintenance
 A cache manager can list all source files stored.
 
     >>> cm = CacheManager(cache_dir='home/mycachedir')
-    >>> [x for x in cm.getAllSources()]
+    >>> [x for x in cm.get_all_sources()]
     ['/.../mycachedir/08/08867237840fabae77b838e9c9226eb2/sources/source_1']
+
+.. testcleanup::
+
+    >>> os.chdir(_old_root)
+    >>> shutil.rmtree(_root)
