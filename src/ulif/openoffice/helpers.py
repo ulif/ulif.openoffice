@@ -249,7 +249,6 @@ MARKUP_MASSAGE = [
      lambda x: '<!' + x.group(1) + '>')
     ]
 
-#CDATA_MASSAGE = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
 CDATA_MASSAGE = MARKUP_MASSAGE
 CDATA_MASSAGE.extend([
             (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
@@ -272,8 +271,12 @@ def extract_css(html_input, basename='sample.html'):
     returned as first item of the result tuple.
     """
     # create HTML massage that removes CDATA and HTML comments in styles
-    soup = BeautifulSoup(html_input, markupMassage=CDATA_MASSAGE)
+    for fix, m in CDATA_MASSAGE:
+        html_input = fix.sub(m, html_input)
+    soup = BeautifulSoup(html_input, 'html.parser')
     css = '\n'.join([style.text for style in soup.findAll('style')])
+    if '<style>' in css:
+        css = css.replace('<style>', '\n')
 
     # lowercase leading tag names
     css = re.sub(RE_CSS_TAG,
@@ -299,12 +302,9 @@ def extract_css(html_input, basename='sample.html'):
         if num == 0 and css != '':
             # replace first style with link to stylesheet
             # if there are any styles contained
-            new_tag = Tag(soup, 'link', [
-                    ('rel', 'stylesheet'),
-                    ('type', 'text/css'),
-                    ('href', css_name),
-                    ])
-            style.replaceWith(new_tag)
+            new_tag = soup.new_tag(
+                'link', rel='stylesheet', type='text/css', href=css_name)
+            style.replace_with(new_tag)
         else:
             style.extract()
     if css == '':
@@ -411,7 +411,7 @@ def rename_html_img_links(html_input, basename):
 
     Links to 'external' sources (http and similar) are ignored.
     """
-    soup = BeautifulSoup(html_input)
+    soup = BeautifulSoup(html_input, 'html.parser')
     img_tags = soup.findAll('img')
     img_map = {}
     num = 1

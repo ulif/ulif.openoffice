@@ -199,8 +199,7 @@ class TestHelpers(unittest.TestCase):
     def test_extract_css_simple(self):
         result, css = extract_css(
             "<style>a, b</style>", 'sample.html')
-        link = '<link rel="stylesheet" type="text/css" '
-        link += 'href="sample.css" />\n'
+        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>\n'
         assert css == 'a, b'
         assert result == link
 
@@ -228,13 +227,13 @@ class TestHelpers(unittest.TestCase):
         result, css = extract_css(
             "<html><body>äö</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html>\n <body>\n  äö\n </body>\n</html>'
+        assert result == u'<html>\n <body>\n  äö\n </body>\n</html>'
 
     def test_extract_css_utf8_unicode(self):
         result, css = extract_css(
             u"<html><body>ä</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
+        assert result == u'<html>\n <body>\n  ä\n </body>\n</html>'
         return
 
     def test_extract_css_complex_html(self):
@@ -244,7 +243,7 @@ class TestHelpers(unittest.TestCase):
         html_input = open(html_input_path, 'rb').read()
         result, css = extract_css(html_input, 'sample.html')
         assert '<style' not in result
-        link = '<link rel="stylesheet" type="text/css" href="sample.css" />'
+        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
         assert link in result
         return
 
@@ -254,7 +253,7 @@ class TestHelpers(unittest.TestCase):
             os.path.dirname(__file__), 'input', 'sample2.html')
         html_input = open(html_input_path, 'rb').read()
         result, css = extract_css(html_input, 'sample.html')
-        assert len(css) == 150
+        assert len(css) == 156
         assert css.startswith('@page { size: 21cm')
         return
 
@@ -409,7 +408,7 @@ class TestHelpers(unittest.TestCase):
     def test_rename_html_img_links_no_ext(self):
         html_input = '<img src="filename_without_ext" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert html_output == '<img src="sample_1" />'
+        assert html_output == '<img src="sample_1"/>'
         assert img_map == {u'filename_without_ext': u'sample_1'}
 
     def test_rename_html_img_links_unicode_filenames(self):
@@ -439,8 +438,8 @@ class TestHelpers(unittest.TestCase):
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert img_map == {u'a.gif': u'sample_1.gif', u'b.gif': u'sample_2.gif'}
         assert html_output == '%s%s' % (
-            '<img src="sample_1.gif" /><img src="sample_1.gif" />',
-            '<img src="sample_2.gif" />')
+            '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
+            '<img src="sample_2.gif"/>')
 
     def test_base64url_encode(self):
         assert base64url_encode(chr(251)+chr(239)) == '--8='
