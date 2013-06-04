@@ -1,10 +1,10 @@
 ``ulif.openoffice.cachemanager`` -- A Cache Manager
 ***************************************************
 
+.. toctree::
+   :maxdepth: 2
+
+   ../cachemanager.txt
+
 .. automodule:: ulif.openoffice.cachemanager
    :members:
-
-Examples
-========
-
-.. include:: ../../../src/ulif/openoffice/cachemanager.txt
