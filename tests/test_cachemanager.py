@@ -542,7 +542,6 @@ class TestCacheManager(CachingComponentsTestCase):
             self.src_path1, self.result_path1, suffix='foo')
         cm.register_doc(
             self.src_path2, self.result_path2, suffix=None)
-        # sources = list(cm.get_all_sources())
         src_path1, src_path2 = cm.get_all_sources()
         self.assertEqual(
             cm._get_hash_from_in_cache_path(src_path1),
