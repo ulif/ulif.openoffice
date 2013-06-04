@@ -242,10 +242,8 @@ class Bucket(object):
 
         `path` must be a file (source or result) stored in cache.
         """
-        print path
         filename = os.path.basename(path)
         filename_parts = filename.split('_', 2)
-        print filename_parts
         if len(filename_parts) < 2:
             return None
         return filename_parts[1]
@@ -561,5 +559,4 @@ class CacheManager(object):
         if hash_digest is None:
             return None
         marker = Bucket.get_marker_from_bucket_file_path(path)
-        print hash_digest, marker
         return self._compose_marker(hash_digest, marker)
