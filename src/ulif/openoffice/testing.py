@@ -145,3 +145,20 @@ class TestOOServerSetup(unittest.TestCase):
             os.environ['HOME'] = cls.old_home
 
         return
+
+def ls(dir, *subs):
+    if subs:
+        dir =os.path.join(dir, *subs)
+    names = os.listdir(dir)
+    names.sort()
+    for name in names:
+        if os.path.isdir(os.path.join(dir, name)):
+            print('d  ' + name)
+        else:
+            print('-  ' + name)
+    return
+
+def cat(dir, *names):
+    path = os.path.join(dir, *names)
+    print(open(path).read())
+    return
