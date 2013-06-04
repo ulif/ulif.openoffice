@@ -52,7 +52,7 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
         if pid > 0:
             # exit first parent
             sys.exit(0)
-    except OSError, e:
+    except (OSError) as e:
         print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
         sys.exit(1)
 
@@ -67,12 +67,12 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
         if pid > 0:
             # exit from second parent, print eventual PID before
             sys.exit(0)
-    except OSError, e:
+    except (OSError) as e:
         print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
         sys.exit(1)
 
     if (not stderr):
-	stderr = stdout
+        stderr = stdout
 
     si = file(stdin, 'r')
     so = file(stdout, 'a+')
@@ -115,7 +115,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                   while 1:
                       os.killpg(pid,SIGTERM)
                       time.sleep(1)
-               except OSError, err:
+               except (OSError) as err:
                   err = str(err)
                   if err.find("No such process") > 0:
                       os.remove(pidfile)
@@ -125,7 +125,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                       action = 'start'
                       pid = None
                   else:
-                      print str(err)
+                      print(str(err))
                       sys.exit(1)
 
         if 'start' == action:
@@ -237,11 +237,11 @@ def getOptions(argv=sys.argv):
     return (cmd, options)
 
 def signal_handler(signal, frame):
-    print "Received SIGINT."
-    print "Stopping OpenOffice.org server."
+    print("Received SIGINT.")
+    print("Stopping OpenOffice.org server.")
     global child_pid
     if child_pid is not None:
- 	os.killpg(child_pid, SIGTERM)
+        os.killpg(child_pid, SIGTERM)
         time.sleep(1)
     sys.exit(0)
 
@@ -269,7 +269,7 @@ def main(argv=sys.argv):
     This function is called when calling ``bin/oooctl``.
     """
     if os.name != 'posix':
-        print "This script only works on POSIX compliant machines."
+        print("This script only works on POSIX compliant machines.")
         sys.exit(-1)
 
     (cmd, options) = getOptions(argv=argv)
@@ -292,7 +292,7 @@ def main(argv=sys.argv):
 
     if cmd == 'fg':
         signal.signal(signal.SIGINT, signal_handler)
-        print "Installed signal handler for SIGINT (CTRL-C)"
+        print("Installed signal handler for SIGINT (CTRL-C)")
 
     status = start(options.binarypath, foreground=(cmd=='fg'))
 
@@ -300,9 +300,9 @@ def main(argv=sys.argv):
     while True:
         # Check for running server and restart when it is down...
         if not check_port('localhost', 2002):
-            print "openoffice.org/libreoffice server seems to be down."
-            print "restarting..."
+            print("openoffice.org/libreoffice server seems to be down.")
+            print("restarting...")
             start(options.binarypath)
             wait_for_startup('localhost', 2002)
-            print "restarted."
+            print("restarted.")
         time.sleep(1)

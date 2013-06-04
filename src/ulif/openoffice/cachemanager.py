@@ -27,7 +27,10 @@ import os
 import re
 import shutil
 import sys
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 from hashlib import md5
 
 HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')
@@ -299,7 +302,7 @@ class CacheManager(object):
         extracted.
 
         """
-        if not isinstance(marker, basestring):
+        if not isinstance(marker, str):
             return (None, None)
         if not '_' in marker:
             return (None, None)
@@ -440,7 +443,7 @@ class CacheManager(object):
         difficult.
         """
         hash_value = md5()
-        hash_value.update(open(path, 'r').read())
+        hash_value.update(open(path, 'r').read().encode('utf-8'))
         return hash_value.hexdigest()
 
     def contains(self, path=None, marker=None, suffix=None):

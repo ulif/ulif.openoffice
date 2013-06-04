@@ -17,12 +17,12 @@ class CachingComponentsTestCase(unittest.TestCase):
         self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
         self.result_path3 = os.path.join(self.inputdir, 'resultfile3')
         self.result_path4 = os.path.join(self.inputdir, 'resultfile4')
-        open(self.src_path1, 'wb').write('source1\n')
-        open(self.src_path2, 'wb').write('source2\n')
-        open(self.result_path1, 'wb').write('result1\n')
-        open(self.result_path2, 'wb').write('result2\n')
-        open(self.result_path3, 'wb').write('result3\n')
-        open(self.result_path4, 'wb').write('result4\n')
+        open(self.src_path1, 'w').write('source1\n')
+        open(self.src_path2, 'w').write('source2\n')
+        open(self.result_path1, 'w').write('result1\n')
+        open(self.result_path2, 'w').write('result2\n')
+        open(self.result_path3, 'w').write('result3\n')
+        open(self.result_path4, 'w').write('result4\n')
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -96,9 +96,9 @@ class TestCacheBucket(CachingComponentsTestCase):
         # Nonsense files in sourcedir are ignored.
         bucket = Bucket(self.workdir)
         open(os.path.join(self.workdir, 'sources', 'source3'),
-             'wb').write('Hi')
+             'w').write('Hi')
         open(os.path.join(self.workdir, 'sources', 'foo_3'),
-             'wb').write('Hi')
+             'w').write('Hi')
         path, marker = bucket.get_source_path(self.src_path1)
         self.assertEqual((path, marker), (None, None))
         bucket.store_result(self.src_path1, self.result_path1)
@@ -204,7 +204,7 @@ class TestCacheBucket(CachingComponentsTestCase):
     #    stressnum = 250
     #    for x in xrange(stressnum):
     #        open(os.path.join(
-    #                self.inputdir, 'stressource%s' % x), 'wb').write(
+    #                self.inputdir, 'stressource%s' % x), 'w').write(
     #            str(x) + '\n')
     #    self.assertEqual(len(os.listdir(self.inputdir)), stressnum+4)
     #    for x in xrange(stressnum):
@@ -236,9 +236,9 @@ class TestCacheBucket(CachingComponentsTestCase):
     def test_get_all_source_paths_ignore_nonsense(self):
         bucket = Bucket(self.workdir)
         open(os.path.join(self.workdir, 'sources', 'source3'),
-             'wb').write('Hi')
+             'w').write('Hi')
         open(os.path.join(self.workdir, 'sources', 'foo_3'),
-             'wb').write('Hi')
+             'w').write('Hi')
         paths1 = list(bucket.get_all_source_paths())
         bucket.store_result(
             self.src_path1, self.result_path1, suffix='foo')
@@ -315,7 +315,7 @@ class TestCacheManager(CachingComponentsTestCase):
         # If we get a file as cache dir (instead of a directory), we
         # fail loudly...
         broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
-        open(broken_cache_dir, 'wb').write('i am a file')
+        open(broken_cache_dir, 'w').write('i am a file')
         self.assertRaises(IOError, CacheManager, broken_cache_dir)
         return
 
@@ -351,7 +351,7 @@ class TestCacheManager(CachingComponentsTestCase):
     def test_prepare_cache_dir(self):
         new_cache_dir = os.path.join(self.workdir, 'newcache')
         broken_cache_dir = os.path.join(self.workdir, 'broken')
-        open(broken_cache_dir, 'wb').write('broken')
+        open(broken_cache_dir, 'w').write('broken')
         cm = CacheManager(self.workdir)
 
         cm.cache_dir = None
@@ -482,7 +482,7 @@ class TestCacheManager(CachingComponentsTestCase):
         result2 = list(cm.get_all_sources())
         self.assertTrue(len(result2) == 2)
 
-        open(os.path.join(self.workdir, 'crapfile'), 'wb').write('crap')
+        open(os.path.join(self.workdir, 'crapfile'), 'w').write('crap')
         result3 = list(cm.get_all_sources())
         self.assertFalse('crap' in result3)
 
