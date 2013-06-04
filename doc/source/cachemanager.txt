@@ -1,5 +1,5 @@
-ulif.openoffice.cachemanager -- A cache manager
-===============================================
+Cache Manager -- Examples
+=========================
 
 A cache manager tries to cache converted files, so that already
 converted documents do not have to be converted again.
@@ -18,7 +18,7 @@ converted documents do not have to be converted again.
 
 
 Cache Manager
-=============
+-------------
 
 A cache manager expects a ``cache_dir`` parameter where it can store
 the cached files. If this parameter is set to ``None`` no caching will
@@ -76,13 +76,13 @@ Setting the level after creation of a cache manager is not
 recommended.
 
 Feeding the cache manager
-=========================
+-------------------------
 
 We can register conversion results with the cache manager, which will
 be available lateron.
 
 Caching files
--------------
++++++++++++++
 
 To demonstrate this, we create a dummy source file and a dummy
 conversioned file:
@@ -126,7 +126,7 @@ While in 'sources' all sources with the same hash are stored, the
     -  result_1_default
 
 Caching files with a 'suffix'
------------------------------
++++++++++++++++++++++++++++++
 
 We can, however, also store a file with a certain 'suffix' in order to
 cache several results for one source. For example we might want to cache
@@ -178,7 +178,7 @@ It is up to the caller to choose any suffix she likes.
 
 
 Getting cache results
-=====================
+---------------------
 
 When we want to get the result for some input file, we can do so:
 
@@ -197,7 +197,7 @@ If a file was not cached yet, we will get None:
     True
 
 Collision Handling
-==================
+------------------
 
 The cache manager relies very much on hash (MD5) digests to find a
 cached document quickly. However, hash collisions can occur.
@@ -273,7 +273,7 @@ source:
     Fake result 3
 
 Markers: Unique identifiers for cached files
---------------------------------------------
+++++++++++++++++++++++++++++++++++++++++++++
 
 We can use unique markers to distiguish between different files in a
 bucket. The markers are distributed by the cachemanager. Actually we
@@ -316,7 +316,7 @@ get ``None``:
 
 
 Cache Maintenance
-=================
+-----------------
 
 A cache manager can list all source files stored.
 
