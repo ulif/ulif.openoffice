@@ -19,6 +19,8 @@ Major rewrite of the whole package.
 
 * Moved unittests to dedicated ``tests/`` dir in package root.
 
+* Switched from Zope testing to `py.test`.
+
 0.4 (2011-02-11)
 ================
 
