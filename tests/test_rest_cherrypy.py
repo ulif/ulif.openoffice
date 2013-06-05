@@ -1,20 +1,17 @@
 ##
 ## test_rest_cherrypy.py
-## Login : <uli@pu.smp.net>
-## Started on  Wed Apr 20 10:58:23 2011 Uli Fouquet
-## $Id$
-## 
-## Copyright (C) 2011 Uli Fouquet
+##
+## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -47,6 +44,7 @@ checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
      'testuser': 'secret',
      })
 
+
 class TestRESTfulHelpers(TestOOServerSetup):
 
     def create_input(self):
@@ -63,8 +61,8 @@ class TestRESTfulHelpers(TestOOServerSetup):
         os.mkdir(os.path.dirname(self.output))
         open(self.output, 'wb').write('Faked output')
         self.data = {
-            'oocp.out_fmt':'html',
-            'meta.procord':'unzip,oocp'
+            'oocp.out_fmt': 'html',
+            'meta.procord': 'unzip,oocp'
             }
         self.marker = 'WygnbWV0YS5wcm9jb3JkJywgJ3VuemlwLG9vY3AnKSwgKCd'
         self.marker += 'vb2NwLm91dF9mbXQnLCAnaHRtbCcpXQ'
@@ -81,8 +79,8 @@ class TestRESTfulHelpers(TestOOServerSetup):
         # Make sure, sorted dicts get the same marker
         result1 = get_marker()
         result2 = get_marker(options={})
-        result3 = get_marker(options={'b':'0', 'a':'1'})
-        result4 = get_marker(options={'a':'1', 'b':'0'})
+        result3 = get_marker(options={'b': '0', 'a': '1'})
+        result4 = get_marker(options={'a': '1', 'b': '0'})
         assert result1 == 'W10'
         assert result2 == 'W10'
         assert result3 == result4
@@ -175,7 +173,7 @@ class TestRESTfulHelpers(TestOOServerSetup):
         # The doc gets cached if sent for the first time
         self.resultpath, etag, metadata, cached = process_doc(
             self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
-        self.create_input() # Processing will remove the original input
+        self.create_input()  # Processing will remove the original input
         cm = CacheManager(self.cachedir)
         path = cm.get_cached_file(self.input, self.marker)
         assert path is not None
@@ -190,20 +188,21 @@ class TestRESTfulHelpers(TestOOServerSetup):
         assert cached is False
         assert '<!DOCTYPE' in open(self.resultpath, 'r').read()
 
+
 class TestRESTful(TestRESTfulWSGISetup):
 
     def tearDown(self):
         super(TestRESTful, self).tearDown()
         # Disable authentication
-        cherrypy.config.update({'tools.auth_basic.on': False,})
+        cherrypy.config.update({'tools.auth_basic.on': False})
         return
 
     def test_POST_no_doc(self):
         # If we do not pass a doc parameter, this is a bad request
         response = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp,zip'},
-            expect_errors = True,
+            params={'meta.procord': 'oocp,zip'},
+            expect_errors=True
             )
         assert response.status == '400 Bad Request'
 
@@ -211,49 +210,49 @@ class TestRESTful(TestRESTfulWSGISetup):
         # If the doc parameter is not a file, this is a bad request
         response = self.app.post(
             '/docs',
-            params={'doc':'some_string'},
-            expect_errors = True,
+            params={'doc': 'some_string'},
+            expect_errors=True,
             )
         assert response.status == '400 Bad Request'
 
     def test_POST_unauthorized(self):
         # When basic auth is enabled, we cannot post docs.
-        cherrypy.config.update({'tools.auth_basic.on': True,})
+        cherrypy.config.update({'tools.auth_basic.on': True})
         response = self.app.post(
             '/docs',
-            params={'doc':'some_string'},
-            expect_errors = True,
+            params={'doc': 'some_string'},
+            expect_errors=True,
             )
-        cherrypy.config.update({'tools.auth_basic.on': False,})
+        cherrypy.config.update({'tools.auth_basic.on': False})
         assert response.status == '401 Unauthorized'
 
     def test_POST_invalid_creds(self):
         # Invalid credentials will be noticed.
-        cherrypy.config.update({'tools.auth_basic.on': True,})
+        cherrypy.config.update({'tools.auth_basic.on': True})
         self.wsgi_app.config['/'].update(
             {'tools.auth_basic.checkpassword': checkpassword_test,
              })
         response = self.app.post(
             '/docs',
-            headers = [
-                ('Authorization', 'Basic %s' %(
+            headers=[
+                ('Authorization', 'Basic %s' % (
                         base64.encodestring('testuser:nonsense')[:-1])),
                 ],
-            params={'doc':'some_string'},
-            expect_errors = True,
+            params={'doc': 'some_string'},
+            expect_errors=True,
             )
-        cherrypy.config.update({'tools.auth_basic.on': False,})
+        cherrypy.config.update({'tools.auth_basic.on': False})
         assert response.status == '401 Unauthorized'
 
     def test_GET_state_authorized(self):
         # We can get a status report
-        cherrypy.config.update({'tools.auth_basic.on': True,})
+        cherrypy.config.update({'tools.auth_basic.on': True})
         self.wsgi_app.config['/'].update(
             {'tools.auth_basic.checkpassword': checkpassword_test,
              })
         response = self.app.get(
             '/status',
-            headers = [
+            headers=[
                 ('Authorization',
                  'Basic %s' % 'testuser:secret'.encode('base64'))],
             )
@@ -261,16 +260,16 @@ class TestRESTful(TestRESTfulWSGISetup):
 
     def test_GET_state_unauthorized(self):
         # We cannot get a status report if unauthorized
-        cherrypy.config.update({'tools.auth_basic.on': True,})
+        cherrypy.config.update({'tools.auth_basic.on': True})
         self.wsgi_app.config['/'].update(
             {'tools.auth_basic.checkpassword': checkpassword_test,
              })
         response = self.app.get(
             '/status',
-            headers = [
+            headers=[
                 ('Authorization',
                  'Basic %s' % 'testuser:nonsense'.encode('base64'))],
-            expect_errors = True,
+            expect_errors=True,
             )
         assert response.status == '401 Unauthorized'
 
@@ -296,8 +295,8 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def test_POST_oocp_only(self):
         response = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp'},
-            upload_files = [
+            params={'meta.procord': 'oocp'},
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
             )
@@ -309,8 +308,8 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
         response = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp,tidy,css_cleaner,zip'},
-            upload_files = [
+            params={'meta.procord': 'oocp,tidy,css_cleaner,zip'},
+            upload_files=[
                 ('doc', 'testdoc1.doc', open(src, 'rb').read()),
                 ],
             )
@@ -331,11 +330,11 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
              })
         response = self.app.post(
             '/docs',
-            headers = [
-                ('Authorization', 'Basic %s' %(
+            headers=[
+                ('Authorization', 'Basic %s' % (
                         base64.encodestring('testuser:secret')[:-1])),
                 ],
-            upload_files = [
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
             )
@@ -347,10 +346,10 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         response = self.app.post(
             '/docs',
             params={'meta.procord': 'error'},
-            upload_files = [
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
-            expect_errors = True,
+            expect_errors=True,
             )
         status = response.status
         assert status == '503 Service Unavailable'
@@ -360,11 +359,11 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # We get an Etag for each cached doc
         response = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp', 'allow_cached': '1'},
-            upload_files = [
+            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
-            expect_errors = True,
+            expect_errors=True,
             )
         headers = response.headers
         assert 'Etag' in headers.keys()
@@ -374,20 +373,20 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # We get an Etag also if the doc was already cached.
         response1 = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp', 'allow_cached': '1'},
-            upload_files = [
+            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
-            expect_errors = True,
+            expect_errors=True,
             )
         # Send again. The doc should now be cached.
         response = self.app.post(
             '/docs',
-            params={'meta.procord':'oocp', 'allow_cached': '1'},
-            upload_files = [
+            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            upload_files=[
                 ('doc', 'sample.txt', 'Some\nContent.\n'),
                 ],
-            expect_errors = True,
+            expect_errors=True,
             )
         headers = response.headers
         assert 'Etag' in headers.keys()

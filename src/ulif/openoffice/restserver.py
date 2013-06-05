@@ -1,20 +1,17 @@
 ##
 ## restserver.py
-## Login : <uli@pu.smp.net>
-## Started on  Wed Apr 20 03:01:13 2011 Uli Fouquet
-## $Id$
-## 
+##
 ## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -40,6 +37,7 @@ from ulif.openoffice.util import get_content_type
 # Helper functions
 #
 
+
 def get_marker(options=dict()):
     """Compute a unique marker for a set of options.
 
@@ -55,6 +53,7 @@ def get_marker(options=dict()):
     result = sorted(options.items())
     result = '%s' % result
     return base64url_encode(result).replace('=', '')
+
 
 def get_cached_doc(input, marker, cache_dir=None):
     """Return a cached document and its cache marker for `input` if
@@ -88,6 +87,7 @@ def get_cached_doc(input, marker, cache_dir=None):
         etag = cm.get_marker_from_in_cache_path(result_path)
     return result_path, etag
 
+
 def cache_doc(input, output, marker, cache_dir=None,):
     """Store generated file in cache.
 
@@ -100,6 +100,7 @@ def cache_doc(input, output, marker, cache_dir=None,):
         return None
     cm = CacheManager(cache_dir)
     return cm.register_doc(source_path=input, to_cache=output, suffix=marker)
+
 
 def mangle_allow_cached(data, default=True):
     """Pick ``allow_cached`` keyword from data.
@@ -115,6 +116,7 @@ def mangle_allow_cached(data, default=True):
     if allow is None:
         allow = default
     return allow
+
 
 def get_cachedir(allow_cached, cache_dir, cache_layout, user):
     """Get a cachedir based on the given parameters.
@@ -136,6 +138,7 @@ def get_cachedir(allow_cached, cache_dir, cache_layout, user):
             return None
         cache_dir = os.path.join(cache_dir, user)
     return cache_dir
+
 
 def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
     """Process `doc` according to the other parameters.
@@ -192,7 +195,7 @@ def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
         if allow_cached:
             input_copy = copy_to_secure_location(doc)
             input_copy = os.path.join(input_copy, os.path.basename(doc))
-        proc = MetaProcessor(options=data) # Removes original doc
+        proc = MetaProcessor(options=data)  # Removes original doc
         result_path, metadata = proc.process(doc)
         cached_result = False
         error_state = metadata.get('error', False)
@@ -203,9 +206,11 @@ def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
             remove_file_dir(input_copy)
     return result_path, etag, metadata, cached_result
 
+
 #
 # Real server stuff
 #
+
 
 class DocumentRoot(object):
     exposed = True
@@ -220,7 +225,8 @@ class DocumentRoot(object):
             doc_id = vpath.pop(0)
             if doc_id == 'index':
                 return DocumentIndex(
-                    cache_dir = self.cache_dir, cache_layout=self.cache_layout)
+                    cache_dir=self.cache_dir,
+                    cache_layout=self.cache_layout)
             return Document(doc_id, cache_dir=self.cache_dir)
         return
 
@@ -286,8 +292,10 @@ class Document(object):
     def GET(self):
         return "Hi from doc %s" % self.doc_id
 
+
 class DocumentIndex(object):
     exposed = True
+
     def _cp_dispatch(self, vpath):
         return getattr(self, vpath[0], None)
 
@@ -307,6 +315,7 @@ class DocumentIndex(object):
           </html>
           """ % self.ids
 
+
 class Status(object):
 
     exposed = True
@@ -322,17 +331,18 @@ class Status(object):
         content += "<table><thead><tr><th>name</th><th>defaults</th>"
         content += "</tr></thead><tbody>"
         for name, proc in self.avail_procs.items():
-            content += "<tr><td>%s</td><td>%s</td></tr>" %(
+            content += "<tr><td>%s</td><td>%s</td></tr>" % (
                 name, proc.defaults)
         content += "</tbody></table>"
         content += "<h2>OpenOffice.org/LibreOffice Server:</h2>"
         content += "<table><thead><tr><th>key</th><th>value</th>"
         content += "</tr></thead><tbody>"
-        content += '<tr><td>Status</td><td id="ooo_status">%s</td></tr>' %(
+        content += '<tr><td>Status</td><td id="ooo_status">%s</td></tr>' % (
             check_port('localhost', 2002) and 'UP' or 'DOWN', )
         content += "</tbody></table>"
-        content +="</body></html>"
+        content += "</body></html>"
         return content
+
 
 class Root(object):
 
@@ -348,7 +358,7 @@ class Root(object):
         self.cache_layout = cache_layout
         return
 
-userpassdict = {'bird' : 'bebop', 'ornette' : 'wayout'}
+userpassdict = {'bird': 'bebop', 'ornette': 'wayout'}
 checkpassword = cherrypy.lib.auth_basic.checkpassword_dict(userpassdict)
 
 root = Root()
@@ -365,6 +375,7 @@ DEFAULT_CONFIG = {
         'tools.auth_basic.checkpassword': checkpassword,
         }
     }
+
 
 def main(argv=sys.argv):
     usage = "usage: %prog [options]"
