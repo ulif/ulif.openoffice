@@ -1,20 +1,17 @@
 ##
 ## processor.py
-## Login : <uli@pu.smp.net>
-## Started on  Sat Apr 30 02:56:12 2011 Uli Fouquet
-## $Id$
-## 
-## Copyright (C) 2011 Uli Fouquet
+##
+## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -36,6 +33,7 @@ from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_sdfield_tags,
     string_to_bool, base64url_encode)
+
 
 class BaseProcessor(object):
     """A base for self-built document processors.
@@ -89,10 +87,10 @@ class BaseProcessor(object):
         options = dict([(key, val) for key, val in options.items()
                         if key.startswith(self.prefix + '.')])
         result = dict()
-        result.update(self.defaults) # Make sure result is not the
-                                     # same as defaults
+        result.update(self.defaults)  # Make sure result is not the
+                                      # same as defaults
         for key, val in options.items():
-            key = key[len(self.prefix)+1:]
+            key = key[len(self.prefix) + 1:]
             if key not in dict(self.defaults).keys():
                 # Ignore...
                 continue
@@ -168,7 +166,7 @@ class MetaProcessor(BaseProcessor):
                         item, self.avail_procs.keys()))
         return
 
-    def process(self, input=None, metadata={'error':False}):
+    def process(self, input=None, metadata={'error': False}):
         """Run all processors defined in options.
 
         If all processors run successful, the output of the last along
@@ -223,7 +221,7 @@ class MetaProcessor(BaseProcessor):
         """Build a pipeline of processors according to options.
         """
         result = []
-        for option, avail_dict in [('procord', self.avail_procs),]:
+        for option, avail_dict in [('procord', self.avail_procs)]:
             for key in self.options[option].split(','):
                 if key == '' or key == 'meta':
                     # Ignore non-processors...
@@ -233,14 +231,13 @@ class MetaProcessor(BaseProcessor):
         return result
 
 
-
-
 class OOConvProcessor(BaseProcessor):
     """A processor that converts office docs into different formats.
 
     XXX: we could support far more options. See
 
-         http://wiki.services.openoffice.org/wiki/API/Tutorials/PDF_export#How_to_use_it_from_OOo_Basic
+         http://wiki.services.openoffice.org/wiki/API/Tutorials/
+                PDF_export#How_to_use_it_from_OOo_Basic
 
          only for a list of PDF export options.
     """
@@ -250,7 +247,7 @@ class OOConvProcessor(BaseProcessor):
         'out_fmt': 'html',
         'pdf_version': None,
         'pdf_tagged': None,
-        'host' : 'localhost',
+        'host': 'localhost',
         'port': 2002,
         }
 
@@ -294,7 +291,7 @@ class OOConvProcessor(BaseProcessor):
         filter_props = self._get_filter_props()
         status, result_path = convert(
             url=url,
-            out_format=filter_name, # filter_name=filter_name,
+            out_format=filter_name,  # filter_name=filter_name,
             filter_props=filter_props,
             path=src,
             out_dir=os.path.dirname(src),
@@ -323,6 +320,7 @@ class OOConvProcessor(BaseProcessor):
                 )
         return
 
+
 class UnzipProcessor(BaseProcessor):
     """A processor that unzips delivered files if applicable.
 
@@ -330,7 +328,8 @@ class UnzipProcessor(BaseProcessor):
     """
     prefix = 'unzip'
 
-    supported_extensions = ['.zip',]
+    supported_extensions = ['.zip', ]
+
     def validate_options(self):
         # No options to handle...
         pass
@@ -352,12 +351,14 @@ class UnzipProcessor(BaseProcessor):
             path = os.path.join(dst, dirlist[0])
         return path, metadata
 
+
 class ZipProcessor(BaseProcessor):
     """A processor that zips the directory delivered.
     """
     prefix = 'zip'
 
     supported_extensions = ['.zip']
+
     def validate_options(self):
         # No options to handle...
         pass
@@ -375,6 +376,7 @@ class ZipProcessor(BaseProcessor):
             os.path.dirname(zip_file), basename + '.zip')
         os.rename(zip_file, result_path)
         return result_path, metadata
+
 
 class Tidy(BaseProcessor):
     """A processor for cleaning up HTML code produced by OO.org output.
@@ -406,6 +408,7 @@ class Tidy(BaseProcessor):
         os.system(cmd)
         os.unlink(error_file)
         return src_path, metadata
+
 
 class CSSCleaner(BaseProcessor):
     """A processor for cleaning up CSS parts of HTML code.
@@ -442,10 +445,11 @@ class CSSCleaner(BaseProcessor):
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
-            open(css_file, 'wb').write(css)
-        open(src_path,'wb').write(new_html.encode('utf-8'))
+            open(css_file, 'w').write(css)
+        open(src_path, 'w').write(new_html.encode('utf-8'))
 
         return src_path, metadata
+
 
 class HTMLCleaner(BaseProcessor):
     """A processor for cleaning up HTML produced by OO.org.
@@ -485,7 +489,7 @@ class HTMLCleaner(BaseProcessor):
             fix_img_links=self.options['fix_img_links'],
             fix_sdfields=self.options['fix_sdfields'],
             )
-        open(src_path,'wb').write(new_html)
+        open(src_path, 'w').write(new_html)
         # Rename images
         self.rename_img_files(src_dir, img_name_map)
         return src_path, metadata
@@ -502,6 +506,7 @@ class HTMLCleaner(BaseProcessor):
                 continue
             shutil.move(old_path, new_path)
         return
+
 
 class Error(BaseProcessor):
     """A processor that returns an error message.
