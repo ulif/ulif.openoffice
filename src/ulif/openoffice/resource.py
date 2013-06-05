@@ -26,7 +26,7 @@ import os
 import shutil
 import tempfile
 from urlparse import urlparse
-from ulif.openoffice.convert import convert_to_html
+from ulif.openoffice.convert import convert
 
 try:
     from hashlib import md5
@@ -61,6 +61,8 @@ def create_resource(file_path, cache_manager=None, params=None):
     """
     if not isinstance(file_path, basestring):
         return (None, None, None)
+    if not os.path.isfile(file_path):
+        return (None, None, None)
     new_loc, dir = copy_to_secure_location(file_path)
     status, hash, path = process_file(
         new_loc, cache_manager=cache_manager, params=params)
@@ -75,15 +77,19 @@ def get_resource(cache_manager=None, doc_id=None, params=None):
     return
 
 def process_file(path, cache_manager=None, params=None):
-    status, result_paths = convert_to_html(path=path)
+    result_dir = os.path.dirname(path)
+    status, result_path = convert(
+        out_format='html', path=path, out_dir=result_dir)
     if status != 0:
         return status, None, None
-    result_path = result_paths[0]
     if isinstance(result_path, basestring):
         result_path = urlparse(result_path).path
     # Remove original file if still existing...
     if os.path.exists(path) and os.path.isfile(path):
         os.unlink(path)
+    # Determine result path of created file from returned dirname
+    if os.path.exists(result_path) and os.path.isdir(result_path):
+        result_path = os.path.splitext(path)[0] + '.html'
     hash = params_to_hash(params)
     return status, hash, result_path
 
