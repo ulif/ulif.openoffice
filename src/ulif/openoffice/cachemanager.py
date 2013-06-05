@@ -443,7 +443,7 @@ class CacheManager(object):
         difficult.
         """
         hash_value = md5()
-        hash_value.update(open(path, 'r').read().encode('utf-8'))
+        hash_value.update(open(path, 'rb').read())
         return hash_value.hexdigest()
 
     def contains(self, path=None, marker=None, suffix=None):
