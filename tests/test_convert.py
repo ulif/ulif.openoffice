@@ -56,7 +56,7 @@ class ConvertTests(unittest.TestCase):
     def test_convert_fail_status_ne_zero(self):
         # if something goes wrong, we get some status != 0
         status, result_dir = convert(
-            path='NoT-An-ExIsTiNg-PaTH', out_dir = self.tmpdir)
+            path='NoT-An-ExIsTiNg-PaTH', out_dir=self.tmpdir)
         self.assertTrue(status != 0)
         self.assertEqual([], os.listdir(self.tmpdir))
         return
