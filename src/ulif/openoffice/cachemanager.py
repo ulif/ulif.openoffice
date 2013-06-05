@@ -443,7 +443,11 @@ class CacheManager(object):
         difficult.
         """
         hash_value = md5()
-        hash_value.update(open(path, 'rb').read())
+        with open(path,'rb') as bin_file:
+            # read file in chunks of 512 bytes as md5 processes chunks
+            # of 128 bytes and filesystems like chunks of 512 bytes
+            for chunk in iter(lambda: bin_file.read(512), b''):
+                hash_value.update(chunk)
         return hash_value.hexdigest()
 
     def contains(self, path=None, marker=None, suffix=None):
