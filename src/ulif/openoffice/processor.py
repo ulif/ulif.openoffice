@@ -254,11 +254,12 @@ class OOConvProcessor(BaseProcessor):
         'port': 2002,
         }
 
+    #: mapping: extension <-> format (as accepted by unoconv)
     formats = {
-        "txt": "Text (Encoded)",
-        "pdf": "writer_pdf_Export",
-        "html": "HTML (StarWriter)",
-        "xhtml": "XHTML Writer File",
+        "txt": "text",  # text (encoded)
+        "pdf": "pdf",
+        "html": "html",
+        "xhtml": "xhtml",
         }
 
     options = {}
@@ -266,15 +267,16 @@ class OOConvProcessor(BaseProcessor):
     def _get_filter_props(self):
         props = []
         if self.options['pdf_version'] is not None:
-            # allowed: 0L (PDF1.4), 1L (PDF1.3 aka PDF1/A)
-            value = long(self.options['pdf_version'])
+            # allowed: 0L (PDF1.4), 1L (PDF1.3 aka PDF/A)
+            value = self.options['pdf_version']
             props.append(
-                ("SelectPdfVersion", 0, value, 0))
+                ("SelectPdfVersion", value))
         if self.options['pdf_tagged'] is not None:
             # allowed: True, False
             value = string_to_bool(self.options['pdf_tagged']) or False
+            value = True and '1' or '0'
             props.append(
-                ("UseTaggedPDF", 0, value, 0))
+                ("UseTaggedPDF", value))
         return props
 
     def process(self, path, metadata):
@@ -286,23 +288,26 @@ class OOConvProcessor(BaseProcessor):
         shutil.rmtree(path)
         extension = self.options['out_fmt']
         filter_name = self.formats[extension]
-        url = 'uno:socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
+        url = 'socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
             self.options['host'], self.options['port'])
 
         filter_props = self._get_filter_props()
-        status, result_paths = convert(
+        status, result_path = convert(
             url=url,
-            extension=extension, filter_name=filter_name,
-            filter_props=filter_props, paths=[src]
+            out_format=filter_name, # filter_name=filter_name,
+            filter_props=filter_props,
+            path=src,
+            out_dir=os.path.dirname(src),
             )
-
         metadata['oocp_status'] = status
         if status != 0:
             metadata['error'] = True
             metadata['error-descr'] = 'conversion problem'
+            if os.path.isfile(src):
+                src = os.path.dirname(src)
             shutil.rmtree(src)
             return None, metadata
-        result_path = urlparse(result_paths[0])[2]
+        result_path = '%s.%s' % (os.path.splitext(src)[0], extension)
 
         # Remove input file if different from output
         if os.path.exists(src):
@@ -438,7 +443,7 @@ class CSSCleaner(BaseProcessor):
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
             open(css_file, 'wb').write(css)
-        open(src_path,'wb').write(new_html)
+        open(src_path,'wb').write(new_html.encode('utf-8'))
 
         return src_path, metadata
 
