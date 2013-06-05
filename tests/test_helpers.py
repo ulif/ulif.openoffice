@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 ##
 ## test_helpers.py
-## Login : <uli@pu.smp.net>
-## Started on  Mon May  2 00:53:37 2011 Uli Fouquet
-## $Id$
-## 
-## Copyright (C) 2011 Uli Fouquet
+##
+## Copyright (C) 2011, 2013 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -30,6 +27,7 @@ from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_html_img_links,
     rename_sdfield_tags, base64url_encode, base64url_decode, string_to_bool)
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -401,7 +399,7 @@ class TestHelpers(unittest.TestCase):
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert 'image_sample_html_10a8ad02.jpg' not in html_output
         assert 'sample_4.jpg' in html_output
-        assert len(img_map.keys()) == 4 # 4 images are in doc
+        assert len(img_map.keys()) == 4  # 4 images are in doc
         assert 'image_sample_html_10a8ad02.jpg' in img_map.keys()
         assert 'sample_4.jpg' in img_map.values()
 
@@ -434,16 +432,20 @@ class TestHelpers(unittest.TestCase):
 
     def test_rename_html_img_links_multiple_img(self):
         # Check that multiple links to same file get same target
-        html_input = '<img src="a.gif" /><img src="a.gif" /><img src="b.gif" />'
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert img_map == {u'a.gif': u'sample_1.gif', u'b.gif': u'sample_2.gif'}
+        html_input = ('<img src="a.gif" /><img src="a.gif"' +
+                     '/><img src="b.gif" />')
+        html_output, img_map = rename_html_img_links(
+            html_input, 'sample.html')
+        assert img_map == {
+            u'a.gif': u'sample_1.gif',
+            u'b.gif': u'sample_2.gif'}
         assert html_output == '%s%s' % (
             '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
             '<img src="sample_2.gif"/>')
 
     def test_base64url_encode(self):
-        assert base64url_encode(chr(251)+chr(239)) == '--8='
-        assert base64url_encode(chr(255)*2) == '__8='
+        assert base64url_encode(chr(251) + chr(239)) == '--8='
+        assert base64url_encode(chr(255) * 2) == '__8='
 
     def test_base64url_decode(self):
         assert base64url_decode('--8=') == chr(251) + chr(239)
