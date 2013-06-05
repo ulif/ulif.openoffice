@@ -101,7 +101,7 @@ class TestRESTfulHelpers(TestOOServerSetup):
     def test_get_cached_doc(self):
         # If a cached doc is available, we can get it from cache
         cm = CacheManager(self.cachedir)
-        cm.registerDoc(
+        cm.register_doc(
             source_path=self.input, to_cache=self.output, suffix='W10')
         path, marker = get_cached_doc(
             self.input, 'W10', cache_dir=self.cachedir)
@@ -114,7 +114,7 @@ class TestRESTfulHelpers(TestOOServerSetup):
         etag = cache_doc(self.input, self.output, 'W10', self.cachedir)
         assert etag == '396199333edbf40ad43e62a1c1397793_1'
         cm = CacheManager(self.cachedir)
-        cached = cm.getCachedFile(self.input, 'W10')
+        cached = cm.get_cached_file(self.input, 'W10')
         assert open(cached, 'r').read() == 'Faked output'
 
     def test_cache_doc_wo_cachedir(self):
@@ -164,7 +164,7 @@ class TestRESTfulHelpers(TestOOServerSetup):
     def test_process_doc_retrieve_cached(self):
         # We retrieve a cached doc if it is available
         cm = CacheManager(self.cachedir)
-        cm.registerDoc(
+        cm.register_doc(
             source_path=self.input, to_cache=self.output, suffix=self.marker)
         path, etag, metadata, cached = process_doc(
             self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
@@ -177,7 +177,7 @@ class TestRESTfulHelpers(TestOOServerSetup):
             self.input, self.data, True, self.cachedir, CACHE_SINGLE, 'fred')
         self.create_input() # Processing will remove the original input
         cm = CacheManager(self.cachedir)
-        path = cm.getCachedFile(self.input, self.marker)
+        path = cm.get_cached_file(self.input, self.marker)
         assert path is not None
         assert '<!DOCTYPE' in open(path, 'r').read()
 
