@@ -306,3 +306,6 @@ def main(argv=sys.argv):
             wait_for_startup('localhost', 2002)
             print("restarted.")
         time.sleep(1)
+
+if __name__ == '__main__':
+    main(argv = sys.argv)
