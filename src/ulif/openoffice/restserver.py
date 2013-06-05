@@ -83,9 +83,9 @@ def get_cached_doc(input, marker, cache_dir=None):
     if cache_dir is None:
         return (None, None)
     cm = CacheManager(cache_dir)
-    result_path = cm.getCachedFile(input, marker)
+    result_path = cm.get_cached_file(input, marker)
     if result_path is not None:
-        etag = cm.getMarkerFromInCachePath(result_path)
+        etag = cm.get_marker_from_in_cache_path(result_path)
     return result_path, etag
 
 def cache_doc(input, output, marker, cache_dir=None,):
@@ -99,7 +99,7 @@ def cache_doc(input, output, marker, cache_dir=None,):
     if cache_dir is None:
         return None
     cm = CacheManager(cache_dir)
-    return cm.registerDoc(source_path=input, to_cache=output, suffix=marker)
+    return cm.register_doc(source_path=input, to_cache=output, suffix=marker)
 
 def mangle_allow_cached(data, default=True):
     """Pick ``allow_cached`` keyword from data.
