@@ -23,7 +23,10 @@ from hashlib import md5
 import os
 import shutil
 import tempfile
-from urlparse import urlparse
+try:
+    from urlparse import urlparse         # Python 2.x
+except ImportError:
+    from urllib import parse as urlparse  # Python 3.x
 from ulif.openoffice.convert import convert
 
 

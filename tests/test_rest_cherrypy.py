@@ -22,7 +22,10 @@ import shutil
 import tempfile
 import zipfile
 import cherrypy
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO  # Python 2.x
+except ImportError:
+    from io import StringIO         # Python 3.x
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
 from ulif.openoffice.helpers import remove_file_dir
@@ -292,7 +295,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             '/docs',
             params={'meta.procord': 'oocp'},
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             )
         body = response.body
@@ -328,7 +331,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
                         base64.encodestring('testuser:secret')[:-1])),
                 ],
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             )
         body = response.body
@@ -340,7 +343,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             '/docs',
             params={'meta.procord': 'error'},
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             expect_errors=True,
             )
@@ -354,7 +357,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             '/docs',
             params={'meta.procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             expect_errors=True,
             )
@@ -368,7 +371,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             '/docs',
             params={'meta.procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             expect_errors=True,
             )
@@ -377,7 +380,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
             '/docs',
             params={'meta.procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
-                ('doc', 'sample.txt', 'Some\nContent.\n'),
+                ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
             expect_errors=True,
             )

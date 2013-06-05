@@ -17,6 +17,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
+from __future__ import unicode_literals
 import os
 import shutil
 import tempfile
@@ -133,7 +134,7 @@ class TestHelpers(unittest.TestCase):
         """
 
         >> from ulif.openoffice.helpers import extract_css
-        >> html, css = extract_css(u'''
+        >> html, css = extract_css('''
         ... <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         ... "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         ... <html xmlns="http://www.w3.org/1999/xhtml">
@@ -219,19 +220,19 @@ class TestHelpers(unittest.TestCase):
         # Trash in, trash out...
         result, css = extract_css(
             "<html><style>a<style>b</style></style></html>", 'sample.html')
-        assert css == u'a\nb'
+        assert css == 'a\nb'
 
     def test_extract_css_utf8(self):
         result, css = extract_css(
             "<html><body>äö</body></html>", 'sample.html')
         assert css is None
-        assert result == u'<html>\n <body>\n  äö\n </body>\n</html>'
+        assert result == '<html>\n <body>\n  äö\n </body>\n</html>'
 
     def test_extract_css_utf8_unicode(self):
         result, css = extract_css(
-            u"<html><body>ä</body></html>", 'sample.html')
+            "<html><body>ä</body></html>", 'sample.html')
         assert css is None
-        assert result == u'<html>\n <body>\n  ä\n </body>\n</html>'
+        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
         return
 
     def test_extract_css_complex_html(self):
@@ -407,7 +408,7 @@ class TestHelpers(unittest.TestCase):
         html_input = '<img src="filename_without_ext" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert html_output == '<img src="sample_1"/>'
-        assert img_map == {u'filename_without_ext': u'sample_1'}
+        assert img_map == {'filename_without_ext': 'sample_1'}
 
     def test_rename_html_img_links_unicode_filenames(self):
         html_input = '<img src="filename_without_ext" />'
@@ -426,9 +427,9 @@ class TestHelpers(unittest.TestCase):
 
     def test_rename_html_img_links_umlauts(self):
         # We can handle umlauts in filenames
-        html_input = u'<img src="file with ümlaut.gif" />'
+        html_input = '<img src="file with ümlaut.gif" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert img_map == {u'file with \xfcmlaut.gif': u'sample_1.gif'}
+        assert img_map == {'file with \xfcmlaut.gif': 'sample_1.gif'}
 
     def test_rename_html_img_links_multiple_img(self):
         # Check that multiple links to same file get same target
@@ -437,8 +438,8 @@ class TestHelpers(unittest.TestCase):
         html_output, img_map = rename_html_img_links(
             html_input, 'sample.html')
         assert img_map == {
-            u'a.gif': u'sample_1.gif',
-            u'b.gif': u'sample_2.gif'}
+            'a.gif': 'sample_1.gif',
+            'b.gif': 'sample_2.gif'}
         assert html_output == '%s%s' % (
             '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
             '<img src="sample_2.gif"/>')
@@ -448,8 +449,8 @@ class TestHelpers(unittest.TestCase):
         assert base64url_encode(chr(255) * 2) == '__8='
 
     def test_base64url_decode(self):
-        assert base64url_decode('--8=') == chr(251) + chr(239)
-        assert base64url_decode('__8=') == chr(255) * 2
+        assert base64url_decode(b'--8=') == chr(251) + chr(239)
+        assert base64url_decode(b'__8=') == chr(255) * 2
 
     def test_string_to_bool(self):
         assert string_to_bool('yes') is True
