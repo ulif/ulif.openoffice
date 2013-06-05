@@ -185,8 +185,6 @@ def process_doc(doc, data, cached_default, cache_dir, cache_layout, user):
     metadata = dict(error=False)
     if allow_cached and cache_dir is not None:
         # Ask cache for already stored copy
-        real_cachedir = get_cachedir(
-            allow_cached, cache_dir, cache_layout, user)
         result_path, etag = get_cached_doc(doc, marker, cache_dir=cache_dir)
         cached_result = True
     if result_path is None:

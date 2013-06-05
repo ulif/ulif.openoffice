@@ -20,7 +20,6 @@
 Helpers for trivial jobs.
 """
 import base64
-import copy
 import cssutils
 import logging
 import os
@@ -28,7 +27,7 @@ import re
 import shutil
 import tempfile
 import zipfile
-from bs4 import BeautifulSoup, Tag, CData
+from bs4 import BeautifulSoup
 try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:
@@ -370,7 +369,6 @@ def cleanup_css(css_input, minified=True):
     handler.setFormatter(logging.Formatter('%(levelname)s %(message)s'))
     handler.propagate = False
     handler.setLevel(logging.WARNING)
-    old_level = cssutils.log.getEffectiveLevel()
     logger = logging.getLogger()
     logger.addHandler(handler)
 

@@ -2,7 +2,6 @@
 import os
 import shutil
 import tempfile
-import unittest
 from ulif.openoffice.convert import convert
 from ulif.openoffice.testing import TestOOServerSetup
 

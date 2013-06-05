@@ -25,14 +25,11 @@ import pytest
 import shutil
 import tempfile
 import zipfile
-from ulif.openoffice.cachemanager import (
-    CacheManager, CACHE_PER_USER)
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
     ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error)
 from ulif.openoffice.testing import TestOOServerSetup
-
 try:
     import unittest2 as unittest
 except ImportError:
@@ -424,7 +421,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
@@ -436,7 +432,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner(options={'css_cleaner.minified': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
@@ -448,7 +443,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner(options={'css_cleaner.minified': '0'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
@@ -460,7 +454,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
@@ -504,7 +497,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
 
-        resultdir = os.path.dirname(self.resultpath)
         snippet1 = "%s" % (
             '<span class="u-o-headnum">1</span>Häding1')
         snippet2 = "%s" % (
@@ -524,7 +516,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
 
-        resultdir = os.path.dirname(self.resultpath)
         snippet1 = "%s" % (
             '<span class="u-o-headnum">1</span>Häding1')
         assert snippet1 in contents
@@ -538,7 +529,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
 
-        resultdir = os.path.dirname(self.resultpath)
         snippet1 = "%s" % (
             '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
         assert snippet1 not in contents

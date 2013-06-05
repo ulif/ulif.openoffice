@@ -26,13 +26,11 @@ try:
     from urlparse import urlparse         # Python 2.x
 except ImportError:
     from urllib import parse as urlparse  # Python 3.x
-from ulif.openoffice.cachemanager import (
-    CacheManager, CACHE_SINGLE, CACHE_PER_USER)
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_sdfield_tags,
-    string_to_bool, base64url_encode)
+    string_to_bool)
 
 
 class BaseProcessor(object):
@@ -437,7 +435,6 @@ class CSSCleaner(BaseProcessor):
         basename = os.path.basename(path)
         src_path = os.path.join(
             copy_to_secure_location(path), basename)
-        src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
 
         new_html, css = extract_css(open(src_path, 'rb').read(), basename)

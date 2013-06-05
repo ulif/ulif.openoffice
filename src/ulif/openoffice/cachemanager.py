@@ -28,9 +28,9 @@ import re
 import shutil
 import sys
 try:
-    import cPickle as pickle
+    import cPickle as pickle  # Python 2.x
 except ImportError:
-    import pickle
+    import pickle             # Python 3.x
 from hashlib import md5
 
 HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')

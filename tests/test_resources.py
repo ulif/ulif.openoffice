@@ -19,15 +19,8 @@
 import os
 import shutil
 import tempfile
-try:
-    import unittest2 as unittest
-except:
-    import unittest
-from ulif.openoffice.cachemanager import CacheManager
-from ulif.openoffice.resource import Resource, create_resource, get_resource
-from ulif.openoffice.testing import (
-    TestRESTfulWSGISetup, TestOOServerSetup
-    )
+from ulif.openoffice.resource import create_resource
+from ulif.openoffice.testing import TestOOServerSetup
 
 
 class TestResources(TestOOServerSetup):

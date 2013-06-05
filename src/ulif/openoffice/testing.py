@@ -28,7 +28,7 @@ import time
 import ulif.openoffice
 from webtest import TestApp
 from ulif.openoffice.cachemanager import CacheManager
-from ulif.openoffice.oooctl import check_port, main
+from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.restserver import Root, DEFAULT_CONFIG
 
 try:
@@ -122,7 +122,6 @@ class TestOOServerSetup(unittest.TestCase):
             return
 
         # Start oooctl...
-        path = os.path.dirname(ulif.openoffice.__file__)
         cls.oooctl_path = 'oooctl'
         exe = sys.executable
         cls.oooctl_path = ulif.openoffice.oooctl.__file__

@@ -22,11 +22,6 @@ import shutil
 import tempfile
 import zipfile
 import cherrypy
-try:
-    import unittest2 as unittest
-except:
-    import unittest
-
 from StringIO import StringIO
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
@@ -35,8 +30,8 @@ from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
 from ulif.openoffice.restserver import (
-    checkpassword, get_marker, get_cached_doc, cache_doc, mangle_allow_cached,
-    get_cachedir, process_doc)
+    get_marker, get_cached_doc, cache_doc, mangle_allow_cached, get_cachedir,
+    process_doc)
 
 checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
     {'bird': 'bebop',
@@ -301,7 +296,6 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
                 ],
             )
         body = response.body
-        headers = response.headers
         assert body.startswith('<!DOCTYPE HTML')
 
     def test_POST_complex(self):
@@ -314,7 +308,6 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
                 ],
             )
         body = response.body
-        headers = response.headers
         zip_file = zipfile.ZipFile(StringIO(body), 'r')
         file_list = zip_file.namelist()
         assert 'testdoc1.html' in file_list
@@ -371,7 +364,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
 
     def test_POST_etag_cached_previously(self):
         # We get an Etag also if the doc was already cached.
-        response1 = self.app.post(
+        self.app.post(
             '/docs',
             params={'meta.procord': 'oocp', 'allow_cached': '1'},
             upload_files=[

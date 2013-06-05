@@ -294,7 +294,7 @@ def main(argv=sys.argv):
         signal.signal(signal.SIGINT, signal_handler)
         print("Installed signal handler for SIGINT (CTRL-C)")
 
-    status = start(options.binarypath, foreground=(cmd=='fg'))
+    start(options.binarypath, foreground=(cmd=='fg'))
 
     wait_for_startup('localhost', 2002)
     while True:

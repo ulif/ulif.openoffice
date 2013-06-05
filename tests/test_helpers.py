@@ -64,13 +64,13 @@ class TestHelpers(unittest.TestCase):
 
     def test_unzip(self):
         # make sure we can unzip filetrees
-        zipfile = os.path.join(self.workdir, 'sample.zip')
+        zip_file = os.path.join(self.workdir, 'sample.zip')
         shutil.copy(
             os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
-            zipfile)
+            zip_file)
         dst = os.path.join(self.workdir, 'dst')
         os.mkdir(dst)
-        unzip(zipfile, dst)
+        unzip(zip_file, dst)
         assert os.listdir(dst) == ['somedir']
         level2_dir = os.path.join(dst, 'somedir')
         assert sorted(os.listdir(level2_dir)) == [
