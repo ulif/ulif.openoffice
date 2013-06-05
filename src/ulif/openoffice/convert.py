@@ -106,19 +106,24 @@ def convert(
         cmd += ' -e %s=%s' % (filter_prop[0], str(filter_prop[1]))
     cmd += " " + path
     logger.info('Execute cmd: %s' % cmd)
-    status, out, err = exec_cmd(cmd)
+    status, out = exec_cmd(cmd)
     logger.info('Cmd result: %s' % status)
-    logger.debug('Cmd stdout:\n%s\nCmd stderr:\n%s' % (out, err))
+    logger.debug('Cmd output:\n%s\n' % (out,))
     return status, new_dir
 
 def exec_cmd(cmd):
     """Execute `cmd` in a subprocess.
 
-    Executes `cmd` in a subprocess (w/o shell). Returns status, stdout
-    output, and stderr output.
+    Executes `cmd` in a subprocess (w/o shell). Returns (status,
+    output).  `output` contains both, stdout and stderr, as they would
+    appear on the shell.
     """
+    out_file = tempfile.SpooledTemporaryFile()
     args = shlex.split(cmd)
-    p = Popen(args, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
+    # we could also use PIPE and p.communicate, but that seems to block
+    p = Popen(args, stdout=out_file, stderr=out_file)
     status = p.wait()
-    return status, out, err
+    out_file.seek(0)
+    out = out_file.read()
+    out_file.close()
+    return status, out
