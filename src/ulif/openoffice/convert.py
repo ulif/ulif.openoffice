@@ -119,7 +119,7 @@ def exec_cmd(cmd):
     appear on the shell.
     """
     out_file = tempfile.SpooledTemporaryFile()
-    args = shlex.split(cmd)
+    args = shlex.split(str(cmd))
     # we could also use PIPE and p.communicate, but that seems to block
     p = Popen(args, stdout=out_file, stderr=out_file)
     status = p.wait()
