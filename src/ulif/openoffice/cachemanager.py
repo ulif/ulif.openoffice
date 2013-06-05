@@ -443,7 +443,7 @@ class CacheManager(object):
         difficult.
         """
         hash_value = md5()
-        with open(path,'rb') as bin_file:
+        with open(path, 'rb') as bin_file:
             # read file in chunks of 512 bytes as md5 processes chunks
             # of 128 bytes and filesystems like chunks of 512 bytes
             for chunk in iter(lambda: bin_file.read(512), b''):
