@@ -4,9 +4,10 @@ import shutil
 import tempfile
 import unittest
 from ulif.openoffice.convert import convert
+from ulif.openoffice.testing import TestOOServerSetup
 
 
-class ConvertTests(unittest.TestCase):
+class ConvertTests(TestOOServerSetup):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
