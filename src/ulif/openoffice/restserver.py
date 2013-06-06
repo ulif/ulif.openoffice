@@ -19,10 +19,11 @@
 """
 RESTful server (cherry.py flavour)
 """
+import cherrypy
+import mimetypes
 import os
 import sys
 import tempfile
-import cherrypy
 from optparse import OptionParser
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
@@ -31,11 +32,20 @@ from ulif.openoffice.helpers import (
     copy_to_secure_location)
 from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
-from ulif.openoffice.util import get_content_type
 
 #
 # Helper functions
 #
+
+
+def get_content_type(filename):
+    """Try to guess content-type of a file.
+
+    Returns a MIME type as string.
+
+    If none can be determined, ``application/octet-stram`` is returned.
+    """
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
 
 def get_marker(options=dict()):
