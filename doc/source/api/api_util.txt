@@ -1,5 +1,0 @@
-``ulif.openoffice.util`` -- Utilities and Tools
-***********************************************
-
-.. automodule:: ulif.openoffice.util
-   :members:

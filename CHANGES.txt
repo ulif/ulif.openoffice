@@ -21,6 +21,12 @@ Major rewrite of the whole package.
 
 * Switched from Zope testing to `py.test`.
 
+* Removed `pyuno` server, clients and related components.
+
+* Removed `find` functionality as it is based on direct `pyuno` access.
+
+* Removed `zc.buildout` support.
+
 0.4 (2011-02-11)
 ================
 
