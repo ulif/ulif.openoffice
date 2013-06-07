@@ -65,7 +65,7 @@ setup(name='ulif.openoffice',
           'cssutils',
           'Routes',
           'WebOb',
-          'PasteDeploy',
+          'Paste',   # Python 2.x only
       ],
       setup_requires=[],
       extras_require=dict(
@@ -75,9 +75,7 @@ setup(name='ulif.openoffice',
               'pytest >= 2.0.3',
               'pytest-xdist',
               'pytest-cov',
-              'Paste',
-              #'PasteScript',
-              # 'unittest2',
+              'PasteDeploy',
               ],
           docs = ['Sphinx',
                   'collective.recipe.sphinxbuilder']
@@ -96,7 +94,7 @@ setup(name='ulif.openoffice',
       html_cleaner = ulif.openoffice.processor:HTMLCleaner
       error = ulif.openoffice.processor:Error
       [paste.app_factory]
-      restdoc_app = ulif.openoffice.wsgi:restful_doc_converter_factory
+      docconverter = ulif.openoffice.wsgi:make_docconverter_app
       [paste.filter_app_factory]
       htaccess = ulif.openoffice.htaccess:make_htaccess
       """,
