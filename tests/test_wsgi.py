@@ -4,7 +4,7 @@ from webob import Request
 from ulif.openoffice.wsgi import RESTfulDocConverter
 
 
-class SampleTestCase(unittest.TestCase):
+class DocConverterFunctionalTestCase(unittest.TestCase):
 
     def test_restful_doc_converter(self):
         # we can create a RESTful sample app

@@ -48,20 +48,13 @@ class RESTfulDocConverter(object):
     map = Mapper()
     map.resource('doc', 'docs')
 
-    def __init__(self, global_cfg=None, local_cfg=None):
-        print global_cfg, local_cfg
-        self.global_cfg = global_cfg
-        self.local_cfg = local_cfg
-
     @wsgify
     def __call__(self, req):
         results = self.map.routematch(environ=req.environ)
         if not results:
             return exc.HTTPNotFound()
         match, route = results
-        print "MATCH, ROUTE: ", match  # , dir(route)
         return getattr(self, match['action'])(req)
-        return 'Ho!'
 
     def index(self, req):
         # get index of all docs
@@ -92,5 +85,8 @@ class RESTfulDocConverter(object):
         pass
 
 
-def restful_doc_converter_factory(global_cfg, **local_cfg):
-    return RESTfulDocConverter(global_cfg, local_cfg)
+docconverter_app = RESTfulDocConverter
+
+
+def make_docconverter_app(global_conf, **local_conf):
+    return RESTfulDocConverter()
