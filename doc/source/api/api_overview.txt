@@ -8,6 +8,7 @@ API
 
    api_cachemanager
    api_convert
+   api_htaccess
    api_oooctl
    api_processors
    api_restserver

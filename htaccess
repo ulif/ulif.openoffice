@@ -1,0 +1,8 @@
+#
+# use htpasswd to add/modify/delete entries
+# don't use md5 as it is not supported here
+#
+bird:$apr1$MOn1SeYg$A4FLL0AuBy43RFqT2mblm0
+ornette:C7wTvLTpHi2G2
+miles:sowhat
+dizzy:{SHA}OjFPntyTrohnUIE45vd2abKu7/w=
