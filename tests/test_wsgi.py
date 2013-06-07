@@ -1,10 +1,13 @@
 # tests for wsgi module
 import os
+import pytest
 import shutil
 import tempfile
 import unittest
 from webob import Request
 from ulif.openoffice.wsgi import RESTfulDocConverter
+
+pytestmark = pytest.mark.wsgi
 
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
