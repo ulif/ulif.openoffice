@@ -1,10 +1,13 @@
 import filecmp
 import os
+import pytest
 import shutil
 import tempfile
 import types
 import unittest
 from ulif.openoffice.cachemanager import CacheManager, Bucket
+
+pytestmark = pytest.mark.cachemanager
 
 
 class CachingComponentsTestCase(unittest.TestCase):
@@ -279,10 +282,13 @@ class TestCacheBucket(CachingComponentsTestCase):
             self.src_path1, self.result_path1, suffix='foo')
         path1 = bucket.get_result_path_from_marker(marker1)
         path2 = bucket.get_result_path_from_marker(marker2, suffix='foo')
+        path3 = 'misformatted-path'
         result1 = bucket.get_marker_from_bucket_file_path(path1)
         result2 = bucket.get_marker_from_bucket_file_path(path2)
+        result3 = bucket.get_marker_from_bucket_file_path(path3)
         self.assertEqual(result1, '1')
         self.assertEqual(result2, '1')
+        self.assertEqual(result3, None)
 
 
 class TestCacheManager(CachingComponentsTestCase):
@@ -506,6 +512,16 @@ class TestCacheManager(CachingComponentsTestCase):
         result = cm.get_marker_from_path(self.src_path1)
         self.assertEqual(result, '737b337e605199de28b3b64c674f9422_1')
 
+    def test_get_marker_from_path_invalid_path(self):
+        cm = CacheManager(self.workdir)
+        result = cm.get_marker_from_path('not-a-valid-path')
+        self.assertEqual(result, None)
+
+    def test_get_marker_from_path_uncached(self):
+        cm = CacheManager(self.workdir)
+        result = cm.get_marker_from_path(self.src_path1)
+        self.assertEqual(result, None)
+
     def test_get_marker_from_in_cache_path(self):
         cm = CacheManager(self.workdir)
         marker1 = cm.register_doc(
@@ -521,6 +537,16 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertEqual(result1, '737b337e605199de28b3b64c674f9422_1')
         self.assertEqual(result2, 'd5aa51d7fb180729089d2de904f7dffe_1')
         self.assertEqual(result3, '737b337e605199de28b3b64c674f9422_1')
+
+    def test_get_marker_from_in_cache_path_no_path(self):
+        cm = CacheManager(self.workdir)
+        result = cm.get_marker_from_in_cache_path(None)
+        self.assertEqual(result, None)
+
+    def test_get_marker_from_in_cache_path_invalid_path(self):
+        cm = CacheManager(self.workdir)
+        result = cm.get_marker_from_in_cache_path('not-a-valid-path')
+        self.assertEqual(result, None)
 
     def test_get_hash_from_incache_path(self):
         cm = CacheManager(self.workdir, level=2)

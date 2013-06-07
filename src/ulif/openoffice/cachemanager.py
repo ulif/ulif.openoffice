@@ -29,7 +29,7 @@ import shutil
 import sys
 try:
     import cPickle as pickle  # Python 2.x
-except ImportError:
+except ImportError:           # pragma: no cover
     import pickle             # Python 3.x
 from hashlib import md5
 
