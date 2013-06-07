@@ -24,16 +24,6 @@ from webob import Response, exc
 from webob.dec import wsgify
 
 
-class SampleApp(object):
-
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-    @wsgify
-    def __call__(self, req):
-        return Response('Hi!')
-
-
 mydocs = {}
 
 
