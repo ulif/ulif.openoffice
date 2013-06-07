@@ -20,7 +20,7 @@ class PyTest(TestCommand):
 
 setup(name='ulif.openoffice',
       version=version,
-      description="Helpers to bridge different Python envs and OpenOffice.org.",
+      description="Run OpenOffice as web service.",
       long_description=open("README.txt").read() + "\n\n" +
                        open(os.path.join("doc", "source", "intro.txt"
                                          )).read() + "\n\n" +
@@ -32,11 +32,21 @@ setup(name='ulif.openoffice',
                                          "README.txt")).read() + "\n\n" +
                        open("CHANGES.txt").read(),
       classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Framework :: Buildout",
-        "Programming Language :: Python",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
+          "Development Status :: 3 - Alpha",
+          "License :: OSI Approved :: GNU General Public License (GPL)",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2 :: Only",
+          "Programming Language :: Python :: 2.6",
+          "Programming Language :: Python :: 2.7",
+          "Operating System :: POSIX",
+          "Framework :: Paste",
+          "Environment :: Web Environment",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Topic :: Internet :: WWW/HTTP",
+          "Topic :: Internet :: WWW/HTTP :: WSGI",
+          "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+          "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
+          "Topic :: Office/Business :: Office Suites",
         ],
       keywords='openoffice pyuno uno openoffice.org libreoffice',
       author='Uli Fouquet',
@@ -50,36 +60,32 @@ setup(name='ulif.openoffice',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'zc.buildout<2.0',
           'CherryPy>=3.2.0',
           'beautifulsoup4',
           'cssutils',
+          'Routes',
+          'WebOb',
+          'PasteDeploy',
       ],
       setup_requires=[],
       extras_require=dict(
-        tests = [
-            #'zope.testing',
-            #'zc.recipe.egg',
-            #'twill',
-            'py-restclient',
-            'WebTest',
-            'pytest >= 2.0.3',
-            'pytest-xdist',
-            'pytest-cov',
-            #'unittest2',
-            #'nose >= 1.0.0',
-            ],
-        docs = ['Sphinx',
-               'collective.recipe.sphinxbuilder']
-        ),
+          tests = [
+              'py-restclient',
+              'WebTest',
+              'pytest >= 2.0.3',
+              'pytest-xdist',
+              'pytest-cov',
+              'Paste',
+              #'PasteScript',
+              # 'unittest2',
+              ],
+          docs = ['Sphinx',
+                  'collective.recipe.sphinxbuilder']
+          ),
       cmdclass = {'test': PyTest},
       entry_points="""
-      [nopytest11]
-      buildout-doctest = ulif.openoffice.testing_buildout
-      mydoctest = ulif.openoffice.pytest_doctest
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
-      pyunoctl = ulif.openoffice.pyunoctl:main
       restserver = ulif.openoffice.restserver:main
       [ulif.openoffice.processors]
       oocp = ulif.openoffice.processor:OOConvProcessor
@@ -89,5 +95,9 @@ setup(name='ulif.openoffice',
       css_cleaner = ulif.openoffice.processor:CSSCleaner
       html_cleaner = ulif.openoffice.processor:HTMLCleaner
       error = ulif.openoffice.processor:Error
+      [paste.app_factory]
+      restdoc_app = ulif.openoffice.wsgi:restful_doc_converter_factory
+      [paste.filter_app_factory]
+      htaccess = ulif.openoffice.htaccess:make_htaccess
       """,
       )
