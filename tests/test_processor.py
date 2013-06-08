@@ -246,7 +246,7 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.pdf')
 
-    @pytest.mark.skipif("UNOCONV_VERSION < ('0', '5')")
+    @pytest.mark.skipif("UNOCONV_VERSION < ('0', '6')")
     def test_process_pdf_as_pda(self):
         # make sure we can produce PDF/A output
         proc = OOConvProcessor(
