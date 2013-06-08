@@ -27,6 +27,7 @@ from subprocess import Popen
 
 mutex = Lock()
 
+
 def threadsafe(func):
     """A decorator for functions to run threadsafe.
 
@@ -43,12 +44,12 @@ def threadsafe(func):
     safe_func.__doc__ = func.__doc__
     return safe_func
 
+
 @threadsafe
 def convert(
     url="socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
-    out_format = 'text', path = None, out_dir=None, filter_props = (),
-    template = None, timeout = 5, doctype = 'document',
-    executable='unoconv'):
+    out_format='text', path=None, out_dir=None, filter_props=(),
+    template=None, timeout=5, doctype='document', executable='unoconv'):
     """Convert some document using `unoconv`.
 
     Converts the document given in `path` to `out_format` and return a
@@ -91,7 +92,7 @@ def convert(
       given the executable is looked up in the current system path.
     """
     if not path:
-        return None, []
+        return None, None
     logger = logging.getLogger('ulif.openoffice.convert')
     new_dir = out_dir
     if new_dir is None:
@@ -110,6 +111,7 @@ def convert(
     logger.info('Cmd result: %s' % status)
     logger.debug('Cmd output:\n%s\n' % (out,))
     return status, new_dir
+
 
 def exec_cmd(cmd):
     """Execute `cmd` in a subprocess.

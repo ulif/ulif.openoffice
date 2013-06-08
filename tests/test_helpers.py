@@ -25,9 +25,10 @@ import unittest
 import zipfile
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
-    copy_to_secure_location, get_entry_points, unzip, zip, remove_file_dir,
-    extract_css, cleanup_html, cleanup_css, rename_html_img_links,
-    rename_sdfield_tags, base64url_encode, base64url_decode, string_to_bool)
+    copytree, copy_to_secure_location, get_entry_points, unzip, zip,
+    remove_file_dir, extract_css, cleanup_html, cleanup_css,
+    rename_html_img_links, rename_sdfield_tags, base64url_encode,
+    base64url_decode, string_to_bool)
 
 
 class TestHelpers(unittest.TestCase):
@@ -45,6 +46,42 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
+
+    def test_copytree_ignore(self):
+        # we can pass a function to ignore files
+        def ignore(src, names):
+            return ['sample1.txt', ]
+        self.resultpath = tempfile.mkdtemp()
+        open(os.path.join(self.workdir, 'sample1.txt'), 'w').write('Hi!')
+        open(os.path.join(self.workdir, 'sample2.txt'), 'w').write('Hi!')
+        copytree(self.workdir, self.resultpath, ignore=ignore)
+        assert not os.path.isfile(
+            os.path.join(self.resultpath, 'sample1.txt'))
+        assert os.path.isfile(
+            os.path.join(self.resultpath, 'sample2.txt'))
+
+    def test_copytree_subdirs(self):
+        # subdirs are copies as well
+        os.mkdir(os.path.join(self.workdir, 'srcdir'))
+        os.mkdir(os.path.join(self.workdir, 'srcdir', 'sub1'))
+        copytree(
+            os.path.join(self.workdir, 'srcdir'),
+            os.path.join(self.workdir, 'dstdir'))
+        assert os.path.isdir(
+            os.path.join(self.workdir, 'dstdir', 'sub1'))
+
+    def test_copytree_links(self):
+        # we copy links
+        src_dir = os.path.join(self.workdir, 'srcdir')
+        os.mkdir(src_dir)
+        open(os.path.join(src_dir, 'sample.txt'), 'w').write('Hi!')
+        os.symlink(
+            os.path.join(src_dir, 'sample.txt'),
+            os.path.join(src_dir, 'sample.link'))
+        copytree(src_dir, os.path.join(self.workdir, 'dstdir'), symlinks=True)
+        dst_link = os.path.join(self.workdir, 'dstdir', 'sample.link')
+        assert os.path.islink(dst_link)
+        assert os.readlink(dst_link) == os.path.join(src_dir, 'sample.txt')
 
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
@@ -101,6 +138,11 @@ class TestHelpers(unittest.TestCase):
         assert sorted(result) == [
             'subdir1/', 'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
         assert zip_file.testzip() is None
+
+    def test_zip_invalid_path(self):
+        # we get a ValueError if zip path is not valid
+        self.assertRaises(
+            ValueError, zip, 'not-a-valid-path')
 
     def test_remove_file_dir_none(self):
         assert remove_file_dir(None) is None
@@ -443,6 +485,16 @@ class TestHelpers(unittest.TestCase):
         assert html_output == '%s%s' % (
             '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
             '<img src="sample_2.gif"/>')
+
+    def test_rename_html_img_links_ignore_img_without_src(self):
+        # we ignore img tags that have no 'src' attribute
+        html_input = ('<img name="foo" /><img name="bar" src="baz" />')
+        html_output, img_map = rename_html_img_links(
+            html_input, 'sample.html')
+        assert img_map == {u'baz': u'sample_1'}
+        assert html_output == (
+            '<img name="foo"/>'
+            '<img name="bar" src="sample_1"/>')
 
     def test_base64url_encode(self):
         assert base64url_encode(chr(251) + chr(239)) == '--8='

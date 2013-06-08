@@ -30,13 +30,14 @@ import zipfile
 from bs4 import BeautifulSoup
 try:
     from cStringIO import StringIO  # Python 2.x
-except ImportError:
+except ImportError:                 # pragma: no cover
     from io import StringIO         # Python 3.x
 from pkg_resources import iter_entry_points
 try:
     from urlparse import urlparse         # Python 2.x
-except ImportError:
+except ImportError:                       # pragma: no cover
     from urllib import parse as urlparse  # Python 3.x
+
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """Recursively copy an entire directory tree rooted at `src`. The
@@ -116,7 +117,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
     if errors:
         raise shutil.Error(errors)
 
-def copy_to_secure_location(src): #, symlinks=False):
+
+def copy_to_secure_location(src):
     """Copy `src` to a temporay location.
 
     If `src` is a file, the complete directory containing this file
@@ -136,6 +138,7 @@ def copy_to_secure_location(src): #, symlinks=False):
     copytree(src, dst)
     return dst
 
+
 def get_entry_points(group):
     """Get all entry point plugins registered for group `group`.
 
@@ -147,6 +150,7 @@ def get_entry_points(group):
     return dict(
         [(x.name, x.load())
          for x in iter_entry_points(group=group)])
+
 
 def unzip(path, dst_dir):
     """Unzip the files stored in zipfile `path` in `dst_dir`.
@@ -171,6 +175,7 @@ def unzip(path, dst_dir):
         outfile.close()
     zf.close()
     return
+
 
 def zip(path):
     """Create a ZIP file out of `path`.
@@ -207,15 +212,16 @@ def zip(path):
         for dir in dirs:
             # XXX: Maybe the wrong way to store directories?
             dir_path = os.path.join(root, dir)
-            arc_name = dir_path[len(path)+1:] + '/'
+            arc_name = dir_path[len(path) + 1:] + '/'
             info = zipfile.ZipInfo(arc_name)
             zout.writestr(info, '')
         for file in files:
             file_path = os.path.join(root, file)
-            arc_name = file_path[len(path)+1:]
+            arc_name = file_path[len(path) + 1:]
             zout.write(file_path, arc_name)
     zout.close()
     return new_path
+
 
 def remove_file_dir(path):
     """Remove a directory.
@@ -229,15 +235,16 @@ def remove_file_dir(path):
         return
     if os.path.isfile(path):
         path = os.path.dirname(path)
-    assert path not in ['/', '/tmp'] # Safety belt
+    assert path not in ['/', '/tmp']  # Safety belt
     shutil.rmtree(path)
     return
+
 
 RE_CSS_TAG = re.compile('(.+?)(\.?\s*){')
 RE_CSS_STMT_START = re.compile('\s*(.*?{.*?)')
 RE_CURLY_OPEN = re.compile('{([^ ])')
 RE_CURLY_CLOSE = re.compile('([^ ])}')
-RE_EMPTY_COMMENTS = re.compile ('/\*\s*\*/')
+RE_EMPTY_COMMENTS = re.compile('/\*\s*\*/')
 
 RE_CDATA_MASSAGE = '(((/\*)?<!\[CDATA\[(\*/)?)((.*?)<!--)?'
 RE_CDATA_MASSAGE += '(.*?)(-->(.*?))?((/\*)?]]>(\*/)?))'
@@ -252,6 +259,7 @@ CDATA_MASSAGE = MARKUP_MASSAGE
 CDATA_MASSAGE.extend([
             (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
              lambda match: match.group(7))])
+
 
 def extract_css(html_input, basename='sample.html'):
     """Scan `html_input` and replace all styles with single link to a CSS
@@ -312,6 +320,8 @@ def extract_css(html_input, basename='sample.html'):
 
 RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
                          re.M + re.S)
+
+
 def cleanup_html(html_input, basename,
                  fix_head_nums=True, fix_img_links=True, fix_sdfields=True):
     """Clean up HTML code.
@@ -351,6 +361,7 @@ def cleanup_html(html_input, basename,
         html_input)
     return html_input, img_name_map
 
+
 def cleanup_css(css_input, minified=True):
     """Cleanup CSS code delivered in `css_input`, a string.
 
@@ -381,6 +392,7 @@ def cleanup_css(css_input, minified=True):
 
     local_log.flush()
     return sheet.cssText, local_log.getvalue()
+
 
 def rename_html_img_links(html_input, basename):
     """Rename all ``<img>`` tag ``src`` attributes based on `basename`.
@@ -436,8 +448,10 @@ def rename_html_img_links(html_input, basename):
         img_map[src] = new_src
     return str(soup), img_map
 
+
 RE_SDFIELD_OPEN = re.compile('<sdfield([^>]*)>', re.M + re.S + re.I)
 RE_SDFIELD_CLOSE = re.compile('</sdfield>', re.M + re.S + re.I)
+
 
 def rename_sdfield_tags(html_input):
     """Rename all ``<sdfield>`` tags to ``<span class="sdfield">``
@@ -450,6 +464,7 @@ def rename_sdfield_tags(html_input):
     return re.sub(
         RE_SDFIELD_CLOSE, lambda match: '</span>', html_input)
 
+
 def base64url_encode(string):
     """Get a base64url encoding of string.
 
@@ -461,12 +476,14 @@ def base64url_encode(string):
     """
     return base64.urlsafe_b64encode(string)
 
+
 def base64url_decode(string):
     """Decode the base64url encoded `string`.
 
     .. seealso:: base64url_encode
     """
     return base64.urlsafe_b64decode(string)
+
 
 def string_to_bool(string):
     """Turn string into a boolean value.

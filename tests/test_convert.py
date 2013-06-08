@@ -1,9 +1,12 @@
 # tests for the convert module
 import os
+import pytest
 import shutil
 import tempfile
 from ulif.openoffice.convert import convert
 from ulif.openoffice.testing import TestOOServerSetup
+
+pytestmark = pytest.mark.converter
 
 
 class ConvertTests(TestOOServerSetup):
@@ -14,6 +17,11 @@ class ConvertTests(TestOOServerSetup):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
+
+    def test_convert_no_path(self):
+        # w/o a path we get no conversion
+        self.assertEqual((None, None), convert())
+        return
 
     def test_simple_conversion_to_pdf(self):
         # we can convert a simple text file to pdf
@@ -59,4 +67,20 @@ class ConvertTests(TestOOServerSetup):
             path='NoT-An-ExIsTiNg-PaTH', out_dir=self.tmpdir)
         self.assertTrue(status != 0)
         self.assertEqual([], os.listdir(self.tmpdir))
+        return
+
+    def test_convert_with_template(self):
+        # we can pass in templates when converting
+        doc_path = os.path.join(self.tmpdir, 'sample.txt')
+        template_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample.ott')
+        open(doc_path, 'w').write('Hi there!\n')
+        result_path = os.path.join(self.tmpdir, 'sample.html')
+        # convert with template applied
+        status, result_dir = convert(
+            out_format='html', path=doc_path, out_dir=self.tmpdir,
+            template=template_path)
+        content = open(result_path, 'rb').read()
+        # with the template we set a special font for preformatted text
+        self.assertTrue('Liberation Mono' in content)
         return
