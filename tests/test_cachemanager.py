@@ -603,7 +603,7 @@ class TestCollision(CachingComponentsTestCase):
         basket_path = os.path.join(self.workdir, 'so', 'somefakedhash')
         self.assertEqual(
             ['source_1', 'source_2'],
-            os.listdir(os.path.join(basket_path, 'sources')))
+            sorted(os.listdir(os.path.join(basket_path, 'sources'))))
         self.assertEqual(
             ['result_1__html', 'result_1__pdf',
              'result_2__html', 'result_2__pdf'
