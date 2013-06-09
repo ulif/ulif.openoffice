@@ -50,21 +50,21 @@ class CheckCredentialsTests(unittest.TestCase):
 
     def test_crypt(self):
         assert True == check_credentials(
-            'ornette', 'wayout', self.htaccess_path)
+            'ornette', 'wayout', self.htaccess_path, 'crypt')
         assert False == check_credentials(
-            'ornette', 'waltz', self.htaccess_path)
+            'ornette', 'waltz', self.htaccess_path, 'crypt')
 
     def test_plain(self):
         assert True == check_credentials(
-            'miles', 'sowhat', self.htaccess_path)
+            'miles', 'sowhat', self.htaccess_path, 'plain')
         assert False == check_credentials(
-            'miles', 'polka', self.htaccess_path)
+            'miles', 'polka', self.htaccess_path, 'plain')
 
     def test_sha1(self):
         assert True == check_credentials(
-            'dizzy', 'nightintunesia', self.htaccess_path)
+            'dizzy', 'nightintunesia', self.htaccess_path, 'sha1')
         assert False == check_credentials(
-            'dizzy', 'swing', self.htaccess_path)
+            'dizzy', 'swing', self.htaccess_path, 'sha1')
 
     def test_invalid_user(self):
         # non existent users can't authenticate
@@ -92,6 +92,11 @@ class TestMakeHtaccess(unittest.TestCase):
             AssertionError, make_htaccess,
             None, {}, 'Sample Realm', 'not-existent-path')
 
+    def test_invalid_auth_type(self):
+        self.assertRaises(
+            ValueError, make_htaccess,
+            None, {}, 'Sample Realm', self.htaccess_path, 'invalid-auth')
+
 
 class TestHtaccessHandler(unittest.TestCase):
 
@@ -105,7 +110,7 @@ class TestHtaccessHandler(unittest.TestCase):
 
     def simple_app(self, environ, start_response):
         start_response("200 OK", [("Content-type", "text/plain")])
-        return ["Hello World!",]
+        return ["Hello World!", ]
 
     def test_simple_request(self):
         middleware_app = HtaccessHandler(
@@ -117,7 +122,7 @@ class TestHtaccessHandler(unittest.TestCase):
 
     def test_send_valid_credentials(self):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path)
+            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Basic %s' % (
             'miles:sowhat'.encode('base64'))
@@ -127,7 +132,7 @@ class TestHtaccessHandler(unittest.TestCase):
 
     def test_send_invalid_credentials(self):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path)
+            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Basic %s' % (
             'miles:waltz'.encode('base64'))
@@ -136,7 +141,7 @@ class TestHtaccessHandler(unittest.TestCase):
 
     def test_non_basic_auth_request(self):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path)
+            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Digest %s' % (
             'miles:waltz'.encode('base64'))
@@ -145,10 +150,9 @@ class TestHtaccessHandler(unittest.TestCase):
 
     def test_remote_user_set(self):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path)
+            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.remote_user = 'miles'
         status, headers, body = req.call_application(middleware_app)
         assert status == '200 OK'
         assert body == ['Hello World!']
-

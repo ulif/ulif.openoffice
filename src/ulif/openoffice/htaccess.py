@@ -31,8 +31,12 @@ from hashlib import sha1
 from paste.auth.basic import AuthBasicAuthenticator, AuthBasicHandler
 from paste.httpheaders import AUTHORIZATION
 
+AUTH_TYPES = (
+    'sha1', 'crypt', 'plain',
+    )
 
-def check_credentials(username, password, htaccess):
+
+def check_credentials(username, password, htaccess, auth_type='sha1'):
     """Check password for user `username` in `htaccess`.
 
     Check whether the file in path `htaccess` contains a line with a
@@ -59,24 +63,28 @@ def check_credentials(username, password, htaccess):
             user, encrypted = line
             if user != username:
                 continue
-            if encrypted.startswith('{SHA}'):                  # SHA1
+            if auth_type == 'sha1':
                 hash = sha1(password).digest().encode('base64')[:-1]
                 if encrypted[5:] == hash:
                     return True
-                return False
-            if crypt.crypt(password, encrypted) == encrypted:  # crypt
-                return True
-            if encrypted == password:                          # plain
-                return True
-            return False
+            elif auth_type == 'crypt':
+                if crypt.crypt(password, encrypted) == encrypted:
+                    return True
+            elif auth_type == 'plain':
+                if encrypted == password:
+                    return True
     return False
 
 
 class HtaccessAuthenticator(AuthBasicAuthenticator):
 
-    def __init__(self, realm, htaccess):
+    def __init__(self, realm, htaccess, auth_type='sha1'):
         self.realm = realm
         self.htaccess = htaccess
+        if not auth_type in AUTH_TYPES:
+            raise ValueError('auth_type must be one of %s' % (
+                ', '.join(AUTH_TYPES), ))
+        self.auth_type = auth_type
 
     def authenticate(self, environ):
         authorization = AUTHORIZATION(environ)
@@ -87,7 +95,8 @@ class HtaccessAuthenticator(AuthBasicAuthenticator):
             return self.build_authentication()
         auth = auth.strip().decode('base64')
         username, password = auth.split(':', 1)
-        if check_credentials(username, password, self.htaccess):
+        if check_credentials(
+            username, password, self.htaccess, self.auth_type):
             return username
         return self.build_authentication()
 
@@ -96,15 +105,15 @@ class HtaccessAuthenticator(AuthBasicAuthenticator):
 
 class HtaccessHandler(AuthBasicHandler):
 
-    def __init__(self, application, realm, htaccess):
+    def __init__(self, application, realm, htaccess, auth_type='sha1'):
         self.application = application
-        self.authenticate = HtaccessAuthenticator(realm, htaccess)
+        self.authenticate = HtaccessAuthenticator(realm, htaccess, auth_type)
 
 
 htaccess_middleware = HtaccessHandler
 
 
-def make_htaccess(app, global_conf, realm, htaccess, **kw):
+def make_htaccess(app, global_conf, realm, htaccess, auth_type='sha1', **kw):
     """`Paste` plugin providing the Htaccess evaluating middleware.
 
     `realm` -
@@ -114,4 +123,4 @@ def make_htaccess(app, global_conf, realm, htaccess, **kw):
         Path to an Apache htacces-style file.
     """
     assert os.path.isfile(htaccess), "htaccess must be an existing file"
-    return HtaccessHandler(app, realm, htaccess)
+    return HtaccessHandler(app, realm, htaccess, auth_type)
