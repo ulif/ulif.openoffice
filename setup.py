@@ -66,6 +66,7 @@ setup(name='ulif.openoffice',
           'Routes',
           'WebOb',
           'Paste',   # Python 2.x only
+          'PasteDeploy',
       ],
       setup_requires=[],
       extras_require=dict(
@@ -75,7 +76,6 @@ setup(name='ulif.openoffice',
               'pytest >= 2.0.3',
               'pytest-xdist',
               'pytest-cov',
-              'PasteDeploy',
               ],
           docs = ['Sphinx',
                   'collective.recipe.sphinxbuilder']

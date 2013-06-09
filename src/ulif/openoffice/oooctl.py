@@ -33,14 +33,13 @@ from optparse import OptionParser
 from signal import SIGTERM
 
 DEFAULT_BIN_PATHS = (
-        '/usr/bin/soffice', '/usr/lib/openoffice/program/soffice')
-DEFAULT_BIN_PATHS = (
-        '/usr/bin/unoconv',) # '/usr/lib/openoffice/program/soffice')
+    '/usr/sbin/unoconv',
+    '/usr/local/bin/unoconv',
+    '/usr/bin/unoconv',
+    )
 PIDFILE = '/tmp/ooodaemon.pid'
 child_pid = None
 
-def run(cmd):
-    pass
 
 def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
               pidfile=None, startmsg = 'started with pid %s' ):
@@ -171,7 +170,7 @@ def start(binarypath, foreground=False):
     child_pid = proc.pid
     return child_pid
 
-def getOptions(argv=sys.argv):
+def get_options(argv=sys.argv):
     usage = "usage: %prog [options] start|fg|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status', 'fg']
     parser = OptionParser(usage=usage)
@@ -220,7 +219,7 @@ def getOptions(argv=sys.argv):
         for path in DEFAULT_BIN_PATHS:
             if os.path.isfile(path):
                 options.binarypath = path
-    if options.binarypath is None:
+    if options.binarypath is None:  # pragma: no cover
         parser.error("cannot find a valid path to soffice binary. "
                      "Use -b to set a valid path. Use -h to see all "
                      "options.")
@@ -272,7 +271,7 @@ def main(argv=sys.argv):
         print("This script only works on POSIX compliant machines.")
         sys.exit(-1)
 
-    (cmd, options) = getOptions(argv=argv)
+    (cmd, options) = get_options(argv=argv)
 
     if cmd in ['start', 'fg']:
         sys.stdout.write('starting OpenOffice.org server, ')

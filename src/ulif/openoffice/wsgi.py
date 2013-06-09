@@ -38,6 +38,9 @@ class RESTfulDocConverter(object):
     map = Mapper()
     map.resource('doc', 'docs')
 
+    def __init__(self, cache_dir=None):
+        self.cache_dir = cache_dir
+
     @wsgify
     def __call__(self, req):
         results = self.map.routematch(environ=req.environ)
@@ -79,4 +82,4 @@ docconverter_app = RESTfulDocConverter
 
 
 def make_docconverter_app(global_conf, **local_conf):
-    return RESTfulDocConverter()
+    return RESTfulDocConverter(**local_conf)

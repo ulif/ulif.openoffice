@@ -4,6 +4,7 @@ import pytest
 import shutil
 import tempfile
 import unittest
+from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.wsgi import RESTfulDocConverter
 
@@ -16,6 +17,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.workdir = tempfile.mkdtemp()
         self.inputdir = os.path.join(os.path.dirname(__file__), 'input')
         self.paste_conf1 = os.path.join(self.inputdir, 'sample1.ini')
+        self.paste_conf2 = os.path.join(self.inputdir, 'sample2.ini')
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -40,8 +42,16 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
 
     def test_paste_deploy_loader(self):
         # we can find the docconverter via paste.deploy plugin
-        from paste.deploy import loadapp
         app = loadapp(
             'config:%s' % self.paste_conf1)
         self.assertTrue(isinstance(app, RESTfulDocConverter))
+        self.assertTrue(app.cache_dir is None)
+        return
+
+    def test_paste_deploy_options(self):
+        # we can set options via paste.deploy
+        app = loadapp(
+            'config:%s' % self.paste_conf2)
+        self.assertTrue(isinstance(app, RESTfulDocConverter))
+        self.assertEqual(app.cache_dir, '/tmp/mycache')
         return
