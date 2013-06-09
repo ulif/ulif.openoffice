@@ -42,7 +42,7 @@ child_pid = None
 
 
 def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
-              pidfile=None, startmsg = 'started with pid %s' ):
+              pidfile=None, startmsg='started with pid %s'):
     """Fork and daemonize a running process.
     """
     global child_pid
@@ -79,22 +79,23 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
     pid = str(os.getpgrp())
     sys.stderr.write("\n%s\n" % startmsg % pid)
     sys.stderr.flush()
-    if pidfile: file(pidfile,'w+').write("%s\n" % pid)
-
+    if pidfile:
+        file(pidfile, 'w+').write("%s\n" % pid)
 
     # Redirect standard input/output streams
     os.dup2(si.fileno(), sys.stdin.fileno())
     os.dup2(so.fileno(), sys.stdout.fileno())
     os.dup2(se.fileno(), sys.stderr.fileno())
 
+
 def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
-              pidfile='pid.txt', startmsg = 'started with pid %s',
-              action='start' ):
+              pidfile='pid.txt', startmsg='started with pid %s',
+              action='start'):
     """Start/stop a process.
     """
     if action:
         try:
-            pf  = file(pidfile,'r')
+            pf = file(pidfile, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
@@ -109,23 +110,23 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 action = 'start'
                 pid = None
             else:
-               try:
-                  sys.stderr.write("stopping pid %s..." % pid)
-                  while 1:
-                      os.killpg(pid,SIGTERM)
-                      time.sleep(1)
-               except (OSError) as err:
-                  err = str(err)
-                  if err.find("No such process") > 0:
-                      os.remove(pidfile)
-                      sys.stderr.write(" done.\n")
-                      if 'stop' == action:
-                          sys.exit(0)
-                      action = 'start'
-                      pid = None
-                  else:
-                      print(str(err))
-                      sys.exit(1)
+                try:
+                    sys.stderr.write("stopping pid %s..." % pid)
+                    while 1:
+                        os.killpg(pid, SIGTERM)
+                        time.sleep(1)
+                except (OSError) as err:
+                    err = str(err)
+                    if err.find("No such process") > 0:
+                        os.remove(pidfile)
+                        sys.stderr.write(" done.\n")
+                        if 'stop' == action:
+                            sys.exit(0)
+                        action = 'start'
+                        pid = None
+                    else:
+                        print(str(err))
+                        sys.exit(1)
 
         if 'start' == action:
             if pid:
@@ -134,7 +135,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
                 sys.exit(1)
 
             sys.stderr.write("going into background...")
-            daemonize(stdout,stderr,stdin,pidfile,startmsg)
+            daemonize(stdout, stderr, stdin, pidfile, startmsg)
             return
 
         if 'fg' == action:
@@ -148,9 +149,9 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
         if 'status' == action:
             if not pid:
                 sys.stderr.write('Status: Not running\n')
-            else: sys.stderr.write('Status: Running (PID %s) \n'%pid)
+            else:
+                sys.stderr.write('Status: Running (PID %s) \n' % pid)
             sys.exit(0)
-
 
 
 def start(binarypath, foreground=False):
@@ -170,6 +171,7 @@ def start(binarypath, foreground=False):
     child_pid = proc.pid
     return child_pid
 
+
 def get_options(argv=sys.argv):
     usage = "usage: %prog [options] start|fg|stop|restart|status"
     allowed_args = ['start', 'stop', 'restart', 'status', 'fg']
@@ -177,37 +179,37 @@ def get_options(argv=sys.argv):
 
     parser.add_option(
         "-b", "--binarypath",
-        help = "absolute path to unoconv executable. This "
-               "option makes only sense if starting the daemon. Default "
-               "paths looked up: %s" %
+        help="absolute path to unoconv executable. This "
+             "option makes only sense if starting the daemon. Default "
+             "paths looked up: %s" %
         (', '.join(DEFAULT_BIN_PATHS)),
         )
 
     parser.add_option(
         "-p", "--pidfile",
-        help = "absolute path of PID file. Default: %s" % PIDFILE,
-        default = PIDFILE,
+        help="absolute path of PID file. Default: %s" % PIDFILE,
+        default=PIDFILE,
         )
 
     parser.add_option(
         "--stdout", metavar='FILE',
-        help = "file where daemon messages should be logged. "
-               "Default: /dev/null",
-        default = '/dev/null',
+        help="file where daemon messages should be logged. "
+             "Default: /dev/null",
+        default='/dev/null',
         )
 
     parser.add_option(
         "--stderr", metavar='FILE',
-        help = "file where daemon errors should be logged. "
-               "If not set (default) stdout is used.",
-        default = None,
+        help="file where daemon errors should be logged. "
+             "If not set (default) stdout is used.",
+        default=None,
         )
 
     parser.add_option(
         "--stdin", metavar='FILE',
-        help = "file where daemon input is read from. "
-               "Default: /dev/null",
-        default = '/dev/null',
+        help="file where daemon input is read from. "
+             "Default: /dev/null",
+        default='/dev/null',
         )
 
     (options, args) = parser.parse_args(args=argv[1:])
@@ -235,6 +237,7 @@ def get_options(argv=sys.argv):
                      ', '.join(["'%s'" % x for x in allowed_args]))
     return (cmd, options)
 
+
 def signal_handler(signal, frame):
     print("Received SIGINT.")
     print("Stopping OpenOffice.org server.")
@@ -243,6 +246,7 @@ def signal_handler(signal, frame):
         os.killpg(child_pid, SIGTERM)
         time.sleep(1)
     sys.exit(0)
+
 
 def check_port(host, port):
     """Returns True if the port is open, False otherwise.
@@ -257,10 +261,12 @@ def check_port(host, port):
         return True
     return False
 
+
 def wait_for_startup(host, port):
     while not check_port(host, port):
         time.sleep(1)
     return
+
 
 def main(argv=sys.argv):
     """Main script to start/stop an OOo server.
@@ -293,7 +299,7 @@ def main(argv=sys.argv):
         signal.signal(signal.SIGINT, signal_handler)
         print("Installed signal handler for SIGINT (CTRL-C)")
 
-    start(options.binarypath, foreground=(cmd=='fg'))
+    start(options.binarypath, foreground=(cmd == 'fg'))
 
     wait_for_startup('localhost', 2002)
     while True:
@@ -306,5 +312,6 @@ def main(argv=sys.argv):
             print("restarted.")
         time.sleep(1)
 
+
 if __name__ == '__main__':
-    main(argv = sys.argv)
+    main(argv=sys.argv)
