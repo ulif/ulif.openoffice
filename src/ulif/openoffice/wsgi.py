@@ -19,10 +19,11 @@
 """
 RESTful WSGI app
 """
+import os
 from routes import Mapper
 from webob import Response, exc
 from webob.dec import wsgify
-
+from ulif.openoffice.cachemanager import CacheManager
 
 mydocs = {}
 
@@ -32,14 +33,28 @@ class RESTfulDocConverter(object):
 
     It acts as a RESTful document store that supports HTTP actions to
     add/modify/retrieve converted documents.
+
+    Accepted arguments:
+
+    - `cache_dir`:
+        Path to a directory, where cached files can be stored. The
+        directory is created if it does not exist.
+
     """
     # cf: http://routes.readthedocs.org/en/latest/restful.html
     #     http://blog.ianbicking.org/2010/03/12/a-webob-app-example/
     map = Mapper()
     map.resource('doc', 'docs')
 
+    #: A cache manager instance.
+    cache_manager = None
+    template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+
     def __init__(self, cache_dir=None):
         self.cache_dir = cache_dir
+        self.cache_manager = None
+        if self.cache_dir is not None:
+            self.cache_manager = CacheManager(self.cache_dir)
 
     @wsgify
     def __call__(self, req):
@@ -59,7 +74,9 @@ class RESTfulDocConverter(object):
 
     def new(self, req):
         # get a form to create a new doc
-        pass
+        template = open(
+            os.path.join(self.template_dir, 'form_new.tpl')).read()
+        return Response(template)
 
     def update(self, req):
         # put/update an existing doc
