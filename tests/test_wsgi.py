@@ -65,4 +65,8 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         app = RESTfulDocConverter(cache_dir=self.cachedir)
         req = Request.blank('http://localhost/docs/new')
         resp = app(req)
-        self.assertEqual(resp, 'asd')
+        self.assertEqual(resp.headers['Content-Type'],
+                         'text/html; charset=UTF-8')
+        self.assertTrue(
+            'action="http://localhost/docs"' in resp.body)
+        return

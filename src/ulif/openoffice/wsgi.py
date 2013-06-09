@@ -21,6 +21,7 @@ RESTful WSGI app
 """
 import os
 from routes import Mapper
+from routes.util import url_for
 from webob import Response, exc
 from webob.dec import wsgify
 from ulif.openoffice.cachemanager import CacheManager
@@ -70,12 +71,14 @@ class RESTfulDocConverter(object):
 
     def create(self, req):
         # post a new doc
-        pass
+        return Response("Here's your response.")
 
     def new(self, req):
         # get a form to create a new doc
+        target_url = req.url.rsplit('/', 1)[0]
         template = open(
             os.path.join(self.template_dir, 'form_new.tpl')).read()
+        template = template.format(target_url=target_url)
         return Response(template)
 
     def update(self, req):
