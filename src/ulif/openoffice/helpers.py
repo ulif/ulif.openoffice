@@ -561,7 +561,6 @@ def write_filelike(file_obj, path, chunksize=512):
     f2 = open(path, 'w')
     try:
         while True:
-            print f1.closed, f2.closed
             chunk = f1.read(512)
             if chunk:
                 f2.write(chunk)
