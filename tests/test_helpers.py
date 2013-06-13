@@ -23,12 +23,16 @@ import shutil
 import tempfile
 import unittest
 import zipfile
+try:
+    from cStringIO import StringIO  # Python 2.x
+except ImportError:                 # pragma: no cover
+    from io import StringIO         # Python 3.x
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
     remove_file_dir, extract_css, cleanup_html, cleanup_css,
     rename_html_img_links, rename_sdfield_tags, base64url_encode,
-    base64url_decode, string_to_bool)
+    base64url_decode, string_to_bool, filelike_cmp, write_filelike)
 
 
 class TestHelpers(unittest.TestCase):
@@ -515,3 +519,28 @@ class TestHelpers(unittest.TestCase):
         assert string_to_bool(False) is False
         assert string_to_bool('nonsense') is None
         assert string_to_bool(object()) is None
+
+    def test_filelike_cmp(self):
+        assert filelike_cmp(
+            StringIO(b'asd'), StringIO(b'qwe')) is False
+        assert filelike_cmp(
+            StringIO(b'asd'), StringIO(b'asd')) is True
+        p1 = os.path.join(self.workdir, b'p1')
+        p2 = os.path.join(self.workdir, b'p2')
+        p3 = os.path.join(self.workdir, b'p3')
+        open(p1, 'w').write(b'asd')
+        open(p2, 'w').write(b'qwe')
+        open(p3, 'w').write(b'asd')
+        assert filelike_cmp(p1, p2) is False
+        assert filelike_cmp(p1, p3) is True
+        assert filelike_cmp(p1, StringIO(b'asd')) is True
+        assert filelike_cmp(StringIO(b'qwe'), p2) is True
+
+    def test_write_filelike(self):
+        src = os.path.join(self.workdir, b'f1')
+        open(src, 'w').write(b'content')
+        dst = os.path.join(self.workdir, b'f2')
+        write_filelike(open(src, 'rb'), dst)
+        assert open(dst, 'rb').read() == b'content'
+        write_filelike(b'different', dst)
+        assert open(dst, 'rb').read() == b'different'

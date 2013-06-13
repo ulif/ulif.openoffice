@@ -507,3 +507,64 @@ def string_to_bool(string):
     if string.lower() in ['no', '0', 'false']:
         return False
     return None
+
+def filelike_cmp(file1, file2, chunksize=512):
+    """Compare `file1` and `file2`.
+
+    Returns ``True`` if both are equal, ``False`` else.
+
+    Both, `file1` and `file2` can be paths to files or file-like
+    objects already open for reading.
+
+    If both are arguments are paths, consider using `filecmp.cmp` from
+    the standard library instead.
+
+    `chunksize` gives chunk size in bytes used during comparison.
+
+    .. note:: If a given file is an already opened file-like object,
+              comparison starts from the current position. We won't
+              seek for beginning of file.
+    """
+    f1 = file1
+    f2 = file2
+    result = True
+    if isinstance(file1, basestring):
+        f1 = open(file1, 'rb')
+    if isinstance(file2, basestring):
+        f2 = open(file2, 'rb')
+    try:
+        while True:
+            chunk1 = f1.read(chunksize)
+            chunk2 = f2.read(chunksize)
+            if chunk1 != chunk2:
+                result = False
+                break
+            if not chunk1:
+                break
+    finally:
+        f1.close()
+        f2.close()
+    return result
+
+def write_filelike(file_obj, path, chunksize=512):
+    """Write contents of `file_obj` to `path`.
+
+    `file_obj` can be a string or some file-like object. If it is a
+    file-like object, it must be opened for reading.
+
+    Content is written in chunks of `chunksize`.
+    """
+    f1 = file_obj
+    if isinstance(file_obj, basestring):
+        f1 = StringIO(file_obj)
+    f2 = open(path, 'w')
+    try:
+        while True:
+            chunk = f1.read(512)
+            if chunk:
+                f2.write(chunk)
+            else:
+                break
+    finally:
+        f2.close()
+    return
