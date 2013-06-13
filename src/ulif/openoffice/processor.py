@@ -18,6 +18,23 @@
 ##
 """
 Processors for processing documents.
+
+The processors defined here do the heavy lifting when converting
+documents. All processors accept some input and create some output,
+which is normally some file to be converted and handled in different
+ways.
+
+While all processors are equal (concerning the basic workflow), one
+processor is more equal than others: the :class:`MetaProcessor`. It
+collects and coordinates the other processors, creates a pipeline and
+other things more. Therefore, to start processing a document, it is
+sufficient for callers to get an instance of :class:`MetaProcessor`.
+
+All processors got some `prefix` which is needed to inject any
+parameters when processing happens. So, ``oocp.out_fmt`` means setting
+or reading the ``out_fmt`` parameter of the ``oocp`` processor or,
+more accurate: the processor with `prefix` ``oocp`` (which happens to
+be the :class:`OOConvProcessor`, see below).
 """
 import os
 import shutil
