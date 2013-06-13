@@ -521,9 +521,6 @@ def filelike_cmp(file1, file2, chunksize=512):
 
     `chunksize` gives chunk size in bytes used during comparison.
 
-    .. note:: If a given file is an already opened file-like object,
-              comparison starts from the current position. We won't
-              seek for beginning of file.
     """
     f1 = file1
     f2 = file2
@@ -532,6 +529,8 @@ def filelike_cmp(file1, file2, chunksize=512):
         f1 = open(file1, 'rb')
     if isinstance(file2, basestring):
         f2 = open(file2, 'rb')
+    f1.seek(0)  # make sure we read from beginning, especially whe used
+    f2.seek(0)  # in loops.
     try:
         while True:
             chunk1 = f1.read(chunksize)
@@ -542,8 +541,10 @@ def filelike_cmp(file1, file2, chunksize=512):
             if not chunk1:
                 break
     finally:
-        f1.close()
-        f2.close()
+        if isinstance(file1, basestring):
+            f1.close()
+        if isinstance(file2, basestring):
+            f2.close()
     return result
 
 def write_filelike(file_obj, path, chunksize=512):
@@ -560,6 +561,7 @@ def write_filelike(file_obj, path, chunksize=512):
     f2 = open(path, 'w')
     try:
         while True:
+            print f1.closed, f2.closed
             chunk = f1.read(512)
             if chunk:
                 f2.write(chunk)
