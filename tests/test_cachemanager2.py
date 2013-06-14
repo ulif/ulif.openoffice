@@ -209,7 +209,7 @@ class TestCacheBucket(CachingComponentsTestCase):
         # we cannot get unstored representations
         bucket = Bucket(self.workdir)
         res1 = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key='mykey')
+            self.src_path1, self.result_path1, repr_key=b'mykey')
         exp_repr_path = os.path.join(
             self.workdir, b'repr', b'1', b'1', b'resultfile1')
         res2 = bucket.get_representation(res1)
@@ -217,6 +217,22 @@ class TestCacheBucket(CachingComponentsTestCase):
         self.assertEqual(res2, exp_repr_path)
         return
 
+    def test_keys(self):
+        # we can get a list of all bucket keys in a bucket.
+        bucket = Bucket(self.workdir)
+        self.assertEqual(list(bucket.keys()), [])
+        b_key1 = bucket.store_representation(
+            self.src_path1, self.result_path1, repr_key=b'foo')
+        self.assertEqual(list(bucket.keys()), [b_key1])
+        b_key2 = bucket.store_representation(
+            self.src_path1, self.result_path2, repr_key=b'bar')
+        self.assertEqual(
+            sorted(list(bucket.keys())), sorted([b_key1, b_key2]))
+        b_key3 = bucket.store_representation(
+            self.src_path2, self.result_path1, repr_key=b'baz')
+        self.assertEqual(
+            sorted(list(bucket.keys())), sorted([b_key1, b_key2, b_key3]))
+        return
 
 class TestCacheManager(CachingComponentsTestCase):
 
@@ -338,6 +354,56 @@ class TestCacheManager(CachingComponentsTestCase):
         self.assertEqual(hash2, 'd5aa51d7fb180729089d2de904f7dffe')
         self.assertEqual(hash3, '443a07e0e92b7dc6b21f8be6a388f05f')
         self.assertRaises(TypeError, cm.get_hash)
+        return
+
+    def test_keys(self):
+        # we can get all cache keys
+        cm = CacheManager(self.workdir)
+        key1 = cm.register_doc(self.src_path1, self.result_path1, 'foo')
+        self.assertEqual(
+            list(cm.keys()),
+            ['737b337e605199de28b3b64c674f9422_1_1']
+            )
+        key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
+        self.assertEqual(
+            sorted(list(cm.keys())),
+            ['737b337e605199de28b3b64c674f9422_1_1',
+             '737b337e605199de28b3b64c674f9422_1_2',
+             ]
+            )
+        key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
+        self.assertEqual(
+            sorted(list(cm.keys())),
+            ['737b337e605199de28b3b64c674f9422_1_1',
+             '737b337e605199de28b3b64c674f9422_1_2',
+             'd5aa51d7fb180729089d2de904f7dffe_1_1',
+             ]
+            )
+        return
+
+    def test_keys_custom_level(self):
+        # we can get all cache keys also with custom level set
+        cm = CacheManager(self.workdir, level=3)
+        key1 = cm.register_doc(self.src_path1, self.result_path1, 'foo')
+        self.assertEqual(
+            list(cm.keys()),
+            ['737b337e605199de28b3b64c674f9422_1_1']
+            )
+        key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
+        self.assertEqual(
+            sorted(list(cm.keys())),
+            ['737b337e605199de28b3b64c674f9422_1_1',
+             '737b337e605199de28b3b64c674f9422_1_2',
+             ]
+            )
+        key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
+        self.assertEqual(
+            sorted(list(cm.keys())),
+            ['737b337e605199de28b3b64c674f9422_1_1',
+             '737b337e605199de28b3b64c674f9422_1_2',
+             'd5aa51d7fb180729089d2de904f7dffe_1_1',
+             ]
+            )
         return
 
 

@@ -1,4 +1,5 @@
 import filecmp
+import glob
 import os
 import shutil
 import sys
@@ -209,6 +210,15 @@ class Bucket(object):
         basename = os.listdir(repr_dir)[0]
         return os.path.join(repr_dir, basename)
 
+    def keys(self):
+        """Get a generator of all bucket keys available in this bucket.
+        """
+        for src_num in os.listdir(self.resultdir):
+            for repr_num in os.listdir(os.path.join(
+                self.resultdir, src_num)):
+                yield '%s_%s' % (src_num, repr_num)
+
+
 
 class CacheManager(object):
     """A cache manager.
@@ -347,3 +357,13 @@ class CacheManager(object):
         bucket_key = bucket.store_representation(
             source_path, to_cache, repr_key=repr_key)
         return self._compose_cache_key(md5_digest, bucket_key)
+
+    def keys(self):
+        """Get a list of all cache keys currently available.
+        """
+        glob_expr = self.cache_dir + (b'/*' * (self.level + 1))
+        for path in glob.glob(glob_expr):
+            md5_hash = os.path.basename(path)
+            bucket = Bucket(path)
+            for bucket_key in bucket.keys():
+                yield '%s_%s' % (md5_hash, bucket_key)
