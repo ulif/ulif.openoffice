@@ -42,11 +42,13 @@ protocol to create, update, and remove documents:
 ------------- --------------- ------------- -------------------------------
  POST          /docs           doc,          Create a new conversion.
                                [other...]
+------------- --------------- ------------- -------------------------------
+ GET           /docs/<docid>   `none`        Get a cached conversion.
 ============= =============== ============= ===============================
 
 
-Creating new resources:
------------------------
+Creating New Resources
+----------------------
 
 Via ``GET`` to ``/docs/new`` you can get an HTML form usable in a
 browser to send new documents to the server. This form provides a
@@ -83,7 +85,7 @@ will be converted. The result will be the converted document.
     Content-Length: 636
     Last-Modified: ...
     ETag: "...-...-..."
-    Location: http://localhost:80/docs/78138d2003f1a87043d65c692fb3a64b_1_Wygnb29jcC5vdXRfZm10JywgdSdodG1sJyld
+    Location: http://localhost:80/docs/78138d2003f1a87043d65c692fb3a64b_1_1
     <BLANKLINE>
     PK...
 
