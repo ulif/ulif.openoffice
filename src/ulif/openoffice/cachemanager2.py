@@ -248,7 +248,8 @@ class CacheManager(object):
 
         if not os.path.exists(cache_dir):
             os.mkdir(cache_dir)
-            sys.stderr.write('Create cachedir: %s\n' % cache_dir)
+            # XXX: log this
+            #sys.stderr.write('Create cachedir: %s\n' % cache_dir)
         self.cache_dir = cache_dir
         return
 
