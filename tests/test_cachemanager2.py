@@ -382,13 +382,13 @@ class TestCollision(CachingComponentsTestCase):
             ['resultfile2'],
             sorted(os.listdir(os.path.join(basket_path, 'repr', '1', '2'))))
 
-        def walk_dir(root):
-            for root, dirnames, filenames in os.walk(root):
-                for filename in filenames:
-                    yield os.path.join(root, filename)
-
-        file_list = sorted(walk_dir(os.path.join(basket_path, 'repr')))
-        sfile_list = [x.strip(basket_path) for x in file_list]
+        file_list = []
+        for root, dirnames, filenames in os.walk(
+            os.path.join(basket_path, 'repr')):
+            for filename in filenames:
+                file_list.append(os.path.join(root, filename))
+        file_list = sorted(file_list)
+        sfile_list = [x[len(basket_path)+1:] for x in file_list]
         self.assertEqual(
             sfile_list,
             ['repr/1/1/resultfile1', 'repr/1/2/resultfile2',
