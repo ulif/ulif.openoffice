@@ -86,7 +86,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         location = resp.headers['Location']
         self.assertEqual(
             location,
-            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_W10')
+            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         self.assertEqual(resp.status, '201 Created')
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         content_file = os.path.join(self.workdir, 'myresult.zip')
@@ -128,13 +128,11 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         open(fake_result, 'w').write('Fake result.')
         marker = get_marker(dict(foo='bar', bar='baz'))
         doc_id = app.cache_manager.register_doc(
-            source_path=fake_src, to_cache=fake_result, suffix=marker)
-        self.assertEqual('3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1', doc_id)
+            source_path=fake_src, to_cache=fake_result, repr_key=marker)
+        self.assertEqual('3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1', doc_id)
         doc_id = '%s_%s' % (doc_id, marker)
-        url = 'http://localhost/docs/3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1'
-        url = 'http://localhost/docs/%s_%s' % (
-            '3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1', marker)
+        url = 'http://localhost/docs/3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
         req = Request.blank(url)
         resp = app(req)
         self.assertEqual(resp.status, '200 OK')
-        self.assertEqual(resp.content_type, 'application/octet-stream')
+        self.assertEqual(resp.content_type, 'application/pdf')

@@ -21,17 +21,69 @@ RESTful WSGI app
 """
 import os
 import mimetypes
-import shutil
 import tempfile
 from routes import Mapper
 from routes.util import URLGenerator
 from webob import Request, Response, exc
 from webob.dec import wsgify
-from ulif.openoffice.cachemanager import CacheManager
-from ulif.openoffice.helpers import get_entry_points
-from ulif.openoffice.restserver import process_doc, get_marker
+from ulif.openoffice.cachemanager2 import CacheManager
+from ulif.openoffice.helpers import (
+    get_entry_points, copy_to_secure_location, remove_file_dir)
+from ulif.openoffice.processor import MetaProcessor
+from ulif.openoffice.restserver import get_marker
 
 mydocs = {}
+
+def convert_doc(src_doc, options, cache_dir):
+    """Convert `src_doc` according to the other parameters.
+
+    `src_doc` is the path to the source document. `options` is a dict
+    of options for processing, passed to the processors.
+
+    `cache_dir` may be ``None`` in which no caching is requested
+    during processing.
+
+    Generates a converted representation of `src_doc` by calling
+    :class:`ulif.openoffice.processor.MetaProcessor` with `options` as
+    parameters.
+
+    Afterwards the conversion result is stored in cache (if
+    allowed/possible) for speedup of upcoming requests.
+
+    Returns a triple:
+
+      ``(<PATH>, <CACHE_KEY>, <METADATA>)``
+
+    where ``<PATH>`` is the path to the resulting document,
+    ``<CACHE_KEY>`` an identifier (string) to retrieve a generated doc
+    from cache on future requests, and ``<METADATA>`` is a dict of values
+    returned during request (and set by the document processors,
+    notably setting the `error` keyword).
+
+    If errors happen or caching is disabled, ``<CACHE_KEY>`` is
+    ``None``.
+    """
+    result_path = None
+    cache_key = None
+    repr_key = get_marker(options)  # Create unique marker out of options
+    metadata = dict(error=False)
+
+    # Generate result
+    input_copy = src_doc
+    if cache_dir:
+        input_copy = copy_to_secure_location(src_doc)
+        input_copy = os.path.join(input_copy, os.path.basename(src_doc))
+    proc = MetaProcessor(options=options)  # Removes original doc
+    result_path, metadata = proc.process(input_copy)
+
+    error_state = metadata.get('error', False)
+    if cache_dir and not error_state and result_path is not None:
+        # Cache away generated doc
+        cache_key = CacheManager(cache_dir).register_doc(
+            src_doc, result_path, repr_key)
+    if input_copy and os.path.isfile(input_copy):
+        remove_file_dir(input_copy)
+    return result_path, cache_key, metadata
 
 
 class FileApp(object):
@@ -175,14 +227,13 @@ class RESTfulDocConverter(object):
             for chunk in iter(lambda: doc.file.read(8*1024), b''):
                 f.write(chunk)
         # do the conversion
-        result_path, id_tag, metadata, cached = process_doc(
-            src_path, options, True, self.cache_dir, 1, 'system')
+        result_path, id_tag, metadata = convert_doc(
+            src_path, options, self.cache_dir)
         # deliver the created file
         file_app = FileApp(result_path)
         resp = Request.blank('/').get_response(file_app)
         if id_tag is not None:
             # we can only signal new resources if cache is enabled
-            id_tag = '%s_%s' % (id_tag, get_marker(options))
             resp.status = '201 Created'
             resp.location = self._url(req, 'doc', id=id_tag, qualified=True)
         return resp
@@ -208,13 +259,9 @@ class RESTfulDocConverter(object):
 
     def show(self, req):
         # show a doc
-        options = dict([(name, val) for name, val in req.params.items()
-                        if name not in ('CREATE', 'doc', 'docid')])
-        marker = get_marker(options)
         cm = self.cache_manager
-        identifier = req.path.split('/')[-1]
-        doc_id, suffix = identifier.rsplit('_', 1)
-        result_path = cm.get_cached_file_from_marker(doc_id, suffix=suffix)
+        doc_id = req.path.split('/')[-1]
+        result_path = cm.get_cached_file(doc_id)
         if result_path is None:
             return exc.HTTPNotFound()
         file_app = FileApp(result_path)
