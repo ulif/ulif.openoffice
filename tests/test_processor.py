@@ -55,6 +55,20 @@ class SemiBaseProcessor(BaseProcessor):
 
 class TestBaseProcessor(unittest.TestCase):
 
+    def test_base_triggers_not_implemented(self):
+        # the base triggers appropriate exceptions if not customized properly.
+        self.assertRaises(NotImplementedError, BaseProcessor, {})
+
+        class MyProcessor(BaseProcessor):
+            # a derived base that does not trigger exc on initialization.
+            def __init__(self, *args, **kw):
+                pass
+
+        proc = MyProcessor()
+        self.assertRaises(NotImplementedError, proc.process, None, None)
+        self.assertRaises(NotImplementedError, proc.validate_options)
+        return
+
     def test_get_own_options_defaults(self):
         proc = SemiBaseProcessor()
         proc.defaults = {'key1': 'notset'}
@@ -156,6 +170,11 @@ class TestMetaProcessor(unittest.TestCase):
         result = proc._build_pipeline()
         assert result is ()
 
+    def test_build_pipeline_empty_elements(self):
+        proc = MetaProcessor(options={'meta.procord': 'oocp,,,oocp'})
+        result = proc._build_pipeline()
+        assert result == (OOConvProcessor, OOConvProcessor)
+
     def test_process_default(self):
         proc = MetaProcessor(options={})
         self.resultpath, metadata = proc.process(self.input)
@@ -177,6 +196,40 @@ class TestMetaProcessor(unittest.TestCase):
         assert self.resultpath.endswith('sample.html')
 
 
+class FakeUnoconvContext(object):
+    # A context manager that modifies environment to find a given
+    # unoconv replacement before other executables.
+    #
+    # Copies the given fake unoconv to a new dir, modifies PATH and
+    # resets everything finally.
+    #
+    # If env has no PATH, nothing is changed.
+    def __init__(self, unoconv_path, basename='unoconv'):
+        self.unoconv_path = unoconv_path
+        self.basename = basename
+
+    def __enter__(self):
+        self.env = os.environ.copy()
+        self.old_env_path = self.env.get('PATH', None)
+        if self.old_env_path is None:
+            return None
+        # Create a new dir to store a copy of the desired executable
+        self.new_bindir = tempfile.mkdtemp()
+        self.new_unoconv_path = os.path.join(
+            self.new_bindir, self.basename)
+        shutil.copy2(self.unoconv_path, self.new_unoconv_path)
+        # Set env PATH to point to the new directory first
+        os.environ['PATH'] = ':'.join([self.new_bindir, os.environ['PATH']])
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.old_env_path is None:
+            return False
+        os.environ['PATH'] = self.env['PATH']
+        if os.path.isdir(self.new_bindir):
+            shutil.rmtree(self.new_bindir)
+        return False
+
+
 class TestOOConvProcessor(TestOOServerSetup):
 
     def setUp(self):
@@ -195,6 +248,13 @@ class TestOOConvProcessor(TestOOServerSetup):
             self.result_path = os.path.dirname(self.result_path)
         shutil.rmtree(self.result_path)
         return
+
+    def failing_unoconv_context(self):
+        # inject local ``fake_unoconv`` executable (which returns
+        # error state unconditionally) into PATH.
+        fake_unoconv_path = os.path.join(
+            os.path.dirname(__file__), 'fake_unoconv')
+        return FakeUnoconvContext(fake_unoconv_path)
 
     def test_no_options(self):
         # We cope with no options set
@@ -278,6 +338,33 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta['oocp_status'] == 0
         assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
             self.result_path, 'rb').read()
+
+    def test_process_pdf_tagged(self):
+        # make sure we can produce non-PDF/A output
+        proc = OOConvProcessor(
+            options={
+                'oocp.out_fmt': 'pdf',
+                'oocp.pdf_tagged': '1',
+                }
+            )
+        sample_file = os.path.join(self.workdir, 'sample.txt')
+        open(sample_file, 'wb').write('A sample')
+        self.result_path, meta = proc.process(sample_file, {})
+        assert meta['oocp_status'] == 0
+        assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
+            self.result_path, 'rb').read()
+
+    @pytest.mark.skipif("not os.environ.get('PATH', None)")
+    def test_failing_op(self):
+        proc = OOConvProcessor()
+        sample_file = os.path.join(self.workdir, b'sample.txt')
+        open(sample_file, 'w').write(b'A sample')
+        with self.failing_unoconv_context():
+            # the fake unoconv will return error unconditionally
+            self.result_path, meta = proc.process(sample_file, {})
+        assert meta[b'oocp_status'] == 1
+        assert self.result_path is None
+        return
 
 
 class TestUnzipProcessor(unittest.TestCase):
@@ -459,6 +546,12 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         result_css = open(
             os.path.join(resultdir, 'sample.css'), 'rb').read()
         assert 'p{margin-bottom:.21cm}' in result_css
+
+    def test_cleaner_invalid_minified(self):
+        # The minified option must be true or false
+        self.assertRaises(
+            ValueError,
+            CSSCleaner, options={'css_cleaner.minified': 'nonsense'})
 
 
 class TestHTMLCleanerProcessor(unittest.TestCase):

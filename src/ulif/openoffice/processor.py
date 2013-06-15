@@ -41,7 +41,7 @@ import shutil
 import tempfile
 try:
     from urlparse import urlparse         # Python 2.x
-except ImportError:
+except ImportError:                       # pragma: no cover
     from urllib import parse as urlparse  # Python 3.x
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
@@ -85,14 +85,14 @@ class BaseProcessor(object):
 
         The default implementation raises :exc:`NotImplemented`.
         """
-        raise NotImplemented("Please provide a process() method")
+        raise NotImplementedError("Please provide a process() method")
 
     def validate_options(self):
         """Examine `self.options` and raise `ValueError` if appropriate.
 
         The default implementation raises :exc:`NotImplemented`.
         """
-        raise NotImplemented("Please provide a validate_options method")
+        raise NotImplementedError("Please provide a validate_options method")
 
     def get_own_options(self, options):
         """Get options for this class out of a dict of general options.
@@ -240,7 +240,11 @@ class MetaProcessor(BaseProcessor):
             for key in self.options[option].split(','):
                 if key == '' or key == 'meta':
                     # Ignore non-processors...
-                    continue
+                    # the following continue is not detected by coverage,
+                    # as it seems to be optimized away by CPython.
+                    # Cf. https://bitbucket.org/ned/coveragepy/issue/198
+                    #                /continue-marked-as-not-covered
+                    continue  # pragma: no cover
                 result.append(avail_dict[key])
         result = tuple(result)
         return result
