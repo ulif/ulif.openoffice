@@ -495,7 +495,7 @@ class TestHelpers(unittest.TestCase):
         html_input = ('<img name="foo" /><img name="bar" src="baz" />')
         html_output, img_map = rename_html_img_links(
             html_input, 'sample.html')
-        assert img_map == {u'baz': u'sample_1'}
+        assert img_map == {'baz': 'sample_1'}
         assert html_output == (
             '<img name="foo"/>'
             '<img name="bar" src="sample_1"/>')
