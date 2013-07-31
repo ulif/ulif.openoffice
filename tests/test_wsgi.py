@@ -7,9 +7,56 @@ import unittest
 import zipfile
 from paste.deploy import loadapp
 from webob import Request
-from ulif.openoffice.wsgi import RESTfulDocConverter, get_marker
+from ulif.openoffice.wsgi import RESTfulDocConverter, get_marker, FileIterator
 
 pytestmark = pytest.mark.wsgi
+
+
+class FileIteratorTests(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.path = os.path.join(self.workdir, 'iter.test')
+        open(self.path, 'wb').write(b'0123456789')  # prepopulate
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+
+    def test_empty_file(self):
+        open(self.path, 'wb').write('')
+        fi = FileIterator(self.path, None, None)
+        self.assertRaises(StopIteration, next, iter(fi))
+
+    def test_start(self):
+        fi = FileIterator(self.path, 4, None)
+        self.assertEqual(b'456789', next(fi))
+        self.assertRaises(StopIteration, next, fi)
+
+    def test_stop(self):
+        fi = FileIterator(self.path, 0, 4)
+        self.assertEqual(b'0123', next(fi))
+        self.assertRaises(StopIteration, next, fi)
+
+    def test_start_and_stop(self):
+        fi = FileIterator(self.path, 2, 6)
+        self.assertEqual(b'2345', next(fi))
+        self.assertRaises(StopIteration, next, fi)
+
+    def test_multiple_reads(self):
+        block = b'x' * FileIterator.chunk_size
+        open(self.path, 'wb').write(2 * block)
+        fi = FileIterator(self.path)
+        self.assertEqual(block, next(fi))
+        self.assertEqual(block, next(fi))
+        self.assertRaises(StopIteration, next, fi)
+
+    def test_start_bigger_than_end(self):
+        fi = FileIterator(self.path, 2, 1)
+        self.assertRaises(StopIteration, next, fi)
+
+    def test_end_is_zero(self):
+        fi = FileIterator(self.path, 0, 0)
+        self.assertRaises(StopIteration, next, fi)
 
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
