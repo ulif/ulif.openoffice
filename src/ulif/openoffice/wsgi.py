@@ -87,15 +87,6 @@ def convert_doc(src_doc, options, cache_dir):
     return result_path, cache_key, metadata
 
 
-class FileApp(object):
-    def __init__(self, filename):
-        self.filename = filename
-
-    def __call__(self, environ, start_response):
-        res = make_response(self.filename)
-        return res(environ, start_response)
-
-
 def get_mimetype(filename):
     type, encoding = mimetypes.guess_type(filename)
     # We'll ignore encoding, even though we shouldn't really
