@@ -97,18 +97,21 @@ class FileApp(object):
 
 
 def get_mimetype(filename):
-     type, encoding = mimetypes.guess_type(filename)
-     # We'll ignore encoding, even though we shouldn't really
-     return type or 'application/octet-stream'
+    type, encoding = mimetypes.guess_type(filename)
+    # We'll ignore encoding, even though we shouldn't really
+    return type or 'application/octet-stream'
 
 
 class FileIterable(object):
+
     def __init__(self, filename, start=0, stop=None):
         self.filename = filename
         self.start = start
         self.stop = stop
+
     def __iter__(self):
         return FileIterator(self.filename, self.start, self.stop)
+
     def app_iter_range(self, start, stop):
         return self.__class__(self.filename, start, stop)
 
@@ -141,7 +144,7 @@ class FileIterator(object):
                 # Chop off the extra:
                 chunk = chunk[:self.length]
         return chunk
-    __next__ = next # py3 compat
+    __next__ = next  # py3 compat
 
 
 def make_response(filename):
@@ -228,7 +231,7 @@ class RESTfulDocConverter(object):
         tmp_dir = tempfile.mkdtemp()
         src_path = os.path.join(tmp_dir, doc.filename)
         with open(src_path, 'w') as f:
-            for chunk in iter(lambda: doc.file.read(8*1024), b''):
+            for chunk in iter(lambda: doc.file.read(8 * 1024), b''):
                 f.write(chunk)
         # do the conversion
         result_path, id_tag, metadata = convert_doc(
