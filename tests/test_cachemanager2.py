@@ -95,7 +95,6 @@ class TestCacheBucket(CachingComponentsTestCase):
         shutil.copyfile(
             self.src_path1, os.path.join(bucket.srcdir, 'source_1'))
         self.assertEqual(bucket.get_stored_source_num(self.src_path1), 1)
-        print open(self.src_path2, 'r').read()
         self.assertEqual(bucket.get_stored_source_num(self.src_path2), None)
         shutil.copyfile(
             self.src_path2, os.path.join(bucket.srcdir, 'source_2'))
