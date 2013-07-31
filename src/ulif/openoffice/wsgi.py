@@ -34,6 +34,7 @@ from ulif.openoffice.restserver import get_marker
 
 mydocs = {}
 
+
 def convert_doc(src_doc, options, cache_dir):
     """Convert `src_doc` according to the other parameters.
 
@@ -102,7 +103,7 @@ def get_mimetype(filename):
 
 
 class FileIterable(object):
-    def __init__(self, filename, start=None, stop=None):
+    def __init__(self, filename, start=0, stop=None):
         self.filename = filename
         self.start = start
         self.stop = stop
@@ -114,7 +115,8 @@ class FileIterable(object):
 
 class FileIterator(object):
     chunk_size = 4096
-    def __init__(self, filename, start, stop):
+
+    def __init__(self, filename, start=0, stop=None):
         self.filename = filename
         self.fileobj = open(self.filename, 'rb')
         if start:
@@ -123,8 +125,10 @@ class FileIterator(object):
             self.length = stop - start
         else:
             self.length = None
+
     def __iter__(self):
         return self
+
     def next(self):
         if self.length is not None and self.length <= 0:
             raise StopIteration
@@ -230,8 +234,7 @@ class RESTfulDocConverter(object):
         result_path, id_tag, metadata = convert_doc(
             src_path, options, self.cache_dir)
         # deliver the created file
-        file_app = FileApp(result_path)
-        resp = Request.blank('/').get_response(file_app)
+        resp = make_response(result_path)
         if id_tag is not None:
             # we can only signal new resources if cache is enabled
             resp.status = '201 Created'
@@ -259,14 +262,11 @@ class RESTfulDocConverter(object):
 
     def show(self, req):
         # show a doc
-        cm = self.cache_manager
         doc_id = req.path.split('/')[-1]
-        result_path = cm.get_cached_file(doc_id)
+        result_path = self.cache_manager.get_cached_file(doc_id)
         if result_path is None:
             return exc.HTTPNotFound()
-        file_app = FileApp(result_path)
-        resp = Request.blank('/').get_response(file_app)
-        return resp
+        return make_response(result_path)
 
 
 docconverter_app = RESTfulDocConverter
