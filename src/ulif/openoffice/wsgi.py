@@ -103,7 +103,16 @@ def get_mimetype(filename):
 
 
 class FileIterable(object):
+    """A webob compatible file iterable.
 
+    `start` and `stop` tell where to start/stop reading. This iterable
+    reads files in chunks to reduce memory load when reading large
+    files.
+
+    Supports streaming ranges.
+
+    Cf. http://docs.webob.org/en/latest/file-example.html
+    """
     def __init__(self, filename, start=0, stop=None):
         self.filename = filename
         self.start = start
@@ -117,6 +126,15 @@ class FileIterable(object):
 
 
 class FileIterator(object):
+    """An iterator that reads files and returns them in chunks.
+
+    The absolute start/stop position in the file can be passed
+    optionally. Used by :class:`FileIterable` to return streamed
+    files.
+
+    Cf. http://docs.webob.org/en/latest/file-example.html
+    """
+    #: Size of chunks read when processing files.
     chunk_size = 4096
 
     def __init__(self, filename, start=0, stop=None):
@@ -144,6 +162,7 @@ class FileIterator(object):
                 # Chop off the extra:
                 chunk = chunk[:self.length]
         return chunk
+
     __next__ = next  # py3 compat
 
 
