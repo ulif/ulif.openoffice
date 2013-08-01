@@ -7,7 +7,9 @@ import unittest
 import zipfile
 from paste.deploy import loadapp
 from webob import Request
-from ulif.openoffice.wsgi import RESTfulDocConverter, get_marker, FileIterator
+from ulif.openoffice.wsgi import (
+    RESTfulDocConverter, get_marker, FileIterator, FileIterable,
+    )
 
 pytestmark = pytest.mark.wsgi
 
@@ -57,6 +59,23 @@ class FileIteratorTests(unittest.TestCase):
     def test_end_is_zero(self):
         fi = FileIterator(self.path, 0, 0)
         self.assertRaises(StopIteration, next, fi)
+
+
+class FileIterableTests(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.path = os.path.join(self.workdir, 'myfile.doc')
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+
+    def test_range(self):
+        # we can get a range
+        open(self.path, 'wb').write(b'0123456789')
+        fi = FileIterable(self.path)
+        self.assertEqual([b'234'], list(fi.app_iter_range(2, 5)))
+        self.assertEqual([b'67'], list(fi.app_iter_range(6, 8)))
 
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
