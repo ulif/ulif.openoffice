@@ -185,6 +185,31 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.assertTrue('sample.html' in myzipfile.namelist())
         return
 
+    def test_create_out_fmt_respected(self):
+        # a single out_fmt option will result in appropriate output format
+        # (the normal option name would be 'oocp.out_fmt')
+        app = RESTfulDocConverter(cache_dir=self.cachedir)
+        req = Request.blank(
+            'http://localhost/docs',
+            POST=dict(doc=('sample.txt', 'Hi there!'),
+                      CREATE='Send', out_fmt = 'pdf',
+                      )
+            )
+        resp = app(req)
+        # we get a location header
+        location = resp.headers['Location']
+        self.assertEqual(
+            location,
+            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
+        self.assertEqual(resp.status, '201 Created')
+        self.assertEqual(resp.headers['Content-Type'], 'application/zip')
+        content_file = os.path.join(self.workdir, 'myresult.zip')
+        open(content_file, 'w').write(resp.body)
+        self.assertTrue(zipfile.is_zipfile(content_file))
+        myzipfile = zipfile.ZipFile(content_file, 'r')
+        self.assertTrue('sample.pdf' in myzipfile.namelist())
+        return
+
     def test_show_yet_uncached_doc(self):
         # a yet uncached doc results in 404
         app = RESTfulDocConverter(cache_dir=self.cachedir)
@@ -209,3 +234,4 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         resp = app(req)
         self.assertEqual(resp.status, '200 OK')
         self.assertEqual(resp.content_type, 'application/pdf')
+
