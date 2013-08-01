@@ -188,10 +188,6 @@ class RESTfulDocConverter(object):
     cache_manager = None
     template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 
-    @property
-    def _avail_procs(self):
-        return get_entry_points('ulif.openoffice.processors')
-
     def __init__(self, cache_dir=None):
         self.cache_dir = cache_dir
         self.cache_manager = None
