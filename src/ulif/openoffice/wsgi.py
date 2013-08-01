@@ -82,8 +82,6 @@ def convert_doc(src_doc, options, cache_dir):
         # Cache away generated doc
         cache_key = CacheManager(cache_dir).register_doc(
             src_doc, result_path, repr_key)
-    if input_copy and os.path.isfile(input_copy):
-        remove_file_dir(input_copy)
     return result_path, cache_key, metadata
 
 
