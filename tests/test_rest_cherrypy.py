@@ -33,7 +33,7 @@ from ulif.openoffice.testing import (
     TestRESTfulWSGISetup, TestOOServerSetup
     )
 from ulif.openoffice.restserver import (
-    get_marker, get_cached_doc, cache_doc, mangle_allow_cached, get_cachedir,
+    get_cached_doc, cache_doc, mangle_allow_cached, get_cachedir,
     process_doc)
 
 checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
@@ -72,17 +72,6 @@ class TestRESTfulHelpers(TestOOServerSetup):
         shutil.rmtree(self.workdir)
         remove_file_dir(self.resultpath)
         return
-
-    def test_get_marker(self):
-        # Make sure, sorted dicts get the same marker
-        result1 = get_marker()
-        result2 = get_marker(options={})
-        result3 = get_marker(options={'b': '0', 'a': '1'})
-        result4 = get_marker(options={'a': '1', 'b': '0'})
-        assert result1 == 'W10'
-        assert result2 == 'W10'
-        assert result3 == result4
-        assert result2 != result3
 
     def test_get_cached_doc_no_cachedir(self):
         # If we pass no cache dir, we get None

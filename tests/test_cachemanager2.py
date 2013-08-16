@@ -6,7 +6,21 @@ try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:                 # pragma: no cover
     from io import StringIO         # Python 3.x
-from ulif.openoffice.cachemanager2 import Bucket, CacheManager
+from ulif.openoffice.cachemanager2 import Bucket, CacheManager, get_marker
+
+
+class HelpersTestCase(unittest.TestCase):
+
+    def test_get_marker(self):
+        # Make sure, sorted dicts get the same marker
+        result1 = get_marker()
+        result2 = get_marker(options={})
+        result3 = get_marker(options={'b': '0', 'a': '1'})
+        result4 = get_marker(options={'a': '1', 'b': '0'})
+        assert result1 == 'W10'
+        assert result2 == 'W10'
+        assert result3 == result4
+        assert result2 != result3
 
 
 class CachingComponentsTestCase(unittest.TestCase):

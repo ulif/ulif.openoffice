@@ -27,8 +27,9 @@ import tempfile
 from optparse import OptionParser
 from ulif.openoffice.cachemanager import (
     CacheManager, CACHE_SINGLE, CACHE_PER_USER)
+from ulif.openoffice.cachemanager2 import get_marker
 from ulif.openoffice.helpers import (
-    remove_file_dir, get_entry_points, string_to_bool, base64url_encode,
+    remove_file_dir, get_entry_points, string_to_bool,
     copy_to_secure_location)
 from ulif.openoffice.oooctl import check_port
 from ulif.openoffice.processor import MetaProcessor
@@ -46,23 +47,6 @@ def get_content_type(filename):
     If none can be determined, ``application/octet-stram`` is returned.
     """
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-
-
-def get_marker(options=dict()):
-    """Compute a unique marker for a set of options.
-
-    The returned marker is a string suitable for use in
-    filessystems. Different sets of options will result in different
-    markers where order of options does not matter.
-
-    In :mod:`ulif.openoffice` we use the marker to feed the cache
-    manager and to mark different results for the same input file as
-    different option sets will result in different output for same
-    input.
-    """
-    result = sorted(options.items())
-    result = '%s' % result
-    return base64url_encode(result).replace('=', '')
 
 
 def get_cached_doc(input, marker, cache_dir=None):

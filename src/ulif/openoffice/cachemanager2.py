@@ -11,7 +11,25 @@ try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:                 # pragma: no cover
     from io import StringIO         # Python 3.x
-from ulif.openoffice.helpers import filelike_cmp, write_filelike
+from ulif.openoffice.helpers import (
+    filelike_cmp, write_filelike, base64url_encode)
+
+
+def get_marker(options=dict()):
+    """Compute a unique marker for a set of options.
+
+    The returned marker is a string suitable for use in
+    filessystems. Different sets of options will result in different
+    markers where order of options does not matter.
+
+    In :mod:`ulif.openoffice` we use the marker to feed the cache
+    manager and to mark different results for the same input file as
+    different option sets will result in different output for same
+    input.
+    """
+    result = sorted(options.items())
+    result = '%s' % result
+    return base64url_encode(result).replace('=', '')
 
 
 class Bucket(object):
