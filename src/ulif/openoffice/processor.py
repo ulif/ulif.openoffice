@@ -39,10 +39,6 @@ be the :class:`OOConvProcessor`, see below).
 import os
 import shutil
 import tempfile
-try:
-    from urlparse import urlparse         # Python 2.x
-except ImportError:                       # pragma: no cover
-    from urllib import parse as urlparse  # Python 3.x
 from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,

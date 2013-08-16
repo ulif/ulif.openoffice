@@ -24,10 +24,10 @@ import mimetypes
 import tempfile
 from routes import Mapper
 from routes.util import URLGenerator
-from webob import Request, Response, exc
+from webob import Response, exc
 from webob.dec import wsgify
 from ulif.openoffice.cachemanager2 import CacheManager
-from ulif.openoffice.helpers import get_entry_points, copy_to_secure_location
+from ulif.openoffice.helpers import copy_to_secure_location
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.restserver import get_marker
 

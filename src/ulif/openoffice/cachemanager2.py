@@ -2,7 +2,6 @@ import filecmp
 import glob
 import os
 import shutil
-import sys
 try:
     import cPickle as pickle  # Python 2.x
 except ImportError:           # pragma: no cover
