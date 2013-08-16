@@ -36,6 +36,7 @@ try:
 except:
     import unittest
 
+
 class TestRESTfulWSGISetup(unittest.TestCase):
     """A setup that prepares a WSGI app with the RESTful cherrypy server.
 
@@ -59,7 +60,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
         self.cache_manager = CacheManager(self.cachedir)
 
         # configure cherrypy to be quiet ;)
-        cherrypy.config.update({ "environment": "embedded" })
+        cherrypy.config.update({"environment": "embedded"})
 
         cherrypy.config.update(
             {'log.access_file': self.access_log,
@@ -78,6 +79,7 @@ class TestRESTfulWSGISetup(unittest.TestCase):
         del self.app
         del self.wsgi_app
         return
+
 
 class TestOOServerSetup(unittest.TestCase):
     """A setup that starts an OO.org server in background
@@ -158,9 +160,10 @@ class TestOOServerSetup(unittest.TestCase):
             os.environ['HOME'] = cls.old_home
         return
 
+
 def ls(dir, *subs):
     if subs:
-        dir =os.path.join(dir, *subs)
+        dir = os.path.join(dir, *subs)
     names = os.listdir(dir)
     names.sort()
     for name in names:
@@ -169,6 +172,7 @@ def ls(dir, *subs):
         else:
             print('-  ' + name)
     return
+
 
 def cat(dir, *names):
     path = os.path.join(dir, *names)

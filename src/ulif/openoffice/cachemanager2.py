@@ -219,7 +219,6 @@ class Bucket(object):
                 yield '%s_%s' % (src_num, repr_num)
 
 
-
 class CacheManager(object):
     """A cache manager.
 

@@ -233,6 +233,7 @@ class TestCacheBucket(CachingComponentsTestCase):
             sorted(list(bucket.keys())), sorted([b_key1, b_key2, b_key3]))
         return
 
+
 class TestCacheManager(CachingComponentsTestCase):
 
     def test_markerhandling(self):
@@ -453,7 +454,7 @@ class TestCollision(CachingComponentsTestCase):
             for filename in filenames:
                 file_list.append(os.path.join(root, filename))
         file_list = sorted(file_list)
-        sfile_list = [x[len(basket_path)+1:] for x in file_list]
+        sfile_list = [x[len(basket_path) + 1:] for x in file_list]
         self.assertEqual(
             sfile_list,
             ['repr/1/1/resultfile1', 'repr/1/2/resultfile2',

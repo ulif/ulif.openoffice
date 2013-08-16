@@ -508,6 +508,7 @@ def string_to_bool(string):
         return False
     return None
 
+
 def filelike_cmp(file1, file2, chunksize=512):
     """Compare `file1` and `file2`.
 
@@ -546,6 +547,7 @@ def filelike_cmp(file1, file2, chunksize=512):
         if isinstance(file2, basestring):
             f2.close()
     return result
+
 
 def write_filelike(file_obj, path, chunksize=512):
     """Write contents of `file_obj` to `path`.

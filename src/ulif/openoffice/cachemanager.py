@@ -37,8 +37,10 @@ HASH_DIGEST_FORM = re.compile('^[0-9a-z]{32}$')
 LEVEL_FORM = re.compile('^[0-9a-z]{2}$')
 
 # Cache dir layouts
-CACHE_SINGLE = 'single'      #: Use single base dir for all cached doc
-CACHE_PER_USER = 'per_user'  #: Use a dir per 'user' for caching
+#: Use single base dir for all cached doc
+CACHE_SINGLE = 'single'
+#: Use a dir per 'user' for caching
+CACHE_PER_USER = 'per_user'
 
 
 def internal_suffix(suffix=None):

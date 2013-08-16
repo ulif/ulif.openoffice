@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from ulif.openoffice.client import convert_doc
 
+
 class ConvertDocTests(unittest.TestCase):
     # tests for convert_doc function
 
@@ -17,7 +18,6 @@ class ConvertDocTests(unittest.TestCase):
         self.resultdir = None
         self.src_doc = os.path.join(self.srcdir, 'sample.txt')
         open(self.src_doc, 'w').write('Hi there.')
-
 
     def tearDown(self):
         shutil.rmtree(self.rootdir)

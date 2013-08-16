@@ -45,11 +45,13 @@ class Resource(object):
     def getData(self):
         pass
 
+
 def copy_to_secure_location(path):
     dir = tempfile.mkdtemp()
     new_loc = os.path.join(dir, os.path.basename(path))
     shutil.copy2(path, new_loc)
     return (new_loc, dir)
+
 
 def create_resource(file_path, cache_manager=None, params=None):
     """Try to create a resource.
@@ -67,11 +69,13 @@ def create_resource(file_path, cache_manager=None, params=None):
         shutil.rmtree(dir)
     return (status, hash, path)
 
+
 def get_resource(cache_manager=None, doc_id=None, params=None):
     if cache_manager is None:
         # No cache, no results...
         return None
     return
+
 
 def process_file(path, cache_manager=None, params=None):
     result_dir = os.path.dirname(path)
@@ -90,9 +94,11 @@ def process_file(path, cache_manager=None, params=None):
     hash = params_to_hash(params)
     return status, hash, result_path
 
+
 def params_to_hash(params):
     normalized = normalized_params(params)
     return md5("%s" % normalized).hexdigest()
+
 
 def normalized_params(params):
     return params

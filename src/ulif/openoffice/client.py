@@ -25,6 +25,7 @@ from ulif.openoffice.helpers import get_entry_points, copy_to_secure_location
 from ulif.openoffice.processor import MetaProcessor
 from ulif.openoffice.restserver import get_marker
 
+
 def convert_doc(src_doc, options, cache_dir):
     """Convert `src_doc` according to the other parameters.
 

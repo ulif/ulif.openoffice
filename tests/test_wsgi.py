@@ -192,7 +192,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         req = Request.blank(
             'http://localhost/docs',
             POST=dict(doc=('sample.txt', 'Hi there!'),
-                      CREATE='Send', out_fmt = 'pdf',
+                      CREATE='Send', out_fmt='pdf',
                       )
             )
         resp = app(req)
@@ -234,4 +234,3 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         resp = app(req)
         self.assertEqual(resp.status, '200 OK')
         self.assertEqual(resp.content_type, 'application/pdf')
-
