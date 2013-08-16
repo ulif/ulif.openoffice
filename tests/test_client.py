@@ -31,3 +31,15 @@ class ConvertDocTests(unittest.TestCase):
         assert result_path[-16:] == '/sample.html.zip'
         assert cache_key is None  # no cache, no cache_key
         assert metadata == {'error': False, 'oocp_status': 0}
+
+    def test_cached(self):
+        # with a cache_dir, the result is cached
+        src_doc = os.path.join(self.srcdir, 'sample.txt')
+        open(src_doc, 'w').write('Hi there.')
+        result_path, cache_key, metadata = convert_doc(
+            src_doc, options={}, cache_dir=self.cachedir)
+        self.resultdir = os.path.dirname(result_path)
+        assert result_path[-16:] == '/sample.html.zip'
+        # cache keys are same for equal input files
+        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
+        assert metadata == {'error': False, 'oocp_status': 0}
