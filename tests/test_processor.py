@@ -25,6 +25,7 @@ import pytest
 import shutil
 import tempfile
 import zipfile
+from argparse import ArgumentParser
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
@@ -92,6 +93,12 @@ class TestBaseProcessor(unittest.TestCase):
         # make sure after creation options are not the same object as defaults
         proc = SemiBaseProcessor()
         assert proc.options is not proc.defaults
+
+    def test_args(self):
+        # each processor should provide an arparser compatible list of
+        # acceptable args that can be fed to argparsers.
+        proc = SemiBaseProcessor()
+        assert proc.args == []
 
 
 class TestMetaProcessor(unittest.TestCase):
@@ -194,6 +201,21 @@ class TestMetaProcessor(unittest.TestCase):
         self.resultpath, metadata = proc.process(self.input)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html')
+
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in MetaProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {
+            'meta_processor_order':
+            'unzip,oocp,tidy,html_cleaner,css_cleaner,zip', }
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args(['-meta-procord', 'unzip,oocp,zip']))
+        assert result == {'meta_processor_order': 'unzip,oocp,zip'}
 
 
 class FakeUnoconvContext(object):
@@ -366,6 +388,32 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert self.result_path is None
         return
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in OOConvProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {'oocp_output_format': 'html',
+                          'oocp_pdf_version': False,
+                          'oocp_pdf_tagged': False,
+                          'oocp_hostname': 'localhost',
+                          'oocp_port': 2002,
+                          }
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args(['-oocp-out-fmt', 'pdf',
+                                         '-oocp-pdf-version', '1',
+                                         '-oocp-pdf-tagged', '1',
+                                         '-oocp-host', 'example.com',
+                                         '-oocp-port', '1234', ]))
+        assert result == {'oocp_output_format': 'pdf',
+                          'oocp_pdf_version': True,
+                          'oocp_pdf_tagged': True,
+                          'oocp_hostname': 'example.com',
+                          'oocp_port': 1234}
+
 
 class TestUnzipProcessor(unittest.TestCase):
 
@@ -406,6 +454,19 @@ class TestUnzipProcessor(unittest.TestCase):
         assert metadata['error'] is True
         assert self.result_path is None
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in UnzipProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
+
 
 class TestZipProcessor(unittest.TestCase):
 
@@ -440,6 +501,19 @@ class TestZipProcessor(unittest.TestCase):
         namelist = zip_file.namelist()
         assert sorted(namelist) == ['sample1.txt', 'sample2.txt']
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in ZipProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
+
 
 class TestTidyProcessor(unittest.TestCase):
 
@@ -472,6 +546,19 @@ class TestTidyProcessor(unittest.TestCase):
         contents = open(self.resultpath, 'rb').read()
         assert 'Ü' in contents
         assert '&Uuml;' not in contents
+
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in Tidy.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
 
 
 class TestCSSCleanerProcessor(unittest.TestCase):
@@ -552,6 +639,19 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         self.assertRaises(
             ValueError,
             CSSCleaner, options={'css_cleaner.minified': 'nonsense'})
+
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in CSSCleaner.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {'css_cleaner_minified': True}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args(['-css-cleaner-min', 'no']))
+        assert result == {'css_cleaner_minified': False}
 
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
@@ -735,6 +835,28 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             )
         list_dir = os.listdir(self.workdir2)
         assert 'sample.jpg' not in list_dir
+
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in HTMLCleaner.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {
+            'html_cleaner_fix_heading_numbers': True,
+            'html_cleaner_fix_image_link': True,
+            'html_cleaner_fix_sd_fields': True}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([
+            '-html-cleaner-fix-head-nums', '0',
+            '-html-cleaner-fix-img-links', 'false',
+            '-html-cleaner-fix-sd-fields', 'No']))
+        assert result == {
+            'html_cleaner_fix_heading_numbers': False,
+            'html_cleaner_fix_image_link': False,
+            'html_cleaner_fix_sd_fields': False}
 
 
 class TestErrorProcessor(unittest.TestCase):
