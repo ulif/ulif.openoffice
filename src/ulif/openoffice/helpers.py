@@ -509,6 +509,17 @@ def string_to_bool(string):
     return None
 
 
+def strict_string_to_bool(string):
+    """A variant of `string_to_bool` which raises a `ValueError` if no
+    valid boolean value can be parsed from `string`.
+    """
+    result = string_to_bool(string)
+    if result is None:
+        raise ValueError(
+            '%s is not a valid boolean. Use "yes" or "no".' % string)
+    return result
+
+
 def filelike_cmp(file1, file2, chunksize=512):
     """Compare `file1` and `file2`.
 
