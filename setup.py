@@ -60,6 +60,7 @@ setup(name='ulif.openoffice',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'argparse',
           'CherryPy>=3.2.0',
           'beautifulsoup4',
           'cssutils',
@@ -86,6 +87,7 @@ setup(name='ulif.openoffice',
       oooctl = ulif.openoffice.oooctl:main
       restserver = ulif.openoffice.restserver:main
       [ulif.openoffice.processors]
+      meta = ulif.openoffice.processor:MetaProcessor
       oocp = ulif.openoffice.processor:OOConvProcessor
       unzip = ulif.openoffice.processor:UnzipProcessor
       zip = ulif.openoffice.processor:ZipProcessor
