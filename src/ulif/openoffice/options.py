@@ -20,12 +20,21 @@
 Components to configure processors.
 """
 import re
+from argparse import ArgumentParser
+from ulif.openoffice.helpers import get_entry_points
 
 #: Regular expression to check short argument names like ``-opt``.
 RE_SHORT_NAME = re.compile('^-[a-zA-Z0-9][a-zA-Z0-9\-_]*$')
 
 #: Regular expression to check long argument names like ``--option``.
 RE_LONG_NAME = re.compile('^--[a-zA-Z0-9][a-zA-Z0-9\-_]+$')
+
+
+def dict_to_argtuple(arg_dict):
+    result = []
+    for key in sorted(arg_dict.keys()):
+        result.extend(('-' + key, arg_dict[key]))
+    return tuple(result)
 
 
 class Argument(object):
@@ -53,3 +62,59 @@ class Argument(object):
         self.short_name = short_name
         self.long_name = long_name
         self.keywords = kw
+
+
+class Options(dict):
+    """Options are dicts that automatically set processor options.
+
+    Different to regular dicts, `Options` can be constructed with a
+    dict of values or a dict of string-values (or both; in this case
+    real values have precedence over string-values).
+
+    `string_dict` values (if passed in) are set via an argparse
+    ArgumentParser. To override any processor option's default value,
+    the key must be eqal to the respective processor option's short
+    name (without leading dash). For example you could override the
+    `--oocp-output-format` option by passing in
+    ``string_dict={'oocp-out-fmt': 'pdf'}``. Please note that here the
+    key contains dashes instead of underscores.
+
+    The values of `string_dict` dicts are expected to be strings, for
+    example as sent by web forms. As `string_dicts` are fed to an
+    argparse.ArgumentParser instance, they allow only keys available
+    as short name of any existing and registered processor.
+
+    `val_dict` values (if passed in) are set as such. I.e. `'True'`
+    will be set as the string `'True'` and not as the boolean value
+    `True`. To override any processor option's default value, the key
+    must be equal to the respective processor option long name, with
+    dashes turned to underscores and no leading dash. For example you
+    could override the `--oocp-output-format` option by passing in
+    ``val_dict={'oocp_output_format': 'pdf'}``.
+    """
+
+    @property
+    def avail_procs(self):
+        """A dict of registered processors.
+
+        Keys are the processor names (normally equal to their
+        respective prefix). Values are the classes implementing the
+        respective processor.
+        """
+        return get_entry_points('ulif.openoffice.processors')
+
+    def __init__(self, val_dict=None, string_dict=None):
+        super(Options, self).__init__()
+        args = []
+        if string_dict is not None:
+            args = dict_to_argtuple(string_dict)
+        parser = ArgumentParser()
+        # set defaults
+        for proc_name, proc in self.avail_procs.items():
+            for arg in proc.args:
+                parser.add_argument(
+                    arg.short_name, arg.long_name, **arg.keywords)
+        defaults = parser.parse_args(args)
+        self.update(vars(defaults))
+        if val_dict is not None:
+            self.update(val_dict)
