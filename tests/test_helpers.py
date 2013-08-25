@@ -32,8 +32,8 @@ from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
     remove_file_dir, extract_css, cleanup_html, cleanup_css,
     rename_html_img_links, rename_sdfield_tags, base64url_encode,
-    base64url_decode, string_to_bool, strict_string_to_bool, filelike_cmp,
-    write_filelike)
+    base64url_decode, string_to_bool, strict_string_to_bool,
+    string_to_stringtuple, filelike_cmp, write_filelike)
 
 
 class TestHelpers(unittest.TestCase):
@@ -525,6 +525,19 @@ class TestHelpers(unittest.TestCase):
         assert strict_string_to_bool('yes') is True
         assert strict_string_to_bool('no') is False
         self.assertRaises(ValueError, strict_string_to_bool, 'nonsense')
+
+    def test_string_to_stringtuple(self):
+        assert string_to_stringtuple('foo') == ('foo', )
+        assert string_to_stringtuple('foo, bar') == ('foo', 'bar')
+        assert string_to_stringtuple('foo,bar') == ('foo', 'bar')
+        assert string_to_stringtuple(' foo ') == ('foo', )
+        # by default empty strings are forbidden
+        self.assertRaises(
+            ValueError, string_to_stringtuple, '')
+        self.assertRaises(
+            ValueError, string_to_stringtuple, None)
+        assert string_to_stringtuple('', strict=False) == ()
+        assert string_to_stringtuple(None, strict=False) == ()
 
     def test_filelike_cmp(self):
         assert filelike_cmp(

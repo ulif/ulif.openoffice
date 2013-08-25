@@ -520,6 +520,31 @@ def strict_string_to_bool(string):
     return result
 
 
+def string_to_stringtuple(string, strict=True):
+    """Convert a single string into a tuple of strings.
+
+    The input string is expected to contain comma-separated string
+    values. The single values are stripped (whitespaces removed at
+    beginning and ending).
+
+       >>> string_to_stringtuple('foo, bar,baz')
+       ('foo', 'bar', 'baz')
+
+    This function is 'strict' by default. It does not accept empty
+    strings or ``None`` as input.
+
+    If `strict` is set to ``False``, empty tuples are returned in
+    such cases.
+    """
+    if not string:
+        if strict:
+            raise ValueError('`string` must contain at least some string')
+        else:
+            return ()
+    result = [x.strip() for x in string.split(',')]
+    return tuple(result)
+
+
 def filelike_cmp(file1, file2, chunksize=512):
     """Compare `file1` and `file2`.
 
