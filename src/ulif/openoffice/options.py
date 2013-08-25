@@ -103,18 +103,60 @@ class Options(dict):
         """
         return get_entry_points('ulif.openoffice.processors')
 
+    @property
+    def string_keys(self):
+        """Get a list of acceptable keys for string_dicts.
+
+        Acceptable string keys are the short names of options defined
+        by processors without the leading dot. For instance the
+        `OOCPProcessor` provides an option ``-oocp-host``. The
+        respective string key for this option therefore would be:
+        ``oocp-host``.
+
+        Currently available options provided by core processors:
+
+            >>> Options().string_keys     # doctest: +NORMALIZE_WHITESPACE
+            ['css-cleaner-min',
+             'html-cleaner-fix-head-nums',
+             'html-cleaner-fix-img-links',
+             'html-cleaner-fix-sd-fields',
+             'meta-procord',
+             'oocp-host',
+             'oocp-out-fmt',
+             'oocp-pdf-tagged',
+             'oocp-pdf-version',
+             'oocp-port']
+
+        So, you can create an `Options` dict with overridden defaults
+        for instance by passing in something like
+        ``string_dict={'oocp-out-fmt': 'pdf'}``.
+        """
+        result = []
+        for proc in self.avail_procs.values():
+            result.extend([x.short_name[1:] for x in proc.args])
+        return sorted(result)
+
     def __init__(self, val_dict=None, string_dict=None):
         super(Options, self).__init__()
         args = []
         if string_dict is not None:
             args = dict_to_argtuple(string_dict)
+        parser = self.get_arg_parser()
+        defaults = parser.parse_args(args)
+        self.update(vars(defaults))
+        if val_dict is not None:
+            self.update(val_dict)
+
+    def get_arg_parser(self):
+        """Get an :class:`argparse.ArgumentParser` instance.
+
+        The parser will be set up with the options of all registered
+        processors.
+        """
         parser = ArgumentParser()
         # set defaults
         for proc_name, proc in self.avail_procs.items():
             for arg in proc.args:
                 parser.add_argument(
                     arg.short_name, arg.long_name, **arg.keywords)
-        defaults = parser.parse_args(args)
-        self.update(vars(defaults))
-        if val_dict is not None:
-            self.update(val_dict)
+        return parser

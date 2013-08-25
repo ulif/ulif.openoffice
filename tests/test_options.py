@@ -1,4 +1,5 @@
 # tests for options module
+import argparse
 import unittest
 from ulif.openoffice.options import Options, Argument, dict_to_argtuple
 from ulif.openoffice.processor import DEFAULT_PROCORDER
@@ -77,3 +78,20 @@ class OptionsTests(unittest.TestCase):
             string_dict={'oocp-out-fmt': 'txt'},
             val_dict={'oocp_output_format': 'pdf'})
         assert opts['oocp_output_format'] == 'pdf'
+
+    def test_get_arg_parser(self):
+        # we can get a populated argparse.ArgumentParser instance
+        opts = Options()
+        parser = opts.get_arg_parser()
+        print dir(parser)
+        print parser._optionals
+        assert isinstance(parser, argparse.ArgumentParser)
+
+    def test_string_keys(self):
+        # we can get a list of acceptable string options
+        opts = Options()
+        assert opts.string_keys == [
+            'css-cleaner-min', 'html-cleaner-fix-head-nums',
+            'html-cleaner-fix-img-links', 'html-cleaner-fix-sd-fields',
+            'meta-procord', 'oocp-host', 'oocp-out-fmt', 'oocp-pdf-tagged',
+            'oocp-pdf-version', 'oocp-port']
