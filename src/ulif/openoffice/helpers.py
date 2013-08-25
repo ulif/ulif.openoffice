@@ -520,7 +520,7 @@ def strict_string_to_bool(string):
     return result
 
 
-def string_to_stringtuple(string, strict=True):
+def string_to_stringtuple(string, strict=False):
     """Convert a single string into a tuple of strings.
 
     The input string is expected to contain comma-separated string
@@ -530,18 +530,18 @@ def string_to_stringtuple(string, strict=True):
        >>> string_to_stringtuple('foo, bar,baz')
        ('foo', 'bar', 'baz')
 
-    This function is 'strict' by default. It does not accept empty
-    strings or ``None`` as input.
+    By default empty strings (``',,,,'`` and similar) are filtered
+    out.
 
-    If `strict` is set to ``False``, empty tuples are returned in
-    such cases.
+    This function is _not_ 'strict' by default. If `strict` is set to
+    ``True`` it does not accept empty strings or ``None`` as input.
     """
     if not string:
         if strict:
             raise ValueError('`string` must contain at least some string')
         else:
             return ()
-    result = [x.strip() for x in string.split(',')]
+    result = [x.strip() for x in string.split(',') if x]
     return tuple(result)
 
 

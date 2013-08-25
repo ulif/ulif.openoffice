@@ -531,13 +531,15 @@ class TestHelpers(unittest.TestCase):
         assert string_to_stringtuple('foo, bar') == ('foo', 'bar')
         assert string_to_stringtuple('foo,bar') == ('foo', 'bar')
         assert string_to_stringtuple(' foo ') == ('foo', )
-        # by default empty strings are forbidden
+        assert string_to_stringtuple('') == ()
+        assert string_to_stringtuple('foo,,,bar') == ('foo', 'bar')
+        assert string_to_stringtuple(None) == ()
+        assert string_to_stringtuple(',,,,') == ()
+        # with `strict` empty strings are forbidden
         self.assertRaises(
-            ValueError, string_to_stringtuple, '')
+            ValueError, string_to_stringtuple, '', strict=True)
         self.assertRaises(
-            ValueError, string_to_stringtuple, None)
-        assert string_to_stringtuple('', strict=False) == ()
-        assert string_to_stringtuple(None, strict=False) == ()
+            ValueError, string_to_stringtuple, None, strict=True)
 
     def test_filelike_cmp(self):
         assert filelike_cmp(
