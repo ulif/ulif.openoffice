@@ -28,8 +28,6 @@ setup(name='ulif.openoffice',
                                          )).read() + "\n\n" +
                        open(os.path.join("doc", "source", "usage.txt"
                                          )).read() + "\n\n" +
-                       open(os.path.join("src", "ulif", "openoffice",
-                                         "README.txt")).read() + "\n\n" +
                        open("CHANGES.txt").read(),
       classifiers=[
           "Development Status :: 3 - Alpha",
