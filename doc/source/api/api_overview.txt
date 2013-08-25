@@ -10,6 +10,7 @@ API
    api_convert
    api_htaccess
    api_oooctl
+   api_options
    api_processors
    api_restserver
    api_wsgi
