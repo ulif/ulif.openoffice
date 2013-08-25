@@ -4,5 +4,3 @@ Developer Documentation
 .. toctree::
 
    api/api_overview
-
-.. include:: ../../src/ulif/openoffice/README.txt
