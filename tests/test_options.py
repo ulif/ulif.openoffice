@@ -1,8 +1,12 @@
 # tests for options module
 import argparse
 import unittest
+from ulif.openoffice.helpers import string_to_stringtuple
 from ulif.openoffice.options import Options, Argument, dict_to_argtuple
 from ulif.openoffice.processor import DEFAULT_PROCORDER
+
+
+DEFAULT_PROCORDER = string_to_stringtuple(DEFAULT_PROCORDER)
 
 
 class HelperTests(unittest.TestCase):

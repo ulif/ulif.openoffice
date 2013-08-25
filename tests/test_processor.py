@@ -29,7 +29,7 @@ from argparse import ArgumentParser
 from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
-    ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error)
+    ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error, processor_order)
 from ulif.openoffice.testing import TestOOServerSetup
 try:
     import unittest2 as unittest
@@ -52,6 +52,21 @@ class SemiBaseProcessor(BaseProcessor):
     # A BaseProcessor that does not raise NotImplemented on creation
     def validate_options(self):
         pass
+
+
+class TestProcessorHelpers(unittest.TestCase):
+
+    def test_processor_order_valid(self):
+        assert processor_order('unzip, zip') == ('unzip', 'zip')
+        assert processor_order('zip, unzip') == ('zip', 'unzip')
+        assert processor_order('zip') == ('zip', )
+
+    def test_processor_order_invalid(self):
+        # we do accept only valid processor names
+        self.assertRaises(
+            ValueError, processor_order, 'unzip, invalid, zip')
+        self.assertRaises(
+            ValueError, processor_order, '')
 
 
 class TestBaseProcessor(unittest.TestCase):
@@ -212,10 +227,12 @@ class TestMetaProcessor(unittest.TestCase):
         # defaults
         assert result == {
             'meta_processor_order':
-            'unzip,oocp,tidy,html_cleaner,css_cleaner,zip', }
+            ('unzip', 'oocp', 'tidy', 'html_cleaner', 'css_cleaner', 'zip',)
+            }
         # explicitly set value (different from default)
         result = vars(parser.parse_args(['-meta-procord', 'unzip,oocp,zip']))
-        assert result == {'meta_processor_order': 'unzip,oocp,zip'}
+        assert result == {
+            'meta_processor_order': ('unzip', 'oocp', 'zip')}
 
 
 class FakeUnoconvContext(object):
