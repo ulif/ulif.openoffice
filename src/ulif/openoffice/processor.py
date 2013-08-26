@@ -45,7 +45,7 @@ from ulif.openoffice.helpers import (
     extract_css, cleanup_html, cleanup_css, rename_sdfield_tags,
     string_to_bool, string_to_stringtuple)
 from ulif.openoffice.helpers import strict_string_to_bool as boolean
-from ulif.openoffice.options import Argument
+from ulif.openoffice.options import Argument, Options
 
 
 #: The default order, processors are run.
@@ -77,8 +77,6 @@ class BaseProcessor(object):
     args = []
 
     def __init__(self, options=None):
-        # late import to avoid cross-imports
-        from ulif.openoffice.options import Options
         if options is None:
             options = Options()
         if not isinstance(options, Options):
