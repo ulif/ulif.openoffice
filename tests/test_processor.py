@@ -27,6 +27,7 @@ import tempfile
 import zipfile
 from argparse import ArgumentParser
 from ulif.openoffice.helpers import remove_file_dir
+from ulif.openoffice.options import ArgumentParserError, Options
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
     ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error, processor_order)
@@ -60,30 +61,16 @@ class TestProcessorHelpers(unittest.TestCase):
         assert processor_order('unzip, zip') == ('unzip', 'zip')
         assert processor_order('zip, unzip') == ('zip', 'unzip')
         assert processor_order('zip') == ('zip', )
+        assert processor_order(',,,') == ()
+        assert processor_order('') == ()
 
     def test_processor_order_invalid(self):
         # we do accept only valid processor names
         self.assertRaises(
             ValueError, processor_order, 'unzip, invalid, zip')
-        self.assertRaises(
-            ValueError, processor_order, '')
 
 
 class TestBaseProcessor(unittest.TestCase):
-
-    def test_base_triggers_not_implemented(self):
-        # the base triggers appropriate exceptions if not customized properly.
-        self.assertRaises(NotImplementedError, BaseProcessor, {})
-
-        class MyProcessor(BaseProcessor):
-            # a derived base that does not trigger exc on initialization.
-            def __init__(self, *args, **kw):
-                pass
-
-        proc = MyProcessor()
-        self.assertRaises(NotImplementedError, proc.process, None, None)
-        self.assertRaises(NotImplementedError, proc.validate_options)
-        return
 
     def test_get_own_options_defaults(self):
         proc = SemiBaseProcessor()
@@ -139,61 +126,66 @@ class TestMetaProcessor(unittest.TestCase):
     def test_no_options(self):
         # We cope with no options set
         proc = MetaProcessor()
-        assert len(proc.options) == 1
-        assert 'procord' in proc.options.keys()
+        #assert len(proc.options) == 1
+        assert 'meta_processor_order' in proc.options.keys()
         return
 
     def test_ignored_options(self):
         # We ignore keys not in default dict
-        proc = MetaProcessor(options={'meta.foo': 12})
-        assert len(proc.options) == 1
-        assert 'foo' not in proc.options.keys()
+        proc = MetaProcessor(options={'meta-foo': '12'})
+        assert 'meta-foo' not in proc.options.keys()
 
     def test_non_meta_options(self):
         # We ignore options not determined for the meta processor
-        proc = MetaProcessor(options={'foo.bar': 12})
+        proc = MetaProcessor(options={'foo.bar': '12'})
         assert 'bar' not in proc.options.keys()
 
     def test_option_set(self):
         # We respect options set if available in the defaults dict
-        proc = MetaProcessor(options={'meta.procord': 'oocp,oocp'})
-        assert proc.options['procord'] == 'oocp,oocp'
+        proc = MetaProcessor(options={'meta-procord': 'oocp,oocp'})
+        assert proc.options['meta_processor_order'] == ('oocp', 'oocp')
 
     def test_options_as_strings(self):
         proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
         result = proc.get_options_as_string()
-        assert result == 'procord=oocp,oocp'
+        assert result == (
+            "css_cleaner_minified=Truehtml_cleaner_fix_heading_numbers=True"
+            "html_cleaner_fix_image_links=Truehtml_cleaner_fix_sd_fields=True"
+            "meta_processor_order=('unzip', 'oocp', 'tidy', 'html_cleaner', "
+            "'css_cleaner', 'zip')oocp_hostname=localhost"
+            "oocp_output_format=htmloocp_pdf_tagged=False"
+            "oocp_pdf_version=Falseoocp_port=2002")
 
     def test_options_invalid(self):
         # Make sure that invalid options lead to exceptions
         self.assertRaises(
-            ValueError,
-            MetaProcessor, options={'meta.procord': 'oop,nonsense'})
+            ArgumentParserError,
+            MetaProcessor, options={'meta-procord': 'oop,nonsense'})
         return
 
     def test_avail_processors(self):
         # Make sure processors defined via entry points are found
-        proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
+        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
         assert proc.avail_procs['oocp'] is OOConvProcessor
         assert len(proc.avail_procs.items()) > 0
 
     def test_build_pipeline_single(self):
-        proc = MetaProcessor(options={'meta.procord': 'oocp'})
+        proc = MetaProcessor(options={'meta-procord': 'oocp'})
         result = proc._build_pipeline()
         assert result == (OOConvProcessor,)
 
     def test_build_pipeline_twoitems(self):
-        proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
+        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
         result = proc._build_pipeline()
         assert result == (OOConvProcessor, OOConvProcessor)
 
     def test_build_pipeline_empty(self):
-        proc = MetaProcessor(options={'meta.procord': ''})
+        proc = MetaProcessor(options={'meta-procord': ''})
         result = proc._build_pipeline()
         assert result is ()
 
     def test_build_pipeline_empty_elements(self):
-        proc = MetaProcessor(options={'meta.procord': 'oocp,,,oocp'})
+        proc = MetaProcessor(options={'meta-procord': 'oocp,,,oocp'})
         result = proc._build_pipeline()
         assert result == (OOConvProcessor, OOConvProcessor)
 
@@ -204,15 +196,15 @@ class TestMetaProcessor(unittest.TestCase):
         assert self.resultpath.endswith('sample.html.zip')
 
     def test_process_xhtml_unzipped(self):
-        proc = MetaProcessor(options={'oocp.out_fmt': 'xhtml',
-                                      'meta.procord': 'unzip,oocp'})
+        proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
+                                      'meta-procord': 'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.xhtml')
 
     def test_process_html_unzipped(self):
-        proc = MetaProcessor(options={'oocp.out_fmt': 'html',
-                                      'meta.procord': 'unzip,oocp'})
+        proc = MetaProcessor(options={'oocp-out-fmt': 'html',
+                                      'meta-procord': 'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html')
@@ -298,13 +290,13 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_no_options(self):
         # We cope with no options set
         proc = OOConvProcessor()
-        assert proc.options['out_fmt'] == 'html'
+        assert proc.options['oocp_output_format'] == 'html'
         return
 
     def test_option_out_fmt_invalid(self):
         self.assertRaises(
-            ValueError,
-            OOConvProcessor, options={'oocp.out_fmt': 'odt'})
+            ArgumentParserError,
+            OOConvProcessor, options={'oocp-out-fmt': 'odt'})
         return
 
     def test_process_simple(self):
@@ -336,7 +328,7 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_pdf_simple(self):
         proc = OOConvProcessor(
             options={
-                'oocp.out_fmt': 'pdf',
+                'oocp-out-fmt': 'pdf',
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
@@ -395,12 +387,12 @@ class TestOOConvProcessor(TestOOServerSetup):
 
     @pytest.mark.skipif("not os.environ.get('PATH', None)")
     def test_failing_op(self):
-        proc = OOConvProcessor()
+        proc = OOConvProcessor(Options())
         sample_file = os.path.join(self.workdir, b'sample.txt')
         open(sample_file, 'w').write(b'A sample')
         with self.failing_unoconv_context():
             # the fake unoconv will return error unconditionally
-            self.result_path, meta = proc.process(sample_file, {})
+            self.result_path, meta = proc.process(sample_file, Options())
         assert meta[b'oocp_status'] == 1
         assert self.result_path is None
         return
@@ -631,7 +623,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
 
     def test_cleaner_css_non_minified(self):
         # make sure we can get non-minified CSS if we wish so.
-        proc = CSSCleaner(options={'css_cleaner.minified': '0'})
+        proc = CSSCleaner(options={'css-cleaner-min': '0'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
 
@@ -654,8 +646,8 @@ class TestCSSCleanerProcessor(unittest.TestCase):
     def test_cleaner_invalid_minified(self):
         # The minified option must be true or false
         self.assertRaises(
-            ValueError,
-            CSSCleaner, options={'css_cleaner.minified': 'nonsense'})
+            ArgumentParserError,
+            CSSCleaner, options={'css-cleaner-min': 'nonsense'})
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
@@ -721,7 +713,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_head_nums': '1'})
+                'html-cleaner-fix-head-nums': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -734,7 +726,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_head_nums` option if false.
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_head_nums': 'False'})
+                'html-cleaner-fix-head-nums': 'False'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -747,7 +739,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_img_links': '0'})
+                'html-cleaner-fix-img-links': '0'})
         self.resultpath, metadata = proc.process(
             self.img_sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -762,7 +754,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_img_links` option if true
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_img_links': '1'})
+                'html-cleaner-fix-img-links': '1'})
         self.resultpath, metadata = proc.process(
             self.img_sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -777,7 +769,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_sdtags` option if false
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_sdfields': '0'})
+                'html-cleaner-fix-sd-fields': '0'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -788,7 +780,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Make sure we respect the `fix_sdtags` option if false
         proc = HTMLCleaner(
             options={
-                'html_cleaner.fix_sdfields': '1'})
+                'html-cleaner-fix-sd-fields': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
@@ -798,18 +790,18 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
     def test_option_invalid(self):
         # Make sure we complain when trash is set as `fix_head_nums`.
         self.assertRaises(
-            ValueError,
-            HTMLCleaner, options={'html_cleaner.fix_head_nums': 'foo'})
+            ArgumentParserError,
+            HTMLCleaner, options={'html-cleaner-fix-head-nums': 'foo'})
         self.assertRaises(
-            ValueError,
-            HTMLCleaner, options={'html_cleaner.fix_img_links': 'foo'})
+            ArgumentParserError,
+            HTMLCleaner, options={'html-cleaner-fix-img-links': 'foo'})
         self.assertRaises(
-            ValueError,
-            HTMLCleaner, options={'html_cleaner.fix_sdfields': 'foo'})
+            ArgumentParserError,
+            HTMLCleaner, options={'html-cleaner-fix-sdfields': 'foo'})
 
     def test_rename_img_files(self):
         proc = HTMLCleaner(
-            options={'html_cleaner.fix_img_links': '1'})
+            options={'html-cleaner-fix-img-links': '1'})
         proc.rename_img_files(
             self.workdir2,
             {'image_sample_html_m20918026.gif': 'sample_1.gif'}
@@ -821,7 +813,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
     def test_rename_img_files_no_src(self):
         # We cope with not existing source files
         proc = HTMLCleaner(
-            options={'html_cleaner.fix_img_links': '1'})
+            options={'html-cleaner-fix-img-links': '1'})
         proc.rename_img_files(
             self.workdir2,
             {'not-existing-filename': 'sample_1.gif'}
@@ -832,7 +824,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
     def test_rename_img_files_dst_exists_already(self):
         # We cope with dest files that already exist
         proc = HTMLCleaner(
-            options={'html_cleaner.fix_img_links': '1'})
+            options={'html-cleaner-fix-img-links': '1'})
         proc.rename_img_files(
             self.workdir2,
             {'image_sample_html_m20918026.gif':
@@ -844,7 +836,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
     def test_rename_img_files_src_is_dir(self):
         # We cope with src files that are in fact dirs
         proc = HTMLCleaner(
-            options={'html_cleaner.fix_img_links': '1'})
+            options={'html-cleaner-fix-img-links': '1'})
         os.mkdir(os.path.join(self.workdir2, 'some_dir'))
         proc.rename_img_files(
             self.workdir2,
@@ -863,7 +855,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # defaults
         assert result == {
             'html_cleaner_fix_heading_numbers': True,
-            'html_cleaner_fix_image_link': True,
+            'html_cleaner_fix_image_links': True,
             'html_cleaner_fix_sd_fields': True}
         # explicitly set value (different from default)
         result = vars(parser.parse_args([
@@ -872,7 +864,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             '-html-cleaner-fix-sd-fields', 'No']))
         assert result == {
             'html_cleaner_fix_heading_numbers': False,
-            'html_cleaner_fix_image_link': False,
+            'html_cleaner_fix_image_links': False,
             'html_cleaner_fix_sd_fields': False}
 
 

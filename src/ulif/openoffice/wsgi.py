@@ -173,11 +173,11 @@ class RESTfulDocConverter(object):
         options = dict([(name, val) for name, val in req.params.items()
                         if name not in ('CREATE', 'doc', 'docid')])
         if 'out_fmt' in req.params.keys():
-            options['oocp.out_fmt'] = options['out_fmt']
+            options['oocp-out-fmt'] = options['out_fmt']
             del options['out_fmt']
         if 'CREATE' in req.params.keys():
-            if options.get('oocp.out_fmt', 'html') == 'pdf':
-                options['meta.procord'] = 'unzip,oocp,zip'
+            if options.get('oocp-out-fmt', 'html') == 'pdf':
+                options['meta-procord'] = 'unzip,oocp,zip'
         doc = req.POST['doc']
         # write doc to filesystem
         tmp_dir = tempfile.mkdtemp()

@@ -190,11 +190,18 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         # a single out_fmt option will result in appropriate output format
         # (the normal option name would be 'oocp.out_fmt')
         app = RESTfulDocConverter(cache_dir=self.cachedir)
+        myform = dict(
+            doc=('sample.txt', 'Hi there!'),
+            CREATE='Send', out_fmt='pdf',
+            )
+        myform = {
+            'doc': ('sample.txt', 'Hi there!'),
+            'CREATE': 'Send',
+            'oocp-out-fmt': 'pdf',
+            }
         req = Request.blank(
             'http://localhost/docs',
-            POST=dict(doc=('sample.txt', 'Hi there!'),
-                      CREATE='Send', out_fmt='pdf',
-                      )
+            POST=myform
             )
         resp = app(req)
         # we get a location header

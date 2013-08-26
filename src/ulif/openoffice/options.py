@@ -64,6 +64,16 @@ class Argument(object):
         self.keywords = kw
 
 
+class ArgumentParserError(Exception):
+    pass
+
+
+class ExceptionalArgumentParser(ArgumentParser):
+
+    def error(self, message):
+        raise ArgumentParserError(message)
+
+
 class Options(dict):
     """Options are dicts that automatically set processor options.
 
@@ -142,7 +152,7 @@ class Options(dict):
         if string_dict is not None:
             args = dict_to_argtuple(string_dict)
         parser = self.get_arg_parser()
-        defaults = parser.parse_args(args)
+        defaults, trash = parser.parse_known_args(args)
         self.update(vars(defaults))
         if val_dict is not None:
             self.update(val_dict)
@@ -153,7 +163,7 @@ class Options(dict):
         The parser will be set up with the options of all registered
         processors.
         """
-        parser = ArgumentParser()
+        parser = ExceptionalArgumentParser()
         # set defaults
         for proc_name, proc in self.avail_procs.items():
             for arg in proc.args:

@@ -2,7 +2,9 @@
 import argparse
 import unittest
 from ulif.openoffice.helpers import string_to_stringtuple
-from ulif.openoffice.options import Options, Argument, dict_to_argtuple
+from ulif.openoffice.options import (
+    dict_to_argtuple, Argument, ArgumentParserError,
+    ExceptionalArgumentParser, Options, )
 from ulif.openoffice.processor import DEFAULT_PROCORDER
 
 
@@ -37,6 +39,19 @@ class ArgumentTests(unittest.TestCase):
         # long name must have format '--XXX'
         self.assertRaises(  # missing dash in long name
             ValueError, Argument, '-myproc-opt1', '-myproc-option1')
+
+
+class ExceptionalArgumentParserTests(unittest.TestCase):
+    # tests for ExceptionalArgumentParser
+    def test_is_argument_parser(self):
+        parser = ExceptionalArgumentParser()
+        assert isinstance(parser, argparse.ArgumentParser)
+
+    def test_throws_gentle_exc(self):
+        # ExceptionalArgumntParsers do not sys.exit
+        parser = ExceptionalArgumentParser()
+        self.assertRaises(
+            ArgumentParserError, parser.parse_args, ['-x', '1'])
 
 
 class OptionsTests(unittest.TestCase):
@@ -87,8 +102,6 @@ class OptionsTests(unittest.TestCase):
         # we can get a populated argparse.ArgumentParser instance
         opts = Options()
         parser = opts.get_arg_parser()
-        print dir(parser)
-        print parser._optionals
         assert isinstance(parser, argparse.ArgumentParser)
 
     def test_string_keys(self):

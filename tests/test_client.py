@@ -45,8 +45,8 @@ class ConvertDocTests(unittest.TestCase):
 
     def test_options(self):
         # options given are respected
-        options = {'meta.procord': 'unzip,oocp',
-                   'oocp.out_fmt': 'pdf'}
+        options = {'meta-procord': 'unzip,oocp',
+                   'oocp-out-fmt': 'pdf'}
         result_path, cache_key, metadata = convert_doc(
             self.src_doc, options=options, cache_dir=None)
         self.resultdir = os.path.dirname(result_path)

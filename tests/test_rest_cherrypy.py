@@ -34,7 +34,7 @@ from ulif.openoffice.testing import (
     )
 from ulif.openoffice.restserver import (
     get_cached_doc, cache_doc, mangle_allow_cached, get_cachedir,
-    process_doc)
+    process_doc, get_marker)
 
 checkpassword_test = cherrypy.lib.auth_basic.checkpassword_dict(
     {'bird': 'bebop',
@@ -59,11 +59,10 @@ class TestRESTfulHelpers(TestOOServerSetup):
         os.mkdir(os.path.dirname(self.output))
         open(self.output, 'wb').write('Faked output')
         self.data = {
-            'oocp.out_fmt': 'html',
-            'meta.procord': 'unzip,oocp'
+            'oocp-out-fmt': 'html',
+            'meta-procord': 'unzip,oocp'
             }
-        self.marker = 'WygnbWV0YS5wcm9jb3JkJywgJ3VuemlwLG9vY3AnKSwgKCd'
-        self.marker += 'vb2NwLm91dF9mbXQnLCAnaHRtbCcpXQ'
+        self.marker = get_marker(self.data)
         self.etag = '396199333edbf40ad43e62a1c1397793_1'
         self.resultpath = None  # For resultpaths generated in tests
         return
@@ -282,7 +281,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
     def test_POST_oocp_only(self):
         response = self.app.post(
             '/docs',
-            params={'meta.procord': 'oocp'},
+            params={'meta-procord': 'oocp'},
             upload_files=[
                 ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
@@ -294,7 +293,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         src = os.path.join(os.path.dirname(__file__), 'input', 'testdoc1.doc')
         response = self.app.post(
             '/docs',
-            params={'meta.procord': 'oocp,tidy,css_cleaner,zip'},
+            params={'meta-procord': 'oocp,tidy,css_cleaner,zip'},
             upload_files=[
                 ('doc', 'testdoc1.doc', open(src, 'rb').read()),
                 ],
@@ -330,7 +329,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # When the pipeline returns no result, we return any error-msg.
         response = self.app.post(
             '/docs',
-            params={'meta.procord': 'error'},
+            params={'meta-procord': 'error'},
             upload_files=[
                 ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
@@ -344,7 +343,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # We get an Etag for each cached doc
         response = self.app.post(
             '/docs',
-            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            params={'meta-procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
                 ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
@@ -358,7 +357,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # We get an Etag also if the doc was already cached.
         self.app.post(
             '/docs',
-            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            params={'meta-procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
                 ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],
@@ -367,7 +366,7 @@ class TestRESTfulFunctional(TestRESTfulWSGISetup, TestOOServerSetup):
         # Send again. The doc should now be cached.
         response = self.app.post(
             '/docs',
-            params={'meta.procord': 'oocp', 'allow_cached': '1'},
+            params={'meta-procord': 'oocp', 'allow_cached': '1'},
             upload_files=[
                 ('doc', 'sample.txt', b'Some\nContent.\n'),
                 ],

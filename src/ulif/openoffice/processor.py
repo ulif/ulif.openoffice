@@ -76,10 +76,14 @@ class BaseProcessor(object):
     #: This list should contain ulif.openoffice.options.Argument instances.
     args = []
 
-    def __init__(self, options={}):
-        self.options = self.get_own_options(options)
-        self.normalize_options()
-        self.validate_options()
+    def __init__(self, options=None):
+        # late import to avoid cross-imports
+        from ulif.openoffice.options import Options
+        if options is None:
+            options = Options()
+        if not isinstance(options, Options):
+            options = Options(string_dict=options)
+        self.options = options
         self.metadata = {}
         return
 
@@ -189,10 +193,14 @@ class MetaProcessor(BaseProcessor):
         return get_entry_points('ulif.openoffice.processors')
 
     def __init__(self, options={}):
+        from ulif.openoffice.options import Options
+        if not isinstance(options, Options):
+            options = Options(string_dict=options)
         self.all_options = options
-        self.options = self.get_own_options(options)
-        self.normalize_options()
-        self.validate_options()
+        self.options = options
+        #self.options = self.get_own_options(options)
+        #self.normalize_options()
+        #self.validate_options()
         self.metadata = {}
         return
 
@@ -261,18 +269,21 @@ class MetaProcessor(BaseProcessor):
         """Build a pipeline of processors according to options.
         """
         result = []
-        for option, avail_dict in [('procord', self.avail_procs)]:
-            for key in self.options[option].split(','):
-                if key == '' or key == 'meta':
-                    # Ignore non-processors...
-                    # the following continue is not detected by coverage,
-                    # as it seems to be optimized away by CPython.
-                    # Cf. https://bitbucket.org/ned/coveragepy/issue/198
-                    #                /continue-marked-as-not-covered
-                    continue  # pragma: no cover
-                result.append(avail_dict[key])
-        result = tuple(result)
-        return result
+        procs = self.avail_procs
+        for proc_name in self.options['meta_processor_order']:
+            result.append(procs[proc_name])
+        return tuple(result)
+
+
+#: Output formats supported.
+#: Mapping: extension <-> format (as accepted by unoconv)
+#: For oocp-out-fmt only extensions (left column) are allowed.
+OUTPUT_FORMATS = {
+    "txt": "text",  # text (encoded)
+    "pdf": "pdf",
+    "html": "html",
+    "xhtml": "xhtml",
+    }
 
 
 class OOConvProcessor(BaseProcessor):
@@ -296,21 +307,17 @@ class OOConvProcessor(BaseProcessor):
         }
 
     #: mapping: extension <-> format (as accepted by unoconv)
-    formats = {
-        "txt": "text",  # text (encoded)
-        "pdf": "pdf",
-        "html": "html",
-        "xhtml": "xhtml",
-        }
+    formats = OUTPUT_FORMATS
 
     options = {}
 
     args = [
         Argument('-oocp-out-fmt', '--oocp-output-format',
-                 choices=['txt', 'pdf', 'html', 'xhtml'],
+                 choices=OUTPUT_FORMATS.keys(),
                  default='html',
-                 help='Output format to create via LibreOffice.'
-                 'Pick from: "txt", "pdf", "html", "xhtml"',
+                 help=(
+                     'Output format to create via LibreOffice.'
+                     'Pick from: %s' % ', '.join(OUTPUT_FORMATS.keys())),
                  metavar='FORMAT',
                  ),
         Argument('-oocp-pdf-version', '--oocp-pdf-version',
@@ -335,17 +342,10 @@ class OOConvProcessor(BaseProcessor):
 
     def _get_filter_props(self):
         props = []
-        if self.options['pdf_version'] is not None:
-            # allowed: 0L (PDF1.4), 1L (PDF1.3 aka PDF/A)
-            value = self.options['pdf_version']
-            props.append(
-                ("SelectPdfVersion", value))
-        if self.options['pdf_tagged'] is not None:
-            # allowed: True, False
-            value = string_to_bool(self.options['pdf_tagged']) or False
-            value = True and '1' or '0'
-            props.append(
-                ("UseTaggedPDF", value))
+        pdf_version = self.options['oocp_pdf_version'] and 1L or 0L
+        props.append(("SelectPdfVersion", pdf_version))
+        pdf_tagged = self.options['oocp_pdf_tagged'] and '1' or '0'
+        props.append(("UseTaggedPDF", pdf_tagged))
         return props
 
     def process(self, path, metadata):
@@ -355,15 +355,15 @@ class OOConvProcessor(BaseProcessor):
         if os.path.isfile(path):
             path = os.path.dirname(path)
         shutil.rmtree(path)
-        extension = self.options['out_fmt']
+        extension = self.options['oocp_output_format']
         filter_name = self.formats[extension]
         url = 'socket,host=%s,port=%d;urp;StarOffice.ComponentContext' % (
-            self.options['host'], self.options['port'])
+            self.options['oocp_hostname'], self.options['oocp_port'])
 
         filter_props = self._get_filter_props()
         status, result_path = convert(
             url=url,
-            out_format=filter_name,  # filter_name=filter_name,
+            out_format=filter_name,
             filter_props=filter_props,
             path=src,
             out_dir=os.path.dirname(src),
@@ -385,6 +385,7 @@ class OOConvProcessor(BaseProcessor):
         return result_path, metadata
 
     def validate_options(self):
+        return
         if not self.options['out_fmt'] in self.formats.keys():
             raise ValueError(
                 "Invalid out_fmt: %s not in [%s]" % (
@@ -521,7 +522,8 @@ class CSSCleaner(BaseProcessor):
         remove_file_dir(path)
 
         new_html, css = extract_css(open(src_path, 'rb').read(), basename)
-        css, errors = cleanup_css(css, minified=self.options['minified'])
+        css, errors = cleanup_css(
+            css, minified=self.options['css_cleaner_minified'])
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
@@ -555,7 +557,7 @@ class HTMLCleaner(BaseProcessor):
                  'Default: yes',
                  ),
         Argument('-html-cleaner-fix-img-links',
-                 '--html-cleaner-fix-image-link',
+                 '--html-cleaner-fix-image-links',
                  type=boolean, default=True,
                  metavar='YES|NO',
                  help='Whether to fix heading numbers in generated HTML '
@@ -590,9 +592,9 @@ class HTMLCleaner(BaseProcessor):
 
         new_html, img_name_map = cleanup_html(
             open(src_path, 'rb').read(), basename,
-            fix_head_nums=self.options['fix_head_nums'],
-            fix_img_links=self.options['fix_img_links'],
-            fix_sdfields=self.options['fix_sdfields'],
+            fix_head_nums=self.options['html_cleaner_fix_heading_numbers'],
+            fix_img_links=self.options['html_cleaner_fix_image_links'],
+            fix_sdfields=self.options['html_cleaner_fix_sd_fields'],
             )
         open(src_path, 'w').write(new_html)
         # Rename images
