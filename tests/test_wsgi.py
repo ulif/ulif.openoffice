@@ -197,7 +197,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         myform = {
             'doc': ('sample.txt', 'Hi there!'),
             'CREATE': 'Send',
-            'oocp-out-fmt': 'pdf',
+            'out_fmt': 'pdf',
             }
         req = Request.blank(
             'http://localhost/docs',
