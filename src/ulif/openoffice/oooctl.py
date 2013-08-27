@@ -41,8 +41,9 @@ PIDFILE = '/tmp/ooodaemon.pid'
 child_pid = None
 
 
-def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
-              pidfile=None, startmsg='started with pid %s'):
+def daemonize(stdout='/dev/null', stderr=None,
+              stdin='/dev/null', pidfile=None,
+              startmsg='started with pid %s'):       # pragma: no cover
     """Fork and daemonize a running process.
     """
     global child_pid
@@ -90,7 +91,7 @@ def daemonize(stdout='/dev/null', stderr=None, stdin='/dev/null',
 
 def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
               pidfile='pid.txt', startmsg='started with pid %s',
-              action='start'):
+              action='start'):                        # pragma: no cover
     """Start/stop a process.
     """
     if action:
@@ -154,7 +155,7 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
             sys.exit(0)
 
 
-def start(binarypath, foreground=False):
+def start(binarypath, foreground=False):               # pragma: no cover
     """Start an instance of OpenOffice.org server on port 2002.
     """
     cmd = "%s -l" % (binarypath,)
@@ -238,7 +239,7 @@ def get_options(argv=sys.argv):
     return (cmd, options)
 
 
-def signal_handler(signal, frame):
+def signal_handler(signal, frame):                      # pragma: no cover
     print("Received SIGINT.")
     print("Stopping OpenOffice.org server.")
     global child_pid
@@ -259,16 +260,16 @@ def check_port(host, port):
     if result == 0:
         sock.close()
         return True
-    return False
+    return False                                        # pragma: no cover
 
 
-def wait_for_startup(host, port):
+def wait_for_startup(host, port):                       # pragma: no cover
     while not check_port(host, port):
         time.sleep(1)
     return
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv):                                # pragma: no cover
     """Main script to start/stop an OOo server.
 
     This function is called when calling ``bin/oooctl``.
@@ -313,5 +314,5 @@ def main(argv=sys.argv):
         time.sleep(1)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':                              # pragma: no cover
     main(argv=sys.argv)
