@@ -63,6 +63,17 @@ class Argument(object):
         self.long_name = long_name
         self.keywords = kw
 
+    @property
+    def default_string(self):
+        """Get a string representation of the default value.
+        """
+        value = self.keywords.get('default', None)
+        if value is True or value is False:
+            return value and 'yes' or 'no'
+        if isinstance(value, list) or isinstance(value, tuple):
+            return ', '.join(value)
+        return str(value)
+
 
 class ArgumentParserError(Exception):
     pass

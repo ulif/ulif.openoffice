@@ -40,6 +40,21 @@ class ArgumentTests(unittest.TestCase):
         self.assertRaises(  # missing dash in long name
             ValueError, Argument, '-myproc-opt1', '-myproc-option1')
 
+    def test_default_string(self):
+        # we can get the defaults as string
+        assert Argument(  # ints
+            '-my-opt1', None, default=1).default_string == '1'
+        assert Argument(  # strings
+            '-my-opt1', None, default='foo').default_string == 'foo'
+        assert Argument(  # bools
+            '-my-opt1', None, default=True).default_string == 'yes'
+        assert Argument(  # lists
+            '-my-opt1', None, default=['a', 'b']).default_string == 'a, b'
+        assert Argument(  # tuples
+            '-my-opt1', None, default=('a', 'b')).default_string == 'a, b'
+        assert Argument(  # None
+            '-my-opt1', None).default_string == 'None'
+
 
 class ExceptionalArgumentParserTests(unittest.TestCase):
     # tests for ExceptionalArgumentParser
