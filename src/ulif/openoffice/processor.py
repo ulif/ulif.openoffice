@@ -117,14 +117,6 @@ class BaseProcessor(object):
             result += "%s=%s" % (key, self.options[key])
         return result
 
-    def normalize_options(self):
-        for key, val in self.options.items():
-            if not isinstance(val, basestring):
-                continue
-            val = ','.join([x.strip() for x in val.split(',')])
-            self.options[key] = val
-        return
-
 
 class MetaProcessor(BaseProcessor):
     """The meta processor handles general workflow.
@@ -164,7 +156,6 @@ class MetaProcessor(BaseProcessor):
             options = Options(string_dict=options)
         self.all_options = options
         self.options = options
-        #self.normalize_options()
         self.metadata = {}
         return
 
