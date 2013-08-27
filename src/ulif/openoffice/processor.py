@@ -101,24 +101,6 @@ class BaseProcessor(object):
         """
         raise NotImplementedError("Please provide a process() method")
 
-    def get_own_options(self, options):
-        """Get options for this class out of a dict of general options.
-
-        Returns a dictionary normally set as `self.options`.
-        """
-        options = dict([(key, val) for key, val in options.items()
-                        if key.startswith(self.prefix + '.')])
-        result = dict()
-        result.update(self.defaults)  # Make sure result is not the
-                                      # same as defaults
-        for key, val in options.items():
-            key = key[len(self.prefix) + 1:]
-            if key not in dict(self.defaults).keys():
-                # Ignore...
-                continue
-            result[key] = val
-        return result
-
     def get_options_as_string(self):
         """Get a string representation of the options used here.
 
@@ -182,7 +164,6 @@ class MetaProcessor(BaseProcessor):
             options = Options(string_dict=options)
         self.all_options = options
         self.options = options
-        #self.options = self.get_own_options(options)
         #self.normalize_options()
         self.metadata = {}
         return

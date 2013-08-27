@@ -49,12 +49,6 @@ def get_unoconv_version():
 UNOCONV_VERSION = get_unoconv_version()
 
 
-class SemiBaseProcessor(BaseProcessor):
-    # A BaseProcessor that does not raise NotImplemented on creation
-    def validate_options(self):
-        pass
-
-
 class TestProcessorHelpers(unittest.TestCase):
 
     def test_processor_order_valid(self):
@@ -72,29 +66,16 @@ class TestProcessorHelpers(unittest.TestCase):
 
 class TestBaseProcessor(unittest.TestCase):
 
-    def test_get_own_options_defaults(self):
-        proc = SemiBaseProcessor()
-        proc.defaults = {'key1': 'notset'}
-        result = proc.get_own_options({})
-        assert result == {'key1': 'notset'}
-
-    def test_get_own_options(self):
-        proc = SemiBaseProcessor()
-        proc.defaults = {'key1': 'notset'}
-        result = proc.get_own_options({'base.key1': 'set'})
-        assert result == {'key1': 'set'}
-
-    def test_get_own_options_ignore_other(self):
-        # ignore options that have not the correct prefix
-        proc = SemiBaseProcessor()
-        proc.defaults = {'key1': 'notset'}
-        result = proc.get_own_options({'key1': 'set'})
-        assert result == {'key1': 'notset'}
+    def test_process_raises_not_implemented(self):
+        # make sure a call to process raises something
+        proc = BaseProcessor()
+        self.assertRaises(
+            NotImplementedError, proc.process, None, None)
 
     def test_args(self):
         # each processor should provide an arparser compatible list of
         # acceptable args that can be fed to argparsers.
-        proc = SemiBaseProcessor()
+        proc = BaseProcessor()
         assert proc.args == []
 
 
