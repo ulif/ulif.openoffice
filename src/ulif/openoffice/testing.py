@@ -33,7 +33,7 @@ from ulif.openoffice.restserver import Root, DEFAULT_CONFIG
 
 try:
     import unittest2 as unittest
-except:
+except:                                                 # pragma: no cover
     import unittest
 
 
@@ -108,7 +108,7 @@ class TestOOServerSetup(unittest.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls):                                # pragma: no cover
         # Set clean HOME environment as OOO.org might scan it...
         cls._marker = object()
         cls.old_home = os.environ.get('HOME', cls._marker)
@@ -139,7 +139,7 @@ class TestOOServerSetup(unittest.TestCase):
         return
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls):                             # pragma: no cover
         # Only shut down oooctl if it were not running already...
         if cls.ooo_running is not True:
             os.system(cls.oooctl_path + ' stop')
