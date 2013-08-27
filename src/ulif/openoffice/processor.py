@@ -43,7 +43,7 @@ from ulif.openoffice.convert import convert
 from ulif.openoffice.helpers import (
     copy_to_secure_location, get_entry_points, zip, unzip, remove_file_dir,
     extract_css, cleanup_html, cleanup_css, rename_sdfield_tags,
-    string_to_bool, string_to_stringtuple)
+    string_to_stringtuple)
 from ulif.openoffice.helpers import strict_string_to_bool as boolean
 from ulif.openoffice.options import Argument, Options
 
@@ -100,13 +100,6 @@ class BaseProcessor(object):
         The default implementation raises :exc:`NotImplemented`.
         """
         raise NotImplementedError("Please provide a process() method")
-
-    def validate_options(self):
-        """Examine `self.options` and raise `ValueError` if appropriate.
-
-        The default implementation raises :exc:`NotImplemented`.
-        """
-        raise NotImplementedError("Please provide a validate_options method")
 
     def get_own_options(self, options):
         """Get options for this class out of a dict of general options.
@@ -191,18 +184,7 @@ class MetaProcessor(BaseProcessor):
         self.options = options
         #self.options = self.get_own_options(options)
         #self.normalize_options()
-        #self.validate_options()
         self.metadata = {}
-        return
-
-    def validate_options(self):
-        """Make sure all options contain valid values.
-        """
-        for item in self.options['procord'].split(','):
-            item = item.strip()
-            if item != '' and item not in self.avail_procs.keys():
-                raise ValueError('Invalid procord value (%s not in %s)' % (
-                        item, self.avail_procs.keys()))
         return
 
     def process(self, input=None, metadata={'error': False}):
@@ -367,15 +349,6 @@ class OOConvProcessor(BaseProcessor):
                 os.unlink(src)
         return result_path, metadata
 
-    def validate_options(self):
-        return
-        if not self.options['out_fmt'] in self.formats.keys():
-            raise ValueError(
-                "Invalid out_fmt: %s not in [%s]" % (
-                    self.options['out_fmt'], ", ".join(self.formats.keys()))
-                )
-        return
-
 
 class UnzipProcessor(BaseProcessor):
     """A processor that unzips delivered files if applicable.
@@ -385,10 +358,6 @@ class UnzipProcessor(BaseProcessor):
     prefix = 'unzip'
 
     supported_extensions = ['.zip', ]
-
-    def validate_options(self):
-        # No options to handle...
-        pass
 
     def process(self, path, metadata):
         ext = os.path.splitext(path)[1]
@@ -415,10 +384,6 @@ class ZipProcessor(BaseProcessor):
 
     supported_extensions = ['.zip']
 
-    def validate_options(self):
-        # No options to handle...
-        pass
-
     def process(self, path, metadata):
         if isinstance(path, unicode):
             # zipfile does not accept unicode encoded paths...
@@ -442,10 +407,6 @@ class Tidy(BaseProcessor):
     processor work.
     """
     prefix = 'tidy'
-
-    def validate_options(self):
-        # No options to handle yet...
-        pass
 
     def process(self, path, metadata):
         basename = os.path.basename(path)
@@ -485,14 +446,6 @@ class CSSCleaner(BaseProcessor):
                  'Default: yes',
                  ),
         ]
-
-    def validate_options(self):
-        minified = self.options.get('minified')
-        if minified is not True:
-            self.options['minified'] = string_to_bool(minified)
-            if self.options['minified'] is None:
-                raise ValueError("`minified' must be true or false.")
-        return
 
     def process(self, path, metadata):
         basename = os.path.basename(path)
@@ -546,16 +499,6 @@ class HTMLCleaner(BaseProcessor):
 
         ]
 
-    def validate_options(self):
-        for option_name in ['fix_head_nums', 'fix_img_links', 'fix_sdfields']:
-            opt_value = self.options.get(option_name)
-            if opt_value is not True:
-                self.options[option_name] = string_to_bool(opt_value)
-                if self.options[option_name] is None:
-                    raise ValueError(
-                        "`%s' must be true or false." % option_name)
-        return
-
     def process(self, path, metadata):
         basename = os.path.basename(path)
         src_path = os.path.join(
@@ -594,10 +537,6 @@ class Error(BaseProcessor):
     This is mainly for testing.
     """
     prefix = 'error'
-
-    def validate_options(self):
-        # No options to handle yet...
-        pass
 
     def process(self, path, metadata):
         metadata.update(
