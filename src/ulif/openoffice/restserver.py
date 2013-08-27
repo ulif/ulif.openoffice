@@ -212,16 +212,6 @@ class DocumentRoot(object):
         self.cache_layout = cache_layout
         return
 
-    def not_cp_dispatch(self, vpath):
-        if vpath:
-            doc_id = vpath.pop(0)
-            if doc_id == 'index':
-                return DocumentIndex(
-                    cache_dir=self.cache_dir,
-                    cache_layout=self.cache_layout)
-            return Document(doc_id, cache_dir=self.cache_dir)
-        return
-
     def POST(self, doc=None, **data):
         """Create a resource (converted document) and return it.
         """
@@ -241,10 +231,8 @@ class DocumentRoot(object):
         user = cherrypy.request.login  # Maybe None
         result_path, etag, metadata, cached_result = process_doc(
             file_path, data, True, self.cache_dir, self.cache_layout, user)
-
-        if not isinstance(result_path, basestring):
-            return self.handle_error(metadata, workdir)
-        if metadata.get('error', False) is True:
+        if metadata.get('error', False) is True or not isinstance(
+            result_path, basestring):
             return self.handle_error(metadata, workdir)
         basename = os.path.basename(result_path)
         content_type = get_content_type(result_path)
@@ -269,43 +257,6 @@ class DocumentRoot(object):
         msg = metadata.get('error-descr', 'No error description available')
         remove_file_dir(workdir)
         raise cherrypy.HTTPError(503, msg)
-
-
-class Document(object):
-    def _cp_dispatch(self, vpath):
-        return getattr(self, vpath[0], None)
-    exposed = True
-
-    def __init__(self, doc_id, cache_manager=None):
-        self.cache_manager = None
-        self.doc_id = doc_id
-        return
-
-    def GET(self):
-        return "Hi from doc %s" % self.doc_id
-
-
-class DocumentIndex(object):
-    exposed = True
-
-    def _cp_dispatch(self, vpath):
-        return getattr(self, vpath[0], None)
-
-    def __init__(self, cache_manager=None, cache_layout=CACHE_SINGLE):
-        self.cache_manager = cache_manager
-
-    def GET(self):
-        return """
-          <html>
-           <body>
-           Available IDs: %s <br />
-           <form action="/docs" method="POST">
-             ID: <input type="text" name="doc_id"> <br />
-             <input type="submit" name="SUBMIT" value="Add">
-           </form>
-           </body>
-          </html>
-          """ % self.ids
 
 
 class Status(object):
@@ -371,7 +322,7 @@ DEFAULT_CONFIG = {
     }
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv):                                # pragma: no cover
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
     parser.add_option("-c", "--config", dest="config",
