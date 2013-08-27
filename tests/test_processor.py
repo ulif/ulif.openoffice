@@ -91,11 +91,6 @@ class TestBaseProcessor(unittest.TestCase):
         result = proc.get_own_options({'key1': 'set'})
         assert result == {'key1': 'notset'}
 
-    def test_option_ne_defaults(self):
-        # make sure after creation options are not the same object as defaults
-        proc = SemiBaseProcessor()
-        assert proc.options is not proc.defaults
-
     def test_args(self):
         # each processor should provide an arparser compatible list of
         # acceptable args that can be fed to argparsers.

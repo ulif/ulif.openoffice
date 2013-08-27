@@ -67,9 +67,6 @@ class BaseProcessor(object):
     #: The name under which this processor is known. A simple string.
     prefix = 'base'
 
-    #: The option defaults. A dictionary. Each option supported by
-    #: this processor needs a default value set in this dictionary.
-    defaults = {}
     metadata = {}
 
     #: The argparser args acceptable by this processor.
@@ -168,14 +165,10 @@ class MetaProcessor(BaseProcessor):
     #: the meta processor is named 'meta'
     prefix = 'meta'
 
-    #: We support a ``procord`` option which stands for
-    #: ``processororder``. The currently default order is:
+    #: We support a ``-meta-procord`` option which stands for
+    #: ``processororder``. The current default order is:
     #: ``'unzip,oocp,zip'`` which means: maybe unzip the input, then
     #: convert it into HTML and afterwards zip the results.
-    defaults = {            # Option defaults. Each option needs one.
-        'procord': DEFAULT_PROCORDER,
-        }
-
     args = [
         Argument('-meta-procord', '--meta-processor-order',
                  default=string_to_stringtuple(DEFAULT_PROCORDER),
@@ -295,14 +288,6 @@ class OOConvProcessor(BaseProcessor):
          only for a list of PDF export options.
     """
     prefix = 'oocp'
-
-    defaults = {
-        'out_fmt': 'html',
-        'pdf_version': None,
-        'pdf_tagged': None,
-        'host': 'localhost',
-        'port': 2002,
-        }
 
     #: mapping: extension <-> format (as accepted by unoconv)
     formats = OUTPUT_FORMATS
@@ -492,10 +477,6 @@ class CSSCleaner(BaseProcessor):
     """
     prefix = 'css_cleaner'
 
-    defaults = {
-        'minified': True,
-        }
-
     args = [
         Argument('-css-cleaner-min', '--css-cleaner-minified',
                  type=boolean, default=True,
@@ -539,12 +520,6 @@ class HTMLCleaner(BaseProcessor):
     This processor expects XHTML input input.
     """
     prefix = 'html_cleaner'
-
-    defaults = {
-        'fix_head_nums': True,
-        'fix_img_links': True,
-        'fix_sdfields': True,
-        }
 
     args = [
         Argument('-html-cleaner-fix-head-nums',
