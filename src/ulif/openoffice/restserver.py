@@ -320,11 +320,13 @@ class Status(object):
         content = "<html><body>"
         content += "<h1>Status Report</h1>"
         content += "<h2>Installed doc processors: </h2>"
-        content += "<table><thead><tr><th>name</th><th>defaults</th>"
+        content += "<table><thead><tr><th>name</th><th>option<th>default</th>"
         content += "</tr></thead><tbody>"
         for name, proc in self.avail_procs.items():
-            content += "<tr><td>%s</td><td>%s</td></tr>" % (
-                name, proc.defaults)
+            content += "<tr><td>%s</td><td></td><td></td></tr>" % name
+            for arg in proc.args:
+                content += "<tr><td></td><td>%s</td><td>%s</td></tr>" % (
+                    arg.short_name[1:], arg.default_string)
         content += "</tbody></table>"
         content += "<h2>OpenOffice.org/LibreOffice Server:</h2>"
         content += "<table><thead><tr><th>key</th><th>value</th>"
