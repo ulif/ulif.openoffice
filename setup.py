@@ -84,6 +84,7 @@ setup(name='ulif.openoffice',
       [console_scripts]
       oooctl = ulif.openoffice.oooctl:main
       restserver = ulif.openoffice.restserver:main
+      oooclient = ulif.openoffice.client:main
       [ulif.openoffice.processors]
       meta = ulif.openoffice.processor:MetaProcessor
       oocp = ulif.openoffice.processor:OOConvProcessor

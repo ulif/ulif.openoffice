@@ -19,9 +19,12 @@
 """
 Client API to access all functionality via programmatic calls.
 """
+import argparse
 import os
+import sys
 from ulif.openoffice.cachemanager2 import CacheManager, get_marker
 from ulif.openoffice.helpers import copy_to_secure_location
+from ulif.openoffice.options import Options
 from ulif.openoffice.processor import MetaProcessor
 
 
@@ -60,10 +63,8 @@ def convert_doc(src_doc, options, cache_dir):
     metadata = dict(error=False)
 
     # Generate result
-    input_copy = src_doc
-    if cache_dir:
-        input_copy = copy_to_secure_location(src_doc)
-        input_copy = os.path.join(input_copy, os.path.basename(src_doc))
+    input_copy = copy_to_secure_location(os.path.abspath(src_doc))
+    input_copy = os.path.join(input_copy, os.path.basename(src_doc))
     proc = MetaProcessor(options=options)  # Removes original doc
     result_path, metadata = proc.process(input_copy)
 
@@ -73,3 +74,34 @@ def convert_doc(src_doc, options, cache_dir):
         cache_key = CacheManager(cache_dir).register_doc(
             src_doc, result_path, repr_key)
     return result_path, cache_key, metadata
+
+
+class Client(object):
+    """A client to trigger document conversions.
+    """
+    def __init__(self, cache_dir=None):
+        self.cache_dir = cache_dir
+
+    def convert(self, src_doc_path, options={}):
+        return convert_doc(src_doc_path, self.options, self.cache_dir)
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('src', metavar='SOURCEFILE',
+                        help='The office document to be converted')
+    parser.add_argument('--cachedir',
+                        help='Path to a cache directory')
+    parser.description = "A tool to convert office documents."
+    parser = Options().get_arg_parser(parser)
+    options = vars(parser.parse_args(args))
+    cache_dir = options['cachedir']
+    src = options['src']
+    print "OPTIONS: ", options
+    print src, cache_dir
+    options = Options(val_dict=options)
+    result_path, cache_key, metadata = convert_doc(
+        args[-1], options, cache_dir=cache_dir)
+    print "RESULT in ", result_path

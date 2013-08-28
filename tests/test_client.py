@@ -18,8 +18,15 @@ class ConvertDocTests(unittest.TestCase):
         self.resultdir = None
         self.src_doc = os.path.join(self.srcdir, 'sample.txt')
         open(self.src_doc, 'w').write('Hi there.')
+        self.entry_wd = os.getcwd()
 
     def tearDown(self):
+        try:
+            if os.getcwd() != self.entry_wd:
+                os.chdir(self.entry_wd)
+        except OSError:
+            # might happen if resultdir was deleted already
+            os.chdir(self.entry_wd)
         shutil.rmtree(self.rootdir)
         if self.resultdir is not None:
             shutil.rmtree(self.resultdir)
@@ -52,3 +59,17 @@ class ConvertDocTests(unittest.TestCase):
         self.resultdir = os.path.dirname(result_path)
         assert result_path[-11:] == '/sample.pdf'
         assert metadata == {'error': False, 'oocp_status': 0}
+
+    def test_basename_only_input(self):
+        # also source paths with a basename only are accepted
+        options = {'meta-procord': 'oocp',
+                   'oocp-out-fmt': 'pdf'}
+        # change to the dir where the src doc resides (set back by teardown)
+        os.chdir(os.path.dirname(self.src_doc))
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(self.src_doc), options=options, cache_dir=None)
+        self.resultdir = os.path.dirname(result_path)
+        assert result_path[-11:] == '/sample.pdf'
+        assert metadata == {'error': False, 'oocp_status': 0}
+        # the original source doc still exists
+        assert os.path.exists(self.src_doc)
