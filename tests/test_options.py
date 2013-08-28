@@ -118,6 +118,20 @@ class OptionsTests(unittest.TestCase):
         opts = Options()
         parser = opts.get_arg_parser()
         assert isinstance(parser, argparse.ArgumentParser)
+        assert isinstance(parser, ExceptionalArgumentParser)
+        # the parser is populated with arguments
+        assert '-meta-procord' in parser.format_help()
+
+    def test_get_arg_parser_custom(self):
+        # we can pass in an own parser that will be populated
+        opts = Options()
+        in_parser = argparse.ArgumentParser()
+        out_parser = opts.get_arg_parser(parser=in_parser)
+        assert isinstance(out_parser, argparse.ArgumentParser)
+        assert not isinstance(out_parser, ExceptionalArgumentParser)
+        assert out_parser is in_parser
+        # the parser is populated with arguments
+        assert '-meta-procord' in out_parser.format_help()
 
     def test_string_keys(self):
         # we can get a list of acceptable string options

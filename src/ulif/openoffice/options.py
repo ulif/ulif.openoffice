@@ -76,11 +76,20 @@ class Argument(object):
 
 
 class ArgumentParserError(Exception):
+    """An error raised if argument parsing fails.
+    """
     pass
 
 
 class ExceptionalArgumentParser(ArgumentParser):
+    """An argument parser that raises exceptions instead of sys.exiting.
 
+    The regular :class:`argparse.ArgumentParser` does sys.exit() if
+    parsing of arguments fails and prints output to stdout.
+
+    This parser instead raises an :class:`ArgumentParserError` so it
+    is better usable in libraries.
+    """
     def error(self, message):
         raise ArgumentParserError(message)
 
@@ -168,13 +177,19 @@ class Options(dict):
         if val_dict is not None:
             self.update(val_dict)
 
-    def get_arg_parser(self):
-        """Get an :class:`argparse.ArgumentParser` instance.
+    def get_arg_parser(self, parser=None):
+        """Get a parser instance populated with options from processors.
 
-        The parser will be set up with the options of all registered
-        processors.
+        The argument parser will be set up with the options
+        (arguments) of all registered processors, looking up their
+        `args` attribute.
+
+        By default we create a new :class:`ExceptionalArgumentParser`
+        instance. But you can also pass in your own `parser` instance
+        which will then be populated as described above.
         """
-        parser = ExceptionalArgumentParser()
+        if parser is None:
+            parser = ExceptionalArgumentParser()
         # set defaults
         for proc_name, proc in self.avail_procs.items():
             for arg in proc.args:
