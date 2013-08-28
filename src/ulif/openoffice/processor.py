@@ -374,8 +374,8 @@ class ZipProcessor(BaseProcessor):
 class Tidy(BaseProcessor):
     """A processor for cleaning up HTML code produced by OO.org output.
 
-    This processor calls :cmd:`tidy` in a subshell. That means the
-    :cmd:`tidy` command must be installed in system to make this
+    This processor calls :command:`tidy` in a subshell. That means the
+    :command:`tidy` command must be installed in system to make this
     processor work.
     """
     prefix = 'tidy'
