@@ -20,10 +20,9 @@
 Client API to access all functionality via programmatic calls.
 """
 import os
-from ulif.openoffice.cachemanager2 import CacheManager
+from ulif.openoffice.cachemanager2 import CacheManager, get_marker
 from ulif.openoffice.helpers import copy_to_secure_location
 from ulif.openoffice.processor import MetaProcessor
-from ulif.openoffice.restserver import get_marker
 
 
 def convert_doc(src_doc, options, cache_dir):
