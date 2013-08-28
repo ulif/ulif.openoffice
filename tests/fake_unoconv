@@ -1,0 +1,6 @@
+#!/usr/bin/python
+"""This is a silly script that fakes unoconv failures by returning an
+   error code.
+"""
+import sys
+sys.exit(1)
