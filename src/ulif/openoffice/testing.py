@@ -178,3 +178,46 @@ def cat(dir, *names):
     path = os.path.join(dir, *names)
     print(open(path).read())
     return
+
+_old_cwd = os.getcwd()
+_tmpdir = None
+def doctest_setup():
+    """Set up doctest env.
+
+    Creates a temporary working dir and changes to it.
+
+    Creates a 'document.doc' file in that directory.
+    """
+    _tmpdir = tempfile.mkdtemp()
+    os.chdir(_tmpdir)
+    open('document.doc', 'w').write('A simple testfile.')
+
+
+def doctest_teardown():
+    """Tear down doctest env.
+
+    Removes any temporary working directory (if it is different from
+    initial CWD).
+    """
+    global _old_cwd
+    cwd = os.getcwd()
+    if cwd != _old_cwd:
+        os.chdir(_old_cwd)
+        shutil.rmtree(cwd)
+
+
+def doctest_rm_resultdir(path):
+    """Remove directory `path`.
+
+    If path is a file, the parent directory is removed.
+
+    The directory is only removed, if it is not the current working
+    directory.
+    """
+    path = os.path.abspath(path)
+    if os.path.exists(path):
+        if os.path.isfile(path):
+            path = os.path.dirname(path)
+        if path == os.getcwd():                         # pragma: no cover
+            return
+        shutil.rmtree(path)
