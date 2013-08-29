@@ -87,9 +87,11 @@ class Client(object):
 
 
 def main(args=None):
+    parser = argparse.ArgumentParser()
     if args is None:                                    # pragma: no cover
         args = sys.argv[1:]
-    parser = argparse.ArgumentParser()
+    else:
+        parser.prog = 'oooclient'
     parser.add_argument('src', metavar='SOURCEFILE',
                         help='The office document to be converted')
     parser.add_argument('--cachedir',
