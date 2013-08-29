@@ -83,11 +83,11 @@ class Client(object):
         self.cache_dir = cache_dir
 
     def convert(self, src_doc_path, options={}):
-        return convert_doc(src_doc_path, self.options, self.cache_dir)
+        return convert_doc(src_doc_path, options, self.cache_dir)
 
 
 def main(args=None):
-    if args is None:
+    if args is None:                                    # pragma: no cover
         args = sys.argv[1:]
     parser = argparse.ArgumentParser()
     parser.add_argument('src', metavar='SOURCEFILE',
@@ -99,9 +99,7 @@ def main(args=None):
     options = vars(parser.parse_args(args))
     cache_dir = options['cachedir']
     src = options['src']
-    print "OPTIONS: ", options
-    print src, cache_dir
     options = Options(val_dict=options)
     result_path, cache_key, metadata = convert_doc(
-        args[-1], options, cache_dir=cache_dir)
-    print "RESULT in ", result_path
+        src, options, cache_dir=cache_dir)
+    print("RESULT in " + result_path)
