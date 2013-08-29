@@ -77,7 +77,7 @@ setup(name='ulif.openoffice',
               'pytest-cov',
               ],
           docs = ['Sphinx',
-                  'collective.recipe.sphinxbuilder']
+                  ]
           ),
       cmdclass = {'test': PyTest},
       entry_points="""
