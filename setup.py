@@ -22,12 +22,6 @@ setup(name='ulif.openoffice',
       version=version,
       description="Run OpenOffice as web service.",
       long_description=open("README.txt").read() + "\n\n" +
-                       open(os.path.join("doc", "source", "intro.txt"
-                                         )).read() + "\n\n" +
-                       open(os.path.join("doc", "source", "install.txt"
-                                         )).read() + "\n\n" +
-                       open(os.path.join("doc", "source", "usage.txt"
-                                         )).read() + "\n\n" +
                        open("CHANGES.txt").read(),
       classifiers=[
           "Development Status :: 3 - Alpha",
