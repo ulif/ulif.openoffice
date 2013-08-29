@@ -179,8 +179,11 @@ def cat(dir, *names):
     print(open(path).read())
     return
 
+
 _old_cwd = os.getcwd()
 _tmpdir = None
+
+
 def doctest_setup():
     """Set up doctest env.
 
