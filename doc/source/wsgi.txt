@@ -78,11 +78,11 @@ will be converted. The result will be the converted document.
 
     >>> url = 'http://localhost/docs'
     >>> form = {'doc': ('sample.txt', 'Some Content'),
-    ...         'oocp.out_fmt': 'html'}
+    ...         'oocp-out-fmt': 'html'}
     >>> print browser.POST(url, **form)  # doctest: +NORMALIZE_WHITESPACE
     201 Created
     Content-Type: application/zip
-    Content-Length: 636
+    Content-Length: ...
     Last-Modified: ...
     ETag: "...-...-..."
     Location: http://localhost:80/docs/78138d2003f1a87043d65c692fb3a64b_1_1
@@ -95,7 +95,7 @@ request to the server with two parameters:
 `doc`
    the file to be converted.
 
-`oocp.out_fmt`
+`oocp-out-fmt`
    the output format we want the document to be converted to.
 
 While the `doc` parameter is mandatory, other parameters are

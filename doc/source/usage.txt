@@ -1,60 +1,43 @@
 Using the scripts
 =================
 
-There are four main components that come with ``ulif.openoffice``:
+There are two commandline-oriented scripts that come with
+``ulif.openoffice``:
 
-* an oooctl-server that starts OpenOffice.org in background.
+* an oooctl-server that starts LibreOffice server in background.
 
-* a pyuno-server that listens for requests to convert docs. This
-  server depends on a running oooctl-server.
-
-* a client component that can be accessed via API and can talk to the
-  pyuno-server. This way you can convert docs from Python and the
-  Python version has not to provide the uno lib.
-
-* a converter script (also in ./bin), you can use on the
-  commandline. It depends on a running oooctl server and can convert
-  docs to .txt, .html and .pdf format. It is merely a little test
+* a converter script called ``oooclient``. It is merely a little test
   programme that was used during development, but you might have some
-  use for it.
+  use for it. Especially the -help option might be interesting, to get
+  an overview over the available document processors and their
+  options.
 
 You can start the oooctl-server with::
 
-  $ ./bin/oooctl start
+  $ oooctl start
 
 Do::
 
-  $ ./bin/oooctl --help
+  $ oooctl --help
 
 to see all options.
 
 You can stop the daemon with::
 
-  $ ./bin/oooctl stop
-
-The same applies to the pyuno-server::
-
-  $ ./bin/pyunoctl start
-  $ ./bin/pyunoctl --help
-  $ ./bin/pyunoctl stop
-
-do what you think they do.
+  $ oooctl stop
 
 The converter script can be called like this::
 
-  $ ./bin/convert sourcefile.doc
+  $ oooclient sourcefile.doc
 
-to create a sourcefile.txt conversion.
+to create a sourcefile.html.zip conversion. The ZIP file will (beside
+the generated HTML document) contain all images and extracted CSS
+styles.
 
 Do::
 
-  $ ./bin/convert --pdf sourcefile.doc
+  $ oooclient -meta-procord=oocp, -oocp-out-fmt=pdf sourcefile.doc
 
-to create a PDF of sourefile.doc, and::
-
-  $ ./bin/convert --html sourcefile.doc
-
-to create an HTML version of sourcefile.doc.
+to create a PDF of sourefile.doc.
 
 For the client API see the .txt files in the source.
-
