@@ -12,5 +12,4 @@ API
    api_oooctl
    api_options
    api_processors
-   api_restserver
    api_wsgi
