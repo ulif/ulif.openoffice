@@ -3,4 +3,3 @@
 
 .. automodule:: ulif.openoffice.wsgi
    :members:
-
