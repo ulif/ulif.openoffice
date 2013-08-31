@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from ulif.openoffice.client import convert_doc, Client, main
 from ulif.openoffice.options import ArgumentParserError
+from ulif.openoffice.testing import ConvertLogCatcher
 
 
 class ClientTestsSetup(unittest.TestCase):
@@ -20,6 +21,7 @@ class ClientTestsSetup(unittest.TestCase):
         self.src_doc = os.path.join(self.srcdir, 'sample.txt')
         open(self.src_doc, 'w').write('Hi there.')
         self.entry_wd = os.getcwd()
+        self.log_catcher = ConvertLogCatcher()
 
     def tearDown(self):
         try:
@@ -31,6 +33,7 @@ class ClientTestsSetup(unittest.TestCase):
         shutil.rmtree(self.rootdir)
         if self.resultdir is not None:
             shutil.rmtree(self.resultdir)
+        print "MESSAGES: ", self.log_catcher.get_log_messages()
 
 
 class ConvertDocTests(ClientTestsSetup):
@@ -40,6 +43,7 @@ class ConvertDocTests(ClientTestsSetup):
         # by default we get a zip'd HTML representation
         result_path, cache_key, metadata = convert_doc(
             self.src_doc, options={}, cache_dir=None)
+        assert 'Cmd result: 0' in self.log_catcher.get_log_messages()
         self.resultdir = os.path.dirname(result_path)
         assert result_path[-16:] == '/sample.html.zip'
         assert cache_key is None  # no cache, no cache_key
@@ -73,6 +77,7 @@ class ConvertDocTests(ClientTestsSetup):
         os.chdir(os.path.dirname(self.src_doc))
         result_path, cache_key, metadata = convert_doc(
             os.path.basename(self.src_doc), options=options, cache_dir=None)
+        assert 'Cmd result: 0' in self.log_catcher.get_log_messages()
         self.resultdir = os.path.dirname(result_path)
         assert result_path[-11:] == '/sample.pdf'
         assert metadata == {'error': False, 'oocp_status': 0}
