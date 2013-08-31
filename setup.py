@@ -53,7 +53,6 @@ setup(name='ulif.openoffice',
       install_requires=[
           'setuptools',
           'argparse',
-          'CherryPy>=3.2.0',
           'beautifulsoup4',
           'cssutils',
           'Routes',

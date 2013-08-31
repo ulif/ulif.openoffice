@@ -27,6 +27,8 @@ Major rewrite of the whole package.
 
 * Removed `zc.buildout` support.
 
+* Removed cherrypy-based restserver. The new WSGI app is the replacement.
+
 0.4 (2011-02-11)
 ================
 
