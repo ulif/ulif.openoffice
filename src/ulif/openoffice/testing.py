@@ -19,7 +19,6 @@
 """
 Test helpers.
 """
-import cherrypy
 import logging
 import os
 import shutil
@@ -28,59 +27,12 @@ import tempfile
 import time
 import ulif.openoffice
 from cStringIO import StringIO
-from webtest import TestApp
-from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.oooctl import check_port
-from ulif.openoffice.restserver import Root, DEFAULT_CONFIG
 
 try:
     import unittest2 as unittest
 except:                                                 # pragma: no cover
     import unittest
-
-
-class TestRESTfulWSGISetup(unittest.TestCase):
-    """A setup that prepares a WSGI app with the RESTful cherrypy server.
-
-    The RESTful server provided in :mod:`ulif.openoffice` is a
-    cherry.py server that can also be accessed as a plain WSGI app.
-
-    This is excellent for testing as we don't have to start a real
-    webserver but can ask a locally created WSGI app directly. Tests
-    are also much faster using this technique.
-
-    Use `self.app` for a :mod:`webtest` based HTTP-client client.
-
-    Use `self.wsgi_app` if you need access to the real WSGI app.
-    """
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.cachedir = tempfile.mkdtemp()
-        self.access_log = os.path.join(self.workdir, 'access.log')
-        self.error_log = os.path.join(self.workdir, 'error.log')
-        self.cache_manager = CacheManager(self.cachedir)
-
-        # configure cherrypy to be quiet ;)
-        cherrypy.config.update({"environment": "embedded"})
-
-        cherrypy.config.update(
-            {'log.access_file': self.access_log,
-             'log.error_file': self.error_log,
-             'log.screen': False,
-             }
-            )
-
-        self.wsgi_app = cherrypy.Application(
-            Root(cache_dir=self.cachedir), '/', config=DEFAULT_CONFIG)
-        self.app = TestApp(self.wsgi_app)
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        shutil.rmtree(self.cachedir)
-        del self.app
-        del self.wsgi_app
-        return
 
 
 class TestOOServerSetup(unittest.TestCase):

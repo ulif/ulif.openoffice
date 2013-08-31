@@ -185,6 +185,15 @@ class TestMetaProcessor(unittest.TestCase):
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert self.resultpath.endswith('sample.html')
 
+    def test_process_with_errors(self):
+        proc = MetaProcessor(options={'meta-procord': 'error'})
+        self.resultpath, metadata = proc.process(self.input)
+        assert self.resultpath is None
+        assert metadata == {
+            'error': True,
+            'error-descr': 'Intentional error. Please ignore',
+            }
+
     def test_args(self):
         # we can add create argparse-arguments from `args`
         parser = ArgumentParser()
