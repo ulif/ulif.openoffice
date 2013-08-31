@@ -20,12 +20,14 @@
 Test helpers.
 """
 import cherrypy
+import logging
 import os
 import shutil
 import sys
 import tempfile
 import time
 import ulif.openoffice
+from cStringIO import StringIO
 from webtest import TestApp
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.oooctl import check_port
@@ -224,3 +226,25 @@ def doctest_rm_resultdir(path):
         if path == os.getcwd():                         # pragma: no cover
             return
         shutil.rmtree(path)
+
+
+class ConvertLogCatcher(object):
+    """This log catcher catches the log messages of u.o.convert().
+
+    It must be instantiated before any call to u.o.convert.
+    """
+
+    def __init__(self):
+        self.stream = StringIO()
+        self.handler = logging.StreamHandler(self.stream)
+        self.logger = logging.getLogger('ulif.openoffice.convert')
+        self.logger.setLevel(logging.DEBUG)
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+        self.logger.addHandler(self.handler)
+
+    def get_log_messages(self):
+        self.handler.flush()
+        result = self.stream.getvalue()
+        self.handler.close()
+        return result
