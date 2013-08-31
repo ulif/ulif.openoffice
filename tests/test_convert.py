@@ -58,7 +58,7 @@ class ConvertTests(TestOOServerSetup):
         self.assertEqual(0, status)
         # input and output are in the same dir
         self.assertEqual(
-            ['sample.pdf', 'sample.txt'], os.listdir(self.tmpdir))
+            ['sample.pdf', 'sample.txt'], sorted(os.listdir(self.tmpdir)))
         return
 
     def test_convert_fail_status_ne_zero(self):
