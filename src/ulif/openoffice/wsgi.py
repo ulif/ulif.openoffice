@@ -26,7 +26,7 @@ from routes import Mapper
 from routes.util import URLGenerator
 from webob import Response, exc
 from webob.dec import wsgify
-from ulif.openoffice.cachemanager2 import CacheManager
+from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.client import convert_doc
 
 

@@ -6,7 +6,7 @@ try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:                 # pragma: no cover
     from io import StringIO         # Python 3.x
-from ulif.openoffice.cachemanager2 import Bucket, CacheManager, get_marker
+from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 
 class HelpersTestCase(unittest.TestCase):

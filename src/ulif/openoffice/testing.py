@@ -115,7 +115,7 @@ class TestOOServerSetup(unittest.TestCase):
         return
 
 
-def ls(dir, *subs):
+def ls(dir, *subs):                                     # pragma: no cover
     if subs:
         dir = os.path.join(dir, *subs)
     names = os.listdir(dir)
@@ -128,7 +128,7 @@ def ls(dir, *subs):
     return
 
 
-def cat(dir, *names):
+def cat(dir, *names):                                   # pragma: no cover
     path = os.path.join(dir, *names)
     print(open(path).read())
     return

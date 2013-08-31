@@ -22,7 +22,7 @@ Client API to access all functionality via programmatic calls.
 import argparse
 import os
 import sys
-from ulif.openoffice.cachemanager2 import CacheManager, get_marker
+from ulif.openoffice.cachemanager import CacheManager, get_marker
 from ulif.openoffice.helpers import copy_to_secure_location
 from ulif.openoffice.options import Options
 from ulif.openoffice.processor import MetaProcessor

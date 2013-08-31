@@ -4,7 +4,5 @@
 .. toctree::
    :maxdepth: 2
 
-   ../cachemanager.txt
-
 .. automodule:: ulif.openoffice.cachemanager
    :members:
