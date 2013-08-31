@@ -89,6 +89,6 @@ class ConvertTests(TestOOServerSetup):
         # we can exec commands and get the output back
         status, output = exec_cmd('unoconv --help')
         assert status == 1
-        assert output[:95] == (
+        assert output[:84] == (
             'usage: unoconv [options] file [file2 ..]\n'
-            'Convert from and to any format supported by OpenOffice')
+            'Convert from and to any format supported by')
