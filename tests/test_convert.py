@@ -3,7 +3,7 @@ import os
 import pytest
 import shutil
 import tempfile
-from ulif.openoffice.convert import convert
+from ulif.openoffice.convert import convert, exec_cmd
 from ulif.openoffice.testing import TestOOServerSetup
 
 pytestmark = pytest.mark.converter
@@ -84,3 +84,11 @@ class ConvertTests(TestOOServerSetup):
         # with the template we set a special font for preformatted text
         self.assertTrue('Liberation Mono' in content)
         return
+
+    def test_exec_cmd(self):
+        # we can exec commands and get the output back
+        status, output = exec_cmd('unoconv --help')
+        assert status == 1
+        assert output[:95] == (
+            'usage: unoconv [options] file [file2 ..]\n'
+            'Convert from and to any format supported by OpenOffice')
