@@ -26,7 +26,10 @@ import sys
 import tempfile
 import time
 import ulif.openoffice
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO  # Python 2.x
+except ImportError:                 # pragma: no cover
+    from io import StringIO         # Python 3.x
 from ulif.openoffice.oooctl import check_port
 
 try:
