@@ -1,8 +1,33 @@
 CHANGES
 *******
 
-0.4.1 (unreleased)
-==================
+1.0dev (unreleased)
+===================
+
+Major rewrite of the whole package.
+
+* `convert` now uses the commandline tool `unoconv`. You need this
+  tool to use the package.
+
+* As `unoconv` has all you want from the package script `convert` (and
+  much more!), the `convert` script is not provided as a script any
+  more. Simply use `unoconv` instead.
+
+* `oooctl` is now a daemonizer for ``unoconv -l``.
+
+* Apply PEP 8 rules to cachemanager.py.
+
+* Moved unittests to dedicated ``tests/`` dir in package root.
+
+* Switched from Zope testing to `py.test`.
+
+* Removed `pyuno` server, clients and related components.
+
+* Removed `find` functionality as it is based on direct `pyuno` access.
+
+* Removed `zc.buildout` support.
+
+* Removed cherrypy-based restserver. The new WSGI app is the replacement.
 
 0.4 (2011-02-11)
 ================

@@ -9,9 +9,8 @@ API
    api_cachemanager
    api_client
    api_convert
+   api_htaccess
    api_oooctl
-   api_pyunoctl
-   api_pyunoserver
-   api_restserver
-   api_util
-
+   api_options
+   api_processors
+   api_wsgi

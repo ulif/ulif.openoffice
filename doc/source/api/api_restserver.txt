@@ -1,5 +1,0 @@
-``ulif.openoffice.restserver`` -- A RESTful PyUNO server
-********************************************************
-
-.. automodule:: ulif.openoffice.restserver
-   :members:

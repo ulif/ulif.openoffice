@@ -1,5 +1,5 @@
-``ulif.openoffice.client`` -- The Client API
-********************************************
+``ulif.openoffice.client`` -- Python client for doc conversions
+***************************************************************
 
 .. automodule:: ulif.openoffice.client
    :members:

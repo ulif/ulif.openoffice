@@ -1,5 +1,0 @@
-``ulif.openoffice.pyunoserver`` -- The PyUNO server
-***************************************************
-
-.. automodule:: ulif.openoffice.pyunoserver
-   :members:

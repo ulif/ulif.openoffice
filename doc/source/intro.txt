@@ -5,18 +5,23 @@ What ulif.openoffice is
 =======================
 
 ``ulif.openoffice`` is a Python package to support document
-transformations using OpenOffice.org (OOo).
+conversions using LibreOffice/OpenOffice.org (LO).
 
-It provides components to ask a running OOo-server for document
-conversions from office-type documents like .doc or .odt to HTML or
-PDF. Using ulif.openoffice you can trigger such conversions via
-commandline or via a Python-API that works also with Python versions
-without any PyUNO support.
+It provides components to interact with a running LO-server for
+document conversions from office-type documents like .doc or .odt to
+HTML or PDF. Using ulif.openoffice you can trigger such conversions
+via commandline or via a Python-API.
 
 Furthermore, it provides a caching server that caches all documents
 once converted and delivers them in case a document is requested
 again. Depending on your needs this can speed-up things by factor 10
 or more.
+
+Also included is a WSGI_ application to perform those conversions as a
+RESTful webservice.
+
+Finally there is also a daemon (``oooctl``) included that starts the
+LO server in background and restarts it in case of crashes.
 
 Sources
 =======
@@ -27,64 +32,86 @@ Sources
 
 where you can get latest released versions.
 
-The subversion repository of the sources is:
+Development can be tracked on github:
 
-  https://svn.gnufix.de/repos/main/ulif.openoffice/
+  https://github.com/ulif/ulif.openoffice
+
+The documentation can be browsed on:
+
+  https://ulif-openoffice.readthedocs.org/en/latest/
+
 
 Requirements
 ============
 
-``ulif.openoffice`` requires some PyUNO-capable Python somewhere to do
-the actual conversions. It also provides a client-API for Python code that
-does not provide that support. Current Debian-based distributions
-normally offer a package for PyUNO support.
+``ulif.openoffice`` requires `unoconv`_ executable to do the actual
+conversions. Current Debian-based distributions normally offer install
+of `unoconv`_.
 
 ``ulif.openoffice`` is tested on Debian-based systems, most notably
-Ubuntu, and **won't work on Windows**.
+Ubuntu. It will probably miserably fail on Windows and there are no
+plans to change that.
 
 The package is designed for server-based deployments. While the
-OOo-server is running, you cannot use the office-suite on your desktop
-(at least at time of writing this). This is a limitation of OOo
+LO-server is running, you cannot use the office-suite on your desktop
+(at least at time of writing this). This is a limitation of LO
 itself.
 
 
 Overview
 ========
 
-``ulif.openoffice`` mainly provides three different components:
+``ulif.openoffice`` mainly provides five different components, of
+which three merely act as 'frontends' for the core functionality: a
+cmdline client, a RESTful WSGI_ application, and the respective API
+calls for use from Python programmes.
+
+* Additional to plain LibreOffice conversions, we provide a set of
+  filters to modify office documents on the fly. We call these filters
+  ``document processors``. They can unzip incoming docs, zip results,
+  extract CSS stylesheets from generated HTML into own files, brush up
+  generated HTML and much more. You can always tell which filters to
+  apply for each conversion and in what order.
+
+  You can even register your own document processors and they will
+  appear in the frontends (cmdline client, WSGI app, API calls).
 
 * An ``oooctl`` server that runs in background, starts a local
-  OOo-server and monitors its status. If the OOo server process dies,
-  it is restarted by ``oooctl``.
+  LO-server and monitors its status. If the LO server process dies, it
+  is restarted by ``oooctl``.
 
-* A ``pyunoserver``, which is a TCP-server that implements an own
-  protocol to listen for conversion requests. When a valid request
-  arrives, it tries to contact a local OOo server to do the
-  conversion.
+* An ``oooclient`` commandline tool to trigger conversions.
 
-  The ``pyunoserver`` also runs a cache manager that caches already
-  converted documents and delivers them in case the conversioned
-  version already exists.
+  ``oooclient`` also supports use of a cache manager that
+  caches already converted documents and delivers them in case the
+  converted version exists already.
 
-  This component needs access to the PyUNO library.
+* A DocumentConverter WSGI_ application that acts as a REST_
+  server. You can send it documents via HTTP and will get the
+  converted documents back.
 
-* A client library to talk to the PyUNO server. This component does
-  not require PyUNO.
+  The DocumentConverter also supports use of a cache manager that
+  caches already converted documents and delivers them in case the
+  converted version exists already.
+
+* A Python API to perform all the conversion stuff in your own Python
+  programmes.
 
 
-The three components play together roughly as shown in the following
-figure:
+The components play together roughly as shown in the following figure:
 
   .. figure:: overview.png
 
      Fig. 1: Overview of ulif.openoffice components
 
-The blue lines show the way from a source document (in .doc
-format) to the OpenOffice.org server while the red lines show the
-way back of the converted document (PDF).
+The black arrows show the way from a source document (in .doc format)
+to the LibreOffice server and the way back of the converted document
+(PDF).
 
 Use of client-API, ``oooctl`` server and cache is optional.
 
-All this currently happens on the same machine. There are plans for
-support of multi-machine scenarios with distributed servers and
-load-balancing features.
+The LibreOffice server can run on a remote machine.
+
+.. _unoconv: http://dag.wieers.com/home-made/unoconv/
+.. _WSGI: http://www.wsgi.org/
+.. _REST: http://en.wikipedia.org/wiki/Representational_state_transfer

@@ -1,0 +1,5 @@
+``ulif.openoffice.wsgi`` -- WSGI RESTful document converter
+***********************************************************
+
+.. automodule:: ulif.openoffice.wsgi
+   :members:

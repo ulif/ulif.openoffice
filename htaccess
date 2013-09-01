@@ -1,0 +1,9 @@
+#
+# use htpasswd to add/modify/delete entries
+# don't use md5 as it is not supported here
+# supported auth types: plain, crypt, sha1
+#
+bird:bebop
+ornette:wayout
+miles:sowhat
+dizzy:nightintunesia

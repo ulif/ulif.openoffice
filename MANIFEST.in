@@ -1,0 +1,15 @@
+include LICENSE.txt
+include README.txt
+include CHANGES.txt
+include COPYRIGHT.txt
+include setup.cfg
+include setup.py
+include tox.ini
+
+recursive-include src *
+recursive-include tests *
+recursive-include doc *
+
+prune doc/_build
+prune *.pyc
+prune *.pyo

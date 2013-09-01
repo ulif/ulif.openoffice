@@ -1,0 +1,124 @@
+The RESTful WSGI server for users
+=================================
+
+.. testsetup::
+
+    >>> import os
+    >>> import shutil
+    >>> import tempfile
+    >>> from webob import Request
+    >>> from ulif.openoffice.testing import ls, cat
+    >>> from ulif.openoffice.wsgi import RESTfulDocConverter
+    >>> _root = tempfile.mkdtemp()
+    >>> _cachedir = os.path.join(_root, 'cache')
+    >>> _home = os.path.join(_root, 'home')
+    >>> workdir = _home
+    >>> _old_root = os.getcwd()
+    >>> os.mkdir(_home)
+    >>> os.chdir(_root)
+    >>> app = RESTfulDocConverter(cache_dir=_cachedir)
+    >>> class Browser(object):
+    ...   app = app
+    ...   def GET(self, url):
+    ...     req = Request.blank(url)
+    ...     return app(req)
+    ...   def POST(self, url, **kw):
+    ...     req = Request.blank(url, POST=kw)
+    ...     return app(req)
+    >>> browser = Browser()
+
+The RESTful WSGI server can convert office documents into formats
+supported by LibreOffice and can store the results of those
+conversions locally in a cache.
+
+The `ulif.openoffice` WSGI app supports the following HTTP-based
+protocol to create, update, and remove documents:
+
+============= =============== ============= ===============================
+ HTTP method      Path           Params            Semantics
+============= =============== ============= ===============================
+ GET           /docs/new       `none`        Get an HTML form to trigger a
+                                             new conversion.
+------------- --------------- ------------- -------------------------------
+ POST          /docs           doc,          Create a new conversion.
+                               [other...]
+------------- --------------- ------------- -------------------------------
+ GET           /docs/<docid>   `none`        Get a cached conversion.
+============= =============== ============= ===============================
+
+
+Creating New Resources
+----------------------
+
+Via ``GET`` to ``/docs/new`` you can get an HTML form usable in a
+browser to send new documents to the server. This form provides a
+very limited set of options you can set for the conversion.
+
+    >>> url = 'http://localhost/docs/new'
+    >>> print browser.GET(url)          # doctest: +NORMALIZE_WHITESPACE
+    200 OK
+    Content-Type: text/html; charset=UTF-8
+    Content-Length: ...
+    <BLANKLINE>
+    <html>
+      <head>
+        <title>Create a new doc</title>
+      </head>
+      <body>
+        <form method="POST" action="/docs"
+              enctype="multipart/form-data">
+        ...
+        </form>
+      </body>
+    </html>
+    <BLANKLINE>
+
+Via a ``POST`` to ``/docs`` you can send a document to the server that
+will be converted. The result will be the converted document.
+
+    >>> url = 'http://localhost/docs'
+    >>> form = {'doc': ('sample.txt', 'Some Content'),
+    ...         'oocp-out-fmt': 'html'}
+    >>> print browser.POST(url, **form)  # doctest: +NORMALIZE_WHITESPACE
+    201 Created
+    Content-Type: application/zip
+    Content-Length: ...
+    Last-Modified: ...
+    ETag: "...-...-..."
+    Location: http://localhost:80/docs/78138d2003f1a87043d65c692fb3a64b_1_1
+    <BLANKLINE>
+    PK...
+
+Here we converted a `sample.txt` file to HTML. To do that we POSTed a
+request to the server with two parameters:
+
+`doc`
+   the file to be converted.
+
+`oocp-out-fmt`
+   the output format we want the document to be converted to.
+
+While the `doc` parameter is mandatory, other parameters are
+optional. The `oocp.out_fmt` parameter, for instance, is set to
+``html`` by default and you don't have to send it with the
+request. See :mod:`ulif.openoffice.processor` for the options of
+different document processors.
+
+With the response we not only get the converted document (packed into
+a ZIP file), but also some helpful information:
+
+Stating ``201 Created`` the server indicates that the converted
+document was cached after creation and can be retrieved in future from
+the URI given in the ``Location`` header.
+
+.. note:: The cached location for later retrieval of the generated
+          document works only, if caching is enabled for the REST
+          server. If it is not, you will get status ``200 OK`` and no
+          ``Location`` header instead.
+
+
+
+.. testcleanup::
+
+    >>> os.chdir(_old_root)
+    >>> shutil.rmtree(_root)
