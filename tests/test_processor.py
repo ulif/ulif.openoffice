@@ -569,6 +569,16 @@ class TestTidyProcessor(unittest.TestCase):
         assert 'Ü' in contents
         assert '&Uuml;' not in contents
 
+    def test_non_html_ignored(self):
+        # we do not try to tidy non html/xhtml files
+        proc = Tidy()
+        sample_path = os.path.join(self.workdir, 'sample.txt')
+        open(sample_path, 'w').write('Sample file.')
+        self.resultpath, metadata = proc.process(
+            sample_path, {'error': False})
+        # the document path hasn't changed
+        assert self.resultpath == sample_path
+
     def test_args(self):
         # we can add create argparse-arguments from `args`
         parser = ArgumentParser()
@@ -661,6 +671,16 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         self.assertRaises(
             ArgumentParserError,
             CSSCleaner, options={'css-cleaner-min': 'nonsense'})
+
+    def test_non_html_ignored(self):
+        # Non .html/.xhtml files are ignored
+        proc = CSSCleaner()
+        sample_path = os.path.join(self.workdir, 'sample.txt')
+        open(sample_path, 'w').write('Sample file.')
+        self.resultpath, metadata = proc.process(
+            sample_path, {'error': False})
+        # input was not touched
+        assert self.resultpath == sample_path
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
@@ -857,6 +877,16 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             )
         list_dir = os.listdir(self.workdir2)
         assert 'sample.jpg' not in list_dir
+
+    def test_non_html_ignored(self):
+        # Non .html/.xhtml files are ignored
+        proc = HTMLCleaner()
+        sample_path = os.path.join(self.workdir, 'sample.txt')
+        open(sample_path, 'w').write('Sample file.')
+        self.resultpath, metadata = proc.process(
+            sample_path, {'error': False})
+        # input was not touched
+        assert self.resultpath == sample_path
 
     def test_args(self):
         # we can add create argparse-arguments from `args`

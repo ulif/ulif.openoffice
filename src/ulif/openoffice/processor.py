@@ -379,7 +379,12 @@ class Tidy(BaseProcessor):
     """
     prefix = 'tidy'
 
+    supported_extensions = ['.html', '.xhtml']
+
     def process(self, path, metadata):
+        ext = os.path.splitext(path)[1]
+        if not ext in self.supported_extensions:
+            return path, metadata
         basename = os.path.basename(path)
         src_path = os.path.join(
             copy_to_secure_location(path), basename)
@@ -418,7 +423,12 @@ class CSSCleaner(BaseProcessor):
                  ),
         ]
 
+    supported_extensions = ['.html', '.xhtml']
+
     def process(self, path, metadata):
+        ext = os.path.splitext(path)[1]
+        if not ext in self.supported_extensions:
+            return path, metadata
         basename = os.path.basename(path)
         src_path = os.path.join(
             copy_to_secure_location(path), basename)
@@ -470,7 +480,12 @@ class HTMLCleaner(BaseProcessor):
 
         ]
 
+    supported_extensions = ['.html', '.xhtml']
+
     def process(self, path, metadata):
+        ext = os.path.splitext(path)[1]
+        if not ext in self.supported_extensions:
+            return path, metadata
         basename = os.path.basename(path)
         src_path = os.path.join(
             copy_to_secure_location(path), basename)
