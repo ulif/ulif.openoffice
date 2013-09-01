@@ -409,7 +409,6 @@ class TestOOConvProcessor(TestOOServerSetup):
         self.result_path, meta = proc.process(sample_file, {})
         output = log_catcher.get_log_messages()
         assert '-e SelectPdfVersion' in output
-        
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
