@@ -33,7 +33,6 @@ class ClientTestsSetup(unittest.TestCase):
         shutil.rmtree(self.rootdir)
         if self.resultdir is not None:
             shutil.rmtree(self.resultdir)
-        print "MESSAGES: ", self.log_catcher.get_log_messages()
 
 
 class ConvertDocTests(ClientTestsSetup):
