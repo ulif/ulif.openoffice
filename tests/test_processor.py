@@ -31,7 +31,7 @@ from ulif.openoffice.options import ArgumentParserError, Options
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
     ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error, processor_order)
-from ulif.openoffice.testing import TestOOServerSetup
+from ulif.openoffice.testing import TestOOServerSetup, ConvertLogCatcher
 try:
     import unittest2 as unittest
 except ImportError:
@@ -327,8 +327,8 @@ class TestOOConvProcessor(TestOOServerSetup):
         # make sure we can produce PDF/A output
         proc = OOConvProcessor(
             options={
-                'oocp.out_fmt': 'pdf',
-                'oocp.pdf_version': '1',
+                'oocp-out-fmt': 'pdf',
+                'oocp-pdf-version': '1',
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
@@ -344,8 +344,8 @@ class TestOOConvProcessor(TestOOServerSetup):
         # make sure we can produce non-PDF/A output
         proc = OOConvProcessor(
             options={
-                'oocp.out_fmt': 'pdf',
-                'oocp.pdf_version': '0',
+                'oocp-out-fmt': 'pdf',
+                'oocp-pdf-version': '0',
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
@@ -359,8 +359,8 @@ class TestOOConvProcessor(TestOOServerSetup):
         # make sure we can produce non-PDF/A output
         proc = OOConvProcessor(
             options={
-                'oocp.out_fmt': 'pdf',
-                'oocp.pdf_tagged': '1',
+                'oocp-out-fmt': 'pdf',
+                'oocp-pdf-tagged': '1',
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
@@ -381,6 +381,35 @@ class TestOOConvProcessor(TestOOServerSetup):
         assert meta[b'oocp_status'] == 1
         assert self.result_path is None
         return
+
+    def test_pdf_props_wo_pdf_out(self):
+        # PDF props are set only when pdf output format is required
+        proc = OOConvProcessor(
+            options={
+                'oocp-out-fmt': 'html',
+                }
+            )
+        sample_file = os.path.join(self.workdir, b'sample.txt')
+        open(sample_file, 'w').write(b'A sample')
+        log_catcher = ConvertLogCatcher()
+        self.result_path, meta = proc.process(sample_file, {})
+        output = log_catcher.get_log_messages()
+        assert '-e SelectPdfVersion' not in output
+
+    def test_pdf_props_with_pdf_out(self):
+        # PDF props are set only when pdf output format is required
+        proc = OOConvProcessor(
+            options={
+                'oocp-out-fmt': 'pdf',
+                }
+            )
+        sample_file = os.path.join(self.workdir, b'sample.txt')
+        open(sample_file, 'w').write(b'A sample')
+        log_catcher = ConvertLogCatcher()
+        self.result_path, meta = proc.process(sample_file, {})
+        output = log_catcher.get_log_messages()
+        assert '-e SelectPdfVersion' in output
+        
 
     def test_args(self):
         # we can add create argparse-arguments from `args`

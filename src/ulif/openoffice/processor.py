@@ -279,10 +279,11 @@ class OOConvProcessor(BaseProcessor):
 
     def _get_filter_props(self):
         props = []
-        pdf_version = self.options['oocp_pdf_version'] and 1L or 0L
-        props.append(("SelectPdfVersion", pdf_version))
-        pdf_tagged = self.options['oocp_pdf_tagged'] and '1' or '0'
-        props.append(("UseTaggedPDF", pdf_tagged))
+        if self.options['oocp_output_format'] == 'pdf':
+            pdf_version = self.options['oocp_pdf_version'] and 1L or 0L
+            props.append(("SelectPdfVersion", pdf_version))
+            pdf_tagged = self.options['oocp_pdf_tagged'] and '1' or '0'
+            props.append(("UseTaggedPDF", pdf_tagged))
         return props
 
     def process(self, path, metadata):
