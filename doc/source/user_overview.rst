@@ -5,7 +5,7 @@ The user documentation is split into the following parts:
 
 .. toctree::
 
-.. include:: install.txt
-.. include:: usage.txt
-.. include:: wsgi.txt
+.. include:: install.rst
+.. include:: usage.rst
+.. include:: wsgi.rst
 

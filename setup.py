@@ -21,7 +21,7 @@ class PyTest(TestCommand):
 setup(name='ulif.openoffice',
       version=version,
       description="Run OpenOffice as web service.",
-      long_description=open("README.txt").read() + "\n\n" +
+      long_description=open("README.rst").read() + "\n\n" +
                        open("CHANGES.txt").read(),
       classifiers=[
           "Development Status :: 3 - Alpha",

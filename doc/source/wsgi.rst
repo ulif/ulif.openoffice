@@ -27,7 +27,7 @@ The RESTful WSGI server for users
     ...     return app(req)
     >>> browser = Browser()
 
-The RESTful WSGI server can convert office documents into formats
+The RESTful WSGI app can convert office documents into formats
 supported by LibreOffice and can store the results of those
 conversions locally in a cache.
 
