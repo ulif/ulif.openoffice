@@ -355,8 +355,6 @@ class ZipProcessor(BaseProcessor):
     """
     prefix = 'zip'
 
-    supported_extensions = ['.zip']
-
     def process(self, path, metadata):
         if isinstance(path, unicode):
             # zipfile does not accept unicode encoded paths...
