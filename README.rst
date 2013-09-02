@@ -4,6 +4,12 @@ ulif.openoffice
 Convert office docs with LibreOffice/OpenOffice via Python,
 Commandline, or HTTP.
 
+|build-status|_
+
+.. |build-status| image:: https://travis-ci.org/ulif/ulif.openoffice.png?branch=master
+.. _build-status: https://travis-ci.org/ulif/ulif.openoffice
+
+
 This package provides tools like WSGI apps, cache managers, and
 commandline converters to ease access to LibreOffice/OpenOffice
 installations for Python programmers. Beside basic converting it
