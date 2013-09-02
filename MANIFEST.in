@@ -2,7 +2,7 @@ graft doc
 prune doc/build
 graft src
 graft tests
-include *.rst *.cfg *.ini *.txt *.html *.sh
+include *.rst *.cfg *.ini *.txt *.html *.sh htaccess
 global-exclude *.pyc
 global-exclude *.pyo
 global-exclude __pycache__
