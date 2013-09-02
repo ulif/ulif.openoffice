@@ -1,8 +1,8 @@
 CHANGES
 *******
 
-1.0dev (unreleased)
-===================
+1.0 (2013-09-02)
+================
 
 Major rewrite of the whole package.
 
