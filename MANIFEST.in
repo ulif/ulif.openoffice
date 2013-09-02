@@ -1,15 +1,8 @@
-include LICENSE.txt
-include README.txt
-include CHANGES.txt
-include COPYRIGHT.txt
-include setup.cfg
-include setup.py
-include tox.ini
-
-recursive-include src *
-recursive-include tests *
-recursive-include doc *
-
-prune doc/_build
-prune *.pyc
-prune *.pyo
+graft doc
+prune doc/build
+graft src
+graft tests
+include *.rst *.cfg *.ini *.txt *.html *.sh
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
