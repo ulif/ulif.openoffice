@@ -81,9 +81,9 @@ class ConvertTests(TestOOServerSetup):
             out_format='html', path=doc_path, out_dir=self.tmpdir,
             template=template_path)
         content = open(result_path, 'rb').read()
-        # with the template we set a special font for preformatted text
-        print content
-        assert 'Liberation Mono' in content
+        # tags that do not appear in un-templated docs
+        assert '<PRE CLASS="western">' in content
+        assert '<DIV TYPE=HEADER>' in content
         return
 
     def test_exec_cmd(self):
