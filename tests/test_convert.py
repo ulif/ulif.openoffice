@@ -82,7 +82,8 @@ class ConvertTests(TestOOServerSetup):
             template=template_path)
         content = open(result_path, 'rb').read()
         # with the template we set a special font for preformatted text
-        self.assertTrue('Liberation Mono' in content)
+        print content
+        assert 'Liberation Mono' in content
         return
 
     def test_exec_cmd(self):
