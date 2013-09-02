@@ -1,12 +1,12 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq unoconv tidy
 # command to install dependencies
 install:
-  - apt-get install unoconv
-  - apt-get install tidy
   - python setup.py dev
-  - oooctl start
+  - oooctl restart
 # command to run tests
 script: "python setup.py test"
