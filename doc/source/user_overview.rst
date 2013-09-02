@@ -8,4 +8,3 @@ The user documentation is split into the following parts:
 .. include:: install.rst
 .. include:: usage.rst
 .. include:: wsgi.rst
-

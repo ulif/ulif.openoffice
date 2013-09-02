@@ -1,7 +1,8 @@
 ulif.openoffice
 ***************
 
-Connect LibreOffice/OpenOffice, Python, and The Web.
+Convert office docs with LibreOffice/OpenOffice via Python,
+Commandline, or HTTP.
 
 This package provides tools like WSGI apps, cache managers, and
 commandline converters to ease access to LibreOffice/OpenOffice
@@ -14,8 +15,8 @@ conversions, removal of LibreOffice-specific tags, zipping, unzipping,
 etc.
 
 If the given processors are not enough for you, or you want some
-special handling of results (say, sign the generated doc
-cryptographically, add watermarks or whatever), you can define own
+special handling of results (say, sign generated docs
+cryptographically, add watermarks, or whatever), you can define own
 additional document processors in your own packages by using the
 Python entry-point API. `ulif.openoffice` will integrate them
 automatically during document processing and provide them in
@@ -99,6 +100,15 @@ converted document.
 The WSGI document converter supports (optional) local caching which
 will store conversion results and deliver it (bypassing new
 conversion) if a document was requested to be converted already.
+
+The package comes with prepared configuration files to setup and start
+such a web-based document converter in minutes.
+
+See the extended docs under
+
+  https://ulif-openoffice.readthedocs.org/en/latest/
+
+for details.
 
 
 Install

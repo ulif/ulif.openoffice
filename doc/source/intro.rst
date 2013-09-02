@@ -1,7 +1,7 @@
 Introduction
 ************
 
-What ulif.openoffice is
+About `ulif.openoffice`
 =======================
 
 ``ulif.openoffice`` is a Python package to support document
@@ -9,19 +9,18 @@ conversions using LibreOffice/OpenOffice.org (LO).
 
 It provides components to interact with a running LO-server for
 document conversions from office-type documents like .doc or .odt to
-HTML or PDF. Using ulif.openoffice you can trigger such conversions
-via commandline or via a Python-API.
+HTML or PDF (to be extended). Using ulif.openoffice you can trigger
+such conversions via commandline, programmatically from Python, or via
+HTTP.
 
 Furthermore, it provides a caching server that caches all documents
 once converted and delivers them in case a document is requested
 again. Depending on your needs this can speed-up things by factor 10
 or more.
 
-Also included is a WSGI_ application to perform those conversions as a
-RESTful webservice.
-
 Finally there is also a daemon (``oooctl``) included that starts the
 LO server in background and restarts it in case of crashes.
+
 
 Sources
 =======

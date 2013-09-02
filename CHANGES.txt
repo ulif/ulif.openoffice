@@ -29,6 +29,17 @@ Major rewrite of the whole package.
 
 * Removed cherrypy-based restserver. The new WSGI app is the replacement.
 
+* Added WSGI based document converter.
+
+* Added simple htaccess WSGI filter for web authentication.
+
+* Replaced cachemanager with a more robust and lightweight
+  version. Old caches do not work any more with this new
+  implementation.
+
+* Introduced a new central `Options` component to manage supported
+  options for all other components.
+
 0.4 (2011-02-11)
 ================
 
