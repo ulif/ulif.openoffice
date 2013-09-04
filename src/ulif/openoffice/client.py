@@ -83,6 +83,11 @@ class Client(object):
         self.cache_dir = cache_dir
 
     def convert(self, src_doc_path, options={}):
+        """Convert `src_doc_path` according to `options`.
+
+        Calls :func:`convert_doc` internally and returns the result
+        given by this function.
+        """
         return convert_doc(src_doc_path, options, self.cache_dir)
 
 
