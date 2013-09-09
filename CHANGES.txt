@@ -1,10 +1,11 @@
 CHANGES
 *******
 
-1.0.1 (unreleased)
+1.1 (unreleased)
 ==================
 
-* No changes yet.
+* Added a WSGI-based XMLRPC application to trigger conversion via
+  XMLRPC.
 
 1.0 (2013-09-02)
 ================
