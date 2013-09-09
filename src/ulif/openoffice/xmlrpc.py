@@ -81,7 +81,8 @@ class WSGIXMLRPCApplication(object):
             response = self.dispatcher._marshaled_dispatch(
                     data, self.dispatcher._dispatch
                 ) + '\n'
-        except:  # This should only happen if the module is buggy
+        except:                                         # pragma: no cover
+            # This should only happen if the module is buggy
             # internal error, report as HTTP server error
             return exc.HTTPServerError()
         else:
