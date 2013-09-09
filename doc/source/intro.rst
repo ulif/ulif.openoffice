@@ -60,10 +60,10 @@ itself.
 Overview
 ========
 
-``ulif.openoffice`` mainly provides five different components, of
-which three merely act as 'frontends' for the core functionality: a
-cmdline client, a RESTful WSGI_ application, and the respective API
-calls for use from Python programmes.
+``ulif.openoffice`` mainly provides six different components, of which
+four merely act as 'frontends' for the core functionality: a cmdline
+client, a RESTful WSGI_ application, a WSGI_ based XMLRPC application,
+and the respective API calls for use from Python programmes.
 
 * Additional to plain LibreOffice conversions, we provide a set of
   filters to modify office documents on the fly. We call these filters
@@ -92,6 +92,10 @@ calls for use from Python programmes.
   The DocumentConverter also supports use of a cache manager that
   caches already converted documents and delivers them in case the
   converted version exists already.
+
+* A WSGIXMLRPC application that also acts as a WSGI_ application but
+  provides XMLRPC services. You can use it for instance via the
+  standard Python `xmlrpclib` library.
 
 * A Python API to perform all the conversion stuff in your own Python
   programmes.

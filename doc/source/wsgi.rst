@@ -35,8 +35,8 @@ that can be served by HTTP servers and optionally caches result docs.
 Setting Up the WSGI App With Paste
 ----------------------------------
 
-To run the included doc converter WSGI_ app we can use `Paste`_. The
-required `paster` script can be installed locally with::
+To run the included RESTful doc converter WSGI_ app we can use
+`Paste`_. The required `paster` script can be installed locally with::
 
   (py27) pip install PasteScript
 

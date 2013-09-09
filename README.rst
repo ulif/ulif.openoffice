@@ -2,7 +2,7 @@ ulif.openoffice
 ***************
 
 Convert office docs with LibreOffice/OpenOffice via Python,
-Commandline, or HTTP.
+Commandline, or HTTP (including XMLRPC).
 
 |build-status|_
 
@@ -95,15 +95,16 @@ options, document processors, etc.::
 will give you the comprehensive list.
 
 
-Conversion via Web
-------------------
+Conversion via Web (XMLRPC or RESTful)
+--------------------------------------
 
-`ulif.openoffice` comes with a WSGI application that provides a
-RESTful document conversion service. With this application running you
-can send office documents to a webserver and will receive the
-converted document.
+`ulif.openoffice` comes with two WSGI applications that provide
+document conversion services to web clients. One is a RESTful document
+conversion service, the other is a WSGI based XMLRPC server. With one
+of these applications running you can send office documents to a
+server and will receive the converted document.
 
-The WSGI document converter supports (optional) local caching which
+All WSGI document converters supports (optional) local caching which
 will store conversion results and deliver it (bypassing new
 conversion) if a document was requested to be converted already.
 
