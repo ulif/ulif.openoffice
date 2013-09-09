@@ -14,3 +14,4 @@ API
    api_options
    api_processors
    api_wsgi
+   api_xmlrpc
