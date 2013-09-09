@@ -123,8 +123,13 @@ class WSGILikeHTTP(object):
     def putheader(self, key, value):
         self.headers[key] = value
 
-    def endheaders(self, body, *args):
-        self.body = body
+    def endheaders(self, *args):
+        if len(args):
+            self.body = args[0]
+
+    def send(self, body):
+        # py2.6
+        return self.endheaders(body)
 
     def getresponse(self, buffering=True):
         req = Request.blank(self.handler)
@@ -133,7 +138,17 @@ class WSGILikeHTTP(object):
         req.method = self.method
         req.body = self.body
         resp = req.get_response(self.app)
+        self.content = StringIO(resp.body)
         return HTTPWSGIResponse(resp)
+
+    def getreply(self):
+        # py2.6
+        resp = self.getresponse()
+        return resp.status, resp.reason, resp.resp.headers
+
+    def getfile(self):
+        # py2.6
+        return self.content
 
 
 class WSGIAppTransport(xmlrpclib.Transport):
