@@ -6,6 +6,7 @@ import unittest
 import xmlrpclib
 from StringIO import StringIO
 from mimetools import Message
+from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.xmlrpc import WSGIXMLRPCApplication
 
@@ -18,6 +19,13 @@ class ServerTestsSetup(unittest.TestCase):
         self.src_path = os.path.join(self.src_dir, 'sample.txt')
         open(self.src_path, 'wb').write('Hi there!\n')
         self.result_dir = None
+        self.inputdir = os.path.join(os.path.dirname(__file__), 'input')
+        self.paste_conf1 = os.path.join(self.inputdir, 'xmlrpcsample.ini')
+        self.cachedir = os.path.join(self.src_dir, 'cache')
+        self.paste_conf_tests = os.path.join(self.src_dir, 'paste.ini')
+        paste_conf = open(self.paste_conf1, 'r').read().replace(
+            '/tmp/mycache', self.cachedir)
+        open(self.paste_conf_tests, 'w').write(paste_conf)
 
     def tearDown(self):
         shutil.rmtree(self.src_dir)
@@ -66,6 +74,20 @@ class ServerTests(ServerTestsSetup):
         result_path, cache_dir, metadata = result[0][0]
         self.result_dir = os.path.dirname(result_path)   # for cleanup
         assert metadata['error'] is False
+
+    def test_paste_deploy_loader(self):
+        # we can find the xmlrpcapp via paste.deploy plugin
+        app = loadapp('config:%s' % self.paste_conf1)
+        assert isinstance(app, WSGIXMLRPCApplication)
+        assert app.cache_dir == '/tmp/mycache'
+        return
+
+    def test_paste_deploy_options(self):
+        # we can set options via paste.deploy
+        app = loadapp('config:%s' % self.paste_conf_tests)
+        self.assertTrue(isinstance(app, WSGIXMLRPCApplication))
+        self.assertEqual(app.cache_dir, self.cachedir)
+        return
 
 
 class HTTPWSGIResponse(object):
