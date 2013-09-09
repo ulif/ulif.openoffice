@@ -88,6 +88,7 @@ setup(name='ulif.openoffice',
       error = ulif.openoffice.processor:Error
       [paste.app_factory]
       docconverter = ulif.openoffice.wsgi:make_docconverter_app
+      xmlrpcapp = ulif.openoffice.xmlrpc:make_xmlrpc_app
       [paste.filter_app_factory]
       htaccess = ulif.openoffice.htaccess:make_htaccess
       """,
