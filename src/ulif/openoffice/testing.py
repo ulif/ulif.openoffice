@@ -241,7 +241,7 @@ class WSGILikeHTTP(object):
         if len(args):
             self.body = args[0]
 
-    def send(self, body):
+    def send(self, body):                               # pragma: no cover
         # py2.6
         return self.endheaders(body)
 
@@ -255,12 +255,12 @@ class WSGILikeHTTP(object):
         self.content = StringIO(resp.body)
         return HTTPWSGIResponse(resp)
 
-    def getreply(self):
+    def getreply(self):                                 # pragma: no cover
         # py2.6
         resp = self.getresponse()
         return resp.status, resp.reason, resp.resp.headers
 
-    def getfile(self):
+    def getfile(self):                                  # pragma: no cover
         # py2.6
         return self.content
 
