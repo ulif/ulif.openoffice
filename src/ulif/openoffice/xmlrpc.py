@@ -43,7 +43,7 @@ class WSGIXMLRPCApplication(object):
         self.dispatcher.register_introspection_functions()
         self.cache_dir = cache_dir
 
-    def convert_locally(self, src_path, options, cache_dir=None):
+    def convert_locally(self, src_path, options):
         """Convert document in `path`.
 
         Expects a local path to the document to convert.
@@ -51,16 +51,14 @@ class WSGIXMLRPCApplication(object):
         The `options` are a dictionary of options as accepted by all
         converter components in this package.
 
-        The `cache_dir` is the path to a cache directory to use. If
-        none is set, we use the cache of the application.
+        The cache (if set) will be updated.
 
         Returns path of converted document, a cache key and a
         dictionary of metadata. The cache key is ``None`` if no cache
         was used.
         """
-        cache_dir = cache_dir or self.cache_dir
         result_path, cache_key, metadata = convert_doc(
-            src_path, options, cache_dir)
+            src_path, options, self.cache_dir)
         return result_path, cache_key, metadata
 
     @wsgify
