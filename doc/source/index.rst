@@ -16,6 +16,7 @@ Contents:
    user_overview
    install
    usage
+   xmlrpc
    wsgi
    developer_overview
 

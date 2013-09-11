@@ -13,5 +13,6 @@ API
    api_oooctl
    api_options
    api_processors
+   api_testing
    api_wsgi
    api_xmlrpc

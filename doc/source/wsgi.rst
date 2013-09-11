@@ -77,6 +77,8 @@ capable of serving WSGI apps you like. This includes at least `Apache`
 and `nginx` (with appropriate modules loaded).
 
 
+.. _securing_wsgi:
+
 Securing the Document Converter (optional)
 ------------------------------------------
 
