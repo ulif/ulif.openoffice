@@ -18,7 +18,6 @@
 ##
 # Tests for htaccess module
 import os
-import pytest
 import tempfile
 import shutil
 import unittest
