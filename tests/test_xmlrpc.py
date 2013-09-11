@@ -5,11 +5,10 @@ import shutil
 import tempfile
 import unittest
 import xmlrpclib
-from StringIO import StringIO
-from mimetools import Message
 from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.cachemanager import CacheManager
+from ulif.openoffice.testing import WSGIXMLRPCAppTransport
 from ulif.openoffice.xmlrpc import WSGIXMLRPCApplication
 
 
@@ -92,77 +91,6 @@ class ServerTests(ServerTestsSetup):
         return
 
 
-class HTTPWSGIResponse(object):
-
-    def __init__(self, webob_resp):
-        self.resp = webob_resp
-        self._body = StringIO(self.resp.body)
-        self._body.seek(0)
-        self.reason = self.resp.status.split(" ", 1)
-        self.status = self.resp.status_int
-
-    def read(self, amt=None):
-        return self._body.read()
-
-    def getheader(self, name, default=None):
-        return self.resp.headers.get(name, default)
-
-    def msg(self):
-        return Message(StringIO(self.resp.__str__()))
-
-
-class WSGILikeHTTP(object):
-
-    def __init__(self, host, app):
-        self.app = app
-        self.headers = {}
-        self.content = StringIO()
-
-    def putrequest(self, method, handler, **kw):
-        self.method = method
-        self.handler = handler
-
-    def putheader(self, key, value):
-        self.headers[key] = value
-
-    def endheaders(self, *args):
-        if len(args):
-            self.body = args[0]
-
-    def send(self, body):
-        # py2.6
-        return self.endheaders(body)
-
-    def getresponse(self, buffering=True):
-        req = Request.blank(self.handler)
-        for key, val in self.headers.items():
-            req.headers[key] = val
-        req.method = self.method
-        req.body = self.body
-        resp = req.get_response(self.app)
-        self.content = StringIO(resp.body)
-        return HTTPWSGIResponse(resp)
-
-    def getreply(self):
-        # py2.6
-        resp = self.getresponse()
-        return resp.status, resp.reason, resp.resp.headers
-
-    def getfile(self):
-        # py2.6
-        return self.content
-
-
-class WSGIAppTransport(xmlrpclib.Transport):
-    def __init__(self, app):
-        xmlrpclib.Transport.__init__(self)
-        self.app = app
-
-    def make_connection(self, host):
-        host, extra_headers, x509 = self.get_host_info(host)
-        return WSGILikeHTTP(host, self.app)
-
-
 class ServerProxyTests(ServerTestsSetup):
     # xmlrpcapplication tests that use an xmlrpclib.ServerProxy
 
@@ -171,7 +99,7 @@ class ServerProxyTests(ServerTestsSetup):
         self.app = WSGIXMLRPCApplication(cache_dir=self.cachedir)
         self.proxy = xmlrpclib.ServerProxy(
             'http://admin:admin@dummy/',
-            transport=WSGIAppTransport(self.app))
+            transport=WSGIXMLRPCAppTransport(self.app))
 
     def test_convert_locally(self):
         # we can convert docs locally
