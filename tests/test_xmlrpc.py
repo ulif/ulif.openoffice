@@ -68,7 +68,7 @@ class ServerTests(ServerTestsSetup):
         # we can convert files locally
         app = WSGIXMLRPCApplication()
         req = self.xmlrpc_request(
-            'convert_locally', (self.src_path, {}, None))
+            'convert_locally', (self.src_path, {}))
         resp = req.get_response(app)
         result = xmlrpclib.loads(resp.body)
         result_path, cache_dir, metadata = result[0][0]
