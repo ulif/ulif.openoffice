@@ -95,6 +95,9 @@ class Client(object):
 
         Returns ``None`` if no such file can be found or no cache dir
         was set at all.
+
+        .. versionadded:: 1.1
+
         """
         if not self.cache_dir:
             return None

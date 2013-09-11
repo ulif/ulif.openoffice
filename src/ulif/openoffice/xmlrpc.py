@@ -17,7 +17,10 @@
 ## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##
 """
-Components to convert documents via XMLRPC.
+Components to convert documents via XML-RPC.
+
+.. versionadded:: 1.1
+
 """
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from webob import Response, exc
