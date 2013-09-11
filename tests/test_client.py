@@ -1,4 +1,5 @@
 # tests for client module
+import filecmp
 import os
 import pytest
 import shutil
@@ -94,6 +95,28 @@ class ClientTests(ClientTestsSetup):
         assert result_path[-16:] == '/sample.html.zip'
         assert cache_key is None  # no cache, no cache_key
         assert metadata == {'error': False, 'oocp_status': 0}
+
+    def test_get_cached_no_file(self):
+        # when asking for cached files we cope with nonexistent docs
+        client = Client(cache_dir=self.cachedir)
+        assert client.get_cached(
+            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
+
+    def test_get_cached_no_cache_dir(self):
+        # when asking for cached files we cope with no cache dirs
+        client = Client()
+        assert client.get_cached(
+            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
+
+    def test_get_cached(self):
+        # we can get an already cached doc
+        client = Client(cache_dir=self.cachedir)
+        result_path, cache_key, metadata = client.convert(self.src_doc)
+        self.resultdir == os.path.dirname(result_path)  # for cleanup
+        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
+        cached_path = client.get_cached(cache_key)
+        assert filecmp.cmp(result_path, cached_path, shallow=False)
+        assert self.cachedir in cached_path
 
     def test_options(self):
         # we can pass in options

@@ -90,6 +90,16 @@ class Client(object):
         """
         return convert_doc(src_doc_path, options, self.cache_dir)
 
+    def get_cached(self, cache_key):
+        """Get the document from cache stored under `cache_key`.
+
+        Returns ``None`` if no such file can be found or no cache dir
+        was set at all.
+        """
+        if not self.cache_dir:
+            return None
+        return CacheManager(self.cache_dir).get_cached_file(cache_key)
+
 
 def main(args=None):
     parser = argparse.ArgumentParser()
