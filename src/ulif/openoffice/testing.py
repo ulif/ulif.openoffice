@@ -27,7 +27,6 @@ import tempfile
 import time
 import xmlrpclib
 import ulif.openoffice
-from mimetools import Message
 from webob import Request
 try:
     from cStringIO import StringIO  # Python 2.x
@@ -222,9 +221,6 @@ class HTTPWSGIResponse(object):
 
     def getheader(self, name, default=None):
         return self.resp.headers.get(name, default)
-
-    def msg(self):
-        return Message(StringIO(self.resp.__str__()))
 
 
 class WSGILikeHTTP(object):
