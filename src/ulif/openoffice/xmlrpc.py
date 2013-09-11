@@ -22,7 +22,7 @@ Components to convert documents via XMLRPC.
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from webob import Response, exc
 from webob.dec import wsgify
-from ulif.openoffice.client import convert_doc
+from ulif.openoffice.client import Client, convert_doc
 
 
 class WSGIXMLRPCApplication(object):
@@ -40,6 +40,8 @@ class WSGIXMLRPCApplication(object):
             allow_none=True, encoding=None)
         self.dispatcher.register_function(
             self.convert_locally, 'convert_locally')
+        self.dispatcher.register_function(
+            self.get_cached, 'get_cached')
         self.dispatcher.register_introspection_functions()
         self.cache_dir = cache_dir
 
@@ -60,6 +62,15 @@ class WSGIXMLRPCApplication(object):
         result_path, cache_key, metadata = convert_doc(
             src_path, options, self.cache_dir)
         return result_path, cache_key, metadata
+
+    def get_cached(self, cache_key):
+        """Get a cached document.
+
+        Retrieve the document representation stored under `cache_key`
+        in cache if it exists. Returns `None` otherwise.
+        """
+        client = Client(cache_dir=self.cache_dir)
+        return client.get_cached(cache_key)
 
     @wsgify
     def __call__(self, req):

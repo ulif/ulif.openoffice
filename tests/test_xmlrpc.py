@@ -1,4 +1,5 @@
 # tests for xmlrpc module
+import filecmp
 import os
 import shutil
 import tempfile
@@ -8,6 +9,7 @@ from StringIO import StringIO
 from mimetools import Message
 from paste.deploy import loadapp
 from webob import Request
+from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.xmlrpc import WSGIXMLRPCApplication
 
 
@@ -166,7 +168,7 @@ class ServerProxyTests(ServerTestsSetup):
 
     def setUp(self):
         super(ServerProxyTests, self).setUp()
-        self.app = WSGIXMLRPCApplication()
+        self.app = WSGIXMLRPCApplication(cache_dir=self.cachedir)
         self.proxy = xmlrpclib.ServerProxy(
             'http://admin:admin@dummy/',
             transport=WSGIAppTransport(self.app))
@@ -183,3 +185,15 @@ class ServerProxyTests(ServerTestsSetup):
         result = self.proxy.system.listMethods()
         assert isinstance(result, list)
         assert 'convert_locally' in result
+
+    def test_get_cached(self):
+        # we can get cached docs
+        cm = CacheManager(self.cachedir)
+        fake_result_path = os.path.join(self.src_dir, 'result.txt')
+        open(fake_result_path, 'wb').write('The Result\n')
+        key = cm.register_doc(self.src_path, fake_result_path, 'somekey')
+        assert key == '2b87e29fca6ee7f1df6c1a76cb58e101_1_1'
+        result_path = self.proxy.get_cached(key)
+        assert result_path is not None
+        assert result_path != fake_result_path
+        assert filecmp.cmp(result_path, fake_result_path, shallow=False)
