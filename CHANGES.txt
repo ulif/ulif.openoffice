@@ -7,6 +7,9 @@ CHANGES
 * Added a WSGI-based XMLRPC application to trigger conversion via
   XMLRPC.
 
+* Added `get_cached` method for client and XMLRPC client to retrieve
+  docs stored in cache.
+
 1.0 (2013-09-02)
 ================
 
