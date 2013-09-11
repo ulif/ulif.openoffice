@@ -208,7 +208,13 @@ class ConvertLogCatcher(object):
 
 
 class HTTPWSGIResponse(object):
-    # A fake httplib-like HTTP response for use by WSGIXMLRPCAppTransport.
+    """A fake httplib-like HTTP response.
+
+    Used by :class:`WSGILikeHTTP` for use by
+    :class:`WSGIXMLRPCAppTransport`.
+
+    .. versionaddedd:: 1.1
+    """
     def __init__(self, webob_resp):
         self.resp = webob_resp
         self._body = StringIO(self.resp.body)
@@ -224,7 +230,10 @@ class HTTPWSGIResponse(object):
 
 
 class WSGILikeHTTP(object):
-    # A httplib-like HTTP layer for WSGIXMLRPCAppTransport
+    """A httplib-like HTTP layer for WSGIXMLRPCAppTransport.
+
+    .. versionaddedd:: 1.1
+    """
     def __init__(self, host, app):
         self.app = app
         self.headers = {}
@@ -266,9 +275,20 @@ class WSGILikeHTTP(object):
 
 
 class WSGIXMLRPCAppTransport(xmlrpclib.Transport):
-    # a fake HTTP transport usable by xmlrpclib clients to fake
-    # connections to real servers.
-    # The given `app` should be the XMLRPC WSGI app to serve.
+    """A fake HTTP transport.
+
+    The given `app` should be the XMLRPC WSGI app to serve. Usually a
+    :class:`ulif.openoffice.xmlrpc.WSGIXMLRPCApplication` instance.
+
+    Usable by xmlrpclib clients to fake connections to 'real' servers
+    like :class:`xmlrpclib.SimpleXMLRPCServer` instances.
+
+    With this transport you can create :class:`xmlrpclib.ServerProxy`
+    instances that talk directly to the given `app` instead of doing
+    real network requests.
+
+    .. versionaddedd:: 1.1
+    """
     def __init__(self, app):
         xmlrpclib.Transport.__init__(self)
         self.app = app
@@ -276,3 +296,25 @@ class WSGIXMLRPCAppTransport(xmlrpclib.Transport):
     def make_connection(self, host):
         host, extra_headers, x509 = self.get_host_info(host)
         return WSGILikeHTTP(host, self.app)
+
+
+#: A WSGIXMLRPCApplication instance for use by :class:`FakeServerProxy`.
+#: Set this var before creating a :class:`FakeServerProxy` instance
+#: and the proxy will send requests to the set application.
+xmlrcpapp = None
+
+
+class FakeServerProxy(xmlrpclib.ServerProxy):
+    """A :class:`xmlrpclib.ServerProxy` for doctests.
+
+    Different to normal `ServerProxy` instances, this one uses a
+    special transport to talk directly to the
+    :class:`ulif.openoffice.xmlrpc.WSGIXMLRPCApplication` set in
+    `xmlrpcapp`.
+
+    .. versionaddedd:: 1.1
+    """
+    def __init__(self, url):
+        global xmlrpcapp
+        transport = WSGIXMLRPCAppTransport(xmlrpcapp)
+        xmlrpclib.ServerProxy.__init__(self, url, transport=transport)
