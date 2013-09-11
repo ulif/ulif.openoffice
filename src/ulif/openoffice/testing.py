@@ -213,7 +213,7 @@ class HTTPWSGIResponse(object):
     Used by :class:`WSGILikeHTTP` for use by
     :class:`WSGIXMLRPCAppTransport`.
 
-    .. versionaddedd:: 1.1
+    .. versionadded:: 1.1
     """
     def __init__(self, webob_resp):
         self.resp = webob_resp
@@ -230,9 +230,9 @@ class HTTPWSGIResponse(object):
 
 
 class WSGILikeHTTP(object):
-    """A httplib-like HTTP layer for WSGIXMLRPCAppTransport.
+    """An httplib-like HTTP layer for WSGIXMLRPCAppTransport.
 
-    .. versionaddedd:: 1.1
+    .. versionadded:: 1.1
     """
     def __init__(self, host, app):
         self.app = app
@@ -287,7 +287,7 @@ class WSGIXMLRPCAppTransport(xmlrpclib.Transport):
     instances that talk directly to the given `app` instead of doing
     real network requests.
 
-    .. versionaddedd:: 1.1
+    .. versionadded:: 1.1
     """
     def __init__(self, app):
         xmlrpclib.Transport.__init__(self)
@@ -305,14 +305,14 @@ xmlrcpapp = None
 
 
 class FakeServerProxy(xmlrpclib.ServerProxy):
-    """A :class:`xmlrpclib.ServerProxy` for doctests.
+    """An :class:`xmlrpclib.ServerProxy` for doctests.
 
     Different to normal `ServerProxy` instances, this one uses a
     special transport to talk directly to the
     :class:`ulif.openoffice.xmlrpc.WSGIXMLRPCApplication` set in
     `xmlrpcapp`.
 
-    .. versionaddedd:: 1.1
+    .. versionadded:: 1.1
     """
     def __init__(self, url):
         global xmlrpcapp
