@@ -356,6 +356,36 @@ class CacheManager(object):
         bucket = Bucket(bucket_path)
         return bucket.get_representation(bucket_key)
 
+    def get_cached_file_by_source(self, source_path, repr_key=''):
+        """Get the representation stored for a source file and a key.
+
+        .. versionadded:: 1.1
+
+        Returns path to a file represented by `source_path` and
+        `repr_key` or ``None`` if no such representation is stored in
+        cache already.
+
+        Does basically the same as :meth:`get_cached_file` but without
+        a cache_key. Instead the source file is examined again and we
+        look for a representation matching the repr_key. In other
+        words: we find docs that have been registered already with
+        source file and repr_key.
+
+        .. note:: This method is much more expensive than
+                  :meth:`get_cached_file`. Please use it only if the
+                  ``cache_key`` cannot be determined otherwise.
+
+        """
+        hash_digest = self.get_hash(source_path)
+        bucket = Bucket(self._get_bucket_path(hash_digest))
+        src_num = bucket.get_stored_source_num(source_path)
+        if src_num is None:
+            return None
+        repr_num = bucket.get_stored_repr_num(src_num, repr_key)
+        if repr_num is None:
+            return None
+        return bucket.get_representation('%s_%s' % (src_num, repr_num))
+
     def register_doc(self, source_path, to_cache, repr_key=''):
         """Store a representation of file found in `source_path` which
         resides in path `to_cache` to a bucket.
