@@ -96,6 +96,10 @@ class Client(object):
         Returns ``None`` if no such file can be found or no cache dir
         was set at all.
 
+        .. warning:: The returned path (if any) is part of cache! Do
+                     not remove or change the file. Copy it to another
+                     location instead.
+
         .. versionadded:: 1.1
 
         """
@@ -109,8 +113,16 @@ class Client(object):
         Find a cached document, which was created from the given
         `src_doc_path` and `options`.
 
+        Please note that this method is much more expensive than
+        :meth:`get_cached`. Use it only if the `cache_key` returned
+        upon registering a doc is absolutely not available any more.
+
         Returns ``None`` if no such file can be found or no cache dir
         was set at all.
+
+        .. warning:: The returned path (if any) is part of cache! Do
+                     not remove or change the file. Copy it to another
+                     location instead.
 
         .. versionadded:: 1.1
 
