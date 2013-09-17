@@ -103,6 +103,24 @@ class Client(object):
             return None
         return CacheManager(self.cache_dir).get_cached_file(cache_key)
 
+    def get_cached_by_source(self, src_doc_path, options={}):
+        """Get the document from cache by source doc and options.
+
+        Find a cached document, which was created from the given
+        `src_doc_path` and `options`.
+
+        Returns ``None`` if no such file can be found or no cache dir
+        was set at all.
+
+        .. versionadded:: 1.1
+
+        """
+        if not self.cache_dir:
+            return None
+        repr_key = get_marker(options)
+        return CacheManager(self.cache_dir).get_cached_file_by_source(
+            src_doc_path, repr_key)
+
 
 def main(args=None):
     parser = argparse.ArgumentParser()

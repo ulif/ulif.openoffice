@@ -136,6 +136,28 @@ class ClientTests(ClientTestsSetup):
             ArgumentParserError,
             client.convert, self.src_doc, options=options)
 
+    def test_get_cached_by_source_no_file(self):
+        # we cannot get a cached file not cached before
+        client = Client(cache_dir=self.cachedir)
+        cached_path = client.get_cached_by_source(self.src_doc)
+        assert cached_path is None
+
+    def test_get_cached_by_source_no_cache_dir(self):
+        # we cannot get a cached file if w/o cache_dir set
+        client = Client()
+        cached_path = client.get_cached_by_source(self.src_doc)
+        assert cached_path is None
+
+    def test_get_cached_by_source(self):
+        # we can get a file when cached and by source/options
+        client = Client(cache_dir=self.cachedir)
+        result_path, cache_key, metadata = client.convert(self.src_doc)
+        self.resultdir == os.path.dirname(result_path)  # for cleanup
+        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
+        cached_path = client.get_cached_by_source(self.src_doc)
+        assert filecmp.cmp(result_path, cached_path, shallow=False)
+        assert self.cachedir in cached_path
+
 
 class MainClientTests(ClientTestsSetup):
     # tests for the client modules `main` function
