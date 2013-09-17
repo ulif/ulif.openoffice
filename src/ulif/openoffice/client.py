@@ -81,6 +81,9 @@ class Client(object):
     """
     def __init__(self, cache_dir=None):
         self.cache_dir = cache_dir
+        self.cache_manager = None
+        if self.cache_dir is not None:
+            self.cache_manager = CacheManager(self.cache_dir)
 
     def convert(self, src_doc_path, options={}):
         """Convert `src_doc_path` according to `options`.
@@ -103,9 +106,9 @@ class Client(object):
         .. versionadded:: 1.1
 
         """
-        if not self.cache_dir:
-            return None
-        return CacheManager(self.cache_dir).get_cached_file(cache_key)
+        if self.cache_manager is not None:
+            return self.cache_manager.get_cached_file(cache_key)
+        return None
 
     def get_cached_by_source(self, src_doc_path, options={}):
         """Get the document from cache by source doc and options.
@@ -127,11 +130,11 @@ class Client(object):
         .. versionadded:: 1.1
 
         """
-        if not self.cache_dir:
-            return None
         repr_key = get_marker(options)
-        return CacheManager(self.cache_dir).get_cached_file_by_source(
-            src_doc_path, repr_key)
+        if self.cache_manager is not None:
+            return self.cache_manager.get_cached_file_by_source(
+                src_doc_path, repr_key)
+        return None
 
 
 def main(args=None):
