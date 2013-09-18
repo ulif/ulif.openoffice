@@ -116,12 +116,15 @@ class Client(object):
         Find a cached document, which was created from the given
         `src_doc_path` and `options`.
 
+        Returns the path to the document and a cache key you are
+        encouraged to use for future access.
+
         Please note that this method is much more expensive than
         :meth:`get_cached`. Use it only if the `cache_key` returned
         upon registering a doc is absolutely not available any more.
 
-        Returns ``None`` if no such file can be found or no cache dir
-        was set at all.
+        Returns ``(None, None)`` if no such file can be found or no
+        cache dir was set at all.
 
         .. warning:: The returned path (if any) is part of cache! Do
                      not remove or change the file. Copy it to another
@@ -134,7 +137,7 @@ class Client(object):
         if self.cache_manager is not None:
             return self.cache_manager.get_cached_file_by_source(
                 src_doc_path, repr_key)
-        return None
+        return None, None
 
 
 def main(args=None):
