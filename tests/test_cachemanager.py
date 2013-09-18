@@ -344,24 +344,31 @@ class TestCacheManager(CachingComponentsTestCase):
         cm = CacheManager(self.workdir)
         # without a cache key
         my_id1 = cm.register_doc(self.src_path1, self.result_path1)
-        result1 = cm.get_cached_file_by_source(self.src_path1)
-        assert filecmp.cmp(result1, self.result_path1, shallow=False)
+        result, key = cm.get_cached_file_by_source(self.src_path1)
+        assert filecmp.cmp(result, self.result_path1, shallow=False)
+        assert key == '737b337e605199de28b3b64c674f9422_1_1'
 
     def test_get_cached_file_by_src_failed(self):
         cm = CacheManager(self.workdir)
-        result1 = cm.get_cached_file_by_source(self.src_path1)
-        assert result1 is None
+        result, key = cm.get_cached_file_by_source(self.src_path1)
+        assert result is None
+        assert key is None
 
     def test_get_cached_file_by_src_w_key(self):
         cm = CacheManager(self.workdir)
         my_id = cm.register_doc(self.src_path1, self.result_path1, 'mykey')
-        result1 = cm.get_cached_file_by_source(self.src_path1, 'mykey')
+        result1, key1 = cm.get_cached_file_by_source(self.src_path1, 'mykey')
         assert filecmp.cmp(result1, self.result_path1, shallow=False)
-        result2 = cm.get_cached_file_by_source(self.src_path1, 'otherkey')
+        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
+        result2, key2 = cm.get_cached_file_by_source(
+            self.src_path1, 'otherkey')
         assert result2 is None
+        assert key2 is None
         cm.register_doc(self.src_path1, self.result_path2, 'otherkey')
-        result3 = cm.get_cached_file_by_source(self.src_path1, 'otherkey')
+        result3, key3 = cm.get_cached_file_by_source(
+            self.src_path1, 'otherkey')
         assert filecmp.cmp(result3, self.result_path2, shallow=False)
+        assert key3 == '737b337e605199de28b3b64c674f9422_1_2'
 
     def test_register_doc(self):
         cm = CacheManager(self.workdir)

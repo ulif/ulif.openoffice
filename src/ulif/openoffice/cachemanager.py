@@ -361,8 +361,11 @@ class CacheManager(object):
 
         .. versionadded:: 1.1
 
-        Returns path to a file represented by `source_path` and
-        `repr_key` or ``None`` if no such representation is stored in
+        Returns ``(<path>, <cache_key>)`` where ``<path>`` is the path
+        to a file represented by `source_path` and
+        `repr_key`. ``<cache_key>`` is the key you can use with
+        :meth:`get_cached_file` to get cached files much quicker. Both
+        values are ``None`` if no such representation is stored in
         cache already.
 
         Does basically the same as :meth:`get_cached_file` but without
@@ -380,11 +383,13 @@ class CacheManager(object):
         bucket = Bucket(self._get_bucket_path(hash_digest))
         src_num = bucket.get_stored_source_num(source_path)
         if src_num is None:
-            return None
+            return None, None
         repr_num = bucket.get_stored_repr_num(src_num, repr_key)
         if repr_num is None:
-            return None
-        return bucket.get_representation('%s_%s' % (src_num, repr_num))
+            return None, None
+        bucket_key = '%s_%s' % (src_num, repr_num)
+        cache_key = self._compose_cache_key(hash_digest, bucket_key)
+        return bucket.get_representation(bucket_key), cache_key
 
     def register_doc(self, source_path, to_cache, repr_key=''):
         """Store a representation of file found in `source_path` which
