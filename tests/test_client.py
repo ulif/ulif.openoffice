@@ -91,8 +91,9 @@ class ClientTests(ClientTestsSetup):
     def test_convert(self):
         client = Client()
         result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir == os.path.dirname(result_path)  # for cleanup
+        self.resultdir = os.path.dirname(result_path)  # for cleanup
         assert result_path[-16:] == '/sample.html.zip'
+        assert os.path.isfile(result_path)
         assert cache_key is None  # no cache, no cache_key
         assert metadata == {'error': False, 'oocp_status': 0}
 
@@ -112,7 +113,7 @@ class ClientTests(ClientTestsSetup):
         # we can get an already cached doc
         client = Client(cache_dir=self.cachedir)
         result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir == os.path.dirname(result_path)  # for cleanup
+        self.resultdir = os.path.dirname(result_path)  # for cleanup
         assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
         cached_path = client.get_cached(cache_key)
         assert filecmp.cmp(result_path, cached_path, shallow=False)
@@ -154,7 +155,7 @@ class ClientTests(ClientTestsSetup):
         # we can get a file when cached and by source/options
         client = Client(cache_dir=self.cachedir)
         result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir == os.path.dirname(result_path)  # for cleanup
+        self.resultdir = os.path.dirname(result_path)  # for cleanup
         assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
         cached_path, cache_key = client.get_cached_by_source(self.src_doc)
         assert filecmp.cmp(result_path, cached_path, shallow=False)
