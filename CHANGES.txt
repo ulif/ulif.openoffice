@@ -16,6 +16,9 @@ CHANGES
 * Fixed bug: OOCP processor returned wrong result file path for XHTML
   output.
 
+* Fixed bug: Remove temporary dir if converting fails in client.
+
+
 1.0 (2013-09-02)
 ================
 

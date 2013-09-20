@@ -21,6 +21,7 @@ Client API to access all functionality via programmatic calls.
 """
 import argparse
 import os
+import shutil
 import sys
 from ulif.openoffice.cachemanager import CacheManager, get_marker
 from ulif.openoffice.helpers import copy_to_secure_location
@@ -63,10 +64,14 @@ def convert_doc(src_doc, options, cache_dir):
     metadata = dict(error=False)
 
     # Generate result
-    input_copy = copy_to_secure_location(os.path.abspath(src_doc))
-    input_copy = os.path.join(input_copy, os.path.basename(src_doc))
-    proc = MetaProcessor(options=options)  # Removes original doc
-    result_path, metadata = proc.process(input_copy)
+    input_copy_dir = copy_to_secure_location(os.path.abspath(src_doc))
+    input_copy = os.path.join(input_copy_dir, os.path.basename(src_doc))
+    try:
+        proc = MetaProcessor(options=options)  # Removes original doc
+        result_path, metadata = proc.process(input_copy)
+    except Exception, exc:
+        shutil.rmtree(input_copy_dir)
+        raise exc
 
     error_state = metadata.get('error', False)
     if cache_dir and not error_state and result_path is not None:
