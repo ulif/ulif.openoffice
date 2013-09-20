@@ -175,14 +175,18 @@ class TestMetaProcessor(unittest.TestCase):
         proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
                                       'meta-procord': 'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
+        assert os.path.isfile(self.resultpath)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
-        assert self.resultpath.endswith('sample.xhtml')
+        assert open(self.resultpath, 'r').read().startswith('<?xml ')
+        assert self.resultpath.endswith('sample.html')
 
     def test_process_html_unzipped(self):
         proc = MetaProcessor(options={'oocp-out-fmt': 'html',
                                       'meta-procord': 'unzip,oocp'})
         self.resultpath, metadata = proc.process(self.input)
+        assert os.path.isfile(self.resultpath)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
+        assert open(self.resultpath, 'r').read().startswith('<!DOCTYPE')
         assert self.resultpath.endswith('sample.html')
 
     def test_process_with_errors(self):

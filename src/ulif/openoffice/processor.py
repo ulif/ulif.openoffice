@@ -314,6 +314,8 @@ class OOConvProcessor(BaseProcessor):
                 src = os.path.dirname(src)
             shutil.rmtree(src)
             return None, metadata
+        if extension == 'xhtml':
+            extension = 'html'
         result_path = '%s.%s' % (os.path.splitext(src)[0], extension)
 
         # Remove input file if different from output
