@@ -34,6 +34,8 @@ mydocs = {}
 
 
 def get_mimetype(filename):
+    if not isinstance(filename, basestring):
+        return 'application/octet-stream'
     type, encoding = mimetypes.guess_type(filename)
     # We'll ignore encoding, even though we shouldn't really
     return type or 'application/octet-stream'

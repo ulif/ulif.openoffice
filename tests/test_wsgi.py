@@ -9,10 +9,35 @@ from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.cachemanager import get_marker
 from ulif.openoffice.wsgi import (
-    RESTfulDocConverter, FileIterator, FileIterable,
+    RESTfulDocConverter, FileIterator, FileIterable, get_mimetype
     )
 
 pytestmark = pytest.mark.wsgi
+
+
+class GetMimetypeTests(unittest.TestCase):
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+
+    def test_nofilename(self):
+        self.assertEqual(get_mimetype(None), 'application/octet-stream')
+
+    def test_nofile(self):
+        self.assertEqual(
+            get_mimetype('not-a-file'), 'application/octet-stream')
+
+    def test_txtfile(self):
+        self.assertEqual(get_mimetype('file.txt'), 'text/plain')
+
+    def test_jpgfile(self):
+        self.assertEqual(get_mimetype('file.jpg'), 'image/jpeg')
+
+    def test_unknowngile(self):
+        self.assertEqual(
+            get_mimetype('unknown.type'), 'application/octet-stream')
 
 
 class FileIteratorTests(unittest.TestCase):
