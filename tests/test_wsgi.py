@@ -35,7 +35,10 @@ class GetMimetypeTests(unittest.TestCase):
     def test_jpgfile(self):
         self.assertEqual(get_mimetype('file.jpg'), 'image/jpeg')
 
-    def test_unknowngile(self):
+    def test_zipfile(self):
+        self.assertEqual(get_mimetype('file.zip'), 'application/zip')
+
+    def test_unknownfile(self):
         self.assertEqual(
             get_mimetype('unknown.type'), 'application/octet-stream')
 
