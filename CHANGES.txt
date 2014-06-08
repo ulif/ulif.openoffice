@@ -18,6 +18,8 @@ CHANGES
 
 * Fixed bug: Remove temporary dir if converting fails in client.
 
+* Modified tests to accept also docs generated on Ubuntu 14.04.
+
 
 1.0 (2013-09-02)
 ================

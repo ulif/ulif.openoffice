@@ -82,8 +82,10 @@ class ConvertTests(TestOOServerSetup):
             template=template_path)
         content = open(result_path, 'rb').read()
         # tags that do not appear in un-templated docs
-        assert '<PRE CLASS="western">' in content
-        assert '<DIV TYPE=HEADER>' in content
+        assert '<pre class="western">' in content.lower()
+        assert (
+            '<DIV TYPE=HEADER>' in content) or (
+            '<div title="header"' in content)
         return
 
     def test_exec_cmd(self):
