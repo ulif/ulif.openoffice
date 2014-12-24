@@ -20,6 +20,8 @@ CHANGES
 
 * Modified tests to accept also docs generated on Ubuntu 14.04.
 
+* Fixed bug: Catch shutil.Error in copytree() [thanks to: sbywater]
+
 
 1.0 (2013-09-02)
 ================
