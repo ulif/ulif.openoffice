@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 import os
 import shutil
+import stat
 import tempfile
 import unittest
 import zipfile
@@ -87,6 +88,38 @@ class TestHelpers(unittest.TestCase):
         dst_link = os.path.join(self.workdir, 'dstdir', 'sample.link')
         assert os.path.islink(dst_link)
         assert os.readlink(dst_link) == os.path.join(src_dir, 'sample.txt')
+
+    def test_copytree_ioerror(self):
+        # we catch IOErrors
+        src_dir = os.path.join(self.workdir, 'srcdir')
+        os.mkdir(src_dir)
+        dst_dir = os.path.join(self.workdir, 'dstdir')
+        os.mkdir(dst_dir)
+        src_file = os.path.join(src_dir, 'sample1.txt')
+        dst_file = os.path.join(dst_dir, 'sample1.txt')
+        open(src_file, 'w').write('Hi!')
+        open(dst_file, 'w').write('Ho!')
+
+        # make dst_file unwriteable
+        old_mode = os.stat(dst_file).st_mode
+        os.chmod(dst_file, stat.S_IREAD)
+        exc = None
+        try:
+            copytree(
+                src_dir, dst_dir, symlinks=False)
+        except (Exception) as exc:
+            exc = exc
+        # reenable writing
+        os.chmod(dst_file, old_mode)
+
+        assert isinstance(exc, shutil.Error)
+        assert len(exc.args) == 1
+        err_src, err_dst, err_msg = exc.args[0][0]
+        self.assertEqual(err_src, src_file)
+        self.assertEqual(err_dst, dst_file)
+        self.assertEqual(
+            err_msg,
+            u"[Errno 13] Permission denied: u'%s'" % dst_file)
 
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
