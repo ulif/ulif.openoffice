@@ -105,8 +105,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except (shutil.Error) as err:       # pragma: no cover
-            errors.extend(err.args[0])
+        except (shutil.Error) as why:
+            errors.append((srcname, dstname, str(why)))
     try:
         shutil.copystat(src, dst)
     except WindowsError:                    # pragma: no cover
@@ -115,7 +115,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
     except (OSError) as why:                # pragma: no cover
         errors.extend((src, dst, str(why)))
     if errors:
-        raise shutil.Error(errors)          # pragma: no cover
+        raise shutil.Error(errors)
 
 
 def copy_to_secure_location(src):

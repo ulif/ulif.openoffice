@@ -90,7 +90,7 @@ class TestHelpers(unittest.TestCase):
         assert os.readlink(dst_link) == os.path.join(src_dir, 'sample.txt')
 
     def test_copytree_ioerror(self):
-        # we catch IOErrors
+        # we catch IOErrors, collect them and raise at end
         src_dir = os.path.join(self.workdir, 'srcdir')
         os.mkdir(src_dir)
         dst_dir = os.path.join(self.workdir, 'dstdir')
@@ -107,7 +107,7 @@ class TestHelpers(unittest.TestCase):
         try:
             copytree(
                 src_dir, dst_dir, symlinks=False)
-        except (Exception) as exc:
+        except (shutil.Error) as exc:
             exc = exc
         # reenable writing
         os.chmod(dst_file, old_mode)
@@ -120,6 +120,28 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(
             err_msg,
             u"[Errno 13] Permission denied: u'%s'" % dst_file)
+
+    def test_copytree_shutil_error(self):
+        # We catch shutil.Errors, collect them and raise at end
+        # Also #1 regression
+        src_dir = os.path.join(self.workdir, 'srcdir')
+        os.mkdir(src_dir)
+        src_file = os.path.join(src_dir, 'sample.txt')
+        open(src_file, 'w').write('Hi!')
+        # source and dest are the same. Provokes shutil.Error
+        exc = None
+        try:
+            copytree(src_dir, src_dir)
+        except (shutil.Error) as exc:
+            exc = exc
+        assert isinstance(exc, shutil.Error)
+        assert len(exc.args) == 1
+        err_src, err_dst, err_msg = exc.args[0][0]
+        self.assertEqual(err_src, src_file)
+        self.assertEqual(err_dst, src_file)
+        self.assertEqual(
+            err_msg,
+            '`%s` and `%s` are the same file' % (src_file, src_file))
 
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
