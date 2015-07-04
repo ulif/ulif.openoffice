@@ -2,7 +2,7 @@
 ##
 ## test_helpers.py
 ##
-## Copyright (C) 2011, 2013 Uli Fouquet
+## Copyright (C) 2011, 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -426,6 +426,13 @@ class TestHelpers(unittest.TestCase):
         result, img_map = cleanup_html(html_input, 'sample.html',
                                        fix_sdfields=False)
         assert html_input == result
+
+    #def test_cleanup_html_minifies_by_default(self):
+    #    # by default, cleanup_html minifies code
+    #    html_input = '<span>\n<span>foo</span>\n</span>'
+    #    result, img_map = cleanup_html(html_input, 'sample.html')
+    #    expected = '<span><span>foo</span></span>'
+    #    assert result == expected
 
     def test_rename_sdfield_tags(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
