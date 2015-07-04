@@ -55,6 +55,7 @@ setup(name='ulif.openoffice',
           'argparse',
           'beautifulsoup4',
           'cssutils',
+          'htmlmin',
           'Routes',
           'WebOb',
           'Paste',   # Python 2.x only
