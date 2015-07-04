@@ -6,6 +6,7 @@ Converting Docs via XMLRPC
     >>> import os
     >>> import shutil
     >>> import tempfile
+    >>> from pprint import pprint
     >>> from webob import Request
     >>> from ulif.openoffice.testing import ls, cat
     >>> from ulif.openoffice.wsgi import RESTfulDocConverter
@@ -118,10 +119,10 @@ dictionary of options:
 
     >>> open('sample.txt', 'w').write('Some Content')
     >>> result = server.convert_locally('sample.txt', {})
-    >>> result                      # doctest: +ELLIPSIS,+NORMALIZE_WHITESPACE
+    >>> pprint(result)              # doctest: +ELLIPSIS,+NORMALIZE_WHITESPACE
     ['/.../sample.html.zip',
      '78138d2003f1a87043d65c692fb3a64b_1_1',
-     {'oocp_status': 0, 'error': False}]
+     {'error': False, 'oocp_status': 0}]
 
 The result consists of a result path, a cache key and a dict with
 metadata: ``(<PATH>, <CACHE_KEY>, <METADATA>)``.
@@ -157,10 +158,10 @@ but we can also produce a PDF file:
 
     >>> options = {'oocp-out-fmt': 'pdf', 'meta-procord': 'oocp'}
     >>> result = server.convert_locally('sample.txt', options)
-    >>> result                      # doctest: +ELLIPSIS,+NORMALIZE_WHITESPACE
+    >>> pprint(result)             # doctest: +ELLIPSIS,+NORMALIZE_WHITESPACE
     ['/.../sample.pdf',
      '78138d2003f1a87043d65c692fb3a64b_1_2',
-     {'oocp_status': 0, 'error': False}]
+     {'error': False, 'oocp_status': 0}]
 
 Here we used the options ``oocp-out-fmt`` and ``meta-procord``. The
 first one tells LibreOffice to produce PDF output and the latter

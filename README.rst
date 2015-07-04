@@ -50,6 +50,7 @@ The complete documentation can be found at
     >>> from ulif.openoffice.testing import (
     ...     doctest_setup, doctest_teardown, doctest_rm_resultdir)
     >>> doctest_setup()
+    >>> from pprint import pprint
 
 Examples
 ========
@@ -62,8 +63,8 @@ A .doc to .html conversion via the Python API can be done like this::
     >>> from ulif.openoffice.client import Client
     >>> client = Client()
     >>> result = client.convert('document.doc')
-    >>> result
-    ('.../document.html.zip', None, {'oocp_status': 0, 'error': False})
+    >>> pprint(result)
+    ('.../document.html.zip', None, {'error': False, 'oocp_status': 0})
 
 ..
     >>> doctest_rm_resultdir(result[0])         # clean up
