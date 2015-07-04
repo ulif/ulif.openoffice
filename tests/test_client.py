@@ -192,7 +192,7 @@ class MainClientTests(ClientTestsSetup):
         except SystemExit:
             pass  # help causes sys.exit(1)
         out, err = self.mycapsys.readouterr()
-        assert out[:44] == u"usage: oooclient [-h] [--cachedir CACHEDIR]\n"
+        assert out[:43] == u"usage: oooclient [-h] [--cachedir CACHEDIR]"
 
     def test_argument_error(self):
         # argument errors are shown and explained
