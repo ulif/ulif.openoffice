@@ -427,12 +427,11 @@ class TestHelpers(unittest.TestCase):
                                        fix_sdfields=False)
         assert html_input == result
 
-    #def test_cleanup_html_minifies_by_default(self):
-    #    # by default, cleanup_html minifies code
-    #    html_input = '<span>\n<span>foo</span>\n</span>'
-    #    result, img_map = cleanup_html(html_input, 'sample.html')
-    #    expected = '<span><span>foo</span></span>'
-    #    assert result == expected
+    def test_cleanup_html_no_minify_by_default(self):
+        # by default, cleanup_html does not minify code
+        html_input = '<span>\n<span>foo</span>\n</span>'
+        result, img_map = cleanup_html(html_input, 'sample.html')
+        assert result == html_input
 
     def test_rename_sdfield_tags(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
