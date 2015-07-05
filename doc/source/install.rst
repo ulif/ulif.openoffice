@@ -2,7 +2,12 @@ Prerequisites
 =============
 
 Of course LibreOffice (or OpenOffice) must be installed on the
-system. Also unoconv is mandatory.
+system. Also unoconv is mandatory and for HTML mangling we also use
+the `tidy` tool.
+
+On Ubuntu this can be done with::
+
+  $ sudo apt-get install libreoffice unoconv tidy
 
 The scripts in here were tested with Ubuntu and work.
 
@@ -35,6 +40,10 @@ will install the latest released version from PyPI.
 
 Developer Install
 -----------------
+
+If not done already, install the neccessary external packages::
+
+    $ sudo apt-get install libreoffice unoconv tidy
 
 It is recommended to setup sources in a virtual environment::
 
