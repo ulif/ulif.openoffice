@@ -1,7 +1,7 @@
 ##
 ## helpers.py
 ##
-## Copyright (C) 2011, 2013 Uli Fouquet
+## Copyright (C) 2011, 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -261,7 +261,7 @@ CDATA_MASSAGE.extend([
              lambda match: match.group(7))])
 
 
-def extract_css(html_input, basename='sample.html'):
+def extract_css(html_input, basename='sample.html', prettify_html=True):
     """Scan `html_input` and replace all styles with single link to a CSS
     file.
 
@@ -316,7 +316,10 @@ def extract_css(html_input, basename='sample.html'):
             style.extract()
     if css == '':
         css = None
-    return soup.prettify(), css
+    if prettify_html:
+        return soup.prettify(), css
+    return str(soup).decode("utf-8"), css
+
 
 RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
                          re.M + re.S)
