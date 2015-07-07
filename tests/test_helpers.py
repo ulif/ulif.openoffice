@@ -367,6 +367,23 @@ class TestHelpers(unittest.TestCase):
         assert '/*' not in result
         return
 
+    def test_extract_css_prettify(self):
+        # We can get prettified HTML (although it might be broken)
+        result, css = extract_css(
+            "<span>text<span>no</span>gap</span>", "sample.html",
+            prettify_html=True
+        )
+        assert result == (
+            "<span>\n text\n <span>\n  no\n </span>\n gap\n</span>"
+            )
+
+    def test_extract_css_no_prettify_by_default(self):
+        # by default we do not get prettified html
+        result, css = extract_css(
+            "<span>text<span>no</span>gap</span>", "sample.html"
+        )
+        assert result == "<span>text<span>no</span>gap</span>"
+
     def test_cleanup_html_fix_img_links(self):
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'image_sample.html')
