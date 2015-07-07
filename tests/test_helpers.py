@@ -558,8 +558,8 @@ class TestHelpers(unittest.TestCase):
 
     def test_rename_html_img_links_multiple_img(self):
         # Check that multiple links to same file get same target
-        html_input = ('<img src="a.gif" /><img src="a.gif"' +
-                     '/><img src="b.gif" />')
+        html_input = (
+            '<img src="a.gif" /><img src="a.gif"' + '/><img src="b.gif" />')
         html_output, img_map = rename_html_img_links(
             html_input, 'sample.html')
         assert img_map == {
@@ -642,10 +642,10 @@ class TestHelpers(unittest.TestCase):
         open(p1, 'w').write(b'foo')
         filelike1 = StringIO(b'foo')
         filelike2 = StringIO(b'bar')
-        assert filelike_cmp(p1, filelike1) == True
-        assert filelike_cmp(p1, filelike2) == False
-        assert filelike_cmp(p1, filelike1) == True
-        assert filelike_cmp(p1, filelike2) == False
+        assert filelike_cmp(p1, filelike1) is True
+        assert filelike_cmp(p1, filelike2) is False
+        assert filelike_cmp(p1, filelike1) is True
+        assert filelike_cmp(p1, filelike2) is False
 
     def test_write_filelike(self):
         src = os.path.join(self.workdir, b'f1')
