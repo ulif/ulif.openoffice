@@ -261,7 +261,7 @@ CDATA_MASSAGE.extend([
              lambda match: match.group(7))])
 
 
-def extract_css(html_input, basename='sample.html', prettify_html=True):
+def extract_css(html_input, basename='sample.html', prettify_html=False):
     """Scan `html_input` and replace all styles with single link to a CSS
     file.
 

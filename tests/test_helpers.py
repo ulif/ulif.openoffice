@@ -300,7 +300,7 @@ class TestHelpers(unittest.TestCase):
     def test_extract_css_simple(self):
         result, css = extract_css(
             "<style>a, b</style>", 'sample.html')
-        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>\n'
+        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
         assert css == 'a, b'
         assert result == link
 
@@ -316,7 +316,7 @@ class TestHelpers(unittest.TestCase):
         result, css = extract_css(
             "<html><style /></html>", 'sample.html')
         assert css is None
-        assert result == "<html>\n</html>"
+        assert result == "<html></html>"
 
     def test_extract_css_nested_styles(self):
         # Trash in, trash out...
@@ -328,13 +328,13 @@ class TestHelpers(unittest.TestCase):
         result, css = extract_css(
             "<html><body>äö</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html>\n <body>\n  äö\n </body>\n</html>'
+        assert result == '<html><body>äö</body></html>'
 
     def test_extract_css_utf8_unicode(self):
         result, css = extract_css(
             "<html><body>ä</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html>\n <body>\n  ä\n </body>\n</html>'
+        assert result == '<html><body>ä</body></html>'
         return
 
     def test_extract_css_complex_html(self):
