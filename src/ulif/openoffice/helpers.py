@@ -276,6 +276,10 @@ def extract_css(html_input, basename='sample.html', prettify_html=True):
     result in a link to ``sample.css``. The same applies for a
     `basename` ``sample.css`` or ``sample``. The modified HTML code is
     returned as first item of the result tuple.
+
+    If `pretify_html` is True, the generated HTML code is prettified
+    by BeautifulSoup. This might result in unexpected, visible gaps in
+    rendered output.
     """
     # create HTML massage that removes CDATA and HTML comments in styles
     for fix, m in CDATA_MASSAGE:
