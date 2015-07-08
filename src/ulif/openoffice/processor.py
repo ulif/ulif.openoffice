@@ -423,6 +423,12 @@ class CSSCleaner(BaseProcessor):
                  help='Whether to minify generated CSS (when handling HTML) '
                  'Default: yes',
                  ),
+        Argument('-css-cleaner-prettify', '--css-cleaner-prettify-html',
+                 type=boolean, default=False,
+                 metavar='YES|NO',
+                 help='Prettify generated HTML (may lead to gaps in '
+                 'rendered output) Default: no',
+             ),
         ]
 
     supported_extensions = ['.html', '.xhtml']
@@ -436,7 +442,9 @@ class CSSCleaner(BaseProcessor):
             copy_to_secure_location(path), basename)
         remove_file_dir(path)
 
-        new_html, css = extract_css(open(src_path, 'rb').read(), basename)
+        new_html, css = extract_css(
+            open(src_path, 'rb').read(), basename,
+            prettify_html=self.options['css_cleaner_prettify_html'])
         css, errors = cleanup_css(
             css, minified=self.options['css_cleaner_minified'])
 

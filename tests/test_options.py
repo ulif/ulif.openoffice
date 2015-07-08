@@ -137,7 +137,8 @@ class OptionsTests(unittest.TestCase):
         # we can get a list of acceptable string options
         opts = Options()
         assert opts.string_keys == [
-            'css-cleaner-min', 'html-cleaner-fix-head-nums',
-            'html-cleaner-fix-img-links', 'html-cleaner-fix-sd-fields',
-            'meta-procord', 'oocp-host', 'oocp-out-fmt', 'oocp-pdf-tagged',
+            'css-cleaner-min', 'css-cleaner-prettify',
+            'html-cleaner-fix-head-nums', 'html-cleaner-fix-img-links',
+            'html-cleaner-fix-sd-fields', 'meta-procord',
+            'oocp-host', 'oocp-out-fmt', 'oocp-pdf-tagged',
             'oocp-pdf-version', 'oocp-port']
