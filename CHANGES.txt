@@ -22,6 +22,11 @@ CHANGES
 
 * Fixed bug: Catch shutil.Error in copytree() [thanks to: sbywater]
 
+* Added new option: `--css-cleaner-prettify-html` prettifies generated
+  HTML code. This was done automatically  in previous releases and can
+  lead to gaps in rendered output. This option, when set (disabled by
+  default) enables the old behaviour. Fixes #3.
+
 
 1.0 (2013-09-02)
 ================
