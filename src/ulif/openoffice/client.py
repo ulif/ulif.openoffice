@@ -1,7 +1,7 @@
 ##
 ## client.py
 ##
-## Copyright (C) 2013 Uli Fouquet
+## Copyright (C) 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -69,7 +69,7 @@ def convert_doc(src_doc, options, cache_dir):
     try:
         proc = MetaProcessor(options=options)  # Removes original doc
         result_path, metadata = proc.process(input_copy)
-    except Exception, exc:
+    except Exception as exc:
         shutil.rmtree(input_copy_dir)
         raise exc
 
