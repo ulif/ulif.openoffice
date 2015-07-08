@@ -37,6 +37,7 @@ try:
     from urlparse import urlparse         # Python 2.x
 except ImportError:                       # pragma: no cover
     from urllib import parse as urlparse  # Python 3.x
+from six import string_types
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -229,7 +230,7 @@ def remove_file_dir(path):
     If `path` points to a file, the directory containing the file is
     removed. If `path` is a directory, this directory is removed.
     """
-    if not isinstance(path, basestring):
+    if not isinstance(path, string_types):
         return
     if not os.path.exists(path):
         return
@@ -505,7 +506,7 @@ def string_to_bool(string):
 
     Other values result in ``None``.
     """
-    if not isinstance(string, basestring):
+    if not isinstance(string, string_types):
         if string is True or string is False:
             return string
         return None
@@ -569,9 +570,9 @@ def filelike_cmp(file1, file2, chunksize=512):
     f1 = file1
     f2 = file2
     result = True
-    if isinstance(file1, basestring):
+    if isinstance(file1, string_types) or isinstance(file1, bytes):
         f1 = open(file1, 'rb')
-    if isinstance(file2, basestring):
+    if isinstance(file2, string_types) or isinstance(file2, bytes):
         f2 = open(file2, 'rb')
     f1.seek(0)  # make sure we read from beginning, especially whe used
     f2.seek(0)  # in loops.
@@ -585,9 +586,9 @@ def filelike_cmp(file1, file2, chunksize=512):
             if not chunk1:
                 break
     finally:
-        if isinstance(file1, basestring):
+        if isinstance(file1, string_types) or isinstance(file1, bytes):
             f1.close()
-        if isinstance(file2, basestring):
+        if isinstance(file2, string_types) or isinstance(file2, bytes):
             f2.close()
     return result
 
@@ -601,7 +602,7 @@ def write_filelike(file_obj, path, chunksize=512):
     Content is written in chunks of `chunksize`.
     """
     f1 = file_obj
-    if isinstance(file_obj, basestring):
+    if isinstance(file_obj, string_types):
         f1 = StringIO(file_obj)
     f2 = open(path, 'w')
     try:

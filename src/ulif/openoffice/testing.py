@@ -25,7 +25,10 @@ import shutil
 import sys
 import tempfile
 import time
-import xmlrpclib
+try:
+    from xmlrpc import client as xmlrpclib   # Python 3.x
+except ImportError:
+    import xmlrpclib                         # Python 2.x
 import ulif.openoffice
 from webob import Request
 try:
