@@ -104,7 +104,7 @@ class OptionsTests(unittest.TestCase):
         # default options are set
         assert opts['meta_processor_order'] == DEFAULT_PROCORDER
         # default options can be overridden
-        assert opts['oocp_pdf_version'] == True
+        assert opts['oocp_pdf_version'] is True
 
     def test_val_dict_overrides_string_dict(self):
         # val_dict values will override string_dict values
