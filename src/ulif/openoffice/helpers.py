@@ -258,8 +258,8 @@ MARKUP_MASSAGE = [
 
 CDATA_MASSAGE = MARKUP_MASSAGE
 CDATA_MASSAGE.extend([
-            (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
-             lambda match: match.group(7))])
+    (re.compile(RE_CDATA_MASSAGE, re.M + re.S),
+     lambda match: match.group(7))])
 
 
 def extract_css(html_input, basename='sample.html', prettify_html=False):
@@ -291,9 +291,10 @@ def extract_css(html_input, basename='sample.html', prettify_html=False):
         css = css.replace('<style>', '\n')
 
     # lowercase leading tag names
-    css = re.sub(RE_CSS_TAG,
-                 lambda match:
-                     match.group(1).lower() + match.group(2) + '{', css)
+    css = re.sub(
+        RE_CSS_TAG,
+        lambda match:
+        match.group(1).lower() + match.group(2) + '{', css)
 
     # set indent of all CSS statement lines to nil.
     css = re.sub(RE_CSS_STMT_START,
@@ -361,11 +362,11 @@ def cleanup_html(html_input, basename,
     html_input = re.sub(
         RE_HEAD_NUM,
         lambda match: ''.join([
-                match.group(1),
-                '<span class="u-o-headnum">',
-                match.group(3),
-                '</span>',
-                match.group(4)]),
+            match.group(1),
+            '<span class="u-o-headnum">',
+            match.group(3),
+            '</span>',
+            match.group(4)]),
         html_input)
     return html_input, img_name_map
 

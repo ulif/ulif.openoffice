@@ -1,7 +1,7 @@
 ##
 ## convert.py
 ##
-## Copyright (C) 2011, 2013 Uli Fouquet
+## Copyright (C) 2011, 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -47,9 +47,9 @@ def threadsafe(func):
 
 @threadsafe
 def convert(
-    url="socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
-    out_format='text', path=None, out_dir=None, filter_props=(),
-    template=None, timeout=5, doctype='document', executable='unoconv'):
+        url="socket,host=localhost,port=2002;urp;StarOffice.ComponentContext",
+        out_format='text', path=None, out_dir=None, filter_props=(),
+        template=None, timeout=5, doctype='document', executable='unoconv'):
     """Convert some document using `unoconv`.
 
     Converts the document given in `path` to `out_format` and return a

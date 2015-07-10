@@ -1,7 +1,7 @@
 ##
 ## oooctl.py
 ##
-## Copyright (C) 2008, 2013 Uli Fouquet
+## Copyright (C) 2008, 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -163,11 +163,12 @@ def start(binarypath, foreground=False):               # pragma: no cover
         result = os.system(cmd)
         return result
 
-    proc = subprocess.Popen(['sh %s' % cmd],
-                        shell=True,
-                        close_fds=True,
-                        preexec_fn=os.setsid,
-                        )
+    proc = subprocess.Popen(
+        ['sh %s' % cmd],
+        shell=True,
+        close_fds=True,
+        preexec_fn=os.setsid,
+    )
     global child_pid
     child_pid = proc.pid
     return child_pid

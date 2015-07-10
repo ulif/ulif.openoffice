@@ -144,7 +144,7 @@ class Bucket(object):
         """
         for name in os.listdir(self.srcdir):
             if filecmp.cmp(
-                os.path.join(self.srcdir, name), src_path, shallow=False):
+                    os.path.join(self.srcdir, name), src_path, shallow=False):
                 return int(name.split('_')[-1])
         return None
 
@@ -235,7 +235,7 @@ class Bucket(object):
         """
         for src_num in os.listdir(self.resultdir):
             for repr_num in os.listdir(os.path.join(
-                self.resultdir, src_num)):
+                    self.resultdir, src_num)):
                 yield '%s_%s' % (src_num, repr_num)
 
 

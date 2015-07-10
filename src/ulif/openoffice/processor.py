@@ -343,7 +343,7 @@ class UnzipProcessor(BaseProcessor):
             unzip(path, dst)
             dirlist = os.listdir(dst)
             if len(dirlist) != 1 or os.path.isdir(
-                os.path.join(dst, dirlist[0])):
+                    os.path.join(dst, dirlist[0])):
                 metadata['error'] = True
                 metadata['error-descr'] = 'ambiguity problem: several files'
                 shutil.rmtree(dst)
@@ -429,8 +429,8 @@ class CSSCleaner(BaseProcessor):
                  metavar='YES|NO',
                  help='Prettify generated HTML (may lead to gaps in '
                  'rendered output) Default: no',
-             ),
-        ]
+                 ),
+    ]
 
     supported_extensions = ['.html', '.xhtml']
 
