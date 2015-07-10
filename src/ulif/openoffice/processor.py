@@ -395,7 +395,8 @@ class Tidy(BaseProcessor):
 
         # Remove <SDFIELD> tags if any
         cleaned_html = rename_sdfield_tags(open(src_path, 'rb').read())
-        open(src_path, 'wb').write(cleaned_html)
+        with open(src_path, 'wb') as fd:
+            fd.write(cleaned_html)
 
         error_file = os.path.join(src_dir, 'tidy-errors')
         cmd = 'tidy -asxhtml -clean -indent -modify -utf8 -f %s %s' % (
@@ -450,8 +451,10 @@ class CSSCleaner(BaseProcessor):
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
-            open(css_file, 'w').write(css)
-        open(src_path, 'w').write(new_html.encode('utf-8'))
+            with open(css_file, 'w') as fd:
+                fd.write(css)
+        with open(src_path, 'w') as fd:
+            fd.write(new_html.encode('utf-8'))
 
         return src_path, metadata
 
@@ -508,7 +511,8 @@ class HTMLCleaner(BaseProcessor):
             fix_img_links=self.options['html_cleaner_fix_image_links'],
             fix_sdfields=self.options['html_cleaner_fix_sd_fields'],
             )
-        open(src_path, 'w').write(new_html)
+        with open(src_path, 'w') as fd:
+            fd.write(new_html)
         # Rename images
         self.rename_img_files(src_dir, img_name_map)
         return src_path, metadata

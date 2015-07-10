@@ -10,6 +10,11 @@ except ImportError:                 # pragma: no cover
 from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 
+def write_to_file(path, content):
+    with open(path) as fd:
+        write(content)
+
+
 class HelpersTestCase(unittest.TestCase):
 
     def test_get_marker(self):
@@ -34,12 +39,18 @@ class CachingComponentsTestCase(unittest.TestCase):
         self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
         self.result_path3 = os.path.join(self.inputdir, 'resultfile3')
         self.result_path4 = os.path.join(self.inputdir, 'resultfile4')
-        open(self.src_path1, 'w').write('source1\n')
-        open(self.src_path2, 'w').write('source2\n')
-        open(self.result_path1, 'w').write('result1\n')
-        open(self.result_path2, 'w').write('result2\n')
-        open(self.result_path3, 'w').write('result3\n')
-        open(self.result_path4, 'w').write('result4\n')
+        with open(self.src_path1, 'w') as fd:
+            fd.write('source1\n')
+        with open(self.src_path2, 'w') as fd:
+            fd.write('source2\n')
+        with open(self.result_path1, 'w') as fd:
+            fd.write('result1\n')
+        with open(self.result_path2, 'w') as fd:
+            fd.write('result2\n')
+        with open(self.result_path3, 'w') as fd:
+            fd.write('result3\n')
+        with open(self.result_path4, 'w') as fd:
+            fd.write('result4\n')
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -130,17 +141,20 @@ class TestCacheBucket(CachingComponentsTestCase):
         self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
         os.makedirs(os.path.dirname(key_path1))
         os.makedirs(os.path.dirname(key_path3))
-        open(key_path1, 'w').write(b'otherkey')
+        with open(key_path1, 'w') as fd:
+            fd.write(b'otherkey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        open(key_path2, 'w').write(b'somekey')
+        with open(key_path2, 'w') as fd:
+            fd.write(b'somekey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        open(key_path3, 'w').write(b'somekey')
+        with open(key_path3, 'w') as fd:
+            fd.write(b'somekey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), 1)

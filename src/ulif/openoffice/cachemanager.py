@@ -71,14 +71,17 @@ class Bucket(object):
 
     def _set_internal_data(self, data):
         data_path = os.path.join(self.path, 'data')
-        pickle.dump(data, open(data_path, 'wb'))
+        with open(data_path, 'wb') as fd:
+            pickle.dump(data, fd)
         return
 
     def _get_internal_data(self):
         data_path = os.path.join(self.path, 'data')
         if not os.path.exists(data_path):
             return None
-        return pickle.load(open(data_path, 'rb'))
+        with open(data_path, 'rb') as fd:
+            result = pickle.load(fd)
+        return result
 
     data = property(_get_internal_data, _set_internal_data)
 
