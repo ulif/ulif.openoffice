@@ -627,9 +627,12 @@ class TestHelpers(unittest.TestCase):
         p1 = os.path.join(self.workdir, b'p1')
         p2 = os.path.join(self.workdir, b'p2')
         p3 = os.path.join(self.workdir, b'p3')
-        open(p1, 'w').write(b'asd')
-        open(p2, 'w').write(b'qwe')
-        open(p3, 'w').write(b'asd')
+        with open(p1, 'w') as fd:
+            fd.write(b'asd')
+        with open(p2, 'w') as fd:
+            fd.write(b'qwe')
+        with open(p3, 'w') as fd:
+            fd.write(b'asd')
         assert filelike_cmp(p1, p2) is False
         assert filelike_cmp(p1, p3) is True
         assert filelike_cmp(p1, StringIO(b'asd')) is True
@@ -639,7 +642,8 @@ class TestHelpers(unittest.TestCase):
         # make sure filepointers are reset when we use the same
         # file-like object several times (as often happens in loops).
         p1 = os.path.join(self.workdir, b'p1')
-        open(p1, 'w').write(b'foo')
+        with open(p1, 'w') as fd:
+            fd.write(b'foo')
         filelike1 = StringIO(b'foo')
         filelike2 = StringIO(b'bar')
         assert filelike_cmp(p1, filelike1) is True
@@ -649,7 +653,8 @@ class TestHelpers(unittest.TestCase):
 
     def test_write_filelike(self):
         src = os.path.join(self.workdir, b'f1')
-        open(src, 'w').write(b'content')
+        with open(src, 'w') as fd:
+            fd.write(b'content')
         dst = os.path.join(self.workdir, b'f2')
         write_filelike(open(src, 'rb'), dst)
         assert open(dst, 'rb').read() == b'content'
