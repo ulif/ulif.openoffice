@@ -710,10 +710,10 @@ class TestCSSCleanerProcessor(unittest.TestCase):
             [
                 '-css-cleaner-min', 'no',
                 '-css-cleaner-prettify', 'yes',
-         ]))
+            ]))
         assert result == {
             'css_cleaner_minified': False,
-            'css_cleaner_prettify_html' : True,
+            'css_cleaner_prettify_html': True,
         }
 
 
@@ -725,8 +725,8 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         self.resultpath = None
         self.sample_path = os.path.join(self.workdir, 'sample.html')
         self.img_sample_path = os.path.join(self.workdir2, 'sample.html')
-        self.img_file_path = os.path.join(self.workdir2,
-                                     'image_sample_html_m20918026.gif')
+        self.img_file_path = os.path.join(
+            self.workdir2, 'image_sample_html_m20918026.gif')
         shutil.copy(
             os.path.join(os.path.dirname(__file__), 'input', 'sample3.html'),
             self.sample_path)
@@ -881,9 +881,11 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             options={'html-cleaner-fix-img-links': '1'})
         proc.rename_img_files(
             self.workdir2,
-            {'image_sample_html_m20918026.gif':
-                 'image_sample_html_m20918026.gif'}
-            )
+            {
+                'image_sample_html_m20918026.gif':
+                'image_sample_html_m20918026.gif'
+            }
+        )
         list_dir = os.listdir(self.workdir2)
         assert 'image_sample_html_m20918026.gif' in list_dir
 
