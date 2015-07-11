@@ -510,7 +510,7 @@ class TestCollision(CachingComponentsTestCase):
 
         file_list = []
         for root, dirnames, filenames in os.walk(
-            os.path.join(basket_path, 'repr')):
+                os.path.join(basket_path, 'repr')):
             for filename in filenames:
                 file_list.append(os.path.join(root, filename))
         file_list = sorted(file_list)
