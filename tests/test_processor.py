@@ -2,7 +2,7 @@
 ##
 ## test_processor.py
 ##
-## Copyright (C) 2011, 2013 Uli Fouquet
+## Copyright (C) 2011, 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -682,6 +682,34 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         self.assertRaises(
             ArgumentParserError,
             CSSCleaner, options={'css-cleaner-min': 'nonsense'})
+
+    def test_cleaner_prettify(self):
+        # we can get prettified HTML from CSS cleaner
+        # This might result in gaps in rendered output.
+        proc = CSSCleaner(options={'css-cleaner-prettify': '1'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error': False})
+        with open(self.resultpath, 'rb') as fd:
+            result_html = fd.read()
+        assert 'seam\n   </span>\n   <span>\n    less' in result_html
+
+    def test_cleaner_non_prettify(self):
+        # we can get non-prettified HTML from CSS cleaner
+        proc = CSSCleaner(options={'css-cleaner-prettify': '0'})
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error': False}, )
+        with open(self.resultpath, 'rb') as fd:
+            result_html = fd.read()
+        assert 'seam</span><span>less text.</span>' in result_html
+
+    def test_cleaner_non_prettify_is_default(self):
+        # we get non-prettified HTML from CSS cleaner by default
+        proc = CSSCleaner()
+        self.resultpath, metadata = proc.process(
+            self.sample_path, {'error': False}, )
+        with open(self.resultpath, 'rb') as fd:
+            result_html = fd.read()
+        assert 'seam</span><span>less text.</span>' in result_html
 
     def test_non_html_ignored(self):
         # Non .html/.xhtml files are ignored
