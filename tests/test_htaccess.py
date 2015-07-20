@@ -1,7 +1,7 @@
 ##
 ## test_htpasswd.py
 ##
-## Copyright (C) 2013 Uli Fouquet
+## Copyright (C) 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -39,7 +39,8 @@ class CheckCredentialsTests(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.htaccess_path = os.path.join(self.workdir, 'sample')
-        open(self.htaccess_path, 'w').write(PASSWDS)
+        with open(self.htaccess_path, 'w') as fd:
+            fd.write(PASSWDS)
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -76,7 +77,8 @@ class TestMakeHtaccess(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.htaccess_path = os.path.join(self.workdir, 'sample')
-        open(self.htaccess_path, 'w').write(PASSWDS)
+        with open(self.htaccess_path, 'w') as fd:
+            fd.write(PASSWDS)
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -102,7 +104,8 @@ class TestHtaccessHandler(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.htaccess_path = os.path.join(self.workdir, 'sample')
-        open(self.htaccess_path, 'w').write(PASSWDS)
+        with open(self.htaccess_path, 'w') as fd:
+            fd.write(PASSWDS)
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
