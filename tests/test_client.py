@@ -20,7 +20,8 @@ class ClientTestsSetup(unittest.TestCase):
         os.mkdir(self.cachedir)
         self.resultdir = None
         self.src_doc = os.path.join(self.srcdir, 'sample.txt')
-        open(self.src_doc, 'w').write('Hi there.')
+        with open(self.src_doc, 'w') as fd:
+            fd.write('Hi there.')
         self.entry_wd = os.getcwd()
         self.log_catcher = ConvertLogCatcher()
 
