@@ -48,13 +48,15 @@ class FileIteratorTests(unittest.TestCase):
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
         self.path = os.path.join(self.workdir, 'iter.test')
-        open(self.path, 'wb').write(b'0123456789')  # prepopulate
+        with open(self.path, 'wb') as fd:
+            fd.write(b'0123456789')  # prepopulate
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
     def test_empty_file(self):
-        open(self.path, 'wb').write('')
+        with open(self.path, 'wb') as fd:
+            fd.write('')
         fi = FileIterator(self.path, None, None)
         self.assertRaises(StopIteration, next, iter(fi))
 
@@ -75,7 +77,8 @@ class FileIteratorTests(unittest.TestCase):
 
     def test_multiple_reads(self):
         block = b'x' * FileIterator.chunk_size
-        open(self.path, 'wb').write(2 * block)
+        with open(self.path, 'wb') as fd:
+            fd.write(2 * block)
         fi = FileIterator(self.path)
         self.assertEqual(block, next(fi))
         self.assertEqual(block, next(fi))
@@ -101,7 +104,8 @@ class FileIterableTests(unittest.TestCase):
 
     def test_range(self):
         # we can get a range
-        open(self.path, 'wb').write(b'0123456789')
+        with open(self.path, 'wb') as fd:
+            fd.write(b'0123456789')
         fi = FileIterable(self.path)
         self.assertEqual([b'234'], list(fi.app_iter_range(2, 5)))
         self.assertEqual([b'67'], list(fi.app_iter_range(6, 8)))
@@ -119,7 +123,8 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.paste_conf_tests = os.path.join(self.workdir, 'paste.ini')
         paste_conf = open(self.paste_conf2, 'r').read().replace(
             '/tmp/mycache', self.cachedir)
-        open(self.paste_conf_tests, 'w').write(paste_conf)
+        with open(self.paste_conf_tests, 'w') as fd:
+            fd.write(paste_conf)
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
@@ -185,7 +190,8 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.assertEqual(resp.status, '201 Created')
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         content_file = os.path.join(self.workdir, 'myresult.zip')
-        open(content_file, 'w').write(resp.body)
+        with open(content_file, 'w') as fd:
+            fd.write(resp.body)
         self.assertTrue(zipfile.is_zipfile(content_file))
         myzipfile = zipfile.ZipFile(content_file, 'r')
         self.assertTrue('sample.html' in myzipfile.namelist())
@@ -208,7 +214,8 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         # we get a readable ZIP file
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         content_file = os.path.join(self.workdir, 'myresult.zip')
-        open(content_file, 'w').write(resp.body)
+        with open(content_file, 'w') as fd:
+            fd.write(resp.body)
         self.assertTrue(zipfile.is_zipfile(content_file))
         myzipfile = zipfile.ZipFile(content_file, 'r')
         self.assertTrue('sample.html' in myzipfile.namelist())
@@ -240,7 +247,8 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.assertEqual(resp.status, '201 Created')
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         content_file = os.path.join(self.workdir, 'myresult.zip')
-        open(content_file, 'w').write(resp.body)
+        with open(content_file, 'w') as fd:
+            fd.write(resp.body)
         self.assertTrue(zipfile.is_zipfile(content_file))
         myzipfile = zipfile.ZipFile(content_file, 'r')
         self.assertTrue('sample.pdf' in myzipfile.namelist())
@@ -258,8 +266,10 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         app = RESTfulDocConverter(cache_dir=self.cachedir)
         fake_src = os.path.join(self.workdir, 'sample_in.txt')
         fake_result = os.path.join(self.workdir, 'sample_out.pdf')
-        open(fake_src, 'w').write('Fake source.')
-        open(fake_result, 'w').write('Fake result.')
+        with open(fake_src, 'w') as fd:
+            fd.write('Fake source.')
+        with open(fake_result, 'w') as fd:
+            fd.write('Fake result.')
         marker = get_marker(dict(foo='bar', bar='baz'))
         doc_id = app.cache_manager.register_doc(
             source_path=fake_src, to_cache=fake_result, repr_key=marker)
