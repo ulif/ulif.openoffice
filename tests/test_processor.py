@@ -168,7 +168,7 @@ class TestMetaProcessor(unittest.TestCase):
     def test_build_pipeline_empty(self):
         proc = MetaProcessor(options={'meta-procord': ''})
         result = proc._build_pipeline()
-        assert result is ()
+        assert result == ()
 
     def test_build_pipeline_empty_elements(self):
         proc = MetaProcessor(options={'meta-procord': 'oocp,,,oocp'})
