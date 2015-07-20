@@ -4,7 +4,7 @@ CHANGES
 1.1.1.dev0 (unreleased)
 =======================
 
-* No changes yet.
+* Close file handles properly.
 
 
 1.1 (2015-07-12)
