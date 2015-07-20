@@ -18,7 +18,8 @@ class ServerTestsSetup(unittest.TestCase):
     def setUp(self):
         self.src_dir = tempfile.mkdtemp()
         self.src_path = os.path.join(self.src_dir, 'sample.txt')
-        open(self.src_path, 'wb').write('Hi there!\n')
+        with open(self.src_path, 'wb') as fd:
+            fd.write('Hi there!\n')
         self.result_dir = None
         self.inputdir = os.path.join(os.path.dirname(__file__), 'input')
         self.paste_conf1 = os.path.join(self.inputdir, 'xmlrpcsample.ini')
@@ -26,7 +27,8 @@ class ServerTestsSetup(unittest.TestCase):
         self.paste_conf_tests = os.path.join(self.src_dir, 'paste.ini')
         paste_conf = open(self.paste_conf1, 'r').read().replace(
             '/tmp/mycache', self.cachedir)
-        open(self.paste_conf_tests, 'w').write(paste_conf)
+        with open(self.paste_conf_tests, 'w') as fd:
+            fd.write(paste_conf)
 
     def tearDown(self):
         shutil.rmtree(self.src_dir)
@@ -118,7 +120,8 @@ class ServerProxyTests(ServerTestsSetup):
         # we can get cached docs
         cm = CacheManager(self.cachedir)
         fake_result_path = os.path.join(self.src_dir, 'result.txt')
-        open(fake_result_path, 'wb').write('The Result\n')
+        with open(fake_result_path, 'wb') as fd:
+            fd.write('The Result\n')
         key = cm.register_doc(self.src_path, fake_result_path, 'somekey')
         assert key == '2b87e29fca6ee7f1df6c1a76cb58e101_1_1'
         result_path = self.proxy.get_cached(key)
