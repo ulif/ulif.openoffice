@@ -83,7 +83,8 @@ class TestMetaProcessor(unittest.TestCase):
 
     def create_input(self):
         os.mkdir(os.path.join(self.workdir, 'input'))
-        open(self.input, 'w').write('Hi there!')
+        with open(self.input, 'w') as fd:
+            fd.write('Hi there!')
 
     def setUp(self):
         self.workdir = tempfile.mkdtemp()
@@ -92,8 +93,10 @@ class TestMetaProcessor(unittest.TestCase):
         os.mkdir(os.path.join(self.workdir, 'output'))
         self.input = os.path.join(self.workdir, 'input', 'sample.txt')
         self.output = os.path.join(self.workdir, 'output', 'result.txt')
-        open(self.input, 'w').write('Hi there!')
-        open(self.output, 'w').write('I am a (fake) converted doc')
+        with open(self.input, 'w') as fd:
+            fd.write('Hi there!')
+        with open(self.output, 'w') as fd:
+            fd.write('I am a (fake) converted doc')
 
     def tearDown(self):
         remove_file_dir(self.workdir)
@@ -298,7 +301,8 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_simple(self):
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
@@ -306,7 +310,8 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_umlauts(self):
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample with umlauts: ä')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample with umlauts: ä')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
@@ -315,7 +320,8 @@ class TestOOConvProcessor(TestOOServerSetup):
         # Make sure the input file does not remain in result dir
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         dir_list = os.listdir(os.path.dirname(self.result_path))
@@ -328,7 +334,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.pdf')
@@ -343,7 +350,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         content = open(self.result_path, 'r').read()
@@ -360,7 +368,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
@@ -375,7 +384,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'wb') as fd:
+            fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
@@ -385,7 +395,8 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_failing_op(self):
         proc = OOConvProcessor(Options())
         sample_file = os.path.join(self.workdir, b'sample.txt')
-        open(sample_file, 'w').write(b'A sample')
+        with open(sample_file, 'w') as fd:
+            fd.write(b'A sample')
         with self.failing_unoconv_context():
             # the fake unoconv will return error unconditionally
             self.result_path, meta = proc.process(sample_file, Options())
@@ -401,7 +412,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, b'sample.txt')
-        open(sample_file, 'w').write(b'A sample')
+        with open(sample_file, 'w') as fd:
+            fd.write(b'A sample')
         log_catcher = ConvertLogCatcher()
         self.result_path, meta = proc.process(sample_file, {})
         output = log_catcher.get_log_messages()
@@ -415,7 +427,8 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, b'sample.txt')
-        open(sample_file, 'w').write(b'A sample')
+        with open(sample_file, 'w') as fd:
+            fd.write(b'A sample')
         log_catcher = ConvertLogCatcher()
         self.result_path, meta = proc.process(sample_file, {})
         output = log_catcher.get_log_messages()
@@ -522,10 +535,12 @@ class TestZipProcessor(unittest.TestCase):
 
     def test_simple(self):
         sample_path = os.path.join(self.workdir, 'sample1.txt')
-        open(sample_path, 'wb').write('Hi there!')
-        open(
-            os.path.join(self.workdir, 'sample2.txt'),
-            'wb').write('Hello again')
+        with open(sample_path, 'wb') as fd:
+            fd.write('Hi there!')
+        with open(
+                os.path.join(self.workdir, 'sample2.txt'),
+                'wb') as fd:
+            fd.write('Hello again')
         proc = ZipProcessor()
         self.result_path, metadata = proc.process(
             sample_path, {'error': False})
@@ -584,7 +599,8 @@ class TestTidyProcessor(unittest.TestCase):
         # we do not try to tidy non html/xhtml files
         proc = Tidy()
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        open(sample_path, 'w').write('Sample file.')
+        with open(sample_path, 'w') as fd:
+            fd.write('Sample file.')
         self.resultpath, metadata = proc.process(
             sample_path, {'error': False})
         # the document path hasn't changed
@@ -715,7 +731,8 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         # Non .html/.xhtml files are ignored
         proc = CSSCleaner()
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        open(sample_path, 'w').write('Sample file.')
+        with open(sample_path, 'w') as fd:
+            fd.write('Sample file.')
         self.resultpath, metadata = proc.process(
             sample_path, {'error': False})
         # input was not touched
@@ -933,7 +950,8 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         # Non .html/.xhtml files are ignored
         proc = HTMLCleaner()
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        open(sample_path, 'w').write('Sample file.')
+        with open(sample_path, 'w') as fd:
+            fd.write('Sample file.')
         self.resultpath, metadata = proc.process(
             sample_path, {'error': False})
         # input was not touched
