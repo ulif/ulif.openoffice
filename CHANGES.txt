@@ -6,6 +6,9 @@ CHANGES
 
 * Close file handles properly.
 
+* The commandline client now only handles one input file and does not
+  copy whole directory contents any more.
+
 
 1.1 (2015-07-12)
 ================
