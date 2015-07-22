@@ -23,6 +23,7 @@ import argparse
 import os
 import shutil
 import sys
+import tempfile
 from ulif.openoffice.cachemanager import CacheManager, get_marker
 from ulif.openoffice.helpers import copy_to_secure_location
 from ulif.openoffice.options import Options
@@ -64,8 +65,9 @@ def convert_doc(src_doc, options, cache_dir):
     metadata = dict(error=False)
 
     # Generate result
-    input_copy_dir = copy_to_secure_location(os.path.abspath(src_doc))
+    input_copy_dir = tempfile.mkdtemp()
     input_copy = os.path.join(input_copy_dir, os.path.basename(src_doc))
+    shutil.copy2(src_doc, input_copy)
     try:
         proc = MetaProcessor(options=options)  # Removes original doc
         result_path, metadata = proc.process(input_copy)
