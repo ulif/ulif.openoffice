@@ -4,7 +4,7 @@ import os
 import sys
 import multiprocessing # neccessary to keep setuptools quiet in tests
 
-version = '1.1.1'
+version = '1.1.2.dev0'
 tests_path = os.path.join(os.path.dirname(__file__), 'tests')
 class PyTest(TestCommand):
     def finalize_options(self):
