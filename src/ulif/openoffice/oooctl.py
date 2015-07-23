@@ -258,7 +258,7 @@ def check_port(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     target = socket.gethostbyname(host)
     result = sock.connect_ex((target, port))
-    if result == 0:
+    if result == 0:                                     # pragma: no cover
         sock.close()
         return True
     return False                                        # pragma: no cover
