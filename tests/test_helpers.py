@@ -47,7 +47,7 @@ class TestHelpers(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
         path = self.resultpath
-        if isinstance(path, basestring):
+        if isinstance(path, str):
             if os.path.isfile(path):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
