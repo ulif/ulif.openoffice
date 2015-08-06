@@ -490,7 +490,10 @@ def base64url_encode(string):
         except UnicodeDecodeError:
             # Python 2.x
             pass
-    return base64.urlsafe_b64encode(string).decode("ascii")
+    result = base64.urlsafe_b64encode(string)
+    if not isinstance(result, str):
+        result = result.decode("ascii")
+    return result
 
 
 def base64url_decode(string):
