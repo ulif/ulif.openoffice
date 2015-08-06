@@ -81,7 +81,7 @@ class HtaccessAuthenticator(AuthBasicAuthenticator):
     def __init__(self, realm, htaccess, auth_type='sha1'):
         self.realm = realm
         self.htaccess = htaccess
-        if not auth_type in AUTH_TYPES:
+        if auth_type not in AUTH_TYPES:
             raise ValueError('auth_type must be one of %s' % (
                 ', '.join(AUTH_TYPES), ))
         self.auth_type = auth_type

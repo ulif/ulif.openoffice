@@ -307,7 +307,7 @@ class CacheManager(object):
         """
         if not isinstance(cache_key, str):
             return (None, None)
-        if not '_' in cache_key:
+        if '_' not in cache_key:
             return (None, None)
         return cache_key.split('_', 1)
 
