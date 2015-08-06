@@ -4,12 +4,16 @@ import os
 import shutil
 import tempfile
 import unittest
-import xmlrpclib
+#import xmlrpclib
 from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.cachemanager import CacheManager
 from ulif.openoffice.testing import WSGIXMLRPCAppTransport
 from ulif.openoffice.xmlrpc import WSGIXMLRPCApplication
+try:
+    import xmlrpclib                            # Python 2.x
+except ImportError:                             # pragma: no cover
+    from xmlrpc import client as xmlrpclib      # Python 3.x
 
 
 class ServerTestsSetup(unittest.TestCase):

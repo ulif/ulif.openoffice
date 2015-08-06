@@ -1,7 +1,7 @@
 ##
 ## xmlrpc.py
 ##
-## Copyright (C) 2013 Uli Fouquet
+## Copyright (C) 2013, 2015 Uli Fouquet
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
@@ -22,10 +22,13 @@ Components to convert documents via XML-RPC.
 .. versionadded:: 1.1
 
 """
-from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from webob import Response, exc
 from webob.dec import wsgify
 from ulif.openoffice.client import Client, convert_doc
+try:
+    from SimpleXMLRPCServer import SimpleXMLRPCDispatcher  # Python 2.x
+except ImportError:                                        # pragma: no cover
+    from xmlrpc.server import SimpleXMLRPCDispatcher       # Python 3.x
 
 
 class WSGIXMLRPCApplication(object):
