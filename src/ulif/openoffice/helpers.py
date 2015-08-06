@@ -19,6 +19,7 @@
 """
 Helpers for trivial jobs.
 """
+from __future__ import unicode_literals
 import base64
 import cssutils
 import logging
@@ -483,7 +484,13 @@ def base64url_encode(string):
     This encoding is better suited for generating file system paths
     out of binary data.
     """
-    return base64.urlsafe_b64encode(string)
+    if isinstance(string, str):
+        try:
+            string = string.encode("latin-1")
+        except UnicodeDecodeError:
+            # Python 2.x
+            pass
+    return base64.urlsafe_b64encode(string).decode("ascii")
 
 
 def base64url_decode(string):

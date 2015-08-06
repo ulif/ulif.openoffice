@@ -582,6 +582,9 @@ class TestHelpers(unittest.TestCase):
     def test_base64url_encode(self):
         assert base64url_encode(chr(251) + chr(239)) == '--8='
         assert base64url_encode(chr(255) * 2) == '__8='
+        assert base64url_encode("foo") == "Zm9v"
+        assert base64url_encode(b"foo") == "Zm9v"
+        assert base64url_encode(u"foo") == "Zm9v"
 
     def test_base64url_decode(self):
         assert base64url_decode(b'--8=') == chr(251) + chr(239)
