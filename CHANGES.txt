@@ -4,7 +4,7 @@ CHANGES
 1.1.2.dev0 (unreleased)
 =======================
 
-* No changes yet.
+* Minor changes for Python 3.x compatibility.
 
 
 1.1.1 (2015-07-23)
