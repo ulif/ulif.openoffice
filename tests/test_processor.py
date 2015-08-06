@@ -40,9 +40,18 @@ except ImportError:
 
 def get_unoconv_version():
     workdir = tempfile.mkdtemp()
-    output = os.path.join(workdir, 'output')
-    os.system('unoconv --version > %s' % output)
-    output = open(output, 'r').readlines()
+    output_path = os.path.join(workdir, 'output')
+    os.system('unoconv --version > %s' % output_path)
+    output = open(output_path, 'r').readlines()
+    if not output:
+        # dirty hack: in virtualenvs we might be unable to run unoconv.
+        # The workaround will retry with first element from "$PATH" removed.
+        old_env = os.getenv("PATH")
+        new_env = ":".join(old_env.split(":")[1:])
+        os.environ["PATH"] = new_env
+        os.system('unoconv --version > %s' % output_path)
+        os.environ["PATH"] = old_env
+        output = open(output_path, 'r').readlines()
     version = output[0].split()[-1].split('.')
     shutil.rmtree(workdir)
     return tuple(version)
