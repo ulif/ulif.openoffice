@@ -585,10 +585,13 @@ class TestHelpers(unittest.TestCase):
         assert base64url_encode("foo") == "Zm9v"
         assert base64url_encode(b"foo") == "Zm9v"
         assert base64url_encode(u"foo") == "Zm9v"
+        #assert not isinstance(base64url_encode(u"foo"), unicode)
 
     def test_base64url_decode(self):
-        assert base64url_decode(b'--8=') == chr(251) + chr(239)
-        assert base64url_decode(b'__8=') == chr(255) * 2
+        exp1 = chr(251) + chr(239)
+        assert base64url_decode(b'--8=') == exp1
+        exp2 = chr(255) * 2
+        assert base64url_decode(b'__8=') == exp2
 
     def test_string_to_bool(self):
         assert string_to_bool('yes') is True

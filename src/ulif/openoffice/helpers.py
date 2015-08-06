@@ -19,7 +19,6 @@
 """
 Helpers for trivial jobs.
 """
-from __future__ import unicode_literals
 import base64
 import cssutils
 import logging
@@ -501,7 +500,11 @@ def base64url_decode(string):
 
     .. seealso:: base64url_encode
     """
-    return base64.urlsafe_b64decode(string)
+    result = base64.urlsafe_b64decode(string)
+    if not isinstance(result, str):
+        # Python 3.x only.
+        result = result.decode("latin-1")
+    return result
 
 
 def string_to_bool(string):
