@@ -486,11 +486,12 @@ def base64url_encode(string):
     if isinstance(string, str):
         try:
             string = string.encode("latin-1")
-        except UnicodeDecodeError:
+        except UnicodeDecodeError:             # pragma. no cover
             # Python 2.x
             pass
     result = base64.urlsafe_b64encode(string)
-    if not isinstance(result, str):
+    if not isinstance(result, str):            # pragma: no cover
+        # Python 3.x only
         result = result.decode("ascii")
     return result
 
@@ -501,7 +502,7 @@ def base64url_decode(string):
     .. seealso:: base64url_encode
     """
     result = base64.urlsafe_b64decode(string)
-    if not isinstance(result, str):
+    if not isinstance(result, str):            # pragma: no cover
         # Python 3.x only.
         result = result.decode("latin-1")
     return result
