@@ -29,8 +29,7 @@ class ConvertTests(TestOOServerSetup):
         open(path, 'w').write('Hi there!\n')
         status, result_dir = convert(out_format='pdf', path=path)
         self.assertEqual(0, status)
-        self.assertEqual(
-           ['sample.pdf'], os.listdir(result_dir))
+        self.assertEqual(['sample.pdf'], os.listdir(result_dir))
         result_doc = open(os.path.join(result_dir, 'sample.pdf'), 'rb').read()
         self.assertEqual(result_doc[:10], b'%PDF-1.4\n%')
         shutil.rmtree(result_dir)  # clean up
@@ -42,8 +41,7 @@ class ConvertTests(TestOOServerSetup):
         open(path, 'w').write('Hi there!\n')
         status, result_dir = convert(out_format='html', path=path)
         self.assertEqual(0, status)
-        self.assertEqual(
-           ['sample.html'], os.listdir(result_dir))
+        self.assertEqual(['sample.html'], os.listdir(result_dir))
         result_doc = open(os.path.join(result_dir, 'sample.html'), 'rb').read()
         self.assertEqual(result_doc[:10], b'<!DOCTYPE ')
         shutil.rmtree(result_dir)  # clean up
