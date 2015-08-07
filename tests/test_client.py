@@ -188,12 +188,13 @@ class MainClientTests(ClientTestsSetup):
 
     def test_convert_regular(self):
         # we can do a regular conversion
-        main([
-              '-meta-procord', 'oocp',
-              '-oocp-out-fmt', 'pdf',
-              self.src_doc])
+        main(
+            [
+                '-meta-procord', 'oocp',
+                '-oocp-out-fmt', 'pdf',
+                self.src_doc
+            ])
         out, err = self.mycapsys.readouterr()
-        #out = ''.join(eval(out))  # strange format from py.test capsys
         outfile_path = out[10:-1]
         self.resultdir = os.path.dirname(outfile_path)   # for cleanup
         assert out.startswith('RESULT in')
