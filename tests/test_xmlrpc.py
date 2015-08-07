@@ -4,7 +4,6 @@ import os
 import shutil
 import tempfile
 import unittest
-#import xmlrpclib
 from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.cachemanager import CacheManager
