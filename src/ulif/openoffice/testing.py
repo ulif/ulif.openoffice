@@ -318,6 +318,5 @@ class FakeServerProxy(xmlrpclib.ServerProxy):
     .. versionadded:: 1.1
     """
     def __init__(self, url):
-        global xmlrpcapp
         transport = WSGIXMLRPCAppTransport(xmlrpcapp)
         xmlrpclib.ServerProxy.__init__(self, url, transport=transport)
