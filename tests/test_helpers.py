@@ -158,7 +158,7 @@ class TestHelpers(unittest.TestCase):
 
     def test_copy_to_secure_location_path(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_path, 'wb') as fd:
+        with open(sample_path, 'w') as fd:
             fd.write("Hi from sample")
         sample_dir = os.path.dirname(sample_path)
         self.resultpath = copy_to_secure_location(sample_dir)
