@@ -12,7 +12,7 @@ from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 def write_to_file(path, content):
     with open(path) as fd:
-        write(content)
+        fd.write(content)
 
 
 class HelpersTestCase(unittest.TestCase):
