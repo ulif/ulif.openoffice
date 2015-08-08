@@ -451,7 +451,7 @@ def rename_html_img_links(html_input, basename):
         ext = ''
         if '.' in src:
             ext = os.path.splitext(src)[1]
-        new_src = unicode('%s_%s%s' % (basename, num, ext))
+        new_src = '%s_%s%s' % (basename, num, ext)
         num += 1
         tag['src'] = new_src
         img_map[src] = new_src
