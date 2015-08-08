@@ -11,7 +11,7 @@ from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 
 def write_to_file(path, content):
-    with open(path) as fd:
+    with open(path, 'w') as fd:
         fd.write(content)
 
 
