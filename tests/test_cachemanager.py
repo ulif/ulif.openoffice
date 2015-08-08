@@ -39,18 +39,12 @@ class CachingComponentsTestCase(unittest.TestCase):
         self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
         self.result_path3 = os.path.join(self.inputdir, 'resultfile3')
         self.result_path4 = os.path.join(self.inputdir, 'resultfile4')
-        with open(self.src_path1, 'w') as fd:
-            fd.write('source1\n')
-        with open(self.src_path2, 'w') as fd:
-            fd.write('source2\n')
-        with open(self.result_path1, 'w') as fd:
-            fd.write('result1\n')
-        with open(self.result_path2, 'w') as fd:
-            fd.write('result2\n')
-        with open(self.result_path3, 'w') as fd:
-            fd.write('result3\n')
-        with open(self.result_path4, 'w') as fd:
-            fd.write('result4\n')
+        write_to_file(self.src_path1, 'source1\n')
+        write_to_file(self.src_path2, 'source2\n')
+        write_to_file(self.result_path1, 'result1\n')
+        write_to_file(self.result_path2, 'result2\n')
+        write_to_file(self.result_path3, 'result3\n')
+        write_to_file(self.result_path4, 'result4\n')
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
