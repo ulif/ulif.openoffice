@@ -58,8 +58,10 @@ class TestHelpers(unittest.TestCase):
         def ignore(src, names):
             return ['sample1.txt', ]
         self.resultpath = tempfile.mkdtemp()
-        open(os.path.join(self.workdir, 'sample1.txt'), 'w').write('Hi!')
-        open(os.path.join(self.workdir, 'sample2.txt'), 'w').write('Hi!')
+        with open(os.path.join(self.workdir, 'sample1.txt'), 'w') as fd:
+            fd.write('Hi!')
+        with open(os.path.join(self.workdir, 'sample2.txt'), 'w') as fd:
+            fd.write('Hi!')
         copytree(self.workdir, self.resultpath, ignore=ignore)
         assert not os.path.isfile(
             os.path.join(self.resultpath, 'sample1.txt'))
@@ -80,7 +82,8 @@ class TestHelpers(unittest.TestCase):
         # we copy links
         src_dir = os.path.join(self.workdir, 'srcdir')
         os.mkdir(src_dir)
-        open(os.path.join(src_dir, 'sample.txt'), 'w').write('Hi!')
+        with open(os.path.join(src_dir, 'sample.txt'), 'w') as fd:
+            fd.write('Hi!')
         os.symlink(
             os.path.join(src_dir, 'sample.txt'),
             os.path.join(src_dir, 'sample.link'))
@@ -97,8 +100,10 @@ class TestHelpers(unittest.TestCase):
         os.mkdir(dst_dir)
         src_file = os.path.join(src_dir, 'sample1.txt')
         dst_file = os.path.join(dst_dir, 'sample1.txt')
-        open(src_file, 'w').write('Hi!')
-        open(dst_file, 'w').write('Ho!')
+        with open(src_file, 'w') as fd:
+            fd.write('Hi!')
+        with open(dst_file, 'w') as fd:
+            fd.write('Ho!')
 
         # make dst_file unwriteable
         old_mode = os.stat(dst_file).st_mode
@@ -127,7 +132,8 @@ class TestHelpers(unittest.TestCase):
         src_dir = os.path.join(self.workdir, 'srcdir')
         os.mkdir(src_dir)
         src_file = os.path.join(src_dir, 'sample.txt')
-        open(src_file, 'w').write('Hi!')
+        with open(src_file, 'w') as fd:
+            fd.write('Hi!')
         # source and dest are the same. Provokes shutil.Error
         exc = None
         try:
@@ -145,13 +151,15 @@ class TestHelpers(unittest.TestCase):
 
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        open(sample_path, 'wb').write("Hi from sample")
+        with open(sample_path, 'w') as fd:
+            fd.write("Hi from sample")
         self.resultpath = copy_to_secure_location(sample_path)
         assert os.path.isfile(os.path.join(self.resultpath, 'sample.txt'))
 
     def test_copy_to_secure_location_path(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
-        open(sample_path, 'wb').write("Hi from sample")
+        with open(sample_path, 'wb') as fd:
+            fd.write("Hi from sample")
         sample_dir = os.path.dirname(sample_path)
         self.resultpath = copy_to_secure_location(sample_dir)
         assert os.path.isfile(os.path.join(self.resultpath, 'sample.txt'))
@@ -179,7 +187,8 @@ class TestHelpers(unittest.TestCase):
         new_dir = os.path.join(self.workdir, 'sampledir')
         os.mkdir(new_dir)
         sample_file = os.path.join(new_dir, 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'w') as fd:
+            fd.write('A sample')
         self.resultpath = zip(sample_file)
         assert zipfile.is_zipfile(self.resultpath)
 
@@ -191,7 +200,8 @@ class TestHelpers(unittest.TestCase):
         os.mkdir(os.path.join(new_dir, 'subdir2'))
         os.mkdir(os.path.join(new_dir, 'subdir2', 'subdir21'))
         sample_file = os.path.join(new_dir, 'subdir2', 'sample.txt')
-        open(sample_file, 'wb').write('A sample')
+        with open(sample_file, 'w') as fd:
+            fd.write('A sample')
         self.resultpath = zip(new_dir)
         zip_file = zipfile.ZipFile(self.resultpath, 'r')
         result = sorted(zip_file.namelist())
@@ -218,7 +228,8 @@ class TestHelpers(unittest.TestCase):
         sample_path = os.path.join(self.workdir, 'sampledir')
         sample_file = os.path.join(sample_path, 'sample.txt')
         os.mkdir(sample_path)
-        open(sample_file, 'wb').write('Hi!')
+        with open(sample_file, 'w') as fd:
+            fd.write('Hi!')
         remove_file_dir(sample_file)
         assert os.path.exists(self.workdir) is True
         assert os.path.exists(sample_path) is False
@@ -227,7 +238,8 @@ class TestHelpers(unittest.TestCase):
         sample_path = os.path.join(self.workdir, 'sampledir')
         sample_file = os.path.join(sample_path, 'sample.txt')
         os.mkdir(sample_path)
-        open(sample_file, 'wb').write('Hi!')
+        with open(sample_file, 'w') as fd:
+            fd.write('Hi!')
         remove_file_dir(sample_path)
         assert os.path.exists(self.workdir) is True
         assert os.path.exists(sample_path) is False
@@ -341,7 +353,7 @@ class TestHelpers(unittest.TestCase):
         # Make sure we have styles purged and replaced by a link
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'rb').read()
+        html_input = open(html_input_path, 'r').read()
         result, css = extract_css(html_input, 'sample.html')
         assert '<style' not in result
         link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
@@ -352,7 +364,7 @@ class TestHelpers(unittest.TestCase):
         # Make sure we get proper external stylesheets.
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'rb').read()
+        html_input = open(html_input_path, 'r').read()
         result, css = extract_css(html_input, 'sample.html')
         assert len(css) == 156
         assert css.startswith('@page { size: 21cm')
@@ -362,7 +374,7 @@ class TestHelpers(unittest.TestCase):
         # Make sure there are no empty comments in CSS
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'rb').read()
+        html_input = open(html_input_path, 'r').read()
         result, css = extract_css(html_input, 'sample.html')
         assert '/*' not in result
         return
@@ -387,7 +399,7 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_html_fix_img_links(self):
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'image_sample.html')
-        html_input = open(html_input_path, 'rb').read()
+        html_input = open(html_input_path, 'r').read()
         result, img_map = cleanup_html(
             html_input, 'sample.html', fix_img_links=True)
         assert len(img_map) == 4
@@ -502,7 +514,7 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_css_complex(self):
         css_sample = os.path.join(
             os.path.dirname(__file__), 'input', 'sample1.css')
-        css_input = open(css_sample, 'rb').read()
+        css_input = open(css_sample, 'r').read()
         result, errors = cleanup_css(css_input)
         assert b'font-family: ;' not in result
 
@@ -521,7 +533,7 @@ class TestHelpers(unittest.TestCase):
         # Make sure img links are modified
         html_input_path = os.path.join(
             os.path.dirname(__file__), 'input', 'image_sample.html')
-        html_input = open(html_input_path, 'rb').read()
+        html_input = open(html_input_path, 'r').read()
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert 'image_sample_html_10a8ad02.jpg' not in html_output
         assert 'sample_4.jpg' in html_output
@@ -661,7 +673,7 @@ class TestHelpers(unittest.TestCase):
         with open(src, 'w') as fd:
             fd.write(b'content')
         dst = os.path.join(self.workdir, b'f2')
-        write_filelike(open(src, 'rb'), dst)
-        assert open(dst, 'rb').read() == b'content'
+        write_filelike(open(src, 'r'), dst)
+        assert open(dst, 'r').read() == b'content'
         write_filelike(b'different', dst)
-        assert open(dst, 'rb').read() == b'different'
+        assert open(dst, 'r').read() == b'different'
