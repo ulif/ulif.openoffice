@@ -355,6 +355,7 @@ class TestCacheManager(CachingComponentsTestCase):
         result, key = cm.get_cached_file_by_source(self.src_path1)
         assert filecmp.cmp(result, self.result_path1, shallow=False)
         assert key == '737b337e605199de28b3b64c674f9422_1_1'
+        assert my_id1 == key
 
     def test_get_cached_file_by_src_failed(self):
         cm = CacheManager(self.workdir)
@@ -368,6 +369,7 @@ class TestCacheManager(CachingComponentsTestCase):
         result1, key1 = cm.get_cached_file_by_source(self.src_path1, 'mykey')
         assert filecmp.cmp(result1, self.result_path1, shallow=False)
         assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
+        assert key1 == my_id
         result2, key2 = cm.get_cached_file_by_source(
             self.src_path1, 'otherkey')
         assert result2 is None
@@ -418,6 +420,7 @@ class TestCacheManager(CachingComponentsTestCase):
             list(cm.keys()),
             ['737b337e605199de28b3b64c674f9422_1_1']
             )
+        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
         key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
         self.assertEqual(
             sorted(list(cm.keys())),
@@ -425,6 +428,7 @@ class TestCacheManager(CachingComponentsTestCase):
              '737b337e605199de28b3b64c674f9422_1_2',
              ]
             )
+        assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
         key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
         self.assertEqual(
             sorted(list(cm.keys())),
@@ -433,6 +437,7 @@ class TestCacheManager(CachingComponentsTestCase):
              'd5aa51d7fb180729089d2de904f7dffe_1_1',
              ]
             )
+        assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
         return
 
     def test_keys_custom_level(self):
@@ -443,6 +448,7 @@ class TestCacheManager(CachingComponentsTestCase):
             list(cm.keys()),
             ['737b337e605199de28b3b64c674f9422_1_1']
             )
+        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
         key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
         self.assertEqual(
             sorted(list(cm.keys())),
@@ -450,6 +456,7 @@ class TestCacheManager(CachingComponentsTestCase):
              '737b337e605199de28b3b64c674f9422_1_2',
              ]
             )
+        assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
         key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
         self.assertEqual(
             sorted(list(cm.keys())),
@@ -458,6 +465,7 @@ class TestCacheManager(CachingComponentsTestCase):
              'd5aa51d7fb180729089d2de904f7dffe_1_1',
              ]
             )
+        assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
         return
 
 
