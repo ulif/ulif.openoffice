@@ -112,19 +112,18 @@ class TestHelpers(unittest.TestCase):
         try:
             copytree(
                 src_dir, dst_dir, symlinks=False)
-        except (shutil.Error) as exc:
-            exc = exc
+        except (shutil.Error) as e:
+            exc = e
         # reenable writing
         os.chmod(dst_file, old_mode)
 
         assert isinstance(exc, shutil.Error)
         assert len(exc.args) == 1
         err_src, err_dst, err_msg = exc.args[0][0]
-        self.assertEqual(err_src, src_file)
-        self.assertEqual(err_dst, dst_file)
-        self.assertEqual(
-            err_msg,
-            u"[Errno 13] Permission denied: u'%s'" % dst_file)
+        assert err_src == src_file
+        assert err_dst == dst_file
+        assert "Permission denied:" in err_msg
+        assert dst_file in err_msg
 
     def test_copytree_shutil_error(self):
         # We catch shutil.Errors, collect them and raise at end
@@ -138,13 +137,14 @@ class TestHelpers(unittest.TestCase):
         exc = None
         try:
             copytree(src_dir, src_dir)
-        except (shutil.Error) as exc:
-            exc = exc
+        except (shutil.Error) as e:
+            exc = e
         assert isinstance(exc, shutil.Error)
         assert len(exc.args) == 1
         err_src, err_dst, err_msg = exc.args[0][0]
         self.assertEqual(err_src, src_file)
         self.assertEqual(err_dst, src_file)
+        err_msg = err_msg.replace("'", "`")
         self.assertEqual(
             err_msg,
             '`%s` and `%s` are the same file' % (src_file, src_file))
