@@ -36,7 +36,7 @@ from pkg_resources import iter_entry_points
 try:
     from urlparse import urlparse         # Python 2.x
 except ImportError:                       # pragma: no cover
-    from urllib import parse as urlparse  # Python 3.x
+    from urllib.parse import urlparse     # Python 3.x
 from six import string_types
 
 
