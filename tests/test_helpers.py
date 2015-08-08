@@ -453,58 +453,58 @@ class TestHelpers(unittest.TestCase):
     def test_rename_sdfield_tags(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
         result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
+        expected = b'<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
         assert result == expected
 
     def test_rename_sdfield_tags_uppercase(self):
         html_input = '<P>Blah<SDFIELD TYPE="PAGE">8</SDFIELD></P>'
         result = rename_sdfield_tags(html_input)
-        expected = '<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
+        expected = b'<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
         assert result == expected
 
     def test_rename_sdfield_tags_empty(self):
         html_input = '<p>Blah</p>'
         result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah</p>'
+        expected = b'<p>Blah</p>'
         assert result == expected
 
     def test_rename_sdfield_tags_nested(self):
         html_input = '<p>Blah<sdfield>12<span>b</span></sdfield></p>'
         result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah<span class="sdfield">12<span>b</span></span></p>'
+        expected = b'<p>Blah<span class="sdfield">12<span>b</span></span></p>'
         assert result == expected
 
     def test_cleanup_css_whitespace(self):
         css_input = 'p {font-family: ; font-size: 12px }'
         result, errors = cleanup_css(css_input)
-        assert result == 'p{font-size:12px}'
+        assert result == b'p{font-size:12px}'
 
     def test_cleanup_css_empty_style(self):
         css_input = 'p {}'
         result, errors = cleanup_css(css_input)
-        assert result == ''
+        assert result == b''
 
     def test_cleanup_css_empty_prop(self):
         css_input = 'p {font-family: ;}'
         result, errors = cleanup_css(css_input)
-        assert result == ''
+        assert result == b''
 
     def test_cleanup_css_empty_prop_no_colon(self):
         css_input = 'p {font-family: }'
         result, errors = cleanup_css(css_input)
-        assert result == ''
+        assert result == b''
 
     def test_cleanup_css_empty_prop_middle(self):
         css_input = 'p { foo: baz ; font-family: ; bar: baz}'
         result, errors = cleanup_css(css_input)
-        assert result == 'p{foo:baz;bar:baz}'
+        assert result == b'p{foo:baz;bar:baz}'
 
     def test_cleanup_css_complex(self):
         css_sample = os.path.join(
             os.path.dirname(__file__), 'input', 'sample1.css')
         css_input = open(css_sample, 'rb').read()
         result, errors = cleanup_css(css_input)
-        assert 'font-family: ;' not in result
+        assert b'font-family: ;' not in result
 
     def test_cleanup_css_errors(self):
         css_input = 'p { foo: baz ; font-family: ; bar: baz}'
@@ -515,7 +515,7 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_css_non_minified(self):
         css_input = 'p { foo: baz ; bar: baz}'
         result, errors = cleanup_css(css_input, minified=False)
-        assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
+        assert result == b'p {\n    foo: baz;\n    bar: baz\n    }'
 
     def test_rename_html_img_links(self):
         # Make sure img links are modified
