@@ -25,7 +25,6 @@ import shutil
 import sys
 import tempfile
 from ulif.openoffice.cachemanager import CacheManager, get_marker
-from ulif.openoffice.helpers import copy_to_secure_location
 from ulif.openoffice.options import Options
 from ulif.openoffice.processor import MetaProcessor
 
