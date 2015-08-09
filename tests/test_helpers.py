@@ -692,5 +692,5 @@ class TestHelpers(unittest.TestCase):
         dst = os.path.join(self.workdir, 'f2')
         write_filelike(open(src, 'r'), dst)
         assert open(dst, 'r').read() == 'content'
-        write_filelike('different', dst)
+        write_filelike(b'different', dst)
         assert open(dst, 'r').read() == 'different'
