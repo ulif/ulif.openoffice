@@ -24,7 +24,7 @@ import stat
 import tempfile
 import unittest
 import zipfile
-from io import StringIO
+from io import StringIO, BytesIO
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
@@ -651,6 +651,26 @@ class TestHelpers(unittest.TestCase):
         assert filelike_cmp(p1, p3) is True
         assert filelike_cmp(p1, StringIO('asd')) is True
         assert filelike_cmp(StringIO('qwe'), p2) is True
+
+    def test_filelike_cmp_w_bytes(self):
+        # we can compare bytestreams
+        assert filelike_cmp(
+            BytesIO(b'asd'), BytesIO(b'qwe')) is False
+        assert filelike_cmp(
+            BytesIO(b'asd'), BytesIO(b'asd')) is True
+        p1 = os.path.join(self.workdir, 'p1')
+        p2 = os.path.join(self.workdir, 'p2')
+        p3 = os.path.join(self.workdir, 'p3')
+        with open(p1, 'wb') as fd:
+            fd.write(b'asd')
+        with open(p2, 'w') as fd:
+            fd.write('qwe')
+        with open(p3, 'w') as fd:
+            fd.write('asd')
+        assert filelike_cmp(p1, p2) is False
+        assert filelike_cmp(p1, p3) is True
+        assert filelike_cmp(p1, BytesIO(b'asd')) is True
+        assert filelike_cmp(BytesIO(b'qwe'), p2) is True
 
     def test_filelike_cmp_multiple_time(self):
         # make sure filepointers are reset when we use the same
