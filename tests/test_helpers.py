@@ -24,10 +24,7 @@ import stat
 import tempfile
 import unittest
 import zipfile
-try:
-    from cStringIO import StringIO  # Python 2.x
-except ImportError:                 # pragma: no cover
-    from io import StringIO         # Python 3.x
+from io import StringIO
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
@@ -658,22 +655,22 @@ class TestHelpers(unittest.TestCase):
     def test_filelike_cmp_multiple_time(self):
         # make sure filepointers are reset when we use the same
         # file-like object several times (as often happens in loops).
-        p1 = os.path.join(self.workdir, b'p1')
+        p1 = os.path.join(self.workdir, 'p1')
         with open(p1, 'w') as fd:
-            fd.write(b'foo')
-        filelike1 = StringIO(b'foo')
-        filelike2 = StringIO(b'bar')
+            fd.write('foo')
+        filelike1 = StringIO('foo')
+        filelike2 = StringIO('bar')
         assert filelike_cmp(p1, filelike1) is True
         assert filelike_cmp(p1, filelike2) is False
         assert filelike_cmp(p1, filelike1) is True
         assert filelike_cmp(p1, filelike2) is False
 
     def test_write_filelike(self):
-        src = os.path.join(self.workdir, b'f1')
+        src = os.path.join(self.workdir, 'f1')
         with open(src, 'w') as fd:
-            fd.write(b'content')
-        dst = os.path.join(self.workdir, b'f2')
+            fd.write('content')
+        dst = os.path.join(self.workdir, 'f2')
         write_filelike(open(src, 'r'), dst)
-        assert open(dst, 'r').read() == b'content'
-        write_filelike(b'different', dst)
-        assert open(dst, 'r').read() == b'different'
+        assert open(dst, 'r').read() == 'content'
+        write_filelike('different', dst)
+        assert open(dst, 'r').read() == 'different'
