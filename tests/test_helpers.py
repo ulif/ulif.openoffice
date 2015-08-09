@@ -638,22 +638,22 @@ class TestHelpers(unittest.TestCase):
 
     def test_filelike_cmp(self):
         assert filelike_cmp(
-            StringIO(b'asd'), StringIO(b'qwe')) is False
+            StringIO('asd'), StringIO('qwe')) is False
         assert filelike_cmp(
-            StringIO(b'asd'), StringIO(b'asd')) is True
-        p1 = os.path.join(self.workdir, b'p1')
-        p2 = os.path.join(self.workdir, b'p2')
-        p3 = os.path.join(self.workdir, b'p3')
+            StringIO('asd'), StringIO('asd')) is True
+        p1 = os.path.join(self.workdir, 'p1')
+        p2 = os.path.join(self.workdir, 'p2')
+        p3 = os.path.join(self.workdir, 'p3')
         with open(p1, 'w') as fd:
-            fd.write(b'asd')
+            fd.write('asd')
         with open(p2, 'w') as fd:
-            fd.write(b'qwe')
+            fd.write('qwe')
         with open(p3, 'w') as fd:
-            fd.write(b'asd')
+            fd.write('asd')
         assert filelike_cmp(p1, p2) is False
         assert filelike_cmp(p1, p3) is True
-        assert filelike_cmp(p1, StringIO(b'asd')) is True
-        assert filelike_cmp(StringIO(b'qwe'), p2) is True
+        assert filelike_cmp(p1, StringIO('asd')) is True
+        assert filelike_cmp(StringIO('qwe'), p2) is True
 
     def test_filelike_cmp_multiple_time(self):
         # make sure filepointers are reset when we use the same
