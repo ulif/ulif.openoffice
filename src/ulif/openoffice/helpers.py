@@ -27,7 +27,7 @@ import re
 import shutil
 import tempfile
 import zipfile
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, UnicodeDammit
 try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:                 # pragma: no cover
@@ -324,7 +324,7 @@ def extract_css(html_input, basename='sample.html', prettify_html=False):
         css = None
     if prettify_html:
         return soup.prettify(), css
-    return str(soup).decode("utf-8"), css
+    return UnicodeDammit(str(soup)).markup, css
 
 
 RE_HEAD_NUM = re.compile('(<h[1-6][^>]*>\s*)(([\d\.]+)+)([^\d])',
