@@ -547,8 +547,8 @@ class TestHelpers(unittest.TestCase):
     def test_rename_html_img_links_unicode_filenames(self):
         html_input = '<img src="filename_without_ext" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        key = img_map.keys()[0]
-        val = img_map.values()[0]
+        key = list(img_map.keys())[0]
+        val = list(img_map.values())[0]
         assert isinstance(key, unicode)
         assert isinstance(val, unicode)
 
