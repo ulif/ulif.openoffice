@@ -416,7 +416,7 @@ class CacheManager(object):
     def keys(self):
         """Get a list of all cache keys currently available.
         """
-        glob_expr = self.cache_dir + (b'/*' * (self.level + 1))
+        glob_expr = self.cache_dir + ('/*' * (self.level + 1))
         for path in glob.glob(glob_expr):
             md5_hash = os.path.basename(path)
             bucket = Bucket(path)
