@@ -208,15 +208,15 @@ class TestCacheBucket(CachingComponentsTestCase):
             self.src_path1, self.result_path1, repr_key='mykey')
         res2 = bucket.store_representation(
             self.src_path1, self.result_path2, repr_key='mykey')
-        exp_stored_repr_dir = os.path.join(self.workdir, b'repr', b'1', b'1')
+        exp_stored_repr_dir = os.path.join(self.workdir, 'repr', '1', '1')
         old_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, b'resultfile1')
+            exp_stored_repr_dir, 'resultfile1')
         exp_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, b'resultfile2')
-        self.assertEqual(res1, b'1_1')
-        self.assertEqual(res2, b'1_1')
+            exp_stored_repr_dir, 'resultfile2')
+        self.assertEqual(res1, '1_1')
+        self.assertEqual(res2, '1_1')
         self.assertEqual(
-            open(exp_stored_repr_data, 'rb').read(), 'result2\n')
+            open(exp_stored_repr_data, 'r').read(), 'result2\n')
         self.assertEqual(
             os.path.exists(old_stored_repr_data), False)
         return
