@@ -235,7 +235,7 @@ class TestCacheBucket(CachingComponentsTestCase):
         exp_repr_path = os.path.join(
             self.workdir, 'repr', '1', '1', 'resultfile1')
         res2 = bucket.get_representation(res1)
-        self.assertEqual(res1, b'1_1')
+        self.assertEqual(res1, '1_1')
         self.assertEqual(res2, exp_repr_path)
         return
 
