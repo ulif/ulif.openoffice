@@ -244,14 +244,14 @@ class TestCacheBucket(CachingComponentsTestCase):
         bucket = Bucket(self.workdir)
         self.assertEqual(list(bucket.keys()), [])
         b_key1 = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key=b'foo')
+            self.src_path1, self.result_path1, repr_key='foo')
         self.assertEqual(list(bucket.keys()), [b_key1])
         b_key2 = bucket.store_representation(
-            self.src_path1, self.result_path2, repr_key=b'bar')
+            self.src_path1, self.result_path2, repr_key='bar')
         self.assertEqual(
             sorted(list(bucket.keys())), sorted([b_key1, b_key2]))
         b_key3 = bucket.store_representation(
-            self.src_path2, self.result_path1, repr_key=b'baz')
+            self.src_path2, self.result_path1, repr_key='baz')
         self.assertEqual(
             sorted(list(bucket.keys())), sorted([b_key1, b_key2, b_key3]))
         return
