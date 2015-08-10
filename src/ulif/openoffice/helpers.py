@@ -629,6 +629,8 @@ def write_filelike(file_obj, path, chunksize=512):
     f1 = file_obj
     if isinstance(file_obj, string_types):
         f1 = StringIO(file_obj)
+    elif isinstance(file_obj, bytes):
+        f1 = StringIO(file_obj.decode('utf-8'))
     f2 = open(path, 'w')
     try:
         while True:
