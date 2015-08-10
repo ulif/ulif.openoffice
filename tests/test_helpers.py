@@ -463,25 +463,25 @@ class TestHelpers(unittest.TestCase):
     def test_rename_sdfield_tags(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
         result = rename_sdfield_tags(html_input)
-        expected = b'<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
+        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
         assert result == expected
 
     def test_rename_sdfield_tags_uppercase(self):
         html_input = '<P>Blah<SDFIELD TYPE="PAGE">8</SDFIELD></P>'
         result = rename_sdfield_tags(html_input)
-        expected = b'<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
+        expected = '<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
         assert result == expected
 
     def test_rename_sdfield_tags_empty(self):
         html_input = '<p>Blah</p>'
         result = rename_sdfield_tags(html_input)
-        expected = b'<p>Blah</p>'
+        expected = '<p>Blah</p>'
         assert result == expected
 
     def test_rename_sdfield_tags_nested(self):
         html_input = '<p>Blah<sdfield>12<span>b</span></sdfield></p>'
         result = rename_sdfield_tags(html_input)
-        expected = b'<p>Blah<span class="sdfield">12<span>b</span></span></p>'
+        expected = '<p>Blah<span class="sdfield">12<span>b</span></span></p>'
         assert result == expected
 
     def test_cleanup_css_whitespace(self):
