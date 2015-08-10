@@ -25,6 +25,7 @@ import tempfile
 import unittest
 import zipfile
 from io import StringIO, BytesIO
+from six import string_types
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
@@ -549,8 +550,8 @@ class TestHelpers(unittest.TestCase):
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         key = list(img_map.keys())[0]
         val = list(img_map.values())[0]
-        assert isinstance(key, unicode)
-        assert isinstance(val, unicode)
+        assert isinstance(key, string_types)
+        assert isinstance(key, string_types)
 
     def test_rename_html_img_links_only_local(self):
         # We do not convert links to external images
