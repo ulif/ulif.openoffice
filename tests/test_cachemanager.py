@@ -159,11 +159,11 @@ class TestCacheBucket(CachingComponentsTestCase):
         # we can store sources with their representations
         bucket = Bucket(self.workdir)
         res = bucket.store_representation(self.src_path1, self.result_path1)
-        exp_stored_src = os.path.join(self.workdir, b'sources', b'source_1')
-        exp_stored_repr_dir = os.path.join(self.workdir, b'repr', b'1', b'1')
+        exp_stored_src = os.path.join(self.workdir, 'sources', 'source_1')
+        exp_stored_repr_dir = os.path.join(self.workdir, 'repr', '1', '1')
         exp_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, b'resultfile1')
-        exp_stored_key = os.path.join(self.workdir, b'keys', b'1', b'1.key')
+            exp_stored_repr_dir, 'resultfile1')
+        exp_stored_key = os.path.join(self.workdir, 'keys', '1', '1.key')
         self.assertTrue(os.path.isfile(exp_stored_src))
         self.assertTrue(os.path.isdir(exp_stored_repr_dir))
         self.assertTrue(os.path.isfile(exp_stored_repr_data))
