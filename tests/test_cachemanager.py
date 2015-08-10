@@ -136,19 +136,19 @@ class TestCacheBucket(CachingComponentsTestCase):
         os.makedirs(os.path.dirname(key_path1))
         os.makedirs(os.path.dirname(key_path3))
         with open(key_path1, 'w') as fd:
-            fd.write(b'otherkey')
+            fd.write('otherkey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
         with open(key_path2, 'w') as fd:
-            fd.write(b'somekey')
+            fd.write('somekey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
         self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
         with open(key_path3, 'w') as fd:
-            fd.write(b'somekey')
+            fd.write('somekey')
         self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
         self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
         self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), 1)
@@ -224,7 +224,7 @@ class TestCacheBucket(CachingComponentsTestCase):
     def test_get_representation_unstored(self):
         # we cannot get unstored representations
         bucket = Bucket(self.workdir)
-        self.assertEqual(bucket.get_representation(b'1_1'), None)
+        self.assertEqual(bucket.get_representation('1_1'), None)
         return
 
     def test_get_representation_stored(self):
