@@ -595,6 +595,16 @@ def filelike_cmp(file1, file2, chunksize=512):
         while True:
             chunk1 = f1.read(chunksize)
             chunk2 = f2.read(chunksize)
+            try:
+                chunk1 = chunk1.encode('utf-8')
+            except AttributeError:
+                # already a bytes object
+                pass
+            try:
+                chunk2 = chunk2.encode('utf-8')
+            except AttributeError:
+                # already a bytes object
+                pass
             if chunk1 != chunk2:
                 result = False
                 break
