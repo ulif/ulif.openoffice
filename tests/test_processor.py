@@ -879,7 +879,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-sd-fields': '0'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
         snippet = '<sdfield type="PAGE">'
         assert snippet in contents
 
@@ -890,7 +890,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-sd-fields': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
         snippet = '<sdfield type="PAGE">'
         assert snippet not in contents
 
