@@ -32,10 +32,6 @@ except ImportError:
 import ulif.openoffice
 from io import BytesIO
 from webob import Request
-try:
-    from cStringIO import StringIO  # Python 2.x
-except ImportError:                 # pragma: no cover
-    from io import StringIO         # Python 3.x
 from ulif.openoffice.oooctl import check_port
 
 try:
@@ -196,7 +192,7 @@ class ConvertLogCatcher(object):
     """
 
     def __init__(self):
-        self.stream = StringIO()
+        self.stream = BytesIO()
         self.handler = logging.StreamHandler(self.stream)
         self.logger = logging.getLogger('ulif.openoffice.convert')
         self.logger.setLevel(logging.DEBUG)
