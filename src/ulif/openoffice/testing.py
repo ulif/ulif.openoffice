@@ -25,10 +25,6 @@ import shutil
 import sys
 import tempfile
 import time
-try:
-    from xmlrpc import client as xmlrpclib   # Python 3.x
-except ImportError:
-    import xmlrpclib                         # Python 2.x
 import ulif.openoffice
 from io import BytesIO
 from webob import Request
@@ -38,6 +34,11 @@ try:
     import unittest2 as unittest
 except:                                                 # pragma: no cover
     import unittest
+
+try:
+    from xmlrpc import client as xmlrpclib   # Python 3.x
+except ImportError:
+    import xmlrpclib                         # Python 2.x
 
 
 class TestOOServerSetup(unittest.TestCase):
