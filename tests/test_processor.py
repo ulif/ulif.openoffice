@@ -402,13 +402,13 @@ class TestOOConvProcessor(TestOOServerSetup):
     @pytest.mark.skipif("not os.environ.get('PATH', None)")
     def test_failing_op(self):
         proc = OOConvProcessor(Options())
-        sample_file = os.path.join(self.workdir, b'sample.txt')
+        sample_file = os.path.join(self.workdir, 'sample.txt')
         with open(sample_file, 'w') as fd:
-            fd.write(b'A sample')
+            fd.write('A sample')
         with self.failing_unoconv_context():
             # the fake unoconv will return error unconditionally
             self.result_path, meta = proc.process(sample_file, Options())
-        assert meta[b'oocp_status'] == 1
+        assert meta['oocp_status'] == 1
         assert self.result_path is None
         return
 
