@@ -47,7 +47,8 @@ class ServerTests(ServerTestsSetup):
         request = Request.blank('http://localhost/RPC2')
         request.method = 'POST'
         request.content_type = 'text/xml'
-        request.body = xmlrpclib.dumps(args, method_name, allow_none=True)
+        request.body = xmlrpclib.dumps(
+            args, method_name, allow_none=True).encode('utf-8')
         return request
 
     def test_http_get_not_accepted(self):
