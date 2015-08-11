@@ -63,8 +63,8 @@ class ServerTests(ServerTestsSetup):
         app = WSGIXMLRPCApplication()
         req = self.xmlrpc_request('system.listMethods', ())
         resp = req.get_response(app)
-        assert resp.body.startswith("<?xml version='1.0'?>")
-        assert "<string>system.methodHelp</string>" in resp.body
+        assert resp.body.startswith(b"<?xml version='1.0'?>")
+        assert b"<string>system.methodHelp</string>" in resp.body
         # the result can be processed by xmlrpclib
         result = xmlrpclib.loads(resp.body)
         assert isinstance(result, tuple)
