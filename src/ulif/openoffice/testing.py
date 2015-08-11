@@ -30,6 +30,7 @@ try:
 except ImportError:
     import xmlrpclib                         # Python 2.x
 import ulif.openoffice
+from io import BytesIO
 from webob import Request
 try:
     from cStringIO import StringIO  # Python 2.x
@@ -220,7 +221,7 @@ class HTTPWSGIResponse(object):
     """
     def __init__(self, webob_resp):
         self.resp = webob_resp
-        self._body = StringIO(self.resp.body)
+        self._body = BytesIO(self.resp.body)
         self._body.seek(0)
         self.reason = self.resp.status.split(" ", 1)
         self.status = self.resp.status_int
@@ -240,7 +241,7 @@ class WSGILikeHTTP(object):
     def __init__(self, host, app):
         self.app = app
         self.headers = {}
-        self.content = StringIO()
+        self.content = BytesIO()
 
     def putrequest(self, method, handler, **kw):
         self.method = method
@@ -264,7 +265,7 @@ class WSGILikeHTTP(object):
         req.method = self.method
         req.body = self.body
         resp = req.get_response(self.app)
-        self.content = StringIO(resp.body)
+        self.content = BytesIO(resp.body)
         return HTTPWSGIResponse(resp)
 
     def getreply(self):                                 # pragma: no cover
