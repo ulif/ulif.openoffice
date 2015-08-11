@@ -21,7 +21,7 @@ class ServerTestsSetup(unittest.TestCase):
     def setUp(self):
         self.src_dir = tempfile.mkdtemp()
         self.src_path = os.path.join(self.src_dir, 'sample.txt')
-        with open(self.src_path, 'wb') as fd:
+        with open(self.src_path, 'w') as fd:
             fd.write('Hi there!\n')
         self.result_dir = None
         self.inputdir = os.path.join(os.path.dirname(__file__), 'input')
@@ -123,7 +123,7 @@ class ServerProxyTests(ServerTestsSetup):
         # we can get cached docs
         cm = CacheManager(self.cachedir)
         fake_result_path = os.path.join(self.src_dir, 'result.txt')
-        with open(fake_result_path, 'wb') as fd:
+        with open(fake_result_path, 'w') as fd:
             fd.write('The Result\n')
         key = cm.register_doc(self.src_path, fake_result_path, 'somekey')
         assert key == '2b87e29fca6ee7f1df6c1a76cb58e101_1_1'
