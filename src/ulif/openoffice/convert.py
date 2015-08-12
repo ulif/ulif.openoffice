@@ -20,7 +20,6 @@
 A convert office docs.
 """
 import logging
-import os
 import shlex
 import tempfile
 from multiprocessing import Lock
@@ -123,26 +122,10 @@ def exec_cmd(cmd):
     """
     out_file = tempfile.SpooledTemporaryFile()
     args = shlex.split(str(cmd))
-    data = prepare_unoconv_call()
     # we could also use PIPE and p.communicate, but that seems to block
     p = Popen(args, stdout=out_file, stderr=out_file)
     status = p.wait()
     out_file.seek(0)
     out = out_file.read()
     out_file.close()
-    followup_unoconv_call(data)
     return status, out
-
-
-def prepare_unoconv_call():
-    """Prepare call to unoconv.
-
-    Returns data for followup call.
-    """
-    return {}
-
-
-def followup_unoconv_call(data):
-    """Restore things done by `prepare_unoconv_call.
-    """
-    pass
