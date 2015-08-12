@@ -78,7 +78,7 @@ class ConvertDocTests(ClientTestsSetup):
         os.chdir(os.path.dirname(self.src_doc))
         result_path, cache_key, metadata = convert_doc(
             os.path.basename(self.src_doc), options=options, cache_dir=None)
-        assert 'Cmd result: 0' in self.log_catcher.get_log_messages()
+        assert b'Cmd result: 0' in self.log_catcher.get_log_messages()
         self.resultdir = os.path.dirname(result_path)
         assert result_path[-11:] == '/sample.pdf'
         assert metadata == {'error': False, 'oocp_status': 0}
