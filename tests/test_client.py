@@ -93,7 +93,7 @@ class ConvertDocTests(ClientTestsSetup):
             }
         os.chdir(os.path.dirname(self.src_doc))
         other_path = os.path.join(os.path.dirname(self.src_doc), 'other.foo')
-        with open(other_path, 'wb') as fd:
+        with open(other_path, 'w') as fd:
             fd.write('some-content')
         result_path, cache_key, metadata = convert_doc(
             os.path.basename(self.src_doc), options=options, cache_dir=None)
