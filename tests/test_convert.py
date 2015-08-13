@@ -86,6 +86,9 @@ class ConvertTests(TestOOServerSetup):
             '<div title="header"' in content)
         return
 
+
+class TestConvert(object):
+
     def test_exec_cmd(self):
         # we can exec commands and get the output back
         status, output = exec_cmd('unoconv --help')
