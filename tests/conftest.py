@@ -31,3 +31,13 @@ def envpath_no_venv(request):
             os.environ['PATH'] = _path
 
     request.addfinalizer(teardown)
+
+
+@pytest.fixture(scope="function")
+def home(request, tmpdir, monkeypatch):
+    """Provide a new $HOME.
+    """
+    new_home = tmpdir.mkdir('home')
+    monkeypatch.setenv('HOME', str(new_home))
+    return new_home
+
