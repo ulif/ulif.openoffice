@@ -89,7 +89,7 @@ class ConvertTests(TestOOServerSetup):
 
 class TestConvert(object):
 
-    def test_exec_cmd(self):
+    def test_exec_cmd(self, envpath_no_venv):
         # we can exec commands and get the output back
         status, output = exec_cmd('unoconv --help')
         assert status == 1
