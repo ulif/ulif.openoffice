@@ -81,7 +81,8 @@ def daemonize(stdout='/dev/null', stderr=None,
     sys.stderr.write("\n%s\n" % startmsg % pid)
     sys.stderr.flush()
     if pidfile:
-        file(pidfile, 'w+').write("%s\n" % pid)
+        with open(pidfile, 'w+') as fd:
+            fd.write("%s\n" % pid)
 
     # Redirect standard input/output streams
     os.dup2(si.fileno(), sys.stdin.fileno())
