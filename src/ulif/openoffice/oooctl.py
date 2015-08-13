@@ -97,9 +97,8 @@ def startstop(stdout='/dev/null', stderr=None, stdin='/dev/null',
     """
     if action:
         try:
-            pf = file(pidfile, 'r')
-            pid = int(pf.read().strip())
-            pf.close()
+            with open(pidfile, 'r') as fd:
+                pid = int(fd.read().strip())
         except IOError:
             pid = None
 
