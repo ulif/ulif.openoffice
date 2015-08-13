@@ -1,7 +1,7 @@
 #
 # testing.py
 #
-# Copyright (C) 2011, 2013 Uli Fouquet
+# Copyright (C) 2011, 2013, 2015 Uli Fouquet
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -25,15 +25,11 @@ import shutil
 import sys
 import tempfile
 import time
+import unittest
 import ulif.openoffice
 from io import BytesIO
 from webob import Request
 from ulif.openoffice.oooctl import check_port
-
-try:
-    import unittest2 as unittest
-except:                                                 # pragma: no cover
-    import unittest
 
 try:
     from xmlrpc import client as xmlrpclib   # Python 3.x
@@ -61,10 +57,6 @@ class TestOOServerSetup(unittest.TestCase):
 
     - Be prepared for slightly different test output when using an
       already running OO.org server instance.
-
-    .. note:: This testcase works only with :mod:`unittest2`!  For
-              more recent Python versions (Python >= 2.6) the default
-              :mod:`unittest` module is sufficient.
 
     """
     @classmethod
