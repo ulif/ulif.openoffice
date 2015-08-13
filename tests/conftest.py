@@ -2,7 +2,7 @@ import os
 import pytest
 
 @pytest.fixture(scope="function")
-def envpath_no_venv(request):
+def envpath_no_venv(request, monkeypatch):
     """Strip virtualenv path from system environment $PATH.
 
     For the test remove virtualenv path from $PATH.
@@ -24,13 +24,7 @@ def envpath_no_venv(request):
         x for x in _path.split(":")
         if v_env_path not in x]
         )
-    os.environ["PATH"] = new_path
-
-    def teardown():
-        if _path is not None:
-            os.environ['PATH'] = _path
-
-    request.addfinalizer(teardown)
+    monkeypatch.setenv("PATH", new_path)
 
 
 @pytest.fixture(scope="function")
@@ -40,4 +34,3 @@ def home(request, tmpdir, monkeypatch):
     new_home = tmpdir.mkdir('home')
     monkeypatch.setenv('HOME', str(new_home))
     return new_home
-
