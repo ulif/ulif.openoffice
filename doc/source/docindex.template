@@ -12,13 +12,13 @@
 <table class="contentstable" align="center"><tr>
   <td width="50%">
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("intro") }}">Introduction</a><br />
       <span class="linkdescr">Get started with ulif.openoffice.</span>
     </p>
-      
+
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("user_overview") }}">User documentation</a><br />
     <span class="linkdescr">
       Documentation for users and admins using ulif.openoffice.
@@ -26,20 +26,20 @@
 
     </td><td width="50%">
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("changes") }}">What's new?</a><br />
       <span class="linkdescr">Changes made in each release.</span>
     </p>
 
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("developer_overview") }}">Developer documentation</a><br />
       <span class="linkdescr">
 	<a href="{{ pathto("api/api_overview") }}">API</a> and other pieces
 	relevant for developers.
       </span>
     </p>
-	  
+
   </td></tr>
 </table>
 
@@ -47,14 +47,14 @@
 <table class="contentstable" align="center"><tr>
   <td width="50%">
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("contents") }}">Table of Contents</a><br />
       <span class="linkdescr">Lists all sections and subsections.</span>
     </p>
     </td><td width="50%">
 
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("genindex") }}">Index</a><br />
       <span class="linkdescr">All functions, classes, terms.</span>
     </p>
@@ -66,24 +66,24 @@
   <td width="50%">
 
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("bugs") }}">Reporting bugs</a><br />
     </p>
 
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("documentation") }}">About the documentation</a><br />
     </p>
 
     </td><td width="50%">
-	      
+
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("license") }}">License</a><br />
     </p>
 
     <p class="biglink">
-      <a class="biglink" 
+      <a class="biglink"
 	 href="{{ pathto("copyright") }}">Copyright</a><br />
     </p>
 
