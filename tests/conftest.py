@@ -46,11 +46,7 @@ def run_lo_server(request, home, tmpdir):
     """Start a libre office server.
     """
     if check_port("localhost", 2002):
-        server_running = True
-        print("RUNNING!!!!!!!!!")
         return
-    print("NOT RNNING")
-    return
     script_path = os.path.splitext(oooctl.__file__)[0]
     log_path = tmpdir.join("loctl.log")
     cmd = "%s %s.py --stdout=%s start" % (
