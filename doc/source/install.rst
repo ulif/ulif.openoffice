@@ -2,7 +2,7 @@ Prerequisites
 =============
 
 Of course LibreOffice (or OpenOffice) must be installed on the
-system. Also unoconv is mandatory and for HTML mangling we also use
+system. Also `unoconv` is mandatory and for HTML mangling we also use
 the `tidy` tool.
 
 On Ubuntu this can be done with::
