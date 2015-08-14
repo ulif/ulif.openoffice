@@ -1,8 +1,10 @@
 import os
 import pytest
 import sys
-import ulif.openoffice.oooctl
+import time
+from ulif.openoffice import oooctl
 from ulif.openoffice.oooctl import check_port
+
 
 @pytest.fixture(scope="function")
 def envpath_no_venv(request, monkeypatch):
@@ -43,12 +45,31 @@ def home(request, tmpdir, monkeypatch):
 def run_lo_server(request, home, tmpdir):
     """Start a libre office server.
     """
-    server_running = False
     if check_port("localhost", 2002):
         server_running = True
-    script_path = os.path.dirname(ulif.openoffice.__file__)
-    script_path = os.path.splitext(script_path)[0]
+        print("RUNNING!!!!!!!!!")
+        return
+    print("NOT RNNING")
+    return
+    script_path = os.path.splitext(oooctl.__file__)[0]
     log_path = tmpdir.join("loctl.log")
     cmd = "%s %s.py --stdout=%s start" % (
         sys.executable, script_path, log_path)
+    os.system(cmd)
+    ts = time.time()
+    while not check_port('localhost', 2002):
+        time.sleep(0.5)
+        if time.time() - ts > 3:
+            break
+
+    def stop_server():
+        cmd = "%s %s.py stop" % (sys.executable, script_path)
+        ts = time.time()
+        while check_port('localhost', 2002):
+            os.system(cmd)
+            time.sleep(0.5)
+            if time.time() - ts > 3:
+                break
+
+    request.addfinalizer(stop_server)
     return cmd
