@@ -1,5 +1,8 @@
 import os
 import pytest
+import sys
+import ulif.openoffice.oooctl
+from ulif.openoffice.oooctl import check_port
 
 @pytest.fixture(scope="function")
 def envpath_no_venv(request, monkeypatch):
@@ -34,3 +37,18 @@ def home(request, tmpdir, monkeypatch):
     new_home = tmpdir.mkdir('home')
     monkeypatch.setenv('HOME', str(new_home))
     return new_home
+
+
+@pytest.fixture(scope="function")
+def run_lo_server(request, home, tmpdir):
+    """Start a libre office server.
+    """
+    server_running = False
+    if check_port("localhost", 2002):
+        server_running = True
+    script_path = os.path.dirname(ulif.openoffice.__file__)
+    script_path = os.path.splitext(script_path)[0]
+    log_path = tmpdir.join("loctl.log")
+    cmd = "%s %s.py --stdout=%s start" % (
+        sys.executable, script_path, log_path)
+    return cmd
