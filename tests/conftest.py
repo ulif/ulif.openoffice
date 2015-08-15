@@ -60,9 +60,9 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
 
     def stop_server():
         cmd = "%s %s.py stop" % (sys.executable, script_path)
+        os.system(cmd)
         ts = time.time()
         while check_port('localhost', 2002):
-            os.system(cmd)
             time.sleep(0.5)
             if time.time() - ts > 3:
                 break
