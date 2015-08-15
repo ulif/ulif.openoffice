@@ -551,7 +551,7 @@ class TestHelpers(unittest.TestCase):
         key = list(img_map.keys())[0]
         val = list(img_map.values())[0]
         assert isinstance(key, string_types)
-        assert isinstance(key, string_types)
+        assert isinstance(val, string_types)
 
     def test_rename_html_img_links_only_local(self):
         # We do not convert links to external images
