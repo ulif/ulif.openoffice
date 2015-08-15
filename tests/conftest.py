@@ -56,8 +56,10 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
     proc = subprocess.Popen(cmd, shell=True)
     proc.wait()
     ts = time.time()
+    nap = 0.1
     while not check_port('localhost', 2002):
-        time.sleep(0.5)
+        time.sleep(nap)
+        nap = nap * 2
         if time.time() - ts > 3:
             break
 
@@ -67,8 +69,10 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
         proc = subprocess.Popen(cmd, shell=True)
         proc.wait()
         ts = time.time()
+        nap = 0.1
         while check_port('localhost', 2002):
-            time.sleep(0.5)
+            time.sleep(nap)
+            nap = nap * 2
             if time.time() - ts > 3:
                 break
 
