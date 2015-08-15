@@ -52,7 +52,9 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
     log_path = tmpdir.join("loctl.log")
     cmd = "%s %s.py --stdout=%s start" % (
         sys.executable, script_path, log_path)
-    os.system(cmd)
+    # It would be nice, to work w/o shell here.
+    with subprocess.Popen(cmd, shell=True) as proc:
+        proc.wait()
     ts = time.time()
     while not check_port('localhost', 2002):
         time.sleep(0.5)
