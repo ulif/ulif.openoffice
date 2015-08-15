@@ -1,5 +1,6 @@
 import os
 import pytest
+import subprocess
 import sys
 import time
 from ulif.openoffice import oooctl
@@ -60,7 +61,9 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
 
     def stop_server():
         cmd = "%s %s.py stop" % (sys.executable, script_path)
-        os.system(cmd)
+        # It would be nice, to work w/o shell here.
+        with subprocess.Popen(cmd, shell=True) as proc:
+            proc.wait()
         ts = time.time()
         while check_port('localhost', 2002):
             time.sleep(0.5)
