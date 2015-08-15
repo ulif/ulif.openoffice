@@ -42,7 +42,7 @@ def home(request, tmpdir, monkeypatch):
 
 
 @pytest.fixture(scope="function")
-def run_lo_server(request, home, tmpdir):
+def run_lo_server(request, home, tmpdir, envpath_no_venv):
     """Start a libre office server.
     """
     if check_port("localhost", 2002):
