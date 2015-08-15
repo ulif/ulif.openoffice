@@ -53,8 +53,8 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
     cmd = "%s %s.py --stdout=%s start" % (
         sys.executable, script_path, log_path)
     # It would be nice, to work w/o shell here.
-    with subprocess.Popen(cmd, shell=True) as proc:
-        proc.wait()
+    proc = subprocess.Popen(cmd, shell=True)
+    proc.wait()
     ts = time.time()
     while not check_port('localhost', 2002):
         time.sleep(0.5)
@@ -64,8 +64,8 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
     def stop_server():
         cmd = "%s %s.py stop" % (sys.executable, script_path)
         # It would be nice, to work w/o shell here.
-        with subprocess.Popen(cmd, shell=True) as proc:
-            proc.wait()
+        proc = subprocess.Popen(cmd, shell=True)
+        proc.wait()
         ts = time.time()
         while check_port('localhost', 2002):
             time.sleep(0.5)
