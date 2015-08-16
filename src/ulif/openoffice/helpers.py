@@ -597,13 +597,13 @@ def filelike_cmp(file1, file2, chunksize=512):
             chunk2 = f2.read(chunksize)
             try:
                 chunk1 = chunk1.encode('utf-8')
-            except AttributeError:
-                # already a bytes object
+            except AttributeError:               # pragma: no cover
+                # already a bytes object, or py2.x
                 pass
             try:
                 chunk2 = chunk2.encode('utf-8')
-            except AttributeError:
-                # already a bytes object
+            except AttributeError:               # pragma: no cover
+                # already a bytes object, or py2.x
                 pass
             if chunk1 != chunk2:
                 result = False
@@ -629,7 +629,7 @@ def write_filelike(file_obj, path, chunksize=512):
     f1 = file_obj
     if isinstance(file_obj, string_types):
         f1 = StringIO(file_obj)
-    elif isinstance(file_obj, bytes):
+    elif isinstance(file_obj, bytes):            # pragma: no cover
         f1 = StringIO(file_obj.decode('utf-8'))
     f2 = open(path, 'w')
     try:
