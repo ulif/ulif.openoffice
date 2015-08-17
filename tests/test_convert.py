@@ -18,14 +18,6 @@ class ConvertTests(TestOOServerSetup):
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
-    def test_convert_fail_status_ne_zero(self):
-        # if something goes wrong, we get some status != 0
-        status, result_dir = convert(
-            path='NoT-An-ExIsTiNg-PaTH', out_dir=self.tmpdir)
-        self.assertTrue(status != 0)
-        self.assertEqual([], os.listdir(self.tmpdir))
-        return
-
     def test_convert_with_template(self):
         # we can pass in templates when converting
         doc_path = os.path.join(self.tmpdir, 'sample.txt')
@@ -93,3 +85,10 @@ class TestConvert(object):
         assert status == 0
         # input and output are in the same dir
         assert sorted(os.listdir(str(tmpdir))) == ['sample.pdf', 'sample.txt']
+
+    def test_convert_fail_status_ne_zero(self, run_lo_server, tmpdir):
+        # if something goes wrong, we get some status != 0
+        status, result_dir = convert(
+            path='NoT-An-ExIsTiNg-PaTH', out_dir=str(tmpdir))
+        assert status != 0
+        assert os.listdir(str(tmpdir)) == []
