@@ -18,11 +18,6 @@ class ConvertTests(TestOOServerSetup):
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
-    def test_convert_no_path(self):
-        # w/o a path we get no conversion
-        self.assertEqual((None, None), convert())
-        return
-
     def test_simple_conversion_to_pdf(self):
         # we can convert a simple text file to pdf
         path = os.path.join(self.tmpdir, 'sample.txt')
@@ -88,6 +83,10 @@ class ConvertTests(TestOOServerSetup):
 
 
 class TestConvert(object):
+
+    def test_convert_no_path_foo(self, run_lo_server):
+        # w/o a path we get no conversion
+        assert (None, None) == convert()
 
     def test_exec_cmd(self, envpath_no_venv):
         # we can exec commands and get the output back
