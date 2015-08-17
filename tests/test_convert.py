@@ -84,7 +84,7 @@ class ConvertTests(TestOOServerSetup):
 
 class TestConvert(object):
 
-    def test_convert_no_path_foo(self, run_lo_server):
+    def test_convert_no_path(self, run_lo_server):
         # w/o a path we get no conversion
         assert (None, None) == convert()
 
