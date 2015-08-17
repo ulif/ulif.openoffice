@@ -18,6 +18,16 @@ def tmpdir_sess(request):
     return sess_dir
 
 
+@pytest.fixture(scope='session')
+def monkeypatch_sess(request):
+    """Like `monkeypatch` fixture, but for sessions.
+    """
+    from _pytest import monkeypatch
+    mpatch = monkeypatch.monkeypatch()
+    request.addfinalizer(mpatch.undo)
+    return mpatch
+
+
 @pytest.fixture(scope="function")
 def envpath_no_venv(request, monkeypatch):
     """Strip virtualenv path from system environment $PATH.
