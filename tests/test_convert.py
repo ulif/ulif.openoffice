@@ -95,3 +95,15 @@ class TestConvert(object):
         assert output[:84] == (
             b'usage: unoconv [options] file [file2 ..]\n'
             b'Convert from and to any format supported by')
+
+    def test_simple_conversion_to_pdf(self, run_lo_server, tmpdir):
+        # we can convert a simple text file to pdf
+        path = tmpdir.join('sample.txt')
+        path.write('Hi there!\n')
+        status, result_dir = convert(out_format='pdf', path=str(path))
+        assert status == 0
+        assert os.listdir(result_dir) == ['sample.pdf']
+        result_doc = open(os.path.join(result_dir, 'sample.pdf'), 'rb').read()
+        assert result_doc.startswith(b'%PDF-1.4\n%')
+        shutil.rmtree(result_dir)  # clean up
+        return
