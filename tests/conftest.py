@@ -1,10 +1,21 @@
 import os
+import py.path
 import pytest
 import subprocess
 import sys
+import tempfile
 import time
 from ulif.openoffice import oooctl
 from ulif.openoffice.oooctl import check_port
+
+
+@pytest.fixture(scope='session')
+def tmpdir_sess(request):
+    """Like `tmpdir` fixture, but for sessions.
+    """
+    sess_dir = py.path.local(tempfile.mkdtemp())
+    request.addfinalizer(lambda: sess_dir.remove(rec=1))
+    return sess_dir
 
 
 @pytest.fixture(scope="function")
