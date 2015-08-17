@@ -2,9 +2,7 @@
 import os
 import pytest
 import shutil
-import tempfile
 from ulif.openoffice.convert import convert, exec_cmd
-from ulif.openoffice.testing import TestOOServerSetup
 
 pytestmark = pytest.mark.converter
 
