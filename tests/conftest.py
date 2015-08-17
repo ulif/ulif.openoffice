@@ -32,7 +32,7 @@ def monkeypatch_sess(request):
     return mpatch
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def envpath_no_venv(request, monkeypatch_sess):
     """Strip virtualenv path from system environment $PATH.
 
