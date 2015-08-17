@@ -9,16 +9,6 @@ from ulif.openoffice.testing import TestOOServerSetup
 pytestmark = pytest.mark.converter
 
 
-class ConvertTests(TestOOServerSetup):
-
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp()
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
-
 class TestConvert(object):
 
     def test_convert_no_path(self, run_lo_server):
