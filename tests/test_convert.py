@@ -18,25 +18,6 @@ class ConvertTests(TestOOServerSetup):
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
 
-    def test_convert_with_template(self):
-        # we can pass in templates when converting
-        doc_path = os.path.join(self.tmpdir, 'sample.txt')
-        template_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'sample.ott')
-        open(doc_path, 'w').write('Hi there!\n')
-        result_path = os.path.join(self.tmpdir, 'sample.html')
-        # convert with template applied
-        status, result_dir = convert(
-            out_format='html', path=doc_path, out_dir=self.tmpdir,
-            template=template_path)
-        content = open(result_path, 'rb').read()
-        # tags that do not appear in un-templated docs
-        assert '<pre class="western">' in content.lower()
-        assert (
-            '<DIV TYPE=HEADER>' in content) or (
-            '<div title="header"' in content)
-        return
-
 
 class TestConvert(object):
 
@@ -92,3 +73,20 @@ class TestConvert(object):
             path='NoT-An-ExIsTiNg-PaTH', out_dir=str(tmpdir))
         assert status != 0
         assert os.listdir(str(tmpdir)) == []
+
+    def test_convert_with_template(self, run_lo_server, tmpdir):
+        # we can pass in templates when converting
+        doc_path = tmpdir.join('sample.txt')
+        doc_path.write('Hi there!\n')
+        template_path = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample.ott')
+        # convert with template applied
+        status, result_dir = convert(
+            out_format='html', path=str(doc_path), out_dir=str(tmpdir),
+            template=template_path)
+        content = tmpdir.join('sample.html').read()
+        # tags that do not appear in un-templated docs
+        assert '<pre class="western">' in content.lower()
+        assert (
+            '<DIV TYPE=HEADER>' in content) or (
+            '<div title="header"' in content)
