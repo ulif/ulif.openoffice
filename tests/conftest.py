@@ -32,8 +32,8 @@ def monkeypatch_sess(request):
     return mpatch
 
 
-@pytest.fixture(scope="function")
-def envpath_no_venv(request, monkeypatch):
+@pytest.fixture(scope="session")
+def envpath_no_venv(request, monkeypatch_sess):
     """Strip virtualenv path from system environment $PATH.
 
     For the test remove virtualenv path from $PATH.
@@ -55,15 +55,15 @@ def envpath_no_venv(request, monkeypatch):
         x for x in _path.split(":")
         if v_env_path not in x]
         )
-    monkeypatch.setenv("PATH", new_path)
+    monkeypatch_sess.setenv("PATH", new_path)
 
 
-@pytest.fixture(scope="function")
-def home(request, tmpdir, monkeypatch):
+@pytest.fixture(scope="session")
+def home(request, tmpdir_sess, monkeypatch_sess):
     """Provide a new $HOME.
     """
-    new_home = tmpdir.mkdir('home')
-    monkeypatch.setenv('HOME', str(new_home))
+    new_home = tmpdir_sess.mkdir('home')
+    monkeypatch_sess.setenv('HOME', str(new_home))
     return new_home
 
 
