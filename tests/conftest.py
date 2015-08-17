@@ -67,14 +67,16 @@ def home(request, tmpdir_sess, monkeypatch_sess):
     return new_home
 
 
-@pytest.fixture(scope="function")
-def run_lo_server(request, home, tmpdir, envpath_no_venv):
+@pytest.fixture(scope="session")
+def run_lo_server(request, home, tmpdir_sess, envpath_no_venv):
     """Start a libre office server.
+
+    session-scoped test fixture. Sets new $HOME.
     """
     if check_port("localhost", 2002):
         return
     script_path = os.path.splitext(oooctl.__file__)[0]
-    log_path = tmpdir.join("loctl.log")
+    log_path = tmpdir_sess.join("loctl.log")
     cmd = "%s %s.py --stdout=%s start" % (
         sys.executable, script_path, log_path)
     # It would be nice, to work w/o shell here.
@@ -102,4 +104,4 @@ def run_lo_server(request, home, tmpdir, envpath_no_venv):
                 break
 
     request.addfinalizer(stop_server)
-    return cmd
+    return proc
