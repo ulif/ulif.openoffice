@@ -11,7 +11,11 @@ from ulif.openoffice.oooctl import check_port
 
 @pytest.fixture(scope='session')
 def tmpdir_sess(request):
-    """Like `tmpdir` fixture, but for sessions.
+    """return a temporary py.path.local object which is unique
+    for each test run.
+
+    Different to `tmpdir`, the path is removed immediately after test
+    session.
     """
     sess_dir = py.path.local(tempfile.mkdtemp())
     request.addfinalizer(lambda: sess_dir.remove(rec=1))
