@@ -108,7 +108,7 @@ def run_lo_server(request, home, tmpdir_sess, envpath_no_venv):
 
 
 @pytest.fixture(scope="function")
-def workdir(request, tmpdir):
+def workdir(request, tmpdir, monkeypatch):
     """Provide a working dir (scope: function).
 
     Creates a temporary directory with subdirs 'src/' and 'cache/'. In
@@ -120,10 +120,5 @@ def workdir(request, tmpdir):
     tmpdir.mkdir('src')
     tmpdir.mkdir('cache')
     tmpdir.join('src').join('sample.txt').write('Hi there!')
-    entry_cwd = tmpdir.chdir()
-
-    def cleanup():
-        os.chdir(str(entry_cwd))
-
-    request.addfinalizer(cleanup)
+    monkeypatch.chdir(tmpdir)
     return tmpdir
