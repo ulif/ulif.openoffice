@@ -117,7 +117,6 @@ def workdir(request, tmpdir):
     The system working directory is changed to the temporary dir during
     test.
     """
-
     tmpdir.mkdir('src')
     tmpdir.mkdir('cache')
     tmpdir.join('src').join('sample.txt').write('Hi there!')
