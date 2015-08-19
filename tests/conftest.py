@@ -111,14 +111,19 @@ def run_lo_server(request, home, tmpdir_sess, envpath_no_venv):
 def workdir(request, tmpdir, monkeypatch):
     """Provide a working dir (scope: function).
 
-    Creates a temporary directory with subdirs 'src/' and 'cache/'. In
-    'src/sample.txt' a simple text file is created.
+    Creates a temporary directory with subdirs 'src/', 'cache/', and
+    'tmp/'. In 'src/sample.txt' a simple text file is created.
 
     The system working directory is changed to the temporary dir during
     test.
+
+    Global root temporary dir is set to the newly created 'tmp/' dir
+    during test.
     """
     tmpdir.mkdir('src')
     tmpdir.mkdir('cache')
+    tmpdir.mkdir('tmp')
     tmpdir.join('src').join('sample.txt').write('Hi there!')
     monkeypatch.chdir(tmpdir)
+    monkeypatch.setattr(tempfile, 'tempdir', str(tmpdir.join('tmp')))
     return tmpdir
