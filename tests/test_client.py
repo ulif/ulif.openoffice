@@ -89,21 +89,6 @@ class ConvertDocTests(ClientTestsSetup):
         assert result_path[-11:] == '/sample.pdf'
         assert metadata == {'error': False, 'oocp_status': 0}
 
-    def test_basename_only_input(self):
-        # also source paths with a basename only are accepted
-        options = {'meta-procord': 'oocp',
-                   'oocp-out-fmt': 'pdf'}
-        # change to the dir where the src doc resides (set back by teardown)
-        os.chdir(os.path.dirname(self.src_doc))
-        result_path, cache_key, metadata = convert_doc(
-            os.path.basename(self.src_doc), options=options, cache_dir=None)
-        assert b'Cmd result: 0' in self.log_catcher.get_log_messages()
-        self.resultdir = os.path.dirname(result_path)
-        assert result_path[-11:] == '/sample.pdf'
-        assert metadata == {'error': False, 'oocp_status': 0}
-        # the original source doc still exists
-        assert os.path.exists(self.src_doc)
-
     def test_only_one_file_considered_as_input(self):
         # we only consider one input file, not other files in same dir
         options = {
