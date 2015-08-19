@@ -14,7 +14,7 @@ from ulif.openoffice.oooctl import check_port
 @pytest.fixture(scope='session')
 def tmpdir_sess(request):
     """return a temporary py.path.local object which is unique
-    for each test run.
+    for each test run (scope: session).
 
     Different to `tmpdir`, the path is removed immediately after test
     session.
@@ -36,7 +36,7 @@ def monkeypatch_sess(request):
 
 @pytest.fixture(scope="session", autouse=True)
 def envpath_no_venv(request, monkeypatch_sess):
-    """Strip virtualenv path from system environment $PATH.
+    """Strip virtualenv path from system environment $PATH (scope: session).
 
     For the test remove virtualenv path from $PATH.
 
@@ -62,7 +62,7 @@ def envpath_no_venv(request, monkeypatch_sess):
 
 @pytest.fixture(scope="session")
 def home(request, tmpdir_sess, monkeypatch_sess):
-    """Provide a new $HOME.
+    """Provide a new $HOME (scope: session).
     """
     new_home = tmpdir_sess.mkdir('home')
     monkeypatch_sess.setenv('HOME', str(new_home))
@@ -133,7 +133,7 @@ def workdir(request, tmpdir, monkeypatch):
 
 @pytest.fixture(scope="function")
 def conv_logger(request):
-    """`py.io.TextIO` stream capturing log messages.
+    """`py.io.TextIO` stream capturing log messages (scope:funcion).
 
     Captures messages to 'ulif.openoffice.convert' logger. Text can be
     retrieved with `conv_logger.getvalue()`.
