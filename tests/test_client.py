@@ -37,6 +37,25 @@ class ClientTestsSetup(unittest.TestCase):
             shutil.rmtree(self.resultdir)
 
 
+class TestConvertDoc(object):
+    # tests for convert_doc function
+
+    def test_basename_only_input(self, workdir, conv_logger, lo_server):
+        # also source paths with a basename only are accepted
+        options = {'meta-procord': 'oocp',
+                   'oocp-out-fmt': 'pdf'}
+        # change to the dir where the src doc resides
+        workdir.join('src').chdir()
+        src_doc = workdir.join('src').join('sample.txt')
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(str(src_doc)), options=options, cache_dir=None)
+        assert "Cmd result: 0" in conv_logger.getvalue()
+        assert os.path.basename(result_path) == "sample.pdf"
+        assert metadata == {'error': False, 'oocp_status': 0}
+        # the original source doc still exists
+        assert src_doc.exists()
+
+
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
 
