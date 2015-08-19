@@ -9,7 +9,7 @@ pytestmark = pytest.mark.converter
 
 class TestConvert(object):
 
-    def test_convert_no_path(self, run_lo_server):
+    def test_convert_no_path(self, lo_server):
         # w/o a path we get no conversion
         assert (None, None) == convert()
 
@@ -21,7 +21,7 @@ class TestConvert(object):
             b'usage: unoconv [options] file [file2 ..]\n'
             b'Convert from and to any format supported by')
 
-    def test_simple_conversion_to_pdf(self, run_lo_server, tmpdir):
+    def test_simple_conversion_to_pdf(self, lo_server, tmpdir):
         # we can convert a simple text file to pdf
         path = tmpdir.join('sample.txt')
         path.write('Hi there!\n')
@@ -33,7 +33,7 @@ class TestConvert(object):
         shutil.rmtree(result_dir)  # clean up
         return
 
-    def test_simple_conversion_to_html(self, run_lo_server, tmpdir):
+    def test_simple_conversion_to_html(self, lo_server, tmpdir):
         # we can convert a simple text file to html
         path = tmpdir.join('sample.txt')
         path.write('Hi there!\n')
@@ -45,7 +45,7 @@ class TestConvert(object):
         shutil.rmtree(result_dir)  # clean up
         return
 
-    def test_convert_outdir(self, run_lo_server, tmpdir):
+    def test_convert_outdir(self, lo_server, tmpdir):
         # the outdir parameter is respected
         path = tmpdir.join('sample.txt')
         path.write('Hi there!\n')
@@ -55,14 +55,14 @@ class TestConvert(object):
         # input and output are in the same dir
         assert sorted(os.listdir(str(tmpdir))) == ['sample.pdf', 'sample.txt']
 
-    def test_convert_fail_status_ne_zero(self, run_lo_server, tmpdir):
+    def test_convert_fail_status_ne_zero(self, lo_server, tmpdir):
         # if something goes wrong, we get some status != 0
         status, result_dir = convert(
             path='NoT-An-ExIsTiNg-PaTH', out_dir=str(tmpdir))
         assert status != 0
         assert os.listdir(str(tmpdir)) == []
 
-    def test_convert_with_template(self, run_lo_server, tmpdir):
+    def test_convert_with_template(self, lo_server, tmpdir):
         # we can pass in templates when converting
         doc_path = tmpdir.join('sample.txt')
         doc_path.write('Hi there!\n')

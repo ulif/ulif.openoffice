@@ -70,8 +70,8 @@ def home(request, tmpdir_sess, monkeypatch_sess):
 
 
 @pytest.fixture(scope="session")
-def run_lo_server(request, home, tmpdir_sess, envpath_no_venv):
-    """Start a libre office server.
+def lo_server(request, home, tmpdir_sess, envpath_no_venv):
+    """Start a libre office server (scope: session).
 
     session-scoped test fixture. Sets new $HOME.
     """
