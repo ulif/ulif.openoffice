@@ -1,3 +1,4 @@
+import logging
 import os
 import py.path
 import pytest
@@ -5,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from py.io import TextIO
 from ulif.openoffice import oooctl
 from ulif.openoffice.oooctl import check_port
 
@@ -127,3 +129,25 @@ def workdir(request, tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(tempfile, 'tempdir', str(tmpdir.join('tmp')))
     return tmpdir
+
+
+@pytest.fixture(scope="function")
+def conv_logger(request):
+    """`py.io.TextIO` stream capturing log messages.
+
+    Captures messages to 'ulif.openoffice.convert' logger. Text can be
+    retrieved with `conv_logger.getvalue()`.
+    """
+    stream = TextIO()
+    logger = logging.getLogger('ulif.openoffice.convert')
+    entry_level = logger.level
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(stream)
+
+    def cleanup():
+        logger.removeHandler(handler)
+        logger.setLevel(entry_level)
+
+    logger.addHandler(handler)
+    request.addfinalizer(cleanup)
+    return stream
