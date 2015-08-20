@@ -592,7 +592,7 @@ class TestTidyProcessor(unittest.TestCase):
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
         contents = open(self.resultpath, 'rb').read()
-        assert 'xmlns="http://www.w3.org/1999/xhtml"' in contents
+        assert b'xmlns="http://www.w3.org/1999/xhtml"' in contents
 
     def test_encoding_utf8(self):
         # make sure we get UTF-8 output and no special stuff.

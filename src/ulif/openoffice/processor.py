@@ -394,9 +394,10 @@ class Tidy(BaseProcessor):
         remove_file_dir(path)
 
         # Remove <SDFIELD> tags if any
-        cleaned_html = rename_sdfield_tags(open(src_path, 'rb').read())
+        cleaned_html = rename_sdfield_tags(
+            open(src_path, 'rb').read().decode('utf-8'))
         with open(src_path, 'wb') as fd:
-            fd.write(cleaned_html)
+            fd.write(cleaned_html.encode('utf-8'))
 
         error_file = os.path.join(src_dir, 'tidy-errors')
         cmd = 'tidy -asxhtml -clean -indent -modify -utf8 -f %s %s' % (
