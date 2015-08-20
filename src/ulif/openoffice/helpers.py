@@ -465,7 +465,8 @@ RE_SDFIELD_CLOSE = re.compile('</sdfield>', re.M + re.S + re.I)
 def rename_sdfield_tags(html_input):
     """Rename all ``<sdfield>`` tags to ``<span class="sdfield">``
 
-    Any attributes are preserved.
+    Any attributes are preserved. `html_input` must be a text, not a
+    bytes stream.
     """
     html_input = re.sub(
         RE_SDFIELD_OPEN, lambda match: '<span %s%s>' % (
