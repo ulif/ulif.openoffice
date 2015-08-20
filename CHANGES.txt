@@ -4,7 +4,9 @@ CHANGES
 1.1.2.dev0 (unreleased)
 =======================
 
-* Minor changes for Python 3.x compatibility.
+* Major changes for Python 3.x compatibility.
+
+* Make `cleanup_css()` return texts, not byte streams anymore.
 
 
 1.1.1 (2015-07-23)
