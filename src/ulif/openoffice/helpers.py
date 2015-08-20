@@ -382,6 +382,8 @@ def cleanup_css(css_input, minified=True):
     By default the ``<CSS>`` returned is minified to reduce network
     load, etc. If you want pretty non-minified output, set `minified`
     to ``False``.
+
+    We expect and return texts, not bytestreams.
     """
     # Set up a local logger for warnings and errors
     local_log = StringIO()
@@ -400,7 +402,9 @@ def cleanup_css(css_input, minified=True):
     sheet = cssutils.parseString(css_input)
 
     local_log.flush()
-    return sheet.cssText, local_log.getvalue()
+    encoding = sheet.encoding or 'utf-8'
+    css_text = sheet.cssText.decode(encoding)
+    return css_text, local_log.getvalue()
 
 
 def rename_html_img_links(html_input, basename):

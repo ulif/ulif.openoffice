@@ -487,34 +487,34 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_css_whitespace(self):
         css_input = 'p {font-family: ; font-size: 12px }'
         result, errors = cleanup_css(css_input)
-        assert result == b'p{font-size:12px}'
+        assert result == 'p{font-size:12px}'
 
     def test_cleanup_css_empty_style(self):
         css_input = 'p {}'
         result, errors = cleanup_css(css_input)
-        assert result == b''
+        assert result == ''
 
     def test_cleanup_css_empty_prop(self):
         css_input = 'p {font-family: ;}'
         result, errors = cleanup_css(css_input)
-        assert result == b''
+        assert result == ''
 
     def test_cleanup_css_empty_prop_no_colon(self):
         css_input = 'p {font-family: }'
         result, errors = cleanup_css(css_input)
-        assert result == b''
+        assert result == ''
 
     def test_cleanup_css_empty_prop_middle(self):
         css_input = 'p { foo: baz ; font-family: ; bar: baz}'
         result, errors = cleanup_css(css_input)
-        assert result == b'p{foo:baz;bar:baz}'
+        assert result == 'p{foo:baz;bar:baz}'
 
     def test_cleanup_css_complex(self):
         css_sample = os.path.join(
             os.path.dirname(__file__), 'input', 'sample1.css')
         css_input = open(css_sample, 'r').read()
         result, errors = cleanup_css(css_input)
-        assert b'font-family: ;' not in result
+        assert 'font-family: ;' not in result
 
     def test_cleanup_css_errors(self):
         css_input = 'p { foo: baz ; font-family: ; bar: baz}'
@@ -525,7 +525,7 @@ class TestHelpers(unittest.TestCase):
     def test_cleanup_css_non_minified(self):
         css_input = 'p { foo: baz ; bar: baz}'
         result, errors = cleanup_css(css_input, minified=False)
-        assert result == b'p {\n    foo: baz;\n    bar: baz\n    }'
+        assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
 
     def test_rename_html_img_links(self):
         # Make sure img links are modified
