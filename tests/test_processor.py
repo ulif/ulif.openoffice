@@ -599,7 +599,7 @@ class TestTidyProcessor(unittest.TestCase):
         proc = Tidy()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
         assert 'Ü' in contents
         assert '&Uuml;' not in contents
 
