@@ -354,13 +354,12 @@ class UnzipProcessor(BaseProcessor):
 
 class ZipProcessor(BaseProcessor):
     """A processor that zips the directory delivered.
+
+    `path` must be `str` type.
     """
     prefix = 'zip'
 
     def process(self, path, metadata):
-        if isinstance(path, unicode):
-            # zipfile does not accept unicode encoded paths...
-            path = path.encode('utf-8')
         if os.path.isfile(path):
             basename = os.path.basename(path)
         path = os.path.dirname(path)

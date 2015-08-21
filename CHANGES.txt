@@ -12,6 +12,9 @@ CHANGES
   processors. We now can work with umlauts in CSS styles and these
   processors support Python3.
 
+* Remove type check in `ZipProcessor`. It was a waste of resources and
+  would have become even more overcomplicated with Python3 support.
+
 
 1.1.1 (2015-07-23)
 ==================
