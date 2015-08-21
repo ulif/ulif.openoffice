@@ -364,7 +364,7 @@ class TestHelpers(unittest.TestCase):
             os.path.dirname(__file__), 'input', 'sample2.html')
         html_input = open(html_input_path, 'r').read()
         result, css = extract_css(html_input, 'sample.html')
-        assert len(css) == 156
+        assert len(css) == 210
         assert css.startswith('@page { size: 21cm')
         return
 
