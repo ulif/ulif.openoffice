@@ -27,7 +27,7 @@ import tempfile
 import time
 import unittest
 import ulif.openoffice
-from io import BytesIO
+from io import BytesIO, StringIO
 from webob import Request
 from ulif.openoffice.oooctl import check_port
 
@@ -178,6 +178,25 @@ def doctest_rm_resultdir(path):
         shutil.rmtree(path)
 
 
+class TypeAwareStreamHandler(logging.StreamHandler):
+    """A logging.StreamHandler that turns anything into 'unicode'.
+
+    In tests we want to use StringIO buffers to read log messages (at
+    least until we py.testified everything). As StringIO instances
+    require unicode() instances under Python 2.x and str() instances
+    under Python 3.x we do our best to convert anything before we emit
+    messages. I.e. we decode any string to UTF-8 if possible (and let it
+    pass as-is otherwise).
+    """
+    def emit(self, record):
+        try:
+            record.msg = record.msg.decode('utf-8')
+        except AttributeError:
+            # Python 3.x
+            pass
+        return super(TypeAwareStreamHandler, self).emit(record)
+
+
 class ConvertLogCatcher(object):
     """This log catcher catches the log messages of u.o.convert().
 
@@ -185,8 +204,8 @@ class ConvertLogCatcher(object):
     """
 
     def __init__(self):
-        self.stream = BytesIO()
-        self.handler = logging.StreamHandler(self.stream)
+        self.stream = StringIO()
+        self.handler = TypeAwareStreamHandler(self.stream)
         self.logger = logging.getLogger('ulif.openoffice.convert')
         self.logger.setLevel(logging.DEBUG)
         for handler in self.logger.handlers:
