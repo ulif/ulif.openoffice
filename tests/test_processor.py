@@ -380,7 +380,7 @@ class TestOOConvProcessor(TestOOServerSetup):
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
-        assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
+        assert b'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
             self.result_path, 'rb').read()
 
     def test_process_pdf_tagged(self):
