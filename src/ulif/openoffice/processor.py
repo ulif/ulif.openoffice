@@ -445,16 +445,16 @@ class CSSCleaner(BaseProcessor):
         remove_file_dir(path)
 
         new_html, css = extract_css(
-            open(src_path, 'rb').read(), basename,
+            open(src_path, 'rb').read().decode('utf-8'), basename,
             prettify_html=self.options['css_cleaner_prettify_html'])
         css, errors = cleanup_css(
             css, minified=self.options['css_cleaner_minified'])
 
         css_file = os.path.splitext(src_path)[0] + '.css'
         if css is not None:
-            with open(css_file, 'w') as fd:
-                fd.write(css)
-        with open(src_path, 'w') as fd:
+            with open(css_file, 'wb') as fd:
+                fd.write(css.encode('utf-8'))
+        with open(src_path, 'wb') as fd:
             fd.write(new_html.encode('utf-8'))
 
         return src_path, metadata

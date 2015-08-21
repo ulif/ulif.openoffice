@@ -8,6 +8,9 @@ CHANGES
 
 * Make `cleanup_css()` return texts, not byte streams anymore.
 
+* Fix encoding handling in CSSCleanupProcessor. We now can work with
+  umlauts in CSS styles.
+
 
 1.1.1 (2015-07-23)
 ==================
