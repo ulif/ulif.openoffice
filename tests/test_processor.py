@@ -648,7 +648,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
 
         resultdir = os.path.dirname(self.resultpath)
         snippet = "%s" % (
@@ -665,7 +665,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'rb').read()
+            os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'font-family: ;' not in result_css
 
     def test_cleaner_css_minified(self):
@@ -676,7 +676,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'rb').read()
+            os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'p{margin-bottom:.21cm}span.c2' in result_css
 
     def test_cleaner_css_non_minified(self):
@@ -687,7 +687,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'rb').read()
+            os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'p {\n    margin-bottom: 0.21cm\n    }\n' in result_css
 
     def test_cleaner_css_default_minified(self):
@@ -698,7 +698,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
 
         resultdir = os.path.dirname(self.resultpath)
         result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'rb').read()
+            os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'p{margin-bottom:.21cm}' in result_css
 
     def test_cleaner_invalid_minified(self):
@@ -713,7 +713,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner(options={'css-cleaner-prettify': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        with open(self.resultpath, 'rb') as fd:
+        with open(self.resultpath, 'r') as fd:
             result_html = fd.read()
         assert 'seam\n   </span>\n   <span>\n    less' in result_html
 
@@ -722,7 +722,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner(options={'css-cleaner-prettify': '0'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False}, )
-        with open(self.resultpath, 'rb') as fd:
+        with open(self.resultpath, 'r') as fd:
             result_html = fd.read()
         assert 'seam</span><span>less text.</span>' in result_html
 
@@ -731,7 +731,7 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         proc = CSSCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False}, )
-        with open(self.resultpath, 'rb') as fd:
+        with open(self.resultpath, 'r') as fd:
             result_html = fd.read()
         assert 'seam</span><span>less text.</span>' in result_html
 
