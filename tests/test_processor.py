@@ -544,11 +544,11 @@ class TestZipProcessor(unittest.TestCase):
     def test_simple(self):
         sample_path = os.path.join(self.workdir, 'sample1.txt')
         with open(sample_path, 'wb') as fd:
-            fd.write('Hi there!')
+            fd.write(b'Hi there!')
         with open(
                 os.path.join(self.workdir, 'sample2.txt'),
                 'wb') as fd:
-            fd.write('Hello again')
+            fd.write(b'Hello again')
         proc = ZipProcessor()
         self.result_path, metadata = proc.process(
             sample_path, {'error': False})
