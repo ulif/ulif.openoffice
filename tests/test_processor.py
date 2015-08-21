@@ -804,8 +804,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         proc = HTMLCleaner()
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
-
+        contents = open(self.resultpath, 'r').read()
         snippet1 = "%s" % (
             '<span class="u-o-headnum">1</span>Häding1')
         snippet2 = "%s" % (
@@ -823,8 +822,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-head-nums': '1'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
-
+        contents = open(self.resultpath, 'r').read()
         snippet1 = "%s" % (
             '<span class="u-o-headnum">1</span>Häding1')
         assert snippet1 in contents
@@ -836,8 +834,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-head-nums': 'False'})
         self.resultpath, metadata = proc.process(
             self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
-
+        contents = open(self.resultpath, 'r').read()
         snippet1 = "%s" % (
             '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
         assert snippet1 not in contents
@@ -849,7 +846,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-img-links': '0'})
         self.resultpath, metadata = proc.process(
             self.img_sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
         resultdir = os.path.dirname(self.resultpath)
         snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
         list_dir = os.listdir(resultdir)
@@ -864,7 +861,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
                 'html-cleaner-fix-img-links': '1'})
         self.resultpath, metadata = proc.process(
             self.img_sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
+        contents = open(self.resultpath, 'r').read()
         resultdir = os.path.dirname(self.resultpath)
         snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
         list_dir = os.listdir(resultdir)

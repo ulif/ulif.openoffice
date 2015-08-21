@@ -507,7 +507,7 @@ class HTMLCleaner(BaseProcessor):
         remove_file_dir(path)
 
         new_html, img_name_map = cleanup_html(
-            open(src_path, 'rb').read(), basename,
+            open(src_path, 'rb').read().decode('utf-8'), basename,
             fix_head_nums=self.options['html_cleaner_fix_heading_numbers'],
             fix_img_links=self.options['html_cleaner_fix_image_links'],
             fix_sdfields=self.options['html_cleaner_fix_sd_fields'],
