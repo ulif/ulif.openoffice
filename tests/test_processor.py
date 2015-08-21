@@ -309,7 +309,7 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_simple(self):
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
@@ -318,7 +318,7 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_umlauts(self):
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample with umlauts: ä')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
@@ -328,7 +328,7 @@ class TestOOConvProcessor(TestOOServerSetup):
         # Make sure the input file does not remain in result dir
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
@@ -342,7 +342,7 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
@@ -358,14 +358,14 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
-        content = open(self.result_path, 'r').read()
+        content = open(self.result_path, 'rb').read()
         # these are PDF/A-1a specification requirements...
-        assert '<pdfaid:part>1</pdfaid:part>' in content
-        assert '<pdfaid:conformance>A</pdfaid:conformance>' in content
+        assert b'<pdfaid:part>1</pdfaid:part>' in content
+        assert b'<pdfaid:conformance>A</pdfaid:conformance>' in content
 
     def test_process_pdf_as_non_pda(self):
         # make sure we can produce non-PDF/A output
@@ -376,7 +376,7 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
@@ -392,11 +392,11 @@ class TestOOConvProcessor(TestOOServerSetup):
                 }
             )
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'wb') as fd:
+        with open(sample_file, 'w') as fd:
             fd.write('A sample')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
-        assert 'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
+        assert b'xmlns:pdf="http://ns.adobe.com/pdf/1.3/"' not in open(
             self.result_path, 'rb').read()
 
     @pytest.mark.skipif("not os.environ.get('PATH', None)")
@@ -419,9 +419,9 @@ class TestOOConvProcessor(TestOOServerSetup):
                 'oocp-out-fmt': 'html',
                 }
             )
-        sample_file = os.path.join(self.workdir, b'sample.txt')
+        sample_file = os.path.join(self.workdir, 'sample.txt')
         with open(sample_file, 'w') as fd:
-            fd.write(b'A sample')
+            fd.write('A sample')
         log_catcher = ConvertLogCatcher()
         self.result_path, meta = proc.process(sample_file, {})
         output = log_catcher.get_log_messages()
@@ -434,9 +434,9 @@ class TestOOConvProcessor(TestOOServerSetup):
                 'oocp-out-fmt': 'pdf',
                 }
             )
-        sample_file = os.path.join(self.workdir, b'sample.txt')
+        sample_file = os.path.join(self.workdir, 'sample.txt')
         with open(sample_file, 'w') as fd:
-            fd.write(b'A sample')
+            fd.write('A sample')
         log_catcher = ConvertLogCatcher()
         self.result_path, meta = proc.process(sample_file, {})
         output = log_catcher.get_log_messages()
