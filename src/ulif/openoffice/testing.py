@@ -194,7 +194,9 @@ class TypeAwareStreamHandler(logging.StreamHandler):
         except AttributeError:
             # Python 3.x
             pass
-        return super(TypeAwareStreamHandler, self).emit(record)
+        # XXX: Cannot use super() here, because in Python2.6 this
+        # XXX: is an old-style class.
+        return logging.StreamHandler.emit(self, record)
 
 
 class ConvertLogCatcher(object):
