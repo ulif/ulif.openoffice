@@ -25,6 +25,7 @@ Apache-style htaccess files.
 .. note:: This middleware does not support MD5 hashes.
 
 """
+import base64
 import crypt
 import os
 from hashlib import sha1
@@ -55,7 +56,7 @@ def check_credentials(username, password, htaccess, auth_type='sha1'):
     """
     if not os.path.isfile(htaccess):
         return False
-    with open(htaccess, 'rb') as f:
+    with open(htaccess, 'r') as f:
         for line in f:
             line = line.strip().split(':', 1)
             if len(line) != 2:
@@ -64,7 +65,8 @@ def check_credentials(username, password, htaccess, auth_type='sha1'):
             if user != username:
                 continue
             if auth_type == 'sha1':
-                hash = sha1(password).digest().encode('base64')[:-1]
+                hash = base64.b64encode(
+                    sha1(password.encode("utf-8")).digest()).decode("utf-8")
                 if encrypted[5:] == hash:
                     return True
             elif auth_type == 'crypt':
