@@ -95,11 +95,12 @@ class HtaccessAuthenticator(AuthBasicAuthenticator):
         (authmeth, auth) = authorization.split(' ', 1)
         if 'basic' != authmeth.lower():
             return self.build_authentication()
-        auth = auth.strip().decode('base64')
+        auth = base64.b64decode(auth.strip()).decode('utf-8')
         username, password = auth.split(':', 1)
         if check_credentials(
                 username, password, self.htaccess, self.auth_type):
-            return username
+            # paste expects a str() type.
+            return str(username)
         return self.build_authentication()
 
     __call__ = authenticate
