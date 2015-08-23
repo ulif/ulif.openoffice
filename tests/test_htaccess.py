@@ -17,6 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 # Tests for htaccess module
+import codecs
 import os
 import tempfile
 import shutil
@@ -127,7 +128,7 @@ class TestHtaccessHandler(unittest.TestCase):
             self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Basic %s' % (
-            'miles:sowhat'.encode('base64'))
+            codecs.encode(b'miles:sowhat', 'base64').decode('utf-8'))
         status, headers, body = req.call_application(middleware_app)
         assert status == '200 OK'
         assert body == ['Hello World!']
