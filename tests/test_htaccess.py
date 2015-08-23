@@ -147,7 +147,7 @@ class TestHtaccessHandler(unittest.TestCase):
             self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Digest %s' % (
-            'miles:waltz'.encode('base64'))
+            codecs.encode(b'miles:waltz', 'base64').decode('utf-8'))
         status, headers, body = req.call_application(middleware_app)
         assert status == '401 Unauthorized'
 
