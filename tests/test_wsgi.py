@@ -170,7 +170,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.assertEqual(resp.headers['Content-Type'],
                          'text/html; charset=UTF-8')
         self.assertTrue(
-            'action="/docs"' in resp.body)
+            b'action="/docs"' in resp.body)
         return
 
     def test_create_with_cache(self):
