@@ -40,6 +40,12 @@ except ImportError:                       # pragma: no cover
 from six import string_types
 
 
+try:
+    basestring = basestring               # Python 2.x
+except  NameError:                        # pragma: no cover
+    basestring = (str, bytes)             # Python 3.x
+
+
 def copytree(src, dst, symlinks=False, ignore=None):
     """Recursively copy an entire directory tree rooted at `src`. The
     destination directory, named by `dst`, might exist already; if

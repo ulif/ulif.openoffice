@@ -33,6 +33,7 @@ from ulif.openoffice.helpers import (
     rename_html_img_links, rename_sdfield_tags, base64url_encode,
     base64url_decode, string_to_bool, strict_string_to_bool,
     string_to_stringtuple, filelike_cmp, write_filelike)
+from ulif.openoffice.helpers import basestring as basestring_modified
 
 
 class TestHelpers(unittest.TestCase):
@@ -50,6 +51,12 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
+
+    def test_basestring(self):
+        # our own basestring version works around py3 probs.
+        assert isinstance("foo", basestring_modified) is True
+        assert isinstance(b"foo", basestring_modified) is True
+        assert isinstance(u"foo", basestring_modified) is True
 
     def test_copytree_ignore(self):
         # we can pass a function to ignore files
