@@ -8,6 +8,7 @@ import zipfile
 from paste.deploy import loadapp
 from webob import Request
 from ulif.openoffice.cachemanager import get_marker
+from ulif.openoffice.helpers import basestring
 from ulif.openoffice.wsgi import (
     RESTfulDocConverter, FileIterator, FileIterable, get_mimetype
     )
