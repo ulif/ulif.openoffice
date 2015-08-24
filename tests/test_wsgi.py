@@ -57,7 +57,7 @@ class FileIteratorTests(unittest.TestCase):
 
     def test_empty_file(self):
         with open(self.path, 'wb') as fd:
-            fd.write('')
+            fd.write(b'')
         fi = FileIterator(self.path, None, None)
         self.assertRaises(StopIteration, next, iter(fi))
 
