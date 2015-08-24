@@ -185,7 +185,7 @@ class RESTfulDocConverter(object):
         # write doc to filesystem
         tmp_dir = tempfile.mkdtemp()
         src_path = os.path.join(tmp_dir, doc.filename)
-        with open(src_path, 'w') as f:
+        with open(src_path, 'wb') as f:
             for chunk in iter(lambda: doc.file.read(8 * 1024), b''):
                 f.write(chunk)
         # do the conversion
