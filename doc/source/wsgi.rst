@@ -189,7 +189,7 @@ browser to send new documents to the server. This form provides a
 very limited set of options you can set for the conversion.
 
     >>> url = 'http://localhost/docs/new'
-    >>> print browser.GET(url)          # doctest: +NORMALIZE_WHITESPACE
+    >>> print(browser.GET(url))          # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: ...
@@ -213,7 +213,7 @@ will be converted. The result will be the converted document.
     >>> url = 'http://localhost/docs'
     >>> form = {'doc': ('sample.txt', 'Some Content'),
     ...         'oocp-out-fmt': 'html'}
-    >>> print browser.POST(url, **form)  # doctest: +NORMALIZE_WHITESPACE
+    >>> print(browser.POST(url, **form))  # doctest: +NORMALIZE_WHITESPACE
     201 Created
     Content-Type: application/zip
     Content-Length: ...
