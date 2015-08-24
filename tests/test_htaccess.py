@@ -17,11 +17,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 # Tests for htaccess module
-import codecs
 import os
 import tempfile
 import shutil
 import unittest
+from base64 import b64encode
 from webob import Request
 from ulif.openoffice.htaccess import (
     check_credentials, HtaccessHandler, make_htaccess,
@@ -147,7 +147,7 @@ class TestHtaccessHandler(unittest.TestCase):
             self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Digest %s' % (
-            codecs.encode(b'miles:waltz', 'base64').decode('utf-8'))
+            b64encode(b'miles:waltz').decode('utf-8'))
         status, headers, body = req.call_application(middleware_app)
         assert status == '401 Unauthorized'
 
