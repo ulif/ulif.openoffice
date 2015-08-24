@@ -248,7 +248,7 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
         self.assertEqual(resp.status, '201 Created')
         self.assertEqual(resp.headers['Content-Type'], 'application/zip')
         content_file = os.path.join(self.workdir, 'myresult.zip')
-        with open(content_file, 'w') as fd:
+        with open(content_file, 'wb') as fd:
             fd.write(resp.body)
         self.assertTrue(zipfile.is_zipfile(content_file))
         myzipfile = zipfile.ZipFile(content_file, 'r')
