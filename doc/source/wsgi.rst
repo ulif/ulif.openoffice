@@ -26,6 +26,7 @@ Converting Docs via HTTP
     ...     req = Request.blank(url, POST=kw)
     ...     return app(req)
     >>> browser = Browser()
+    >>> getfixture("envpath_no_venv")
 
 The included WSGI app provides access to `unoconv`_ and filters in this
 package via HTTP. More specificially we provide a RESTful_ WSGI_ app
