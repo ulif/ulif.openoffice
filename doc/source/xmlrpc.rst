@@ -118,7 +118,7 @@ the fastest method to convert documents via XMLRPC_.
 dictionary of options:
 
     >>> with open('sample.txt', 'w') as fd:
-    ...      fd.write('Some Content')
+    ...      num = fd.write('Some Content')
     >>> result = server.convert_locally('sample.txt', {})
     >>> pprint(result)              # doctest: +ELLIPSIS,+NORMALIZE_WHITESPACE
     ['/.../sample.html.zip',
