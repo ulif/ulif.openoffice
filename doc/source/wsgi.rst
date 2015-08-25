@@ -214,15 +214,20 @@ will be converted. The result will be the converted document.
     >>> url = 'http://localhost/docs'
     >>> form = {'doc': ('sample.txt', 'Some Content'),
     ...         'oocp-out-fmt': 'html'}
-    >>> print(browser.POST(url, **form))  # doctest: +NORMALIZE_WHITESPACE
-    201 Created
-    Content-Type: application/zip
+    >>> response = browser.POST(url, **form)
+    >>> response.status
+    '201 Created'
+
+    >>> for key in sorted(response.headers.keys()):
+    ...     print("%s: %s" % (key, response.headers.get(key)))
     Content-Length: ...
-    Last-Modified: ...
+    Content-Type: application/zip
     ETag: "...-...-..."
+    Last-Modified: ...
     Location: http://localhost:80/docs/78138d2003f1a87043d65c692fb3a64b_1_1
-    <BLANKLINE>
-    PK...
+
+    >>> response.body.startswith(b"PK")
+    True
 
 Here we converted a `sample.txt` file to HTML. To do that we POSTed a
 request to the server with two parameters:
