@@ -497,7 +497,7 @@ def base64url_encode(string):
     if isinstance(string, str):
         try:
             string = string.encode("latin-1")
-        except UnicodeDecodeError:             # pragma. no cover
+        except UnicodeDecodeError:             # pragma: no cover
             # Python 2.x
             pass
     result = base64.urlsafe_b64encode(string)
