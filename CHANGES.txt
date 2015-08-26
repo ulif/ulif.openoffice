@@ -1,8 +1,8 @@
 CHANGES
 *******
 
-1.1.2.dev0 (unreleased)
-=======================
+1.2.dev0 (unreleased)
+=====================
 
 * Officially support Python 3.3 and 3.4.
 
