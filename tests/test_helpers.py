@@ -36,6 +36,27 @@ from ulif.openoffice.helpers import (
 from ulif.openoffice.helpers import basestring as basestring_modified
 
 
+class TestHelpersNew(object):
+
+    def test_basestring(self):
+        # our own basestring version works around py3 probs.
+        assert isinstance("foo", basestring_modified) is True
+        assert isinstance(b"foo", basestring_modified) is True
+        assert isinstance(u"foo", basestring_modified) is True
+
+    def test_copytree_ignore(self, tmpdir):
+        # we can pass a function to ignore files
+        def ignore(src, names):
+            return ['sample1.txt', ]
+        src_dir = tmpdir.mkdir("work")
+        dest_dir = tmpdir.mkdir("dest")
+        src_dir.join("sample1.txt").write("Hi!")
+        src_dir.join("sample2.txt").write("Ho!")
+        copytree(str(src_dir), str(dest_dir), ignore=ignore)
+        assert dest_dir.join("sample1.txt").exists() is False
+        assert dest_dir.join("sample2.txt").exists() is True
+
+
 class TestHelpers(unittest.TestCase):
 
     def setUp(self):
@@ -51,27 +72,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_basestring(self):
-        # our own basestring version works around py3 probs.
-        assert isinstance("foo", basestring_modified) is True
-        assert isinstance(b"foo", basestring_modified) is True
-        assert isinstance(u"foo", basestring_modified) is True
-
-    def test_copytree_ignore(self):
-        # we can pass a function to ignore files
-        def ignore(src, names):
-            return ['sample1.txt', ]
-        self.resultpath = tempfile.mkdtemp()
-        with open(os.path.join(self.workdir, 'sample1.txt'), 'w') as fd:
-            fd.write('Hi!')
-        with open(os.path.join(self.workdir, 'sample2.txt'), 'w') as fd:
-            fd.write('Hi!')
-        copytree(self.workdir, self.resultpath, ignore=ignore)
-        assert not os.path.isfile(
-            os.path.join(self.resultpath, 'sample1.txt'))
-        assert os.path.isfile(
-            os.path.join(self.resultpath, 'sample2.txt'))
 
     def test_copytree_subdirs(self):
         # subdirs are copies as well
