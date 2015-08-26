@@ -56,6 +56,13 @@ class TestHelpersNew(object):
         assert dest_dir.join("sample1.txt").exists() is False
         assert dest_dir.join("sample2.txt").exists() is True
 
+    def test_copytree_subdirs(self, tmpdir):
+        # subdirs are copied as well
+        tmpdir.mkdir("src_dir").mkdir("sub1")
+        copytree(
+            str(tmpdir.join("src_dir")), str(tmpdir.join("dest_dir")))
+        assert tmpdir.join("dest_dir").join("sub1").isdir() is True
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -72,16 +79,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_copytree_subdirs(self):
-        # subdirs are copies as well
-        os.mkdir(os.path.join(self.workdir, 'srcdir'))
-        os.mkdir(os.path.join(self.workdir, 'srcdir', 'sub1'))
-        copytree(
-            os.path.join(self.workdir, 'srcdir'),
-            os.path.join(self.workdir, 'dstdir'))
-        assert os.path.isdir(
-            os.path.join(self.workdir, 'dstdir', 'sub1'))
 
     def test_copytree_links(self):
         # we copy links
