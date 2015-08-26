@@ -33,7 +33,7 @@ from ulif.openoffice.oooctl import check_port
 
 try:
     from xmlrpc import client as xmlrpclib   # Python 3.x
-except ImportError:
+except ImportError:                          # pragma: no cover
     import xmlrpclib                         # Python 2.x
 
 
