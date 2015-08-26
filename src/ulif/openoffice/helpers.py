@@ -112,7 +112,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except (shutil.Error) as why:
+        except (shutil.Error) as why:       # pragma: no cover
             errors.append((srcname, dstname, str(why)))
     try:
         shutil.copystat(src, dst)
