@@ -42,7 +42,7 @@ from six import string_types
 
 try:
     basestring = basestring               # Python 2.x
-except  NameError:                        # pragma: no cover
+except NameError:                         # pragma: no cover
     basestring = (str, bytes)             # Python 3.x
 
 
