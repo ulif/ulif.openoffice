@@ -63,6 +63,19 @@ class TestHelpersNew(object):
             str(tmpdir.join("src_dir")), str(tmpdir.join("dest_dir")))
         assert tmpdir.join("dest_dir").join("sub1").isdir() is True
 
+    def test_copytree_links(self, tmpdir):
+        # we copy links
+        tmpdir.mkdir("src_dir").join("sample.txt").write("Hi")
+        os.symlink(
+            str(tmpdir / "src_dir" / "sample.txt"),
+            str(tmpdir / "src_dir" / "sample.link"))
+        copytree(
+            str(tmpdir / "src_dir"), str(tmpdir / "dest_dir"), symlinks=True)
+        dest_link = tmpdir / "dest_dir" / "sample.link"
+        assert os.path.islink(str(dest_link))
+        assert os.readlink(str(dest_link)) == str(
+            tmpdir / "src_dir" / "sample.txt")
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -79,20 +92,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_copytree_links(self):
-        # we copy links
-        src_dir = os.path.join(self.workdir, 'srcdir')
-        os.mkdir(src_dir)
-        with open(os.path.join(src_dir, 'sample.txt'), 'w') as fd:
-            fd.write('Hi!')
-        os.symlink(
-            os.path.join(src_dir, 'sample.txt'),
-            os.path.join(src_dir, 'sample.link'))
-        copytree(src_dir, os.path.join(self.workdir, 'dstdir'), symlinks=True)
-        dst_link = os.path.join(self.workdir, 'dstdir', 'sample.link')
-        assert os.path.islink(dst_link)
-        assert os.readlink(dst_link) == os.path.join(src_dir, 'sample.txt')
 
     def test_copytree_ioerror(self):
         # we catch IOErrors, collect them and raise at end
