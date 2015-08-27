@@ -136,8 +136,8 @@ class TestHelpersNew(object):
             zip_file)
         dst = tmpdir.mkdir("dst")
         unzip(zip_file, str(dst))
-        assert dst.listdir == ['somedir']
-        assert sorted(dst.join("somedir").listdir) == [
+        assert dst.listdir() == [dst  / 'somedir']
+        assert sorted(os.listdir(str(dst.join("somedir")))) == [
             'othersample.txt', 'sample.txt']
 
     def test_zip_file(self, workdir):
