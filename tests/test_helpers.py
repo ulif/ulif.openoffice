@@ -81,7 +81,7 @@ class TestCopyTree(object):
             tmpdir / "src_dir" / "sample.txt")
 
     def test_copytree_ioerror(self, tmpdir):
-        # we catch shutil.Errors, collect them and raise at end
+        # we catch IOErrors, collect them and raise at end (as shutil.Error)
         src_dir = tmpdir.mkdir("src_dir")
         dst_dir = tmpdir.mkdir("dst_dir")
         src_dir.join("sample1.txt").write("Hi!")
@@ -102,6 +102,24 @@ class TestCopyTree(object):
         assert "Permission denied:" in err_msg
         assert dst_file_path in err_msg
 
+    def test_copytree_shutil_error(self, tmpdir):
+        # We catch shutil.Errors, collect them and raise at end
+        # Also #1 regression
+        src_dir = tmpdir / "src_dir"
+        src_dir.mkdir()
+        src_file = src_dir / "sample.txt"
+        src_file.write("Hi!")
+        with pytest.raises(shutil.Error) as exc_info:
+            copytree(str(src_dir), str(src_dir))
+        assert exc_info.type == shutil.Error
+        assert len(exc_info.value.args) == 1
+        err_src, err_dst, err_msg = exc_info.value.args[0][0]
+        assert err_src == src_file
+        assert err_dst == src_file
+        err_msg = err_msg.replace("'", "`")
+        assert err_msg == '`%s` and `%s` are the same file' % (
+            src_file, src_file)
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -118,30 +136,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_copytree_shutil_error(self):
-        # We catch shutil.Errors, collect them and raise at end
-        # Also #1 regression
-        src_dir = os.path.join(self.workdir, 'srcdir')
-        os.mkdir(src_dir)
-        src_file = os.path.join(src_dir, 'sample.txt')
-        with open(src_file, 'w') as fd:
-            fd.write('Hi!')
-        # source and dest are the same. Provokes shutil.Error
-        exc = None
-        try:
-            copytree(src_dir, src_dir)
-        except (shutil.Error) as e:
-            exc = e
-        assert isinstance(exc, shutil.Error)
-        assert len(exc.args) == 1
-        err_src, err_dst, err_msg = exc.args[0][0]
-        self.assertEqual(err_src, src_file)
-        self.assertEqual(err_dst, src_file)
-        err_msg = err_msg.replace("'", "`")
-        self.assertEqual(
-            err_msg,
-            '`%s` and `%s` are the same file' % (src_file, src_file))
 
     def test_copy_to_secure_location_file(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
