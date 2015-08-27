@@ -116,9 +116,6 @@ def copytree(src, dst, symlinks=False, ignore=None):
             errors.append((srcname, dstname, str(why)))
     try:
         shutil.copystat(src, dst)
-    except WindowsError:                    # pragma: no cover
-        # can't copy file access times on Windows
-        pass
     except (OSError) as why:                # pragma: no cover
         errors.extend((src, dst, str(why)))
     if errors:
