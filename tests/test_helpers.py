@@ -140,6 +140,14 @@ class TestHelpersNew(object):
         assert sorted(dst.join("somedir").listdir) == [
             'othersample.txt', 'sample.txt']
 
+    def test_zip_file(self, workdir):
+        # make sure we can zip single files
+        workdir.join("sample_dir").mkdir()
+        sample_file = workdir.join("sample_dir").join("sample.txt")
+        sample_file.write("A sample")
+        result_path = zip(str(sample_file))
+        assert zipfile.is_zipfile(result_path)
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -156,16 +164,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_zip_file(self):
-        # make sure we can zip single files
-        new_dir = os.path.join(self.workdir, 'sampledir')
-        os.mkdir(new_dir)
-        sample_file = os.path.join(new_dir, 'sample.txt')
-        with open(sample_file, 'w') as fd:
-            fd.write('A sample')
-        self.resultpath = zip(sample_file)
-        assert zipfile.is_zipfile(self.resultpath)
 
     def test_zip_dir(self):
         # make sure we can zip complete dir trees
