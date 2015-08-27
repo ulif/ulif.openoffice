@@ -140,14 +140,6 @@ class TestHelpers(unittest.TestCase):
             shutil.rmtree(path)
         return
 
-    def test_copy_to_secure_location_path(self):
-        sample_path = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_path, 'w') as fd:
-            fd.write("Hi from sample")
-        sample_dir = os.path.dirname(sample_path)
-        self.resultpath = copy_to_secure_location(sample_dir)
-        assert os.path.isfile(os.path.join(self.resultpath, 'sample.txt'))
-
     def test_get_entry_points(self):
         result = get_entry_points('ulif.openoffice.processors')
         assert result['oocp'] is OOConvProcessor
