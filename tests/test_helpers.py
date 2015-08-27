@@ -121,6 +121,13 @@ class TestHelpersNew(object):
         assert isinstance(b"foo", basestring_modified) is True
         assert isinstance(u"foo", basestring_modified) is True
 
+    def test_copy_to_secure_location_file(self, workdir):
+        # we can copy files to a secure location.
+        workdir.join("src").join("sample.txt").write("Hey there!")
+        result_path = copy_to_secure_location(
+            str(workdir / "src" / "sample.txt"))
+        assert os.path.isfile(os.path.join(result_path, "sample.txt"))
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -137,13 +144,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_copy_to_secure_location_file(self):
-        sample_path = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_path, 'w') as fd:
-            fd.write("Hi from sample")
-        self.resultpath = copy_to_secure_location(sample_path)
-        assert os.path.isfile(os.path.join(self.resultpath, 'sample.txt'))
 
     def test_copy_to_secure_location_path(self):
         sample_path = os.path.join(self.workdir, 'sample.txt')
