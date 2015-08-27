@@ -156,20 +156,6 @@ class TestHelpers(unittest.TestCase):
             shutil.rmtree(path)
         return
 
-    def test_unzip(self):
-        # make sure we can unzip filetrees
-        zip_file = os.path.join(self.workdir, 'sample.zip')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
-            zip_file)
-        dst = os.path.join(self.workdir, 'dst')
-        os.mkdir(dst)
-        unzip(zip_file, dst)
-        assert os.listdir(dst) == ['somedir']
-        level2_dir = os.path.join(dst, 'somedir')
-        assert sorted(os.listdir(level2_dir)) == [
-            'othersample.txt', 'sample.txt']
-
     def test_zip_file(self):
         # make sure we can zip single files
         new_dir = os.path.join(self.workdir, 'sampledir')
