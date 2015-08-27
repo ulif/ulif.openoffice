@@ -162,6 +162,12 @@ class TestHelpersNew(object):
             'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
         assert zip_file.testzip() is None
 
+    def test_zip_invalid_path(self):
+        # we get a ValueError if zip path is not valid
+        with pytest.raises(ValueError) as why:
+            zip("not-a-valid-path")
+        assert why.type == ValueError
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -178,28 +184,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_zip_dir(self):
-        # make sure we can zip complete dir trees
-        new_dir = os.path.join(self.workdir, 'sampledir')
-        os.mkdir(new_dir)
-        os.mkdir(os.path.join(new_dir, 'subdir1'))
-        os.mkdir(os.path.join(new_dir, 'subdir2'))
-        os.mkdir(os.path.join(new_dir, 'subdir2', 'subdir21'))
-        sample_file = os.path.join(new_dir, 'subdir2', 'sample.txt')
-        with open(sample_file, 'w') as fd:
-            fd.write('A sample')
-        self.resultpath = zip(new_dir)
-        zip_file = zipfile.ZipFile(self.resultpath, 'r')
-        result = sorted(zip_file.namelist())
-        assert sorted(result) == [
-            'subdir1/', 'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
-        assert zip_file.testzip() is None
-
-    def test_zip_invalid_path(self):
-        # we get a ValueError if zip path is not valid
-        self.assertRaises(
-            ValueError, zip, 'not-a-valid-path')
 
     def test_remove_file_dir_none(self):
         assert remove_file_dir(None) is None
