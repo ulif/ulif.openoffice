@@ -112,6 +112,13 @@ class TestCopyTree(object):
         assert err_msg == '`%s` and `%s` are the same file' % (
             src_file, src_file)
 
+    def test_copytree_detects_nested_dirs(self, tmpdir):
+        # we detect dst dirs being part/subdirs of src dir.
+        tmpdir.mkdir("root_dir").mkdir("sub_dir")
+        with pytest.raises(ValueError) as why:
+            copytree(str(tmpdir / "root_dir"),
+                     str(tmpdir / "root_dir" / "sub_dir"))
+
 
 class TestHelpersNew(object):
 
@@ -127,6 +134,7 @@ class TestHelpersNew(object):
         result_path = copy_to_secure_location(
             str(workdir / "src" / "sample.txt"))
         assert os.path.isfile(os.path.join(result_path, "sample.txt"))
+
 
 
 class TestHelpers(unittest.TestCase):

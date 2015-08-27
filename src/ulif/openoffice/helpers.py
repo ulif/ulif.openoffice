@@ -83,6 +83,10 @@ def copytree(src, dst, symlinks=False, ignore=None):
               `dst` directory is in a proper state for
               :func:`copytree`.
     """
+    if src in dst:
+        raise ValueError("Cannot copy %s to %s: trees are nested" % (
+            src, dst))
+        return
     names = os.listdir(src)
     if ignore is not None:
         ignored_names = ignore(src, names)
