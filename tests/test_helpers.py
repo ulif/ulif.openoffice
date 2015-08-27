@@ -44,6 +44,9 @@ class TestHelpersNew(object):
         assert isinstance(b"foo", basestring_modified) is True
         assert isinstance(u"foo", basestring_modified) is True
 
+
+class TestCopyTree(object):
+
     def test_copytree_ignore(self, tmpdir):
         # we can pass a function to ignore files
         def ignore(src, names):
