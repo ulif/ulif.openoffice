@@ -117,6 +117,11 @@ class TestHelpersNew(object):
             str(workdir / "src" / "sample.txt"))
         assert os.path.isfile(os.path.join(result_path, "sample.txt"))
 
+    def test_copy_to_secure_location_path(self, workdir):
+        # we can copy dirs to a secure location
+        workdir.join("src").join("sample.txt").write("Hey there!")
+        result_path = copy_to_secure_location(str(workdir / "src"))
+        assert os.path.isfile(os.path.join(result_path, 'sample.txt'))
 
 
 class TestHelpers(unittest.TestCase):
