@@ -148,6 +148,20 @@ class TestHelpersNew(object):
         result_path = zip(str(sample_file))
         assert zipfile.is_zipfile(result_path)
 
+    def test_zip_dir(self, workdir):
+        # make sure we can zip complete dir trees
+        dir_to_zip = workdir / "src"
+        dir_to_zip.join("subdir1").mkdir()
+        dir_to_zip.join("subdir2").mkdir().join("subdir21").mkdir()
+        dir_to_zip.join("subdir2").join("sample.txt").write("A sample")
+        result_path = zip(str(dir_to_zip))
+        zip_file = zipfile.ZipFile(result_path, 'r')
+        result = sorted(zip_file.namelist())
+        assert sorted(result) == [
+            'sample.txt', 'subdir1/',
+            'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
+        assert zip_file.testzip() is None
+
 
 class TestHelpers(unittest.TestCase):
 
