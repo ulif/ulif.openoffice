@@ -37,16 +37,8 @@ from ulif.openoffice.helpers import (
 from ulif.openoffice.helpers import basestring as basestring_modified
 
 
-class TestHelpersNew(object):
-
-    def test_basestring(self):
-        # our own basestring version works around py3 probs.
-        assert isinstance("foo", basestring_modified) is True
-        assert isinstance(b"foo", basestring_modified) is True
-        assert isinstance(u"foo", basestring_modified) is True
-
-
 class TestCopyTree(object):
+    # Tests for copytree helper function.
 
     def test_copytree_ignore(self, tmpdir):
         # we can pass a function to ignore files
@@ -119,6 +111,15 @@ class TestCopyTree(object):
         err_msg = err_msg.replace("'", "`")
         assert err_msg == '`%s` and `%s` are the same file' % (
             src_file, src_file)
+
+
+class TestHelpersNew(object):
+
+    def test_basestring(self):
+        # our own basestring version works around py3 probs.
+        assert isinstance("foo", basestring_modified) is True
+        assert isinstance(b"foo", basestring_modified) is True
+        assert isinstance(u"foo", basestring_modified) is True
 
 
 class TestHelpers(unittest.TestCase):
