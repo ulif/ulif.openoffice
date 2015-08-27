@@ -19,6 +19,7 @@
 #
 from __future__ import unicode_literals
 import os
+import pytest
 import shutil
 import stat
 import tempfile
@@ -79,6 +80,28 @@ class TestCopyTree(object):
         assert os.readlink(str(dest_link)) == str(
             tmpdir / "src_dir" / "sample.txt")
 
+    def test_copytree_ioerror(self, tmpdir):
+        # we catch shutil.Errors, collect them and raise at end
+        src_dir = tmpdir.mkdir("src_dir")
+        dst_dir = tmpdir.mkdir("dst_dir")
+        src_dir.join("sample1.txt").write("Hi!")
+        dst_dir.join("sample1.txt").write("Ho!")
+
+        # make dst_file unwriteable
+        dst_file_path = str(dst_dir / "sample1.txt")
+        old_mode = os.stat(dst_file_path).st_mode
+        os.chmod(dst_file_path, stat.S_IREAD)
+        with pytest.raises(shutil.Error) as exc_info:
+            copytree(
+                str(src_dir), str(dst_dir), symlinks=False)
+        os.chmod(dst_file_path, old_mode)      # reenable writing
+        assert exc_info.type == shutil.Error
+        err_src, err_dst, err_msg = exc_info.value.args[0][0]
+        assert err_src == str(src_dir / "sample1.txt")
+        assert err_dst == dst_file_path
+        assert "Permission denied:" in err_msg
+        assert dst_file_path in err_msg
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -95,39 +118,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_copytree_ioerror(self):
-        # we catch IOErrors, collect them and raise at end
-        src_dir = os.path.join(self.workdir, 'srcdir')
-        os.mkdir(src_dir)
-        dst_dir = os.path.join(self.workdir, 'dstdir')
-        os.mkdir(dst_dir)
-        src_file = os.path.join(src_dir, 'sample1.txt')
-        dst_file = os.path.join(dst_dir, 'sample1.txt')
-        with open(src_file, 'w') as fd:
-            fd.write('Hi!')
-        with open(dst_file, 'w') as fd:
-            fd.write('Ho!')
-
-        # make dst_file unwriteable
-        old_mode = os.stat(dst_file).st_mode
-        os.chmod(dst_file, stat.S_IREAD)
-        exc = None
-        try:
-            copytree(
-                src_dir, dst_dir, symlinks=False)
-        except (shutil.Error) as e:
-            exc = e
-        # reenable writing
-        os.chmod(dst_file, old_mode)
-
-        assert isinstance(exc, shutil.Error)
-        assert len(exc.args) == 1
-        err_src, err_dst, err_msg = exc.args[0][0]
-        assert err_src == src_file
-        assert err_dst == dst_file
-        assert "Permission denied:" in err_msg
-        assert dst_file in err_msg
 
     def test_copytree_shutil_error(self):
         # We catch shutil.Errors, collect them and raise at end
