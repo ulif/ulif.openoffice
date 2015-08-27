@@ -17,6 +17,8 @@ CHANGES
 * Remove type check in `ZipProcessor`. It was a waste of resources and
   would have become even more overcomplicated with Python3 support.
 
+* Do not catch WindowsError any more when copying file trees.
+
 
 1.1.1 (2015-07-23)
 ==================
