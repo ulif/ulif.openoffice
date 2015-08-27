@@ -19,6 +19,8 @@ CHANGES
 
 * Do not catch WindowsError any more when copying file trees.
 
+* Fixed possible infinite recursion when copying nested file trees.
+
 
 1.1.1 (2015-07-23)
 ==================
