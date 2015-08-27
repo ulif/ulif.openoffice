@@ -123,6 +123,22 @@ class TestHelpersNew(object):
         result_path = copy_to_secure_location(str(workdir / "src"))
         assert os.path.isfile(os.path.join(result_path, 'sample.txt'))
 
+    def test_get_entry_points(self):
+        result = get_entry_points('ulif.openoffice.processors')
+        assert result['oocp'] is OOConvProcessor
+
+    def test_unzip(self, tmpdir):
+        # make sure we can unzip filetrees
+        zip_file = str(tmpdir / "sample.zip")
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
+            zip_file)
+        dst = tmpdir.mkdir("dst")
+        unzip(zip_file, str(dst))
+        assert dst.listdir == ['somedir']
+        assert sorted(dst.join("somedir").listdir) == [
+            'othersample.txt', 'sample.txt']
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -139,10 +155,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_get_entry_points(self):
-        result = get_entry_points('ulif.openoffice.processors')
-        assert result['oocp'] is OOConvProcessor
 
     def test_unzip(self):
         # make sure we can unzip filetrees
