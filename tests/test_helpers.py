@@ -94,24 +94,6 @@ class TestCopyTree(object):
         assert "Permission denied:" in err_msg
         assert dst_file_path in err_msg
 
-    def test_copytree_shutil_error(self, tmpdir):
-        # We catch shutil.Errors, collect them and raise at end
-        # Also #1 regression
-        src_dir = tmpdir / "src_dir"
-        src_dir.mkdir()
-        src_file = src_dir / "sample.txt"
-        src_file.write("Hi!")
-        with pytest.raises(shutil.Error) as exc_info:
-            copytree(str(src_dir), str(src_dir))
-        assert exc_info.type == shutil.Error
-        assert len(exc_info.value.args) == 1
-        err_src, err_dst, err_msg = exc_info.value.args[0][0]
-        assert err_src == src_file
-        assert err_dst == src_file
-        err_msg = err_msg.replace("'", "`")
-        assert err_msg == '`%s` and `%s` are the same file' % (
-            src_file, src_file)
-
     def test_copytree_detects_nested_dirs(self, tmpdir):
         # we detect dst dirs being part/subdirs of src dir.
         tmpdir.mkdir("root_dir").mkdir("sub_dir")
