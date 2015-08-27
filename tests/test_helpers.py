@@ -124,6 +124,7 @@ class TestHelpersNew(object):
         assert os.path.isfile(os.path.join(result_path, 'sample.txt'))
 
     def test_get_entry_points(self):
+        # get_entry_points really delivers our processors (maybe more)
         result = get_entry_points('ulif.openoffice.processors')
         assert result['oocp'] is OOConvProcessor
 
