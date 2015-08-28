@@ -102,6 +102,38 @@ class TestCopyTree(object):
                      str(tmpdir / "root_dir" / "sub_dir"))
 
 
+class TestRemoveFileDir(object):
+    # tests for remove_file_dir()
+
+    def test_remove_file_dir_none(self):
+        # we do not complain about files that do not exist
+        assert remove_file_dir(None) is None
+
+    def test_remove_file_dir_non_path(self):
+        # we do not complain about objects that are not file paths
+        assert remove_file_dir(object()) is None
+
+    def test_remove_file_dir_not_existing(self):
+        # we do not complain about not existing file paths
+        assert remove_file_dir('not-existing-path') is None
+
+    def test_remove_file_dir_file(self, tmpdir):
+        # When we remove a file, also the containung dir is removed
+        tmpdir.join("sample_dir").mkdir()
+        tmpdir.join("sample_dir").join("sample.txt").write("Hi!")
+        remove_file_dir(str(tmpdir / "sample_dir" / "sample.txt"))
+        assert tmpdir.exists() is True
+        assert tmpdir.join("sample_dir").exists() is False
+
+    def test_remove_file_dir_dir(self, tmpdir):
+        # We remove a directory if given as argument, of course.
+        tmpdir.join("sample_dir").mkdir()
+        tmpdir.join("sample_dir").join("sample.txt").write("Hi!")
+        remove_file_dir(str(tmpdir / "sample_dir"))  # different to above
+        assert tmpdir.exists() is True
+        assert tmpdir.join("sample_dir").exists() is False
+
+
 class TestHelpersNew(object):
 
     def test_basestring(self):
@@ -167,38 +199,6 @@ class TestHelpersNew(object):
         with pytest.raises(ValueError) as why:
             zip("not-a-valid-path")
         assert why.type == ValueError
-
-
-class TestRemoveFileDir(object):
-    # tests for remove_file_dir()
-
-    def test_remove_file_dir_none(self):
-        # we do not complain about files that do not exist
-        assert remove_file_dir(None) is None
-
-    def test_remove_file_dir_non_path(self):
-        # we do not complain about objects that are not file paths
-        assert remove_file_dir(object()) is None
-
-    def test_remove_file_dir_not_existing(self):
-        # we do not complain about not existing file paths
-        assert remove_file_dir('not-existing-path') is None
-
-    def test_remove_file_dir_file(self, tmpdir):
-        # When we remove a file, also the containung dir is removed
-        tmpdir.join("sample_dir").mkdir()
-        tmpdir.join("sample_dir").join("sample.txt").write("Hi!")
-        remove_file_dir(str(tmpdir / "sample_dir" / "sample.txt"))
-        assert tmpdir.exists() is True
-        assert tmpdir.join("sample_dir").exists() is False
-
-    def test_remove_file_dir_dir(self, tmpdir):
-        # We remove a directory if given as argument, of course.
-        tmpdir.join("sample_dir").mkdir()
-        tmpdir.join("sample_dir").join("sample.txt").write("Hi!")
-        remove_file_dir(str(tmpdir / "sample_dir"))  # different to above
-        assert tmpdir.exists() is True
-        assert tmpdir.join("sample_dir").exists() is False
 
 
 class TestHelpers(unittest.TestCase):
