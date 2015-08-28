@@ -184,6 +184,14 @@ class TestRemoveFileDir(object):
         # we do not complain about not existing file paths
         assert remove_file_dir('not-existing-path') is None
 
+    def test_remove_file_dir_file(self, tmpdir):
+        # When we remove a file, also the containung dir is removed
+        tmpdir.join("sample_dir").mkdir()
+        tmpdir.join("sample_dir").join("sample.txt").write("Hi!")
+        remove_file_dir(str(tmpdir / "sample_dir" / "sample.txt"))
+        assert tmpdir.exists() is True
+        assert tmpdir.join("sample_dir").exists() is False
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -200,17 +208,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_remove_file_dir_file(self):
-        # When we remove a file, also the containung dir is removed
-        sample_path = os.path.join(self.workdir, 'sampledir')
-        sample_file = os.path.join(sample_path, 'sample.txt')
-        os.mkdir(sample_path)
-        with open(sample_file, 'w') as fd:
-            fd.write('Hi!')
-        remove_file_dir(sample_file)
-        assert os.path.exists(self.workdir) is True
-        assert os.path.exists(sample_path) is False
 
     def test_remove_file_dir_dir(self):
         sample_path = os.path.join(self.workdir, 'sampledir')
