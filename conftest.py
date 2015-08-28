@@ -151,3 +151,15 @@ def conv_logger(request):
     logger.addHandler(handler)
     request.addfinalizer(cleanup)
     return stream
+
+
+@pytest.fixture(scope="function")
+def samples_path(request):
+    """Get path of local samples dir (scope: function).
+
+    The path is delivered as `py.path.local` path for your
+    convenience.
+    """
+    samples_dir = py.path.local(__file__).dirpath("tests", "input")
+    assert samples_dir.check()  # make sure the path exists really
+    return samples_dir
