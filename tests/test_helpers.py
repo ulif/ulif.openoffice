@@ -169,6 +169,22 @@ class TestHelpersNew(object):
         assert why.type == ValueError
 
 
+class TestRemoveFileDir(object):
+    # tests for remove_file_dir()
+
+    def test_remove_file_dir_none(self):
+        # we do not complain about files that do not exist
+        assert remove_file_dir(None) is None
+
+    def test_remove_file_dir_non_path(self):
+        # we do not complain about objects that are not file paths
+        assert remove_file_dir(object()) is None
+
+    def test_remove_file_dir_not_existing(self):
+        # we do not complain about not existing file paths
+        assert remove_file_dir('not-existing-path') is None
+
+
 class TestHelpers(unittest.TestCase):
 
     def setUp(self):
@@ -184,15 +200,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_remove_file_dir_none(self):
-        assert remove_file_dir(None) is None
-
-    def test_remove_file_dir_non_path(self):
-        assert remove_file_dir(object()) is None
-
-    def test_remove_file_dir_not_existiing(self):
-        assert remove_file_dir('not-existing-path') is None
 
     def test_remove_file_dir_file(self):
         # When we remove a file, also the containung dir is removed
