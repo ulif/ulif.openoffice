@@ -200,6 +200,19 @@ class TestHelpersNew(object):
             zip("not-a-valid-path")
         assert why.type == ValueError
 
+    def test_extract_css_contains_all_styles_from_input(self, samples_path):
+        # Extracted CSS contains all styles from input HTML
+        content = samples_path.join("sample2.html").read()
+        html, css = extract_css(content, "sample.html")
+        print(css)
+        assert css == (
+            "@page { size: 21cm 29.7cm; margin: 2cm }\n"
+            "p { margin-bottom: 0.21cm }\n"
+            "span.c2 { font-family: DejaVu Sans Mono, sans-serif }\n"
+            "span.c3 { font-family: DejaVu Sans Mönö, sans-serif }\n"
+            "p.c1 { margin-bottom: 0cm }\n  \n  "
+        )
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -219,7 +232,6 @@ class TestHelpers(unittest.TestCase):
 
     def test_extract_css(self):
         """
-
         >> from ulif.openoffice.helpers import extract_css
         >> html, css = extract_css('''
         ... <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
