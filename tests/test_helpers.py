@@ -213,6 +213,43 @@ class TestHelpersNew(object):
             "p.c1 { margin-bottom: 0cm }\n  \n  "
         )
 
+    def test_extract_css_puts_links_into_html(self, samples_path):
+        # the returned HTML part has the styles replaced with a link:
+        content = samples_path.join("sample2.html").read()
+        html, css = extract_css(content, "sample.html")
+        assert html == (
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
+            '    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n'
+            '\n'
+            '<html xmlns="http://www.w3.org/1999/xhtml">\n'
+            '<head>\n'
+            '<meta content="HTML Tidy for Linux/x86 (vers 6 November 2007)'
+            ', see www.w3.org" name="generator"/>\n'
+            '<meta content="text/html; charset=utf-8" '
+            'http-equiv="CONTENT-TYPE"/>\n'
+            '<title></title>\n'
+            '<meta content="OpenOffice.org 2.4 (Linux)" name="GENERATOR"/>\n'
+            '<meta content="Uli Fouquet" name="AUTHOR"/>\n'
+            '<meta content="20110517;485000" name="CREATED"/>\n'
+            '<meta content="Uli Fouquet" name="CHANGEDBY"/>\n'
+            '<meta content="20110517;524000" name="CHANGED"/>\n'
+            '<link href="sample.css" rel="stylesheet" type="text/css"/>\n'
+            '\n'
+            '</head>\n'
+            '<body dir="ltr" lang="de-DE" xml:lang="de-DE">\n'
+            '<p class="c1">Some text</p>\n'
+            '<p class="c1"><br/></p>\n'
+            '<p class="c1">with <b>bold</b> and <i>italic</i> fonts.</p>\n'
+            '<p class="c1"><br/></p>\n'
+            '<p class="c1">Also a <span class="c2">complete different\n'
+            '  font</span> is here. With umlaut: ä</p>\n'
+            '<p class="c1">Finally, some\n'
+            '    <span class="c2">seam</span><span>less text.</span>\n'
+            '</p>\n'
+            '<p class="c1"><br/></p>\n'
+            '</body>\n'
+            '</html>\n'
+            )
 
 class TestHelpers(unittest.TestCase):
 
