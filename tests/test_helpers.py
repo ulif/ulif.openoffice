@@ -204,7 +204,6 @@ class TestHelpersNew(object):
         # Extracted CSS contains all styles from input HTML
         content = samples_path.join("sample2.html").read()
         html, css = extract_css(content, "sample.html")
-        print(css)
         assert css == (
             "@page { size: 21cm 29.7cm; margin: 2cm }\n"
             "p { margin-bottom: 0.21cm }\n"
