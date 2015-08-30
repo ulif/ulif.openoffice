@@ -250,6 +250,17 @@ class TestHelpersNew(object):
             '</html>\n'
             )
 
+
+class TestExtractCSS(object):
+    # tests for extract_css() helper.
+
+    def test_extract_css_trash(self):
+        # Also trashy docs can be handled
+        result, css = extract_css("", 'sample.html')
+        assert css is None
+        assert result == ""
+
+
 class TestHelpers(unittest.TestCase):
 
     def setUp(self):
@@ -265,12 +276,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_extract_css_trash(self):
-        # Also trashy docs can be handled
-        result, css = extract_css("", 'sample.html')
-        assert css is None
-        assert result == ""
 
     def test_extract_css_simple(self):
         result, css = extract_css(
