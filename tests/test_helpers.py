@@ -260,23 +260,6 @@ class TestExtractCSS(object):
         assert css is None
         assert result == ""
 
-
-class TestHelpers(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        path = self.resultpath
-        if isinstance(path, str):
-            if os.path.isfile(path):
-                path = os.path.dirname(path)
-            shutil.rmtree(path)
-        return
-
     def test_extract_css_simple(self):
         result, css = extract_css(
             "<style>a, b</style>", 'sample.html')
@@ -315,6 +298,23 @@ class TestHelpers(unittest.TestCase):
             "<html><body>ä</body></html>", 'sample.html')
         assert css is None
         assert result == '<html><body>ä</body></html>'
+        return
+
+
+class TestHelpers(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        path = self.resultpath
+        if isinstance(path, str):
+            if os.path.isfile(path):
+                path = os.path.dirname(path)
+            shutil.rmtree(path)
         return
 
     def test_extract_css_complex_html(self):
