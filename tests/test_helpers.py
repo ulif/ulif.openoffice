@@ -344,6 +344,17 @@ class TestHelpersNew(object):
         assert why.type == ValueError
 
 
+class TestCleanupHTML(object):
+    # tests for cleanup_html().
+
+    def test_cleanup_html_fix_img_links(self, samples_path):
+        # we do fix links to images.
+        html_input = samples_path.join("image_sample.html").read()
+        result, img_map = cleanup_html(
+            html_input, 'sample.html', fix_img_links=True)
+        assert len(img_map) == 4
+
+
 class TestHelpers(unittest.TestCase):
 
     def setUp(self):
