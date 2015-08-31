@@ -326,23 +326,6 @@ class TestExtractCSS(object):
         assert '/*' not in result
         return
 
-
-class TestHelpers(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        path = self.resultpath
-        if isinstance(path, str):
-            if os.path.isfile(path):
-                path = os.path.dirname(path)
-            shutil.rmtree(path)
-        return
-
     def test_extract_css_prettify(self):
         # We can get prettified HTML (although it might be broken)
         result, css = extract_css(
@@ -359,6 +342,23 @@ class TestHelpers(unittest.TestCase):
             "<span>text<span>no</span>gap</span>", "sample.html"
         )
         assert result == "<span>text<span>no</span>gap</span>"
+
+
+class TestHelpers(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        path = self.resultpath
+        if isinstance(path, str):
+            if os.path.isfile(path):
+                path = os.path.dirname(path)
+            shutil.rmtree(path)
+        return
 
     def test_cleanup_html_fix_img_links(self):
         html_input_path = os.path.join(
