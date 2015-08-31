@@ -354,23 +354,6 @@ class TestCleanupHTML(object):
             html_input, 'sample.html', fix_img_links=True)
         assert len(img_map) == 4
 
-
-class TestHelpers(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        path = self.resultpath
-        if isinstance(path, str):
-            if os.path.isfile(path):
-                path = os.path.dirname(path)
-            shutil.rmtree(path)
-        return
-
     def test_cleanup_html_fix_head_nums(self):
         html_input = '<body><h1>1.1Heading</h1></body>'
         result, img_map = cleanup_html(html_input, 'sample.html')
@@ -419,8 +402,8 @@ class TestHelpers(unittest.TestCase):
 
     def test_cleanup_html_dont_fix_sdfields(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
-        result, img_map = cleanup_html(html_input, 'sample.html',
-                                       fix_sdfields=False)
+        result, img_map = cleanup_html(
+            html_input, 'sample.html', fix_sdfields=False)
         assert html_input == result
 
     def test_cleanup_html_no_minify_by_default(self):
@@ -428,6 +411,23 @@ class TestHelpers(unittest.TestCase):
         html_input = '<span>\n<span>foo</span>\n</span>'
         result, img_map = cleanup_html(html_input, 'sample.html')
         assert result == html_input
+
+
+class TestHelpers(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        path = self.resultpath
+        if isinstance(path, str):
+            if os.path.isfile(path):
+                path = os.path.dirname(path)
+            shutil.rmtree(path)
+        return
 
     def test_rename_sdfield_tags(self):
         html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
