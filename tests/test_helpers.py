@@ -134,73 +134,6 @@ class TestRemoveFileDir(object):
         assert tmpdir.join("sample_dir").exists() is False
 
 
-class TestHelpersNew(object):
-
-    def test_basestring(self):
-        # our own basestring version works around py3 probs.
-        assert isinstance("foo", basestring_modified) is True
-        assert isinstance(b"foo", basestring_modified) is True
-        assert isinstance(u"foo", basestring_modified) is True
-
-    def test_copy_to_secure_location_file(self, workdir):
-        # we can copy files to a secure location.
-        workdir.join("src").join("sample.txt").write("Hey there!")
-        result_path = copy_to_secure_location(
-            str(workdir / "src" / "sample.txt"))
-        assert os.path.isfile(os.path.join(result_path, "sample.txt"))
-
-    def test_copy_to_secure_location_path(self, workdir):
-        # we can copy dirs to a secure location
-        workdir.join("src").join("sample.txt").write("Hey there!")
-        result_path = copy_to_secure_location(str(workdir / "src"))
-        assert os.path.isfile(os.path.join(result_path, 'sample.txt'))
-
-    def test_get_entry_points(self):
-        # get_entry_points really delivers our processors (maybe more)
-        result = get_entry_points('ulif.openoffice.processors')
-        assert result['oocp'] is OOConvProcessor
-
-    def test_unzip(self, tmpdir):
-        # make sure we can unzip filetrees
-        zip_file = str(tmpdir / "sample.zip")
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
-            zip_file)
-        dst = tmpdir.mkdir("dst")
-        unzip(zip_file, str(dst))
-        assert dst.listdir() == [dst  / 'somedir']
-        assert sorted(os.listdir(str(dst.join("somedir")))) == [
-            'othersample.txt', 'sample.txt']
-
-    def test_zip_file(self, workdir):
-        # make sure we can zip single files
-        workdir.join("sample_dir").mkdir()
-        sample_file = workdir.join("sample_dir").join("sample.txt")
-        sample_file.write("A sample")
-        result_path = zip(str(sample_file))
-        assert zipfile.is_zipfile(result_path)
-
-    def test_zip_dir(self, workdir):
-        # make sure we can zip complete dir trees
-        dir_to_zip = workdir / "src"
-        dir_to_zip.join("subdir1").mkdir()
-        dir_to_zip.join("subdir2").mkdir().join("subdir21").mkdir()
-        dir_to_zip.join("subdir2").join("sample.txt").write("A sample")
-        result_path = zip(str(dir_to_zip))
-        zip_file = zipfile.ZipFile(result_path, 'r')
-        result = sorted(zip_file.namelist())
-        assert sorted(result) == [
-            'sample.txt', 'subdir1/',
-            'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
-        assert zip_file.testzip() is None
-
-    def test_zip_invalid_path(self):
-        # we get a ValueError if zip path is not valid
-        with pytest.raises(ValueError) as why:
-            zip("not-a-valid-path")
-        assert why.type == ValueError
-
-
 class TestExtractCSS(object):
     # tests for extract_css() helper.
 
@@ -342,6 +275,73 @@ class TestExtractCSS(object):
             "<span>text<span>no</span>gap</span>", "sample.html"
         )
         assert result == "<span>text<span>no</span>gap</span>"
+
+
+class TestHelpersNew(object):
+
+    def test_basestring(self):
+        # our own basestring version works around py3 probs.
+        assert isinstance("foo", basestring_modified) is True
+        assert isinstance(b"foo", basestring_modified) is True
+        assert isinstance(u"foo", basestring_modified) is True
+
+    def test_copy_to_secure_location_file(self, workdir):
+        # we can copy files to a secure location.
+        workdir.join("src").join("sample.txt").write("Hey there!")
+        result_path = copy_to_secure_location(
+            str(workdir / "src" / "sample.txt"))
+        assert os.path.isfile(os.path.join(result_path, "sample.txt"))
+
+    def test_copy_to_secure_location_path(self, workdir):
+        # we can copy dirs to a secure location
+        workdir.join("src").join("sample.txt").write("Hey there!")
+        result_path = copy_to_secure_location(str(workdir / "src"))
+        assert os.path.isfile(os.path.join(result_path, 'sample.txt'))
+
+    def test_get_entry_points(self):
+        # get_entry_points really delivers our processors (maybe more)
+        result = get_entry_points('ulif.openoffice.processors')
+        assert result['oocp'] is OOConvProcessor
+
+    def test_unzip(self, tmpdir):
+        # make sure we can unzip filetrees
+        zip_file = str(tmpdir / "sample.zip")
+        shutil.copy(
+            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
+            zip_file)
+        dst = tmpdir.mkdir("dst")
+        unzip(zip_file, str(dst))
+        assert dst.listdir() == [dst  / 'somedir']
+        assert sorted(os.listdir(str(dst.join("somedir")))) == [
+            'othersample.txt', 'sample.txt']
+
+    def test_zip_file(self, workdir):
+        # make sure we can zip single files
+        workdir.join("sample_dir").mkdir()
+        sample_file = workdir.join("sample_dir").join("sample.txt")
+        sample_file.write("A sample")
+        result_path = zip(str(sample_file))
+        assert zipfile.is_zipfile(result_path)
+
+    def test_zip_dir(self, workdir):
+        # make sure we can zip complete dir trees
+        dir_to_zip = workdir / "src"
+        dir_to_zip.join("subdir1").mkdir()
+        dir_to_zip.join("subdir2").mkdir().join("subdir21").mkdir()
+        dir_to_zip.join("subdir2").join("sample.txt").write("A sample")
+        result_path = zip(str(dir_to_zip))
+        zip_file = zipfile.ZipFile(result_path, 'r')
+        result = sorted(zip_file.namelist())
+        assert sorted(result) == [
+            'sample.txt', 'subdir1/',
+            'subdir2/', 'subdir2/sample.txt', 'subdir2/subdir21/']
+        assert zip_file.testzip() is None
+
+    def test_zip_invalid_path(self):
+        # we get a ValueError if zip path is not valid
+        with pytest.raises(ValueError) as why:
+            zip("not-a-valid-path")
+        assert why.type == ValueError
 
 
 class TestHelpers(unittest.TestCase):
