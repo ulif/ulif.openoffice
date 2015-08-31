@@ -302,6 +302,15 @@ class TestExtractCSS(object):
         assert result == u'<html><body>ä</body></html>'
         return
 
+    def test_extract_css_complex_html(self, samples_path):
+        # Make sure we have styles purged and replaced by a link
+        html_input = samples_path.join("sample2.html").read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert '<style' not in result
+        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
+        assert link in result
+        return
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -317,17 +326,6 @@ class TestHelpers(unittest.TestCase):
             if os.path.isfile(path):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
-        return
-
-    def test_extract_css_complex_html(self):
-        # Make sure we have styles purged and replaced by a link
-        html_input_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'r').read()
-        result, css = extract_css(html_input, 'sample.html')
-        assert '<style' not in result
-        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
-        assert link in result
         return
 
     def test_extract_css_complex_css(self):
