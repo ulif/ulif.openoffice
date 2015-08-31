@@ -371,14 +371,6 @@ class TestHelpers(unittest.TestCase):
             shutil.rmtree(path)
         return
 
-    def test_cleanup_html_fix_img_links(self):
-        html_input_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'image_sample.html')
-        html_input = open(html_input_path, 'r').read()
-        result, img_map = cleanup_html(
-            html_input, 'sample.html', fix_img_links=True)
-        assert len(img_map) == 4
-
     def test_cleanup_html_fix_head_nums(self):
         html_input = '<body><h1>1.1Heading</h1></body>'
         result, img_map = cleanup_html(html_input, 'sample.html')
