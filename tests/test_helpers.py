@@ -319,6 +319,13 @@ class TestExtractCSS(object):
         assert css.startswith('@page { size: 21cm')
         return
 
+    def test_extract_css_no_empty_comments(self, samples_path):
+        # Make sure there are no empty comments in CSS
+        html_input = samples_path.join("sample2.html").read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert '/*' not in result
+        return
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -334,15 +341,6 @@ class TestHelpers(unittest.TestCase):
             if os.path.isfile(path):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
-        return
-
-    def test_extract_css_no_empty_comments(self):
-        # Make sure there are no empty comments in CSS
-        html_input_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'r').read()
-        result, css = extract_css(html_input, 'sample.html')
-        assert '/*' not in result
         return
 
     def test_extract_css_prettify(self):
