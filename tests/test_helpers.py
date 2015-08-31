@@ -295,10 +295,11 @@ class TestExtractCSS(object):
         assert result == '<html><body>äö</body></html>'
 
     def test_extract_css_utf8_unicode(self):
+        # we can handle umlauts in unicode-strings.
         result, css = extract_css(
-            "<html><body>ä</body></html>", 'sample.html')
+            u"<html><body>ä</body></html>", 'sample.html')
         assert css is None
-        assert result == '<html><body>ä</body></html>'
+        assert result == u'<html><body>ä</body></html>'
         return
 
 
