@@ -311,6 +311,14 @@ class TestExtractCSS(object):
         assert link in result
         return
 
+    def test_extract_css_complex_css(self, samples_path):
+        # Make sure we get proper external stylesheets.
+        html_input = samples_path.join("sample2.html").read()
+        result, css = extract_css(html_input, 'sample.html')
+        assert len(css) == 210
+        assert css.startswith('@page { size: 21cm')
+        return
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -326,16 +334,6 @@ class TestHelpers(unittest.TestCase):
             if os.path.isfile(path):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
-        return
-
-    def test_extract_css_complex_css(self):
-        # Make sure we get proper external stylesheets.
-        html_input_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'sample2.html')
-        html_input = open(html_input_path, 'r').read()
-        result, css = extract_css(html_input, 'sample.html')
-        assert len(css) == 210
-        assert css.startswith('@page { size: 21cm')
         return
 
     def test_extract_css_no_empty_comments(self):
