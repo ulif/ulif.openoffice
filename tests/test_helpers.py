@@ -288,6 +288,7 @@ class TestExtractCSS(object):
         assert css == 'a\nb'
 
     def test_extract_css_utf8(self):
+        # we do not stumble over umlauts.
         result, css = extract_css(
             "<html><body>äö</body></html>", 'sample.html')
         assert css is None
