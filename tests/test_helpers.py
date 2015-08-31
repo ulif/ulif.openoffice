@@ -200,6 +200,43 @@ class TestHelpersNew(object):
             zip("not-a-valid-path")
         assert why.type == ValueError
 
+
+class TestExtractCSS(object):
+    # tests for extract_css() helper.
+
+    def test_extract_css_trash(self):
+        # Also trashy docs can be handled
+        result, css = extract_css("", 'sample.html')
+        assert css is None
+        assert result == ""
+
+    def test_extract_css_simple(self):
+        result, css = extract_css(
+            "<style>a, b</style>", 'sample.html')
+        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
+        assert css == 'a, b'
+        assert result == link
+
+    def test_extract_css_empty_styles1(self):
+        # Also trashy docs can be handled
+        result, css = extract_css(
+            "<style></style>", 'sample.html')
+        assert css is None
+        assert result == ""
+
+    def test_extract_css_empty_styles2(self):
+        # Also trashy docs can be handled
+        result, css = extract_css(
+            "<html><style /></html>", 'sample.html')
+        assert css is None
+        assert result == "<html></html>"
+
+    def test_extract_css_nested_styles(self):
+        # Trash in, trash out...
+        result, css = extract_css(
+            "<html><style>a<style>b</style></style></html>", 'sample.html')
+        assert css == 'a\nb'
+
     def test_extract_css_contains_all_styles_from_input(self, samples_path):
         # Extracted CSS contains all styles from input HTML
         content = samples_path.join("sample2.html").read()
@@ -249,43 +286,6 @@ class TestHelpersNew(object):
             '</body>\n'
             '</html>\n'
             )
-
-
-class TestExtractCSS(object):
-    # tests for extract_css() helper.
-
-    def test_extract_css_trash(self):
-        # Also trashy docs can be handled
-        result, css = extract_css("", 'sample.html')
-        assert css is None
-        assert result == ""
-
-    def test_extract_css_simple(self):
-        result, css = extract_css(
-            "<style>a, b</style>", 'sample.html')
-        link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
-        assert css == 'a, b'
-        assert result == link
-
-    def test_extract_css_empty_styles1(self):
-        # Also trashy docs can be handled
-        result, css = extract_css(
-            "<style></style>", 'sample.html')
-        assert css is None
-        assert result == ""
-
-    def test_extract_css_empty_styles2(self):
-        # Also trashy docs can be handled
-        result, css = extract_css(
-            "<html><style /></html>", 'sample.html')
-        assert css is None
-        assert result == "<html></html>"
-
-    def test_extract_css_nested_styles(self):
-        # Trash in, trash out...
-        result, css = extract_css(
-            "<html><style>a<style>b</style></style></html>", 'sample.html')
-        assert css == 'a\nb'
 
     def test_extract_css_utf8(self):
         # we do not stumble over umlauts.
