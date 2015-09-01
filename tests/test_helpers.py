@@ -551,23 +551,6 @@ class TestHelpersNew(object):
             zip("not-a-valid-path")
         assert why.type == ValueError
 
-
-class TestHelpers(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        path = self.resultpath
-        if isinstance(path, str):
-            if os.path.isfile(path):
-                path = os.path.dirname(path)
-            shutil.rmtree(path)
-        return
-
     def test_base64url_encode(self):
         assert base64url_encode(chr(251) + chr(239)) == '--8='
         assert base64url_encode(chr(255) * 2) == '__8='
@@ -592,6 +575,23 @@ class TestHelpers(unittest.TestCase):
         assert string_to_bool(False) is False
         assert string_to_bool('nonsense') is None
         assert string_to_bool(object()) is None
+
+
+class TestHelpers(unittest.TestCase):
+
+    def setUp(self):
+        self.workdir = tempfile.mkdtemp()
+        self.resultpath = None
+        return
+
+    def tearDown(self):
+        shutil.rmtree(self.workdir)
+        path = self.resultpath
+        if isinstance(path, str):
+            if os.path.isfile(path):
+                path = os.path.dirname(path)
+            shutil.rmtree(path)
+        return
 
     def test_strict_string_to_bool(self):
         assert strict_string_to_bool('yes') is True
