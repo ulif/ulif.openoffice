@@ -488,20 +488,17 @@ class TestRenameHTMLImgLinks(object):
 class TestFileLikeCmp(object):
     # tests for filelike_cmp() helper.
 
-    def test_filelike_cmp(self):
+    def test_filelike_cmp(self, tmpdir):
         assert filelike_cmp(
             StringIO('asd'), StringIO('qwe')) is False
         assert filelike_cmp(
             StringIO('asd'), StringIO('asd')) is True
-        p1 = os.path.join(self.workdir, 'p1')
-        p2 = os.path.join(self.workdir, 'p2')
-        p3 = os.path.join(self.workdir, 'p3')
-        with open(p1, 'w') as fd:
-            fd.write('asd')
-        with open(p2, 'w') as fd:
-            fd.write('qwe')
-        with open(p3, 'w') as fd:
-            fd.write('asd')
+        tmpdir.join('p1').write('asd')
+        tmpdir.join('p2').write('qwe')
+        tmpdir.join('p3').write('asd')
+        p1 = str(tmpdir.join('p1'))
+        p2 = str(tmpdir.join('p2'))
+        p3 = str(tmpdir.join('p3'))
         assert filelike_cmp(p1, p2) is False
         assert filelike_cmp(p1, p3) is True
         assert filelike_cmp(p1, StringIO('asd')) is True
