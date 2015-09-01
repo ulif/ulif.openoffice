@@ -346,6 +346,34 @@ class TestCleanupHTML(object):
         assert result == html_input
 
 
+class TestRenameSDFieldTags(object):
+    # tests for rename_sdfield_tags() helper
+
+    def test_rename_sdfield_tags(self):
+        html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
+        assert result == expected
+
+    def test_rename_sdfield_tags_uppercase(self):
+        html_input = '<P>Blah<SDFIELD TYPE="PAGE">8</SDFIELD></P>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
+        assert result == expected
+
+    def test_rename_sdfield_tags_empty(self):
+        html_input = '<p>Blah</p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah</p>'
+        assert result == expected
+
+    def test_rename_sdfield_tags_nested(self):
+        html_input = '<p>Blah<sdfield>12<span>b</span></sdfield></p>'
+        result = rename_sdfield_tags(html_input)
+        expected = '<p>Blah<span class="sdfield">12<span>b</span></span></p>'
+        assert result == expected
+
+
 class TestHelpersNew(object):
 
     def test_basestring(self):
@@ -428,30 +456,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_rename_sdfield_tags(self):
-        html_input = '<p>Blah<sdfield type="PAGE">8</sdfield></p>'
-        result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah<span class="sdfield" type="PAGE">8</span></p>'
-        assert result == expected
-
-    def test_rename_sdfield_tags_uppercase(self):
-        html_input = '<P>Blah<SDFIELD TYPE="PAGE">8</SDFIELD></P>'
-        result = rename_sdfield_tags(html_input)
-        expected = '<P>Blah<span class="sdfield" TYPE="PAGE">8</span></P>'
-        assert result == expected
-
-    def test_rename_sdfield_tags_empty(self):
-        html_input = '<p>Blah</p>'
-        result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah</p>'
-        assert result == expected
-
-    def test_rename_sdfield_tags_nested(self):
-        html_input = '<p>Blah<sdfield>12<span>b</span></sdfield></p>'
-        result = rename_sdfield_tags(html_input)
-        expected = '<p>Blah<span class="sdfield">12<span>b</span></span></p>'
-        assert result == expected
 
     def test_cleanup_css_whitespace(self):
         css_input = 'p {font-family: ; font-size: 12px }'
