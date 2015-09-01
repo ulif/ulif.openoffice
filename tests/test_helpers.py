@@ -485,6 +485,62 @@ class TestRenameHTMLImgLinks(object):
             '<img name="bar" src="sample_1"/>')
 
 
+class TestFileLikeCmp(object):
+    # tests for filelike_cmp() helper.
+
+    def test_filelike_cmp(self):
+        assert filelike_cmp(
+            StringIO('asd'), StringIO('qwe')) is False
+        assert filelike_cmp(
+            StringIO('asd'), StringIO('asd')) is True
+        p1 = os.path.join(self.workdir, 'p1')
+        p2 = os.path.join(self.workdir, 'p2')
+        p3 = os.path.join(self.workdir, 'p3')
+        with open(p1, 'w') as fd:
+            fd.write('asd')
+        with open(p2, 'w') as fd:
+            fd.write('qwe')
+        with open(p3, 'w') as fd:
+            fd.write('asd')
+        assert filelike_cmp(p1, p2) is False
+        assert filelike_cmp(p1, p3) is True
+        assert filelike_cmp(p1, StringIO('asd')) is True
+        assert filelike_cmp(StringIO('qwe'), p2) is True
+
+    def test_filelike_cmp_w_bytes(self):
+        # we can compare bytestreams
+        assert filelike_cmp(
+            BytesIO(b'asd'), BytesIO(b'qwe')) is False
+        assert filelike_cmp(
+            BytesIO(b'asd'), BytesIO(b'asd')) is True
+        p1 = os.path.join(self.workdir, 'p1')
+        p2 = os.path.join(self.workdir, 'p2')
+        p3 = os.path.join(self.workdir, 'p3')
+        with open(p1, 'wb') as fd:
+            fd.write(b'asd')
+        with open(p2, 'w') as fd:
+            fd.write('qwe')
+        with open(p3, 'w') as fd:
+            fd.write('asd')
+        assert filelike_cmp(p1, p2) is False
+        assert filelike_cmp(p1, p3) is True
+        assert filelike_cmp(p1, BytesIO(b'asd')) is True
+        assert filelike_cmp(BytesIO(b'qwe'), p2) is True
+
+    def test_filelike_cmp_multiple_time(self):
+        # make sure filepointers are reset when we use the same
+        # file-like object several times (as often happens in loops).
+        p1 = os.path.join(self.workdir, 'p1')
+        with open(p1, 'w') as fd:
+            fd.write('foo')
+        filelike1 = StringIO('foo')
+        filelike2 = StringIO('bar')
+        assert filelike_cmp(p1, filelike1) is True
+        assert filelike_cmp(p1, filelike2) is False
+        assert filelike_cmp(p1, filelike1) is True
+        assert filelike_cmp(p1, filelike2) is False
+
+
 class TestHelpersNew(object):
 
     def test_basestring(self):
@@ -613,58 +669,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_filelike_cmp(self):
-        assert filelike_cmp(
-            StringIO('asd'), StringIO('qwe')) is False
-        assert filelike_cmp(
-            StringIO('asd'), StringIO('asd')) is True
-        p1 = os.path.join(self.workdir, 'p1')
-        p2 = os.path.join(self.workdir, 'p2')
-        p3 = os.path.join(self.workdir, 'p3')
-        with open(p1, 'w') as fd:
-            fd.write('asd')
-        with open(p2, 'w') as fd:
-            fd.write('qwe')
-        with open(p3, 'w') as fd:
-            fd.write('asd')
-        assert filelike_cmp(p1, p2) is False
-        assert filelike_cmp(p1, p3) is True
-        assert filelike_cmp(p1, StringIO('asd')) is True
-        assert filelike_cmp(StringIO('qwe'), p2) is True
-
-    def test_filelike_cmp_w_bytes(self):
-        # we can compare bytestreams
-        assert filelike_cmp(
-            BytesIO(b'asd'), BytesIO(b'qwe')) is False
-        assert filelike_cmp(
-            BytesIO(b'asd'), BytesIO(b'asd')) is True
-        p1 = os.path.join(self.workdir, 'p1')
-        p2 = os.path.join(self.workdir, 'p2')
-        p3 = os.path.join(self.workdir, 'p3')
-        with open(p1, 'wb') as fd:
-            fd.write(b'asd')
-        with open(p2, 'w') as fd:
-            fd.write('qwe')
-        with open(p3, 'w') as fd:
-            fd.write('asd')
-        assert filelike_cmp(p1, p2) is False
-        assert filelike_cmp(p1, p3) is True
-        assert filelike_cmp(p1, BytesIO(b'asd')) is True
-        assert filelike_cmp(BytesIO(b'qwe'), p2) is True
-
-    def test_filelike_cmp_multiple_time(self):
-        # make sure filepointers are reset when we use the same
-        # file-like object several times (as often happens in loops).
-        p1 = os.path.join(self.workdir, 'p1')
-        with open(p1, 'w') as fd:
-            fd.write('foo')
-        filelike1 = StringIO('foo')
-        filelike2 = StringIO('bar')
-        assert filelike_cmp(p1, filelike1) is True
-        assert filelike_cmp(p1, filelike2) is False
-        assert filelike_cmp(p1, filelike1) is True
-        assert filelike_cmp(p1, filelike2) is False
 
     def test_write_filelike(self):
         src = os.path.join(self.workdir, 'f1')
