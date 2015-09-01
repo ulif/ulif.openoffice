@@ -521,12 +521,11 @@ class TestFileLikeCmp(object):
         assert filelike_cmp(p1, BytesIO(b'asd')) is True
         assert filelike_cmp(BytesIO(b'qwe'), p2) is True
 
-    def test_filelike_cmp_multiple_time(self):
+    def test_filelike_cmp_multiple_time(self, tmpdir):
         # make sure filepointers are reset when we use the same
         # file-like object several times (as often happens in loops).
-        p1 = os.path.join(self.workdir, 'p1')
-        with open(p1, 'w') as fd:
-            fd.write('foo')
+        tmpdir.join('p1').write('foo')
+        p1 = str(tmpdir.join('p1'))
         filelike1 = StringIO('foo')
         filelike2 = StringIO('bar')
         assert filelike_cmp(p1, filelike1) is True
