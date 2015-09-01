@@ -421,6 +421,60 @@ class TestCleanupCSS(object):
         assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
 
 
+class TestRenameHTMLImgLinks(object):
+    # tests for renam_html_img_links() helper.
+
+    def test_rename_html_img_links_no_ext(self):
+        html_input = '<img src="filename_without_ext" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert html_output == '<img src="sample_1"/>'
+        assert img_map == {'filename_without_ext': 'sample_1'}
+
+    def test_rename_html_img_links_unicode_filenames(self):
+        html_input = '<img src="filename_without_ext" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        key = list(img_map.keys())[0]
+        val = list(img_map.values())[0]
+        assert isinstance(key, string_types)
+        assert isinstance(val, string_types)
+
+    def test_rename_html_img_links_only_local(self):
+        # We do not convert links to external images
+        html_input = '<img src="http://sample/image.gif" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert len(img_map.keys()) == 0
+        assert 'http://sample/image.gif' in html_output
+
+    def test_rename_html_img_links_umlauts(self):
+        # We can handle umlauts in filenames
+        html_input = '<img src="file with ümlaut.gif" />'
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert img_map == {'file with \xfcmlaut.gif': 'sample_1.gif'}
+
+    def test_rename_html_img_links_multiple_img(self):
+        # Check that multiple links to same file get same target
+        html_input = (
+            '<img src="a.gif" /><img src="a.gif"' + '/><img src="b.gif" />')
+        html_output, img_map = rename_html_img_links(
+            html_input, 'sample.html')
+        assert img_map == {
+            'a.gif': 'sample_1.gif',
+            'b.gif': 'sample_2.gif'}
+        assert html_output == '%s%s' % (
+            '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
+            '<img src="sample_2.gif"/>')
+
+    def test_rename_html_img_links_ignore_img_without_src(self):
+        # we ignore img tags that have no 'src' attribute
+        html_input = ('<img name="foo" /><img name="bar" src="baz" />')
+        html_output, img_map = rename_html_img_links(
+            html_input, 'sample.html')
+        assert img_map == {'baz': 'sample_1'}
+        assert html_output == (
+            '<img name="foo"/>'
+            '<img name="bar" src="sample_1"/>')
+
+
 class TestHelpersNew(object):
 
     def test_basestring(self):
@@ -515,56 +569,6 @@ class TestHelpers(unittest.TestCase):
         assert len(img_map.keys()) == 4  # 4 images are in doc
         assert 'image_sample_html_10a8ad02.jpg' in img_map.keys()
         assert 'sample_4.jpg' in img_map.values()
-
-    def test_rename_html_img_links_no_ext(self):
-        html_input = '<img src="filename_without_ext" />'
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert html_output == '<img src="sample_1"/>'
-        assert img_map == {'filename_without_ext': 'sample_1'}
-
-    def test_rename_html_img_links_unicode_filenames(self):
-        html_input = '<img src="filename_without_ext" />'
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        key = list(img_map.keys())[0]
-        val = list(img_map.values())[0]
-        assert isinstance(key, string_types)
-        assert isinstance(val, string_types)
-
-    def test_rename_html_img_links_only_local(self):
-        # We do not convert links to external images
-        html_input = '<img src="http://sample/image.gif" />'
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert len(img_map.keys()) == 0
-        assert 'http://sample/image.gif' in html_output
-
-    def test_rename_html_img_links_umlauts(self):
-        # We can handle umlauts in filenames
-        html_input = '<img src="file with ümlaut.gif" />'
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert img_map == {'file with \xfcmlaut.gif': 'sample_1.gif'}
-
-    def test_rename_html_img_links_multiple_img(self):
-        # Check that multiple links to same file get same target
-        html_input = (
-            '<img src="a.gif" /><img src="a.gif"' + '/><img src="b.gif" />')
-        html_output, img_map = rename_html_img_links(
-            html_input, 'sample.html')
-        assert img_map == {
-            'a.gif': 'sample_1.gif',
-            'b.gif': 'sample_2.gif'}
-        assert html_output == '%s%s' % (
-            '<img src="sample_1.gif"/><img src="sample_1.gif"/>',
-            '<img src="sample_2.gif"/>')
-
-    def test_rename_html_img_links_ignore_img_without_src(self):
-        # we ignore img tags that have no 'src' attribute
-        html_input = ('<img name="foo" /><img name="bar" src="baz" />')
-        html_output, img_map = rename_html_img_links(
-            html_input, 'sample.html')
-        assert img_map == {'baz': 'sample_1'}
-        assert html_output == (
-            '<img name="foo"/>'
-            '<img name="bar" src="sample_1"/>')
 
     def test_base64url_encode(self):
         assert base64url_encode(chr(251) + chr(239)) == '--8='
