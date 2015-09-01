@@ -374,6 +374,53 @@ class TestRenameSDFieldTags(object):
         assert result == expected
 
 
+class TestCleanupCSS(object):
+    # tests for cleanup_css() helper.
+
+    def test_cleanup_css_whitespace(self):
+        css_input = 'p {font-family: ; font-size: 12px }'
+        result, errors = cleanup_css(css_input)
+        assert result == 'p{font-size:12px}'
+
+    def test_cleanup_css_empty_style(self):
+        css_input = 'p {}'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop(self):
+        css_input = 'p {font-family: ;}'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop_no_colon(self):
+        css_input = 'p {font-family: }'
+        result, errors = cleanup_css(css_input)
+        assert result == ''
+
+    def test_cleanup_css_empty_prop_middle(self):
+        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
+        result, errors = cleanup_css(css_input)
+        assert result == 'p{foo:baz;bar:baz}'
+
+    def test_cleanup_css_complex(self):
+        css_sample = os.path.join(
+            os.path.dirname(__file__), 'input', 'sample1.css')
+        css_input = open(css_sample, 'r').read()
+        result, errors = cleanup_css(css_input)
+        assert 'font-family: ;' not in result
+
+    def test_cleanup_css_errors(self):
+        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
+        result, errors = cleanup_css(css_input)
+        assert 'ERROR PropertyValue: Unknown syntax' in errors
+        assert 'WARNING Property: Unknown Property name' in errors
+
+    def test_cleanup_css_non_minified(self):
+        css_input = 'p { foo: baz ; bar: baz}'
+        result, errors = cleanup_css(css_input, minified=False)
+        assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
+
+
 class TestHelpersNew(object):
 
     def test_basestring(self):
@@ -456,49 +503,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_cleanup_css_whitespace(self):
-        css_input = 'p {font-family: ; font-size: 12px }'
-        result, errors = cleanup_css(css_input)
-        assert result == 'p{font-size:12px}'
-
-    def test_cleanup_css_empty_style(self):
-        css_input = 'p {}'
-        result, errors = cleanup_css(css_input)
-        assert result == ''
-
-    def test_cleanup_css_empty_prop(self):
-        css_input = 'p {font-family: ;}'
-        result, errors = cleanup_css(css_input)
-        assert result == ''
-
-    def test_cleanup_css_empty_prop_no_colon(self):
-        css_input = 'p {font-family: }'
-        result, errors = cleanup_css(css_input)
-        assert result == ''
-
-    def test_cleanup_css_empty_prop_middle(self):
-        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
-        result, errors = cleanup_css(css_input)
-        assert result == 'p{foo:baz;bar:baz}'
-
-    def test_cleanup_css_complex(self):
-        css_sample = os.path.join(
-            os.path.dirname(__file__), 'input', 'sample1.css')
-        css_input = open(css_sample, 'r').read()
-        result, errors = cleanup_css(css_input)
-        assert 'font-family: ;' not in result
-
-    def test_cleanup_css_errors(self):
-        css_input = 'p { foo: baz ; font-family: ; bar: baz}'
-        result, errors = cleanup_css(css_input)
-        assert 'ERROR PropertyValue: Unknown syntax' in errors
-        assert 'WARNING Property: Unknown Property name' in errors
-
-    def test_cleanup_css_non_minified(self):
-        css_input = 'p { foo: baz ; bar: baz}'
-        result, errors = cleanup_css(css_input, minified=False)
-        assert result == 'p {\n    foo: baz;\n    bar: baz\n    }'
 
     def test_rename_html_img_links(self):
         # Make sure img links are modified
