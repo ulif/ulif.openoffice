@@ -424,6 +424,16 @@ class TestCleanupCSS(object):
 class TestRenameHTMLImgLinks(object):
     # tests for renam_html_img_links() helper.
 
+    def test_rename_html_img_links(self, samples_path):
+        # Make sure img links are modified
+        html_input = samples_path.join('image_sample.html').read()
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert 'image_sample_html_10a8ad02.jpg' not in html_output
+        assert 'sample_4.jpg' in html_output
+        assert len(img_map.keys()) == 4  # 4 images are in doc
+        assert 'image_sample_html_10a8ad02.jpg' in img_map.keys()
+        assert 'sample_4.jpg' in img_map.values()
+
     def test_rename_html_img_links_no_ext(self):
         html_input = '<img src="filename_without_ext" />'
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
@@ -557,18 +567,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_rename_html_img_links(self):
-        # Make sure img links are modified
-        html_input_path = os.path.join(
-            os.path.dirname(__file__), 'input', 'image_sample.html')
-        html_input = open(html_input_path, 'r').read()
-        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
-        assert 'image_sample_html_10a8ad02.jpg' not in html_output
-        assert 'sample_4.jpg' in html_output
-        assert len(img_map.keys()) == 4  # 4 images are in doc
-        assert 'image_sample_html_10a8ad02.jpg' in img_map.keys()
-        assert 'sample_4.jpg' in img_map.values()
 
     def test_base64url_encode(self):
         assert base64url_encode(chr(251) + chr(239)) == '--8='
