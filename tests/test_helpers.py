@@ -576,6 +576,12 @@ class TestHelpersNew(object):
         assert string_to_bool('nonsense') is None
         assert string_to_bool(object()) is None
 
+    def test_strict_string_to_bool(self):
+        assert strict_string_to_bool('yes') is True
+        assert strict_string_to_bool('no') is False
+        with pytest.raises(ValueError) as why:
+            strict_string_to_bool('nonsense')
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -592,11 +598,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_strict_string_to_bool(self):
-        assert strict_string_to_bool('yes') is True
-        assert strict_string_to_bool('no') is False
-        self.assertRaises(ValueError, strict_string_to_bool, 'nonsense')
 
     def test_string_to_stringtuple(self):
         assert string_to_stringtuple('foo') == ('foo', )
