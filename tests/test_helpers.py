@@ -582,6 +582,21 @@ class TestHelpersNew(object):
         with pytest.raises(ValueError) as why:
             strict_string_to_bool('nonsense')
 
+    def test_string_to_stringtuple(self):
+        assert string_to_stringtuple('foo') == ('foo', )
+        assert string_to_stringtuple('foo, bar') == ('foo', 'bar')
+        assert string_to_stringtuple('foo,bar') == ('foo', 'bar')
+        assert string_to_stringtuple(' foo ') == ('foo', )
+        assert string_to_stringtuple('') == ()
+        assert string_to_stringtuple('foo,,,bar') == ('foo', 'bar')
+        assert string_to_stringtuple(None) == ()
+        assert string_to_stringtuple(',,,,') == ()
+        # with `strict` empty strings are forbidden
+        with pytest.raises(ValueError) as why:
+            string_to_stringtuple('', strict=True)
+        with pytest.raises(ValueError) as why:
+            string_to_stringtuple(None, strict=True)
+
 
 class TestHelpers(unittest.TestCase):
 
@@ -598,21 +613,6 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_string_to_stringtuple(self):
-        assert string_to_stringtuple('foo') == ('foo', )
-        assert string_to_stringtuple('foo, bar') == ('foo', 'bar')
-        assert string_to_stringtuple('foo,bar') == ('foo', 'bar')
-        assert string_to_stringtuple(' foo ') == ('foo', )
-        assert string_to_stringtuple('') == ()
-        assert string_to_stringtuple('foo,,,bar') == ('foo', 'bar')
-        assert string_to_stringtuple(None) == ()
-        assert string_to_stringtuple(',,,,') == ()
-        # with `strict` empty strings are forbidden
-        self.assertRaises(
-            ValueError, string_to_stringtuple, '', strict=True)
-        self.assertRaises(
-            ValueError, string_to_stringtuple, None, strict=True)
 
     def test_filelike_cmp(self):
         assert filelike_cmp(
