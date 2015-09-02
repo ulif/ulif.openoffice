@@ -1,5 +1,6 @@
 import filecmp
 import os
+import pytest
 import shutil
 import tempfile
 import unittest
@@ -27,6 +28,34 @@ class TestHelpers(object):
         assert result2 == 'W10'
         assert result3 == result4
         assert result2 != result3
+
+
+@pytest.fixture(scope="function")
+def cache_env(request, tmpdir):
+    work_dir = tmpfile / "work"
+    input_dir = tmpfile / "input"
+    src_path1 = input_dir / "src_file1"
+    src_path2 = input_dir / "src_file2"
+    result_path1 = input_dir / "result_file1"
+    result_path2 = input_dir / "result_file2"
+    result_path3 = input_dir / "result_file3"
+    result_path4 = input_dir / "result_file4"
+    src_path1.write("source1\n")
+    src_path2.write("source2\n")
+    result_path1.write("result1\n")
+    result_path2.write("result2\n")
+    result_path3.write("result3\n")
+    result_path4.write("result4\n")
+    return dict(
+        work_dir=work_dir,
+        input_dir=input_dir,
+        src_path1=src_path1,
+        src_path2=src_path2,
+        result_path1=result_path1,
+        result_path2=result_path2,
+        result_path3=result_path3,
+        result_path4=result_path4
+    )
 
 
 class CachingComponentsTestCase(unittest.TestCase):
