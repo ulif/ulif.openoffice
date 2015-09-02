@@ -15,7 +15,7 @@ def write_to_file(path, content):
         fd.write(content)
 
 
-class HelpersTestCase(unittest.TestCase):
+class TestHelpers(object):
 
     def test_get_marker(self):
         # Make sure, sorted dicts get the same marker
