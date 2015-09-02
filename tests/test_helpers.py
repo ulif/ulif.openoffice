@@ -22,8 +22,6 @@ import os
 import pytest
 import shutil
 import stat
-import tempfile
-import unittest
 import zipfile
 from io import StringIO, BytesIO
 from six import string_types
