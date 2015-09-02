@@ -95,7 +95,7 @@ class TestCopyTree(object):
     def test_copytree_detects_nested_dirs(self, tmpdir):
         # we detect dst dirs being part/subdirs of src dir.
         tmpdir.mkdir("root_dir").mkdir("sub_dir")
-        with pytest.raises(ValueError) as why:
+        with pytest.raises(ValueError):
             copytree(str(tmpdir / "root_dir"),
                      str(tmpdir / "root_dir" / "sub_dir"))
 
@@ -627,7 +627,7 @@ class TestHelpers(object):
     def test_strict_string_to_bool(self):
         assert strict_string_to_bool('yes') is True
         assert strict_string_to_bool('no') is False
-        with pytest.raises(ValueError) as why:
+        with pytest.raises(ValueError):
             strict_string_to_bool('nonsense')
 
     def test_string_to_stringtuple(self):
@@ -640,9 +640,9 @@ class TestHelpers(object):
         assert string_to_stringtuple(None) == ()
         assert string_to_stringtuple(',,,,') == ()
         # with `strict` empty strings are forbidden
-        with pytest.raises(ValueError) as why:
+        with pytest.raises(ValueError):
             string_to_stringtuple('', strict=True)
-        with pytest.raises(ValueError) as why:
+        with pytest.raises(ValueError):
             string_to_stringtuple(None, strict=True)
 
     def test_write_filelike(self, tmpdir):
