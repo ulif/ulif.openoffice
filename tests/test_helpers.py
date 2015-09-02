@@ -654,20 +654,3 @@ class TestHelpersNew(object):
         assert open(dst, 'r').read() == 'content'
         write_filelike(b'different', dst)
         assert open(dst, 'r').read() == 'different'
-
-
-class TestHelpers(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        path = self.resultpath
-        if isinstance(path, str):
-            if os.path.isfile(path):
-                path = os.path.dirname(path)
-            shutil.rmtree(path)
-        return
