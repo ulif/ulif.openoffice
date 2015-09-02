@@ -534,7 +534,8 @@ class TestFileLikeCmp(object):
         assert filelike_cmp(p1, filelike2) is False
 
 
-class TestHelpersNew(object):
+class TestHelpers(object):
+    # tests for helpers that require no own test case.
 
     def test_basestring(self):
         # our own basestring version works around py3 probs.
