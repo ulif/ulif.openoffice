@@ -671,13 +671,3 @@ class TestHelpers(unittest.TestCase):
                 path = os.path.dirname(path)
             shutil.rmtree(path)
         return
-
-    def test_write_filelike(self):
-        src = os.path.join(self.workdir, 'f1')
-        with open(src, 'w') as fd:
-            fd.write('content')
-        dst = os.path.join(self.workdir, 'f2')
-        write_filelike(open(src, 'r'), dst)
-        assert open(dst, 'r').read() == 'content'
-        write_filelike(b'different', dst)
-        assert open(dst, 'r').read() == 'different'
