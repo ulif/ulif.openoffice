@@ -5,10 +5,10 @@ class TestEnvPathWithoutVirtualEnvs(object):
     # tests for envpath_wo_virtualenvs.
 
     def test_no_PATH_set(self, monkeypatch):
-        monkeypatch.setenv("PATH", None)
+        monkeypatch.delenv("PATH", raising=False)
         assert envpath_wo_virtualenvs() is None
 
     def test_no_VIRTUAL_ENV_set(self, monkeypatch):
         monkeypatch.setenv("PATH", "/tmp:/foo")
-        monkeypatch.setenv("VIRTUAL_ENV", None)
-        assert envpath_wo_virtualenvs() is None
+        monkeypatch.delenv("VIRTUAL_ENV", raising=False)
+        assert envpath_wo_virtualenvs() == "/tmp:/foo"
