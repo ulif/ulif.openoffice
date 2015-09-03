@@ -352,8 +352,7 @@ def envpath_wo_virtualenvs():
     if not _path:
         return
     v_env_path = os.environ.get('VIRTUAL_ENV', None)
-    if not v_env_path or (v_env_path not in _path):
-        # no virtualenv active (or everything seriously messed up).
+    if not v_env_path:  # no venv active (or everything seriously messed up).
         return _path
     if "/.tox/" in _path:
         # we're in a tox env. Remove all paths prepended and return result.
