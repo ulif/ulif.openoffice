@@ -26,3 +26,9 @@ class TestEnvPathWithoutVirtualEnvs(object):
         monkeypatch.setenv("PATH", "/env1/bin:/env2/bin:/env3/.tox/bin:/foo")
         monkeypatch.setenv("VIRTUAL_ENV", "/env3/.tox")
         assert envpath_wo_virtualenvs() == "/foo"
+
+    def test_venv_with_multiple_tox_envs(self, monkeypatch):
+        # even with multiple tox dirs we get a working result
+        monkeypatch.setenv("PATH", "/e1/bin:/e2/.tox/bin:e3/.tox/bin:/foo")
+        monkeypatch.setenv("VIRTUAL_ENV", "/e2/.tox")
+        assert envpath_wo_virtualenvs() == "/foo"
