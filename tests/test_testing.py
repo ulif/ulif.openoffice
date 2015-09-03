@@ -12,3 +12,9 @@ class TestEnvPathWithoutVirtualEnvs(object):
         monkeypatch.setenv("PATH", "/tmp:/foo")
         monkeypatch.delenv("VIRTUAL_ENV", raising=False)
         assert envpath_wo_virtualenvs() == "/tmp:/foo"
+
+    def test_single_virt_env_set(self, monkeypatch):
+        monkeypatch.setenv("PATH", "/myvenv1/bin:/foo")
+        monkeypatch.setenv("VIRTUAL_ENV", "/myvenv1")
+        assert envpath_wo_virtualenvs() == "/foo"
+
