@@ -331,3 +331,25 @@ class FakeServerProxy(xmlrpclib.ServerProxy):
     def __init__(self, url):
         transport = WSGIXMLRPCAppTransport(xmlrpcapp)
         xmlrpclib.ServerProxy.__init__(self, url, transport=transport)
+
+
+def envpath_wo_virtualenvs():
+    """Return the local os.environ["PATH"] without virtual envs included.
+
+    We remove any path below os.environ["VIRTUAL_ENV"] and any path that
+    contains ``.tox``.
+
+    If ``PATH`` is not set and ``VIRTUAL_ENV`` is not set, we return
+    `None`.
+    """
+    _path = os.environ.get('PATH', None)
+    if not _path:
+        return
+    v_env_path = os.environ.get('VIRTUAL_ENV', None)
+    if not v_env_path or (v_env_path not in _path):
+        return
+    new_path = ":".join([
+        x for x in _path.split(":")
+        if (v_env_path not in x) and ('/.tox' not in x)]
+        )
+    return new_path
