@@ -21,3 +21,8 @@ class TestEnvPathWithoutVirtualEnvs(object):
         monkeypatch.setenv("VIRTUAL_ENV", "/myvenv1")
         assert envpath_wo_virtualenvs() == "/foo"
 
+    def test_venv_and_tox_dir(self, monkeypatch):
+        # with a .tox dir, we remove all paths preceding it.
+        monkeypatch.setenv("PATH", "/env1/bin:/env2/bin:/env3/.tox/bin:/foo")
+        monkeypatch.setenv("VIRTUAL_ENV", "/env3/.tox")
+        assert envpath_wo_virtualenvs() == "/foo"
