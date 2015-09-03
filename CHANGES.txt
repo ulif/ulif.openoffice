@@ -21,6 +21,8 @@ CHANGES
 
 * Fixed possible infinite recursion when copying nested file trees.
 
+* Add test helper: determine `$PATH` without any virtualenvs involved.
+
 
 1.1.1 (2015-07-23)
 ==================
