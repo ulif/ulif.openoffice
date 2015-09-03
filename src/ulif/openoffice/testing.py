@@ -347,6 +347,9 @@ def envpath_wo_virtualenvs():
     `None`.
 
     This function does not modify environment vars (but looks it up).
+
+    .. versionadded:: 1.2
+
     """
     path = os.environ.get('PATH', None)
     if not path:
