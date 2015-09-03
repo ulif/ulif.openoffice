@@ -348,20 +348,14 @@ def envpath_wo_virtualenvs():
 
     This function does not modify environment vars (but looks it up).
     """
-    _path = os.environ.get('PATH', None)
-    if not _path:
+    path = os.environ.get('PATH', None)
+    if not path:
         return
     v_env_path = os.environ.get('VIRTUAL_ENV', None)
     if not v_env_path:  # no venv active (or everything seriously messed up).
-        return _path
-    if "/.tox/" in _path:
-        # we're in a tox env. Remove all paths prepended and return result.
-        new_path = _path.rsplit("/.tox", 1)[1]
-        new_path = new_path.split(":", 1)[1]
-        return new_path
-    # active virtualenv, but no tox run.
-    new_path = ":".join([
-        x for x in _path.split(":")
-        if v_env_path not in x]
-        )
+        return path
+    for separator in (v_env_path, "/.tox"):
+        if separator in path:
+            path = path.rsplit(separator, 1)[1]
+    new_path = path.split(":", 1)[1]
     return new_path
