@@ -7,3 +7,8 @@ class TestEnvPathWithoutVirtualEnvs(object):
     def test_no_PATH_set(self, monkeypatch):
         monkeypatch.setenv("PATH", None)
         assert envpath_wo_virtualenvs() is None
+
+    def test_no_VIRTUAL_ENV_set(self, monkeypatch):
+        monkeypatch.setenv("PATH", "/tmp:/foo")
+        monkeypatch.setenv("VIRTUAL_ENV", None)
+        assert envpath_wo_virtualenvs() is None
