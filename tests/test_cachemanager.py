@@ -127,16 +127,6 @@ class TestCacheBucketNew(object):
 
 class TestCacheBucket(CachingComponentsTestCase):
 
-    def test_curr_repr_num(self):
-        # we can get/set current representation number
-        bucket = Bucket(self.workdir)
-        self.assertEqual(bucket.get_current_repr_num(1), 0)
-        self.assertEqual(bucket.get_current_repr_num('2'), 0)
-        bucket.set_current_repr_num('1', 12)
-        self.assertEqual(bucket.get_current_repr_num('1'), 12)
-        self.assertEqual(bucket.get_current_repr_num('2'), 0)
-        return
-
     def test_get_stored_source_num(self):
         # we can test whether a source file is stored in a bucket already.
         bucket = Bucket(self.workdir)
