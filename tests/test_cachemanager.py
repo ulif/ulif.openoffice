@@ -79,6 +79,35 @@ class CachingComponentsTestCase(unittest.TestCase):
         shutil.rmtree(self.workdir)
         shutil.rmtree(self.inputdir)
 
+class TestCacheBucketNew(object):
+    # Tests for CacheBucket
+
+    def test_init_creates_subdirs(self, tmpdir):
+        # a new bucket contains certain subdirs and a file
+        bucket = Bucket(str(tmpdir))
+        for filename in ['sources', 'repr', 'keys', 'data']:
+            assert tmpdir.join(filename).exists()
+
+    def test_init_sets_attributes(self, tmpdir):
+        # Main attributes are set properly...
+        bucket = Bucket(str(tmpdir))
+        assert bucket.srcdir == tmpdir / "sources"
+        assert bucket.resultdir == tmpdir / "repr"
+        assert bucket.keysdir == tmpdir / "keys"
+        assert bucket._data == dict(
+            version=1, curr_src_num=0, curr_repr_num=dict())
+
+    def test_init_internal_data(self, tmpdir):
+        # A bucket with same path won't overwrite existing data...
+        bucket1 = Bucket(str(tmpdir))
+        assert bucket1._get_internal_data() == dict(
+            version=1, curr_src_num=0, curr_repr_num={})
+        to_set = dict(version=1, curr_src_num=1, curr_repr_num={'1': 2})
+        bucket1._set_internal_data(to_set)
+        assert bucket1._get_internal_data() == to_set
+        bucket2 = Bucket(str(tmpdir))
+        assert bucket2._get_internal_data() == to_set
+
 
 class TestCacheBucket(CachingComponentsTestCase):
 
