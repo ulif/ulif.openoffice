@@ -111,42 +111,6 @@ class TestCacheBucketNew(object):
 
 class TestCacheBucket(CachingComponentsTestCase):
 
-    def test_init(self):
-        # Make sure, the dir is empty before we mess around...
-        self.assertEqual([], os.listdir(self.workdir))
-
-        bucket = Bucket(self.workdir)
-
-        # Main subdirs were created...
-        for subdirname in ['sources', 'repr', 'keys', 'data']:
-            self.assertTrue(
-                os.path.exists(os.path.join(self.workdir, subdirname)),
-                'Not found: subdir/file `%s`' % subdirname
-                )
-
-        # Main attributes are set properly...
-        self.assertEqual(
-            bucket.srcdir, os.path.join(self.workdir, 'sources'))
-        self.assertEqual(
-            bucket.resultdir, os.path.join(self.workdir, 'repr'))
-        self.assertEqual(
-            bucket.keysdir, os.path.join(self.workdir, 'keys'))
-        self.assertEqual(
-            bucket._data, dict(version=1, curr_src_num=0,
-                               curr_repr_num=dict()))
-
-        # A bucket with same path won't overwrite existing data...
-        data = bucket._get_internal_data()
-        self.assertEqual(
-            data, dict(version=1, curr_src_num=0, curr_repr_num=dict()))
-        bucket._set_internal_data(
-            dict(version=1, curr_src_num=1, curr_repr_num={'1': 2}))
-        bucket2 = Bucket(self.workdir)
-        data = bucket2._get_internal_data()
-        self.assertEqual(data['curr_src_num'], 1)
-        self.assertEqual(data['curr_repr_num']['1'], 2)
-        return
-
     def test_curr_src_num(self):
         # we can get/set current source number
         bucket = Bucket(self.workdir)
