@@ -108,16 +108,15 @@ class TestCacheBucketNew(object):
         bucket2 = Bucket(str(tmpdir))
         assert bucket2._get_internal_data() == to_set
 
+    def test_curr_src_num(self, tmpdir):
+        # we can get/set current source number
+        bucket = Bucket(str(tmpdir))
+        assert bucket.get_current_source_num() == 0
+        bucket.set_current_source_num(12)
+        assert bucket.get_current_source_num() == 12
+
 
 class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_curr_src_num(self):
-        # we can get/set current source number
-        bucket = Bucket(self.workdir)
-        self.assertEqual(bucket.get_current_source_num(), 0)
-        bucket.set_current_source_num(12)
-        self.assertEqual(bucket.get_current_source_num(), 12)
-        return
 
     def test_curr_repr_num(self):
         # we can get/set current representation number
