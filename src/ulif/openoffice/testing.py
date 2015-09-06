@@ -365,6 +365,6 @@ def envpath_wo_virtualenvs():
     if not v_env_path_old:
         return new_path
     return ":".join([
-        part for part in path.split(":")
+        part for part in new_path.split(":")
         if v_env_path_old not in part
     ])
