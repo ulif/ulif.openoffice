@@ -124,23 +124,24 @@ class TestCacheBucketNew(object):
         assert bucket.get_current_repr_num('1') == 12
         assert bucket.get_current_repr_num('2') == 0
 
+    def test_get_stored_source_num(self, tmpdir):
+        # we can test whether a source file is stored in a bucket already.
+        bucket = Bucket(str(tmpdir.join("cache")))
+        src1 = tmpdir.join("src1.txt")
+        src2 = tmpdir.join("src2.txt")
+        src1.write("source1")
+        src2.write("source2")
+        assert bucket.get_stored_source_num(str(src1)) is None
+        assert bucket.get_stored_source_num(str(src2)) is None
+        shutil.copyfile(str(src1), os.path.join(bucket.srcdir, "source_1"))
+        assert bucket.get_stored_source_num(str(src1)) == 1
+        assert bucket.get_stored_source_num(str(src2)) is None
+        shutil.copyfile(str(src2), os.path.join(bucket.srcdir, "source_2"))
+        assert bucket.get_stored_source_num(str(src1)) == 1
+        assert bucket.get_stored_source_num(str(src2)) == 2
+
 
 class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_get_stored_source_num(self):
-        # we can test whether a source file is stored in a bucket already.
-        bucket = Bucket(self.workdir)
-        self.assertEqual(bucket.get_stored_source_num(self.src_path1), None)
-        self.assertEqual(bucket.get_stored_source_num(self.src_path2), None)
-        shutil.copyfile(
-            self.src_path1, os.path.join(bucket.srcdir, 'source_1'))
-        self.assertEqual(bucket.get_stored_source_num(self.src_path1), 1)
-        self.assertEqual(bucket.get_stored_source_num(self.src_path2), None)
-        shutil.copyfile(
-            self.src_path2, os.path.join(bucket.srcdir, 'source_2'))
-        self.assertEqual(bucket.get_stored_source_num(self.src_path1), 1)
-        self.assertEqual(bucket.get_stored_source_num(self.src_path2), 2)
-        return
 
     def test_get_stored_repr_num(self):
         # we can get a representation number if the repective key is
