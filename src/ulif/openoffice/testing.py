@@ -357,8 +357,14 @@ def envpath_wo_virtualenvs():
     v_env_path = os.environ.get('VIRTUAL_ENV', None)
     if not v_env_path:  # no venv active (or everything seriously messed up).
         return path
-    for separator in (v_env_path, "/.tox"):
-        if separator in path:
-            path = path.rsplit(separator, 1)[1]
-    new_path = path.split(":", 1)[1]
-    return new_path
+    new_path = ":".join([
+        part for part in path.split(":")
+        if v_env_path not in part
+    ])
+    v_env_path_old = os.environ.get('VIRTUAL_ENV_BEFORE_TOX', None)
+    if not v_env_path_old:
+        return new_path
+    return ":".join([
+        part for part in path.split(":")
+        if v_env_path_old not in part
+    ])
