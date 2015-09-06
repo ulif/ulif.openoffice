@@ -336,12 +336,14 @@ class FakeServerProxy(xmlrpclib.ServerProxy):
 def envpath_wo_virtualenvs():
     """Return the local os.environ["PATH"] without virtual envs included.
 
-    If we think that we are not in a tox run, we remove any set path
-    within $VIRTUAL_ENV and return the result.
+    Returns a version of `os.environ['PATH']` with all paths removed,
+    that probably are inside a virtualenv.
 
-    If we think that we are currently running in `tox`, all paths until
-    the last path containing "/.tox/" are removed from $PATH and the
-    result returned.
+    These paths are those located in $VIRTUAL_ENV and
+    $VIRTUAL_ENV_BEFORE_TOX. The latter is an enviroment variable set
+    locally by tox (see local ``tox.ini``).
+
+    The stripped path is returned.
 
     If ``PATH`` is not set and ``VIRTUAL_ENV`` is not set, we return
     `None`.
