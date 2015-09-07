@@ -31,7 +31,8 @@ from ulif.openoffice.options import ArgumentParserError, Options
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
     ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error, processor_order)
-from ulif.openoffice.testing import TestOOServerSetup, ConvertLogCatcher
+from ulif.openoffice.testing import (
+    TestOOServerSetup, ConvertLogCatcher, envpath_wo_virtualenvs)
 try:
     import unittest2 as unittest
 except ImportError:
@@ -44,10 +45,10 @@ def get_unoconv_version():
     os.system('unoconv --version > %s' % output_path)
     output = open(output_path, 'r').readlines()
     if not output:
-        # dirty hack: in virtualenvs we might be unable to run unoconv.
-        # The workaround will retry with first element from "$PATH" removed.
+        # in virtualenvs we might be unable to run unoconv.
+        # The workaround will retry with $PATH from special helper function.
         old_env = os.getenv("PATH")
-        new_env = ":".join(old_env.split(":")[1:])
+        new_env = envpath_wo_virtualenvs()
         os.environ["PATH"] = new_env
         os.system('unoconv --version > %s' % output_path)
         os.environ["PATH"] = old_env
