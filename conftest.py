@@ -9,6 +9,7 @@ import time
 from py.io import TextIO
 from ulif.openoffice import oooctl
 from ulif.openoffice.oooctl import check_port
+from ulif.openoffice.testing import envpath_wo_virtualenvs
 
 
 @pytest.fixture(scope='session')
@@ -47,16 +48,9 @@ def envpath_no_venv(request, monkeypatch_sess):
     versions, that normally do not support `uno` and other packages
     needed by `unoconv`.
     """
-    _path = os.environ.get('PATH', None)
-    if not _path:
+    new_path = envpath_wo_virtualenvs()
+    if not new_path:
         return
-    v_env_path = os.environ.get('VIRTUAL_ENV', None)
-    if not v_env_path or (v_env_path not in _path):
-        return
-    new_path = ":".join([
-        x for x in _path.split(":")
-        if v_env_path not in x]
-        )
     monkeypatch_sess.setenv("PATH", new_path)
 
 
