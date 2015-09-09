@@ -85,7 +85,7 @@ class TestCacheBucketNew(object):
 
     def test_init_creates_subdirs(self, tmpdir):
         # a new bucket contains certain subdirs and a file
-        bucket = Bucket(str(tmpdir))
+        Bucket(str(tmpdir))
         for filename in ['sources', 'repr', 'keys', 'data']:
             assert tmpdir.join(filename).exists()
 
