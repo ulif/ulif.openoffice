@@ -140,6 +140,38 @@ class TestCacheBucketNew(object):
         assert bucket.get_stored_source_num(str(src1)) == 1
         assert bucket.get_stored_source_num(str(src2)) == 2
 
+    def test_get_stored_repr_num(self, tmpdir):
+        # we can get a representation number if the repective key is
+        # stored in the bucket already.
+        bucket = Bucket(str(tmpdir.join("cache")))
+        key_path1 = os.path.join(bucket.keysdir, '1', '1.key')
+        key_path2 = os.path.join(bucket.keysdir, '1', '2.key')
+        key_path3 = os.path.join(bucket.keysdir, '2', '1.key')
+        assert bucket.get_stored_repr_num(1, 'somekey') is None
+        assert bucket.get_stored_repr_num(1, 'otherkey') is None
+        assert bucket.get_stored_repr_num(2, 'somekey') is None
+        assert bucket.get_stored_repr_num(2, 'otherkey') is None
+        os.makedirs(os.path.dirname(key_path1))
+        os.makedirs(os.path.dirname(key_path3))
+        with open(key_path1, 'w') as fd:
+            fd.write('otherkey')
+        assert bucket.get_stored_repr_num(1, 'somekey') is None
+        assert bucket.get_stored_repr_num(1, 'otherkey') == 1
+        assert bucket.get_stored_repr_num(2, 'somekey') is None
+        assert bucket.get_stored_repr_num(2, 'otherkey') is None
+        with open(key_path2, 'w') as fd:
+            fd.write('somekey')
+        assert bucket.get_stored_repr_num(1, 'somekey') == 2
+        assert bucket.get_stored_repr_num(1, 'otherkey') == 1
+        assert bucket.get_stored_repr_num(2, 'somekey') is None
+        assert bucket.get_stored_repr_num(2, 'otherkey') is None
+        with open(key_path3, 'w') as fd:
+            fd.write('somekey')
+        assert bucket.get_stored_repr_num(1, 'somekey') == 2
+        assert bucket.get_stored_repr_num(1, 'otherkey') == 1
+        assert bucket.get_stored_repr_num(2, 'somekey') == 1
+        assert bucket.get_stored_repr_num(2, 'otherkey') is None
+
 
 class TestCacheBucket(CachingComponentsTestCase):
 
