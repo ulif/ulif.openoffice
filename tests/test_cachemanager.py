@@ -214,18 +214,6 @@ class TestCacheBucketNew(object):
 
 class TestCacheBucket(CachingComponentsTestCase):
 
-    def test_store_representation_file_key(self):
-        #  we can store sources with their representations and a key
-        #  stored in a file.
-        bucket = Bucket(self.workdir)
-        res = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key=StringIO('somekey'))
-        exp_stored_key = os.path.join(self.workdir, 'keys', '1', '1.key')
-        self.assertEqual(
-            open(exp_stored_key, 'rb').read(), b'somekey')
-        self.assertEqual(res, '1_1')
-        return
-
     def test_store_representation_update_result(self):
         # if we send a different representation for the same source
         # and key, the old representation will be replaced.
