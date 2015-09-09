@@ -175,39 +175,6 @@ class TestCacheBucketNew(object):
 
 class TestCacheBucket(CachingComponentsTestCase):
 
-    def test_get_stored_repr_num(self):
-        # we can get a representation number if the repective key is
-        # stored in the bucket already.
-        bucket = Bucket(self.workdir)
-        key_path1 = os.path.join(bucket.keysdir, '1', '1.key')
-        key_path2 = os.path.join(bucket.keysdir, '1', '2.key')
-        key_path3 = os.path.join(bucket.keysdir, '2', '1.key')
-        self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        os.makedirs(os.path.dirname(key_path1))
-        os.makedirs(os.path.dirname(key_path3))
-        with open(key_path1, 'w') as fd:
-            fd.write('otherkey')
-        self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        with open(key_path2, 'w') as fd:
-            fd.write('somekey')
-        self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
-        self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), None)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        with open(key_path3, 'w') as fd:
-            fd.write('somekey')
-        self.assertEqual(bucket.get_stored_repr_num(1, 'somekey'), 2)
-        self.assertEqual(bucket.get_stored_repr_num(1, 'otherkey'), 1)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'somekey'), 1)
-        self.assertEqual(bucket.get_stored_repr_num(2, 'otherkey'), None)
-        return
-
     def test_store_representation_no_key(self):
         # we can store sources with their representations
         bucket = Bucket(self.workdir)
