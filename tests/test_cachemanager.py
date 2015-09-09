@@ -32,8 +32,8 @@ class TestHelpers(object):
 
 @pytest.fixture(scope="function")
 def cache_env(request, tmpdir):
-    work_dir = tmpfile / "work"
-    input_dir = tmpfile / "input"
+    work_dir = tmpdir / "work"
+    input_dir = tmpdir / "input"
     src_path1 = input_dir / "src_file1"
     src_path2 = input_dir / "src_file2"
     result_path1 = input_dir / "result_file1"
