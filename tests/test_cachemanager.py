@@ -79,6 +79,7 @@ class CachingComponentsTestCase(unittest.TestCase):
         shutil.rmtree(self.workdir)
         shutil.rmtree(self.inputdir)
 
+
 class TestCacheBucketNew(object):
     # Tests for CacheBucket
 
