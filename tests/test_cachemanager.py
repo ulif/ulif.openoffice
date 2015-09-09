@@ -168,30 +168,26 @@ class TestCacheBucketNew(object):
         assert bucket.get_stored_repr_num(2, 'somekey') == 1
         assert bucket.get_stored_repr_num(2, 'otherkey') is None
 
+    def test_store_representation_no_key(self, tmpdir):
+        # we can store sources with their representations
+        bucket = Bucket(str(tmpdir.join("cache")))
+        source = tmpdir / "source" / "src.txt"
+        result = tmpdir / "result" / "result.txt"
+        source.write("source", ensure=True)
+        result.write("result", ensure=True)
+        res = bucket.store_representation(str(source), str(result))
+        assert res == "1_1"
+        assert (tmpdir / "cache" / "sources" / "source_1").isfile()
+        assert (tmpdir / "cache" / "sources" / "source_1").read() == "source"
+        assert (tmpdir / "cache" / "repr" / "1" / "1").isdir()
+        assert (tmpdir / "cache" / "repr" / "1" / "1" / "result.txt").isfile()
+        assert (tmpdir / "cache" / "repr" / "1" / "1" / "result.txt"
+            ).read() == "result"
+        assert (tmpdir / "cache" / "keys" / "1" / "1.key").isfile()
+        assert (tmpdir / "cache" / "keys" / "1" / "1.key").read() == ""
+
 
 class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_store_representation_no_key(self):
-        # we can store sources with their representations
-        bucket = Bucket(self.workdir)
-        res = bucket.store_representation(self.src_path1, self.result_path1)
-        exp_stored_src = os.path.join(self.workdir, 'sources', 'source_1')
-        exp_stored_repr_dir = os.path.join(self.workdir, 'repr', '1', '1')
-        exp_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, 'resultfile1')
-        exp_stored_key = os.path.join(self.workdir, 'keys', '1', '1.key')
-        self.assertTrue(os.path.isfile(exp_stored_src))
-        self.assertTrue(os.path.isdir(exp_stored_repr_dir))
-        self.assertTrue(os.path.isfile(exp_stored_repr_data))
-        self.assertTrue(os.path.isfile(exp_stored_key))
-        self.assertEqual(
-            open(exp_stored_src, 'rb').read(), b'source1\n')
-        self.assertEqual(
-            open(exp_stored_repr_data, 'rb').read(), b'result1\n')
-        self.assertEqual(
-            open(exp_stored_key, 'rb').read(), b'')
-        self.assertEqual(res, '1_1')
-        return
 
     def test_store_representation_string_key(self):
         #  we can store sources with their representations and a string key
