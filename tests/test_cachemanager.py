@@ -108,13 +108,11 @@ class TestCacheBucketNew(object):
         assert bucket.get_current_repr_num('1') == 12
         assert bucket.get_current_repr_num('2') == 0
 
-    def test_get_stored_source_num(self, tmpdir):
+    def test_get_stored_source_num(self, cache_env):
         # we can test whether a source file is stored in a bucket already.
-        bucket = Bucket(str(tmpdir.join("cache")))
-        src1 = tmpdir.join("src1.txt")
-        src2 = tmpdir.join("src2.txt")
-        src1.write("source1")
-        src2.write("source2")
+        bucket = Bucket(str(cache_env.join("cache")))
+        src1 = cache_env / "work" / "src1.txt"
+        src2 = cache_env / "work" / "src2.txt"
         assert bucket.get_stored_source_num(str(src1)) is None
         assert bucket.get_stored_source_num(str(src2)) is None
         shutil.copyfile(str(src1), os.path.join(bucket.srcdir, "source_1"))
