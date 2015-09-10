@@ -32,30 +32,13 @@ class TestHelpers(object):
 
 @pytest.fixture(scope="function")
 def cache_env(request, tmpdir):
-    work_dir = tmpdir / "work"
-    input_dir = tmpdir / "input"
-    src_path1 = input_dir / "src_file1"
-    src_path2 = input_dir / "src_file2"
-    result_path1 = input_dir / "result_file1"
-    result_path2 = input_dir / "result_file2"
-    result_path3 = input_dir / "result_file3"
-    result_path4 = input_dir / "result_file4"
-    src_path1.write("source1\n")
-    src_path2.write("source2\n")
-    result_path1.write("result1\n")
-    result_path2.write("result2\n")
-    result_path3.write("result3\n")
-    result_path4.write("result4\n")
-    return dict(
-        work_dir=work_dir,
-        input_dir=input_dir,
-        src_path1=src_path1,
-        src_path2=src_path2,
-        result_path1=result_path1,
-        result_path2=result_path2,
-        result_path3=result_path3,
-        result_path4=result_path4
-    )
+    (tmpdir / "work" / "src1.txt").write("source1\n", ensure=True)
+    (tmpdir / "work" / "src2.txt").write("source2\n")
+    (tmpdir / "work" / "result1.txt").write("result1\n")
+    (tmpdir / "work" / "result2.txt").write("result2\n")
+    (tmpdir / "work" / "result3.txt").write("result3\n")
+    (tmpdir / "work" / "result4.txt").write("result4\n")
+    return tmpdir
 
 
 class CachingComponentsTestCase(unittest.TestCase):
