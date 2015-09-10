@@ -220,6 +220,23 @@ class TestCacheBucketNew(object):
         assert res1 == "1_1"
         assert res2 == cache_env / "cache" / "repr" / "1" / "1" / "result1.txt"
 
+    def test_keys(self, cache_env):
+        # we can get a list of all bucket keys in a bucket.
+        bucket = Bucket(str(cache_env))
+        assert list(bucket.keys()) == []
+        key1 = bucket.store_representation(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"), repr_key='foo')
+        assert list(bucket.keys()) == [key1, ]
+        key2 = bucket.store_representation(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result2.txt"), repr_key='bar')
+        assert sorted(list(bucket.keys())) == [key1, key2]
+        key3 = bucket.store_representation(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result3.txt"), repr_key='baz')
+        assert sorted(list(bucket.keys())) == [key1, key2, key3]
+
 
 class TestCacheBucket(CachingComponentsTestCase):
 
