@@ -205,14 +205,13 @@ class TestCacheBucketNew(object):
         assert result_dir.join("result2.txt").exists() is True
         assert result_dir.join("result2.txt").read() == "result2\n"
 
+    def test_get_representation_unstored(self, tmpdir):
+        # we cannot get unstored representations
+        bucket = Bucket(str(tmpdir.join("cache")))
+        assert bucket.get_representation("1_1") is None
+
 
 class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_get_representation_unstored(self):
-        # we cannot get unstored representations
-        bucket = Bucket(self.workdir)
-        self.assertEqual(bucket.get_representation('1_1'), None)
-        return
 
     def test_get_representation_stored(self):
         # we cannot get unstored representations
