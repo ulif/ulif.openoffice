@@ -176,18 +176,17 @@ class TestCacheBucketNew(object):
         assert (
             cache_env / "cache" / "keys" / "1" / "1.key").read() == 'somekey'
 
-    def test_store_representation_file_key(self, tmpdir):
+    def test_store_representation_file_key(self, cache_env):
         #  we can store sources with their representations and a key
         #  stored in a file.
-        bucket = Bucket(str(tmpdir.join("cache")))
-        source = tmpdir / "source" / "src.txt"
-        result = tmpdir / "result" / "result.txt"
-        source.write("source", ensure=True)
-        result.write("result", ensure=True)
+        bucket = Bucket(str(cache_env.join("cache")))
         res = bucket.store_representation(
-            str(source), str(result), repr_key=StringIO('somekey'))
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"),
+            repr_key=StringIO("somekey"))
         assert res == "1_1"
-        assert (tmpdir / "cache" / "keys" / "1" / "1.key").read() == 'somekey'
+        assert (
+            cache_env / "cache" / "keys" / "1" / "1.key").read() == 'somekey'
 
 
 class TestCacheBucket(CachingComponentsTestCase):
