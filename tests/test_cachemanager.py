@@ -188,29 +188,25 @@ class TestCacheBucketNew(object):
         assert (
             cache_env / "cache" / "keys" / "1" / "1.key").read() == 'somekey'
 
-
-class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_store_representation_update_result(self):
+    def test_store_representation_update_result(self, cache_env):
         # if we send a different representation for the same source
         # and key, the old representation will be replaced.
-        bucket = Bucket(self.workdir)
+        bucket = Bucket(str(cache_env / "cache"))
         res1 = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key='mykey')
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"), repr_key='mykey')
         res2 = bucket.store_representation(
-            self.src_path1, self.result_path2, repr_key='mykey')
-        exp_stored_repr_dir = os.path.join(self.workdir, 'repr', '1', '1')
-        old_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, 'resultfile1')
-        exp_stored_repr_data = os.path.join(
-            exp_stored_repr_dir, 'resultfile2')
-        self.assertEqual(res1, '1_1')
-        self.assertEqual(res2, '1_1')
-        self.assertEqual(
-            open(exp_stored_repr_data, 'r').read(), 'result2\n')
-        self.assertEqual(
-            os.path.exists(old_stored_repr_data), False)
-        return
+            str(cache_env / "work" / "src1.txt"),
+             str(cache_env / "work" / "result2.txt"), repr_key='mykey')
+        assert res1 == "1_1"
+        assert res2 == "1_1"
+        result_dir = cache_env / "cache" / "repr" / "1" / "1"
+        assert result_dir.join("result1.txt").exists() is False
+        assert result_dir.join("result2.txt").exists() is True
+        assert result_dir.join("result2.txt").read() == "result2\n"
+
+
+class TestCacheBucket(CachingComponentsTestCase):
 
     def test_get_representation_unstored(self):
         # we cannot get unstored representations
