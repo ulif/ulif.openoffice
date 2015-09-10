@@ -63,7 +63,7 @@ class CachingComponentsTestCase(unittest.TestCase):
         shutil.rmtree(self.inputdir)
 
 
-class TestCacheBucketNew(object):
+class TestCacheBucke(object):
     # Tests for CacheBucket
 
     def test_init_creates_subdirs(self, tmpdir):
@@ -236,26 +236,6 @@ class TestCacheBucketNew(object):
             str(cache_env / "work" / "src1.txt"),
             str(cache_env / "work" / "result3.txt"), repr_key='baz')
         assert sorted(list(bucket.keys())) == [key1, key2, key3]
-
-
-class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_keys(self):
-        # we can get a list of all bucket keys in a bucket.
-        bucket = Bucket(self.workdir)
-        self.assertEqual(list(bucket.keys()), [])
-        b_key1 = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key='foo')
-        self.assertEqual(list(bucket.keys()), [b_key1])
-        b_key2 = bucket.store_representation(
-            self.src_path1, self.result_path2, repr_key='bar')
-        self.assertEqual(
-            sorted(list(bucket.keys())), sorted([b_key1, b_key2]))
-        b_key3 = bucket.store_representation(
-            self.src_path2, self.result_path1, repr_key='baz')
-        self.assertEqual(
-            sorted(list(bucket.keys())), sorted([b_key1, b_key2, b_key3]))
-        return
 
 
 class TestCacheManager(CachingComponentsTestCase):
