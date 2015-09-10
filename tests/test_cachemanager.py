@@ -149,23 +149,22 @@ class TestCacheBucketNew(object):
         assert bucket.get_stored_repr_num(2, 'somekey') == 1
         assert bucket.get_stored_repr_num(2, 'otherkey') is None
 
-    def test_store_representation_no_key(self, tmpdir):
+    def test_store_representation_no_key(self, cache_env):
         # we can store sources with their representations
-        bucket = Bucket(str(tmpdir.join("cache")))
-        source = tmpdir / "source" / "src.txt"
-        result = tmpdir / "result" / "result.txt"
-        source.write("source", ensure=True)
-        result.write("result", ensure=True)
-        res = bucket.store_representation(str(source), str(result))
+        bucket = Bucket(str(cache_env.join("cache")))
+        res = bucket.store_representation(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"))
+        source_path = cache_env / "cache" / "sources" / "source_1"
+        result_path = cache_env / "cache" / "repr" / "1" / "1" / "result1.txt"
         assert res == "1_1"
-        assert (tmpdir / "cache" / "sources" / "source_1").isfile()
-        assert (tmpdir / "cache" / "sources" / "source_1").read() == "source"
-        assert (tmpdir / "cache" / "repr" / "1" / "1").isdir()
-        assert (tmpdir / "cache" / "repr" / "1" / "1" / "result.txt").isfile()
-        assert (tmpdir / "cache" / "repr" / "1" / "1" / "result.txt"
-            ).read() == "result"
-        assert (tmpdir / "cache" / "keys" / "1" / "1.key").isfile()
-        assert (tmpdir / "cache" / "keys" / "1" / "1.key").read() == ""
+        assert source_path.isfile()
+        assert source_path.read() == "source1\n"
+        assert result_path.dirpath().isdir()
+        assert result_path.isfile()
+        assert result_path.read() == "result1\n"
+        assert (cache_env / "cache" / "keys" / "1" / "1.key").isfile()
+        assert (cache_env / "cache" / "keys" / "1" / "1.key").read() == ""
 
     def test_store_representation_string_key(self, tmpdir):
         #  we can store sources with their representations and a string key
