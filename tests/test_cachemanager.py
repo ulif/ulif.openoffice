@@ -210,20 +210,18 @@ class TestCacheBucketNew(object):
         bucket = Bucket(str(tmpdir.join("cache")))
         assert bucket.get_representation("1_1") is None
 
+    def test_get_representation_stored(self, cache_env):
+        # we can get paths of representations
+        bucket = Bucket(str(cache_env.join("cache")))
+        res1 = bucket.store_representation(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"), repr_key=b'mykey')
+        res2 = bucket.get_representation(res1)
+        assert res1 == "1_1"
+        assert res2 == cache_env / "cache" / "repr" / "1" / "1" / "result1.txt"
+
 
 class TestCacheBucket(CachingComponentsTestCase):
-
-    def test_get_representation_stored(self):
-        # we cannot get unstored representations
-        bucket = Bucket(self.workdir)
-        res1 = bucket.store_representation(
-            self.src_path1, self.result_path1, repr_key=b'mykey')
-        exp_repr_path = os.path.join(
-            self.workdir, 'repr', '1', '1', 'resultfile1')
-        res2 = bucket.get_representation(res1)
-        self.assertEqual(res1, '1_1')
-        self.assertEqual(res2, exp_repr_path)
-        return
 
     def test_keys(self):
         # we can get a list of all bucket keys in a bucket.
