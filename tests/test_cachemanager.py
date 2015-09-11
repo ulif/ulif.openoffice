@@ -260,7 +260,7 @@ class TestCacheManagerNew(object):
 
     def test_init_level(self, tmpdir):
         # we can set a level (depth) when creating cache managers
-        cm = CacheManager(str(tmpdir.join("cache")))
+        cm = CacheManager(str(tmpdir.join("cache")), level=3)
         assert cm.level == 3
 
     def test_dir_created(self, tmpdir):
