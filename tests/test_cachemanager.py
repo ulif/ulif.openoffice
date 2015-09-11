@@ -252,6 +252,12 @@ class TestCacheManagerNew(object):
         assert cm._dissolve_cache_key("asd") == (None, None)
         assert cm._dissolve_cache_key(None) == (None, None)
 
+    def test_init(self, tmpdir):
+        # we can initialize a cache manager with default depth
+        cm = CacheManager(str(tmpdir.join("cache")))
+        assert cm.level == 1
+        assert cm.cache_dir == tmpdir.join("cache")
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
