@@ -263,6 +263,13 @@ class TestCacheManagerNew(object):
         cm = CacheManager(str(tmpdir.join("cache")))
         assert cm.level == 3
 
+    def test_dir_created(self, tmpdir):
+        # a cache dir is created if neccessary
+        cache_dir = tmpdir / "cache"
+        assert cache_dir.exists() is False
+        cm = CacheManager(str(cache_dir))
+        assert cache_dir.isdir() is True
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
