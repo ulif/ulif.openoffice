@@ -242,6 +242,7 @@ class TestCacheManagerNew(object):
     # Tests for class `CacheManager`
 
     def test_markerhandling(self, tmpdir):
+        # we can dissolve markers from cache_keys.
         cm = CacheManager(str(tmpdir))
         marker_string =  cm._compose_cache_key('somefakedhash', 3)
         assert marker_string == "somefakedhash_3"
