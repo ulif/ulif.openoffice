@@ -238,19 +238,21 @@ class TestCacheBucke(object):
         assert sorted(list(bucket.keys())) == [key1, key2, key3]
 
 
-class TestCacheManager(CachingComponentsTestCase):
+class TestCacheManagerNew(object):
+    # Tests for class `CacheManager`
 
-    def test_markerhandling(self):
-        cm = CacheManager(self.workdir)
-        marker_string = cm._compose_cache_key(
-            'somefakedhash', 3)
-        self.assertEqual(marker_string, 'somefakedhash_3')
-        hash, bucket_marker = cm._dissolve_cache_key('somefakedhash_3')
-        self.assertEqual(hash, 'somefakedhash')
-        self.assertEqual(bucket_marker, '3')
-        self.assertEqual(cm._dissolve_cache_key('asd'), (None, None))
-        self.assertEqual(cm._dissolve_cache_key(object()), (None, None))
-        return
+    def test_markerhandling(self, tmpdir):
+        cm = CacheManager(str(tmpdir))
+        marker_string =  cm._compose_cache_key('somefakedhash', 3)
+        assert marker_string == "somefakedhash_3"
+        hash_val, bucket_marker = cm._dissolve_cache_key("somefakedhash_3")
+        assert hash_val == "somefakedhash"
+        assert bucket_marker == "3"
+        assert cm._dissolve_cache_key("asd") == (None, None)
+        assert cm._dissolve_cache_key(None) == (None, None)
+
+
+class TestCacheManager(CachingComponentsTestCase):
 
     def test_init(self):
         cm = CacheManager(self.workdir)
