@@ -281,26 +281,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_init(self):
-        cm = CacheManager(self.workdir)
-        self.assertEqual(cm.level, 1)
-        self.assertEqual(cm.cache_dir, self.workdir)
-
-        cm = CacheManager(self.workdir, level=3)
-        self.assertEqual(cm.level, 3)
-
-        # Create cache dir if it does not exist...
-        shutil.rmtree(self.workdir)
-        cm = CacheManager(self.workdir)
-        self.assertTrue(os.path.isdir(self.workdir))
-
-        # If we get a file as cache dir (instead of a directory), we
-        # fail loudly...
-        broken_cache_dir = os.path.join(self.workdir, 'not-a-dir')
-        open(broken_cache_dir, 'w').write('i am a file')
-        self.assertRaises(IOError, CacheManager, broken_cache_dir)
-        return
-
     def test_compose_marker(self):
         cm = CacheManager(self.workdir)
         marker2 = cm._compose_cache_key('some_hash_digest', 'bucket_marker')
