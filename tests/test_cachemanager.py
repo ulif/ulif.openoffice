@@ -197,7 +197,7 @@ class TestCacheBucke(object):
             str(cache_env / "work" / "result1.txt"), repr_key='mykey')
         res2 = bucket.store_representation(
             str(cache_env / "work" / "src1.txt"),
-             str(cache_env / "work" / "result2.txt"), repr_key='mykey')
+            str(cache_env / "work" / "result2.txt"), repr_key='mykey')
         assert res1 == "1_1"
         assert res2 == "1_1"
         result_dir = cache_env / "cache" / "repr" / "1" / "1"
