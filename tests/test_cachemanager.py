@@ -270,6 +270,14 @@ class TestCacheManagerNew(object):
         cm = CacheManager(str(cache_dir))
         assert cache_dir.isdir() is True
 
+    def test_init_fails_loudly(self, tmpdir):
+        # If we get a file as cache dir (instead of a directory), we
+        # fail loudly...
+        a_file = tmpdir.join("some_file.txt")
+        a_file.write("this-is-not-a-dir")
+        with pytest.raises(IOError):
+            CacheManager(str(a_file))
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
