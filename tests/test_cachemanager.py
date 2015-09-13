@@ -289,11 +289,9 @@ class TestCacheManagerNew(object):
         cm = CacheManager(str(tmpdir.join("cache")))
         tmpdir.join("src.txt").write("source1\n")
         hash_val = cm.get_hash(str(tmpdir / "src.txt"))
-        path = cm._get_bucket_path(hash_val)
-        expected_path_end = os.path.join(
-            '73', '737b337e605199de28b3b64c674f9422')
+        assert cm._get_bucket_path(hash_val) == (
+            tmpdir / "cache" / "73" / "737b337e605199de28b3b64c674f9422")
         assert tmpdir.join("cache").listdir() == []
-        assert path.endswith(expected_path_end)
 
 
 class TestCacheManager(CachingComponentsTestCase):
