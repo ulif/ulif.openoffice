@@ -292,25 +292,31 @@ class TestCacheManagerNew(object):
         assert cm._get_bucket_path(hash_val) == (
             tmpdir / "cache" / "73" / "737b337e605199de28b3b64c674f9422")
 
+    def test_prepare_cache_dir(self, tmpdir):
+        # _prepare_cache_dir creates a cache dir normally
+        cm = CacheManager(str(tmpdir.join("cache")))
+        new_dir = tmpdir.join("new_dir")
+        cm.cache_dir = str(new_dir)
+        cm._prepare_cache_dir()
+        assert new_dir.isdir() is True
+
+    def test_prepare_cache_dir_none(self, tmpdir):
+        # we can create a cache manager without any cache dir
+        cm = CacheManager(str(tmpdir))
+        cm.cache_dir = None
+        cm._prepare_cache_dir()
+        assert cm.cache_dir is None
+
+    def test_prepare_cache_dir_broken(self, tmpdir):
+        # we fail loudly if we cannot create a cache dir
+        cm = CacheManager(str(tmpdir))
+        tmpdir.join("not-a-dir.txt").write("foo")     # broken dir
+        cm.cache_dir = str(tmpdir / "not-a-dir.txt")
+        with pytest.raises(IOError):
+            cm._prepare_cache_dir()
+
 
 class TestCacheManager(CachingComponentsTestCase):
-
-    def test_prepare_cache_dir(self):
-        new_cache_dir = os.path.join(self.workdir, 'newcache')
-        broken_cache_dir = os.path.join(self.workdir, 'broken')
-        open(broken_cache_dir, 'w').write('broken')
-        cm = CacheManager(self.workdir)
-
-        cm.cache_dir = None
-        self.assertEqual(cm._prepare_cache_dir(), None)
-
-        cm.cache_dir = new_cache_dir
-        cm._prepare_cache_dir()
-        self.assertTrue(os.path.isdir(new_cache_dir))
-
-        cm.cache_dir = broken_cache_dir
-        self.assertRaises(IOError, cm._prepare_cache_dir)
-        return
 
     def test_get_cached_file(self):
         cm = CacheManager(self.workdir)
