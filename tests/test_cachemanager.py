@@ -278,13 +278,14 @@ class TestCacheManagerNew(object):
         with pytest.raises(IOError):
             CacheManager(str(a_file))
 
+    def test_compose_marker(self, tmpdir):
+        # we can compose cache keys
+        cm = CacheManager(str(tmpdir))
+        marker2 = cm._compose_cache_key('some_hash_digest', 'bucket_marker')
+        assert marker2 == 'some_hash_digest_bucket_marker'
+
 
 class TestCacheManager(CachingComponentsTestCase):
-
-    def test_compose_marker(self):
-        cm = CacheManager(self.workdir)
-        marker2 = cm._compose_cache_key('some_hash_digest', 'bucket_marker')
-        self.assertEqual(marker2, 'some_hash_digest_bucket_marker')
 
     def test_get_bucket_path(self):
         cm = CacheManager(self.workdir)
