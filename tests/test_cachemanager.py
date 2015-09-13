@@ -291,7 +291,6 @@ class TestCacheManagerNew(object):
         hash_val = cm.get_hash(str(tmpdir / "src.txt"))
         assert cm._get_bucket_path(hash_val) == (
             tmpdir / "cache" / "73" / "737b337e605199de28b3b64c674f9422")
-        assert tmpdir.join("cache").listdir() == []
 
 
 class TestCacheManager(CachingComponentsTestCase):
