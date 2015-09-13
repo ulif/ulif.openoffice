@@ -284,18 +284,19 @@ class TestCacheManagerNew(object):
         marker2 = cm._compose_cache_key('some_hash_digest', 'bucket_marker')
         assert marker2 == 'some_hash_digest_bucket_marker'
 
-
-class TestCacheManager(CachingComponentsTestCase):
-
-    def test_get_bucket_path(self):
-        cm = CacheManager(self.workdir)
-        hash_val = cm.get_hash(self.src_path1)
+    def test_get_bucket_path(self, tmpdir):
+        # we can get a bucket path from a hash value
+        cm = CacheManager(str(tmpdir.join("cache")))
+        tmpdir.join("src.txt").write("source1\n")
+        hash_val = cm.get_hash(str(tmpdir / "src.txt"))
         path = cm._get_bucket_path(hash_val)
         expected_path_end = os.path.join(
             '73', '737b337e605199de28b3b64c674f9422')
-        self.assertEqual(os.listdir(self.workdir), [])
-        self.assertTrue(path.endswith(expected_path_end))
-        return
+        assert tmpdir.join("cache").listdir() == []
+        assert path.endswith(expected_path_end)
+
+
+class TestCacheManager(CachingComponentsTestCase):
 
     def test_prepare_cache_dir(self):
         new_cache_dir = os.path.join(self.workdir, 'newcache')
