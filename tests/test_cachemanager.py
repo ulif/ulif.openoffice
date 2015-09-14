@@ -378,16 +378,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_get_cached_file_by_src(self):
-        # we can get a cached file by source file and options
-        cm = CacheManager(self.workdir)
-        # without a cache key
-        my_id1 = cm.register_doc(self.src_path1, self.result_path1)
-        result, key = cm.get_cached_file_by_source(self.src_path1)
-        assert filecmp.cmp(result, self.result_path1, shallow=False)
-        assert key == '737b337e605199de28b3b64c674f9422_1_1'
-        assert my_id1 == key
-
     def test_get_cached_file_by_src_failed(self):
         cm = CacheManager(self.workdir)
         result, key = cm.get_cached_file_by_source(self.src_path1)
