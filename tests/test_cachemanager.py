@@ -383,6 +383,28 @@ class TestCacheManagerNew(object):
         assert result is None
         assert key is None
 
+    def test_get_cached_file_by_src_w_key(self, cache_env):
+        cm = CacheManager(str(cache_env / "cache"))
+        src = cache_env / "work" / "src1.txt"
+        result1 = cache_env / "work" / "result1.txt"
+        result2 = cache_env / "work" / "result2.txt"
+        my_id1 = cm.register_doc(str(src), str(result1), 'mykey')
+        path1, key1 = cm.get_cached_file_by_source(str(src), 'mykey')
+        assert filecmp.cmp(path1, str(result1), shallow=False)
+        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
+        assert key1 == my_id1
+        # yet not existent cache file
+        path2, key2 = cm.get_cached_file_by_source(str(src), 'otherkey')
+        assert path2 is None
+        assert key2 is None
+        # store and retrieve 2nd cache file
+        my_id3 = cm.register_doc(str(src), str(result2), 'otherkey')
+        path3, key3 = cm.get_cached_file_by_source(str(src), 'otherkey')
+        assert filecmp.cmp(path3, str(result2), shallow=False)
+        assert key3 == '737b337e605199de28b3b64c674f9422_1_2'
+        assert key3 == my_id3
+        return
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
