@@ -361,6 +361,20 @@ class TestCacheManagerNew(object):
         cm = CacheManager(str(cache_env))
         assert cm.get_cached_file("not-existing") is None
 
+    def test_get_cached_file_by_src(self, cache_env):
+        # we can get a cached file by source file and options
+        cm = CacheManager(str(cache_env / "cache"))
+        # without a cache key
+        my_id = cm.register_doc(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"))
+        path, key = cm.get_cached_file_by_source(
+            str(cache_env / "work" / "src1.txt"))
+        assert open(path, "r").read() == (
+            cache_env / "work" / "result1.txt").read()
+        assert key == '737b337e605199de28b3b64c674f9422_1_1'
+        assert my_id == key
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
