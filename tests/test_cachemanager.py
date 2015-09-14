@@ -356,6 +356,11 @@ class TestCacheManagerNew(object):
         assert open(path, 'r').read() == (
             cache_env / "work" / "result1.txt").read()
 
+    def test_get_cached_file_invalid_cache_key(self, tmpdir):
+        # invalid/unused cache keys return `None` as cached file.
+        cm = CacheManager(str(cache_env))
+        assert cm.get_cached_file("not-existing") is None
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
