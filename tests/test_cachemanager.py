@@ -408,23 +408,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_get_cached_file_by_src_w_key(self):
-        cm = CacheManager(self.workdir)
-        my_id = cm.register_doc(self.src_path1, self.result_path1, 'mykey')
-        result1, key1 = cm.get_cached_file_by_source(self.src_path1, 'mykey')
-        assert filecmp.cmp(result1, self.result_path1, shallow=False)
-        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
-        assert key1 == my_id
-        result2, key2 = cm.get_cached_file_by_source(
-            self.src_path1, 'otherkey')
-        assert result2 is None
-        assert key2 is None
-        cm.register_doc(self.src_path1, self.result_path2, 'otherkey')
-        result3, key3 = cm.get_cached_file_by_source(
-            self.src_path1, 'otherkey')
-        assert filecmp.cmp(result3, self.result_path2, shallow=False)
-        assert key3 == '737b337e605199de28b3b64c674f9422_1_2'
-
     def test_register_doc(self):
         cm = CacheManager(self.workdir)
         marker1 = cm.register_doc(
