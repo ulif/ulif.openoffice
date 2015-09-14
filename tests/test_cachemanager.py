@@ -375,14 +375,16 @@ class TestCacheManagerNew(object):
         assert key == '737b337e605199de28b3b64c674f9422_1_1'
         assert my_id == key
 
-
-class TestCacheManager(CachingComponentsTestCase):
-
-    def test_get_cached_file_by_src_failed(self):
-        cm = CacheManager(self.workdir)
-        result, key = cm.get_cached_file_by_source(self.src_path1)
+    def test_get_cached_file_by_src_failed(self, cache_env):
+        # uncached files result in `None` as result
+        cm = CacheManager(str(cache_env))
+        result, key = cm.get_cached_file_by_source(
+            str(cache_env / "work" / "src1.txt"))
         assert result is None
         assert key is None
+
+
+class TestCacheManager(CachingComponentsTestCase):
 
     def test_get_cached_file_by_src_w_key(self):
         cm = CacheManager(self.workdir)
