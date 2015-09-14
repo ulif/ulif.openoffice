@@ -364,30 +364,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_get_cached_file(self):
-        cm = CacheManager(self.workdir)
-        path = cm.get_cached_file(self.src_path1)
-        self.assertTrue(path is None)
-        self.assertEqual(os.listdir(self.workdir), [])
-
-        my_id1 = cm.register_doc(self.src_path1, self.result_path1)
-        path1 = cm.get_cached_file(my_id1)
-        self.assertTrue(path1 is not None)
-
-        my_id2 = cm.register_doc(
-            self.src_path2, self.result_path1, repr_key='foo')
-        path1 = cm.get_cached_file(my_id2)
-        self.assertTrue(path1 is not None)
-
-        my_id3 = cm.register_doc(
-            self.src_path2, self.result_path1, repr_key=StringIO('foo'))
-        path1 = cm.get_cached_file(my_id3)
-        self.assertTrue(path1 is not None)
-        self.assertEqual(my_id2, my_id3)
-
-        self.assertEqual(cm.get_cached_file('nonsense_really'), None)
-        return
-
     def test_get_cached_file_by_src(self):
         # we can get a cached file by source file and options
         cm = CacheManager(self.workdir)
