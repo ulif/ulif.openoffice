@@ -315,6 +315,12 @@ class TestCacheManagerNew(object):
         with pytest.raises(IOError):
             cm._prepare_cache_dir()
 
+    def test_get_cached_file_empty(self, cache_env):
+        # while cache is empty we get `None` when asking for cached files.
+        cm = CacheManager(str(cache_env / "cache"))
+        path = cm.get_cached_file(str(cache_env / "work" / "src1.txt"))
+        assert path is None
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
