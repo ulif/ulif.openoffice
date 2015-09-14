@@ -321,6 +321,17 @@ class TestCacheManagerNew(object):
         path = cm.get_cached_file(str(cache_env / "work" / "src1.txt"))
         assert path is None
 
+    def test_get_cached_file(self, cache_env):
+        # we can get a file cached before.
+        cm = CacheManager(str(cache_env / "cache"))
+        cache_key = cm.register_doc(
+            str(cache_env / "work" / "src1.txt"),
+            str(cache_env / "work" / "result1.txt"))
+        path = cm.get_cached_file(cache_key)
+        assert path is not None
+        assert open(path, 'r').read() == (
+            cache_env / "work" / "result1.txt").read()
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
