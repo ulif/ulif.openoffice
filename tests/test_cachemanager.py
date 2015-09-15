@@ -462,34 +462,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_keys(self):
-        # we can get all cache keys
-        cm = CacheManager(self.workdir)
-        key1 = cm.register_doc(self.src_path1, self.result_path1, 'foo')
-        self.assertEqual(
-            list(cm.keys()),
-            ['737b337e605199de28b3b64c674f9422_1_1']
-            )
-        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
-        key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
-        self.assertEqual(
-            sorted(list(cm.keys())),
-            ['737b337e605199de28b3b64c674f9422_1_1',
-             '737b337e605199de28b3b64c674f9422_1_2',
-             ]
-            )
-        assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
-        key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
-        self.assertEqual(
-            sorted(list(cm.keys())),
-            ['737b337e605199de28b3b64c674f9422_1_1',
-             '737b337e605199de28b3b64c674f9422_1_2',
-             'd5aa51d7fb180729089d2de904f7dffe_1_1',
-             ]
-            )
-        assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
-        return
-
     def test_keys_custom_level(self):
         # we can get all cache keys also with custom level set
         cm = CacheManager(self.workdir, level=3)
