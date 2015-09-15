@@ -435,6 +435,30 @@ class TestCacheManagerNew(object):
         with pytest.raises(TypeError):
             cm.get_hash()
 
+    def test_keys(self, cache_env):
+        # we can get all cache keys
+        cm = CacheManager(str(cache_env / "cache"))
+        src1 = str(cache_env / "work" / "src1.txt")
+        src2 = str(cache_env / "work" / "src2.txt")
+        result1 = str(cache_env / "work" / "result1.txt")
+        result2 = str(cache_env / "work" / "result2.txt")
+        key1 = cm.register_doc(src1, result1, 'foo')
+        assert list(cm.keys()) == ['737b337e605199de28b3b64c674f9422_1_1']
+        assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
+        key2 = cm.register_doc(src1, result2, 'bar')
+        assert sorted(list(cm.keys())) == [
+            '737b337e605199de28b3b64c674f9422_1_1',
+            '737b337e605199de28b3b64c674f9422_1_2',
+        ]
+        assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
+        key3 = cm.register_doc(src2, result1, 'baz')
+        assert sorted(list(cm.keys())) ==[
+            '737b337e605199de28b3b64c674f9422_1_1',
+            '737b337e605199de28b3b64c674f9422_1_2',
+            'd5aa51d7fb180729089d2de904f7dffe_1_1',
+        ]
+        assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
