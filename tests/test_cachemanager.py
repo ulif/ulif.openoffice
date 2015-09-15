@@ -405,6 +405,24 @@ class TestCacheManagerNew(object):
         assert key3 == my_id3
         return
 
+    def test_register_doc(self, cache_env):
+        # we can register docs
+        cm = CacheManager(str(cache_env / "cache"))
+        src1 = str(cache_env / "work" / "src1.txt")
+        src2 = str(cache_env / "work" / "src2.txt")
+        result1 = str(cache_env / "work" / "result1.txt")
+        result2 = str(cache_env / "work" / "result2.txt")
+        marker1 = cm.register_doc(src1, result1)
+        assert marker1 == '737b337e605199de28b3b64c674f9422_1_1'
+        marker2 = cm.register_doc(src1, result1)
+        assert marker2 == '737b337e605199de28b3b64c674f9422_1_1'
+        marker3 = cm.register_doc(src1, result2, repr_key="foo")
+        assert marker3 == '737b337e605199de28b3b64c674f9422_1_2'
+        marker4 = cm.register_doc(src2, result2, repr_key="foo")
+        assert marker4 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
+        marker5 = cm.register_doc(src2, result2, repr_key=StringIO("bar"))
+        assert marker5 == 'd5aa51d7fb180729089d2de904f7dffe_1_2'
+
 
 class TestCacheManager(CachingComponentsTestCase):
 
