@@ -238,7 +238,7 @@ class TestCacheBucket(object):
         assert sorted(list(bucket.keys())) == [key1, key2, key3]
 
 
-class TestCacheManagerNew(object):
+class TestCacheManager(object):
     # Tests for class `CacheManager`
 
     def test_markerhandling(self, tmpdir):
