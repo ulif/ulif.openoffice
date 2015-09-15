@@ -358,7 +358,7 @@ class TestCacheManagerNew(object):
 
     def test_get_cached_file_invalid_cache_key(self, tmpdir):
         # invalid/unused cache keys return `None` as cached file.
-        cm = CacheManager(str(cache_env))
+        cm = CacheManager(str(tmpdir))
         assert cm.get_cached_file("not-existing") is None
 
     def test_get_cached_file_by_src(self, cache_env):
