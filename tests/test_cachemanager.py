@@ -438,19 +438,6 @@ class TestCacheManagerNew(object):
 
 class TestCacheManager(CachingComponentsTestCase):
 
-    def test_get_hash(self):
-        cm = CacheManager(self.workdir)
-        hash1 = cm.get_hash(self.src_path1)
-        hash2 = cm.get_hash(self.src_path2)
-        src = os.path.join(  # a binary stream not convertible to utf-8
-            os.path.dirname(__file__), 'input', 'testdoc1.doc')
-        hash3 = cm.get_hash(src)
-        self.assertEqual(hash1, '737b337e605199de28b3b64c674f9422')
-        self.assertEqual(hash2, 'd5aa51d7fb180729089d2de904f7dffe')
-        self.assertEqual(hash3, '443a07e0e92b7dc6b21f8be6a388f05f')
-        self.assertRaises(TypeError, cm.get_hash)
-        return
-
     def test_keys(self):
         # we can get all cache keys
         cm = CacheManager(self.workdir)
