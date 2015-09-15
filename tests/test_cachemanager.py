@@ -63,7 +63,7 @@ class CachingComponentsTestCase(unittest.TestCase):
         shutil.rmtree(self.inputdir)
 
 
-class TestCacheBucke(object):
+class TestCacheBucket(object):
     # Tests for CacheBucket
 
     def test_init_creates_subdirs(self, tmpdir):
