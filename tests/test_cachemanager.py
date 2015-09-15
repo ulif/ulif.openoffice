@@ -459,36 +459,30 @@ class TestCacheManagerNew(object):
         ]
         assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
 
-
-class TestCacheManager(CachingComponentsTestCase):
-
-    def test_keys_custom_level(self):
-        # we can get all cache keys also with custom level set
-        cm = CacheManager(self.workdir, level=3)
-        key1 = cm.register_doc(self.src_path1, self.result_path1, 'foo')
-        self.assertEqual(
-            list(cm.keys()),
-            ['737b337e605199de28b3b64c674f9422_1_1']
-            )
+    def test_keys_custom_level(self, cache_env):
+        # we can get all cache keys, even if a custom cache level is set
+        # (and keys are stored in different location).
+        cm = CacheManager(str(cache_env / "cache"), level=3)
+        src1 = str(cache_env / "work" / "src1.txt")
+        src2 = str(cache_env / "work" / "src2.txt")
+        result1 = str(cache_env / "work" / "result1.txt")
+        result2 = str(cache_env / "work" / "result2.txt")
+        key1 = cm.register_doc(src1, result1, 'foo')
+        assert list(cm.keys()) == ['737b337e605199de28b3b64c674f9422_1_1']
         assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
-        key2 = cm.register_doc(self.src_path1, self.result_path2, 'bar')
-        self.assertEqual(
-            sorted(list(cm.keys())),
-            ['737b337e605199de28b3b64c674f9422_1_1',
-             '737b337e605199de28b3b64c674f9422_1_2',
-             ]
-            )
+        key2 = cm.register_doc(src1, result2, 'bar')
+        assert sorted(list(cm.keys())) == [
+            '737b337e605199de28b3b64c674f9422_1_1',
+            '737b337e605199de28b3b64c674f9422_1_2',
+        ]
         assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
-        key3 = cm.register_doc(self.src_path2, self.result_path1, 'baz')
-        self.assertEqual(
-            sorted(list(cm.keys())),
-            ['737b337e605199de28b3b64c674f9422_1_1',
-             '737b337e605199de28b3b64c674f9422_1_2',
-             'd5aa51d7fb180729089d2de904f7dffe_1_1',
-             ]
-            )
+        key3 = cm.register_doc(src2, result1, 'baz')
+        assert sorted(list(cm.keys())) ==[
+            '737b337e605199de28b3b64c674f9422_1_1',
+            '737b337e605199de28b3b64c674f9422_1_2',
+            'd5aa51d7fb180729089d2de904f7dffe_1_1',
+        ]
         assert key3 == 'd5aa51d7fb180729089d2de904f7dffe_1_1'
-        return
 
 
 class NotHashingCacheManager(CacheManager):
