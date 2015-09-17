@@ -496,63 +496,28 @@ class NotHashingCacheManager(CacheManager):
         return 'somefakedhash'
 
 
-class TestCollision(CachingComponentsTestCase):
+class TestCollision(object):
     # make sure hash collisions are handled correctly
-
-    def test_collisions(self):
-        cm = NotHashingCacheManager(cache_dir=self.workdir)
-        cm.register_doc(source_path=self.src_path1,
-                        to_cache=self.result_path1, repr_key='pdf')
-        cm.register_doc(source_path=self.src_path1,
-                        to_cache=self.result_path2, repr_key='html')
-        cm.register_doc(source_path=self.src_path2,
-                        to_cache=self.result_path3, repr_key='pdf')
-        cm.register_doc(source_path=self.src_path2,
-                        to_cache=self.result_path4, repr_key='html')
-        basket_path = os.path.join(self.workdir, 'so', 'somefakedhash')
-        self.assertEqual(
-            ['source_1', 'source_2'],
-            sorted(os.listdir(os.path.join(basket_path, 'sources'))))
-        self.assertEqual(
-            ['1', '2'],
-            sorted(os.listdir(os.path.join(basket_path, 'repr'))))
-
-        self.assertEqual(
-            ['1', '2'],
-            sorted(os.listdir(os.path.join(basket_path, 'repr', '1'))))
-        self.assertEqual(
-            ['1', '2'],
-            sorted(os.listdir(os.path.join(basket_path, 'repr', '2'))))
-
-        self.assertEqual(
-            ['resultfile1'],
-            sorted(os.listdir(os.path.join(basket_path, 'repr', '1', '1'))))
-        self.assertEqual(
-            ['resultfile2'],
-            sorted(os.listdir(os.path.join(basket_path, 'repr', '1', '2'))))
-
-        file_list = []
-        for root, dirnames, filenames in os.walk(
-                os.path.join(basket_path, 'repr')):
-            for filename in filenames:
-                file_list.append(os.path.join(root, filename))
-        file_list = sorted(file_list)
-        sfile_list = [x[len(basket_path) + 1:] for x in file_list]
-        self.assertEqual(
-            sfile_list,
-            ['repr/1/1/resultfile1', 'repr/1/2/resultfile2',
-             'repr/2/1/resultfile3', 'repr/2/2/resultfile4']
-            )
-
-        result_path = os.path.join(basket_path, sfile_list[0])
-        self.assertEqual('result1\n', open(result_path, 'r').read())
-
-        result_path = os.path.join(basket_path, sfile_list[1])
-        self.assertEqual('result2\n', open(result_path, 'r').read())
-
-        result_path = os.path.join(basket_path, sfile_list[2])
-        self.assertEqual('result3\n', open(result_path, 'r').read())
-
-        result_path = os.path.join(basket_path, sfile_list[3])
-        self.assertEqual('result4\n', open(result_path, 'r').read())
-        pass
+    def test_collisions(self, cache_env):
+        cm = NotHashingCacheManager(cache_dir=str(cache_env / "cache"))
+        src1 = str(cache_env / "work" / "src1.txt")
+        src2 = str(cache_env / "work" / "src2.txt")
+        result1 = str(cache_env / "work" / "result1.txt")
+        result2 = str(cache_env / "work" / "result2.txt")
+        result3 = str(cache_env / "work" / "result3.txt")
+        result4 = str(cache_env / "work" / "result4.txt")
+        cm.register_doc(src1, result1, repr_key="pdf")
+        cm.register_doc(src1, result2, repr_key="html")
+        cm.register_doc(src2, result3, repr_key="pdf")
+        cm.register_doc(src2, result4, repr_key="html")
+        basket_path = cache_env / "cache" / "so" / "somefakedhash"
+        assert ls(basket_path / "sources") == ["source_1", "source_2"]
+        assert ls(basket_path / "repr" / "1" / "1") == ["result1.txt"]
+        assert ls(basket_path / "repr" / "1" / "2") == ["result2.txt"]
+        assert ls(basket_path / "repr" / "2" / "1") == ["result3.txt"]
+        assert ls(basket_path / "repr" / "2" / "2") == ["result4.txt"]
+        repr_path = basket_path / "repr"
+        assert (repr_path / "1" / "1" / "result1.txt").read() == ("result1\n")
+        assert (repr_path / "1" / "2" / "result2.txt").read() == ("result2\n")
+        assert (repr_path / "2" / "1" / "result3.txt").read() == ("result3\n")
+        assert (repr_path / "2" / "2" / "result4.txt").read() == ("result4\n")
