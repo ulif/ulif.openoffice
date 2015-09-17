@@ -11,11 +11,6 @@ except ImportError:                 # pragma: no cover
 from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 
-def write_to_file(path, content):
-    with open(path, 'w') as fd:
-        fd.write(content)
-
-
 def ls(path):
     filenames = [x.basename for x in path.listdir()]
     return sorted(filenames)
