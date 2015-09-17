@@ -11,6 +11,17 @@ except ImportError:                 # pragma: no cover
 from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 
+@pytest.fixture(scope="function")
+def cache_env(request, tmpdir):
+    (tmpdir / "work" / "src1.txt").write("source1\n", ensure=True)
+    (tmpdir / "work" / "src2.txt").write("source2\n")
+    (tmpdir / "work" / "result1.txt").write("result1\n")
+    (tmpdir / "work" / "result2.txt").write("result2\n")
+    (tmpdir / "work" / "result3.txt").write("result3\n")
+    (tmpdir / "work" / "result4.txt").write("result4\n")
+    return tmpdir
+
+
 def ls(path):
     filenames = [x.basename for x in path.listdir()]
     return sorted(filenames)
@@ -28,17 +39,6 @@ class TestHelpers(object):
         assert result2 == 'W10'
         assert result3 == result4
         assert result2 != result3
-
-
-@pytest.fixture(scope="function")
-def cache_env(request, tmpdir):
-    (tmpdir / "work" / "src1.txt").write("source1\n", ensure=True)
-    (tmpdir / "work" / "src2.txt").write("source2\n")
-    (tmpdir / "work" / "result1.txt").write("result1\n")
-    (tmpdir / "work" / "result2.txt").write("result2\n")
-    (tmpdir / "work" / "result3.txt").write("result3\n")
-    (tmpdir / "work" / "result4.txt").write("result4\n")
-    return tmpdir
 
 
 class TestCacheBucket(object):
