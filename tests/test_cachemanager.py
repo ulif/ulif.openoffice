@@ -46,28 +46,6 @@ def cache_env(request, tmpdir):
     return tmpdir
 
 
-class CachingComponentsTestCase(unittest.TestCase):
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.inputdir = tempfile.mkdtemp()
-        self.src_path1 = os.path.join(self.inputdir, 'srcfile1')
-        self.src_path2 = os.path.join(self.inputdir, 'srcfile2')
-        self.result_path1 = os.path.join(self.inputdir, 'resultfile1')
-        self.result_path2 = os.path.join(self.inputdir, 'resultfile2')
-        self.result_path3 = os.path.join(self.inputdir, 'resultfile3')
-        self.result_path4 = os.path.join(self.inputdir, 'resultfile4')
-        write_to_file(self.src_path1, 'source1\n')
-        write_to_file(self.src_path2, 'source2\n')
-        write_to_file(self.result_path1, 'result1\n')
-        write_to_file(self.result_path2, 'result2\n')
-        write_to_file(self.result_path3, 'result3\n')
-        write_to_file(self.result_path4, 'result4\n')
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        shutil.rmtree(self.inputdir)
-
-
 class TestCacheBucket(object):
     # Tests for CacheBucket
 
