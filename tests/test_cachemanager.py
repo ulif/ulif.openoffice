@@ -22,11 +22,6 @@ def cache_env(request, tmpdir):
     return tmpdir
 
 
-def ls(path):
-    filenames = [x.basename for x in path.listdir()]
-    return sorted(filenames)
-
-
 class TestHelpers(object):
 
     def test_get_marker(self):
