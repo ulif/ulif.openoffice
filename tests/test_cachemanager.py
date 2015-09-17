@@ -484,11 +484,8 @@ class TestCollision(object):
         cm.register_doc(src2, result3, repr_key="pdf")
         cm.register_doc(src2, result4, repr_key="html")
         basket_path = cache_env / "cache" / "so" / "somefakedhash"
-        assert ls(basket_path / "sources") == ["source_1", "source_2"]
-        assert ls(basket_path / "repr" / "1" / "1") == ["result1.txt"]
-        assert ls(basket_path / "repr" / "1" / "2") == ["result2.txt"]
-        assert ls(basket_path / "repr" / "2" / "1") == ["result3.txt"]
-        assert ls(basket_path / "repr" / "2" / "2") == ["result4.txt"]
+        assert (basket_path / "sources" / "source_1").isfile()
+        assert (basket_path / "sources" / "source_2").isfile()
         repr_path = basket_path / "repr"
         assert (repr_path / "1" / "1" / "result1.txt").read() == ("result1\n")
         assert (repr_path / "1" / "2" / "result2.txt").read() == ("result2\n")
