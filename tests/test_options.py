@@ -70,8 +70,8 @@ class TestExceptionalArgumentParser(object):
             parser.parse_args(['-x', '1'])
 
 
-class OptionsTests(unittest.TestCase):
-    # tests for ulif.openoffice Options
+class TestOptions(object):
+    # tests for ulif.openoffice Options class
     def test_avail_procs(self):
         # Options provide a list of available processor opts
         opts = Options()
