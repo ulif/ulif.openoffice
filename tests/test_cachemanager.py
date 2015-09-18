@@ -423,7 +423,7 @@ class TestCacheManager(object):
         ]
         assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
         key3 = cm.register_doc(src2, result1, 'baz')
-        assert sorted(list(cm.keys())) ==[
+        assert sorted(list(cm.keys())) == [
             '737b337e605199de28b3b64c674f9422_1_1',
             '737b337e605199de28b3b64c674f9422_1_2',
             'd5aa51d7fb180729089d2de904f7dffe_1_1',
@@ -448,7 +448,7 @@ class TestCacheManager(object):
         ]
         assert key2 == '737b337e605199de28b3b64c674f9422_1_2'
         key3 = cm.register_doc(src2, result1, 'baz')
-        assert sorted(list(cm.keys())) ==[
+        assert sorted(list(cm.keys())) == [
             '737b337e605199de28b3b64c674f9422_1_1',
             '737b337e605199de28b3b64c674f9422_1_2',
             'd5aa51d7fb180729089d2de904f7dffe_1_1',
