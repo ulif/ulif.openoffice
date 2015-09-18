@@ -1,5 +1,6 @@
 # tests for options module
 import argparse
+import pytest
 import unittest
 from ulif.openoffice.helpers import string_to_stringtuple
 from ulif.openoffice.options import (
@@ -21,8 +22,8 @@ class TestHelpers(object):
             {'y': '2', 'x': '1'}) == ('-x', '1', '-y', '2')
 
 
-class ArgumentTests(unittest.TestCase):
-    # tests for ulif.openoffice Argument
+class TestArgument(object):
+    # tests for ulif.openoffice Argument class
     def test_regular(self):
         # normally we pass in args and keywords
         arg = Argument(
@@ -34,11 +35,11 @@ class ArgumentTests(unittest.TestCase):
     def test_wrong_option_name_format(self):
         # we check format of options. They must start with dashes.
         # short name must have format '-XXX'
-        self.assertRaises(
-            ValueError, Argument, 'opt-name-wo-dash')
+        with pytest.raises(ValueError):
+            Argument('opt-name-wo-dash')
         # long name must have format '--XXX'
-        self.assertRaises(  # missing dash in long name
-            ValueError, Argument, '-myproc-opt1', '-myproc-option1')
+        with pytest.raises(ValueError):
+            Argument('-myproc-opt1', '-myproc-option1')
 
     def test_default_string(self):
         # we can get the defaults as string
