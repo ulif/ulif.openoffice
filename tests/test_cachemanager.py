@@ -2,8 +2,6 @@ import filecmp
 import os
 import pytest
 import shutil
-import tempfile
-import unittest
 try:
     from cStringIO import StringIO  # Python 2.x
 except ImportError:                 # pragma: no cover
@@ -240,7 +238,7 @@ class TestCacheManager(object):
         # a cache dir is created if neccessary
         cache_dir = tmpdir / "cache"
         assert cache_dir.exists() is False
-        cm = CacheManager(str(cache_dir))
+        CacheManager(str(cache_dir))
         assert cache_dir.isdir() is True
 
     def test_init_fails_loudly(self, tmpdir):
