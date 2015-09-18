@@ -57,12 +57,6 @@ class FileIteratorTests(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_empty_file(self):
-        with open(self.path, 'wb') as fd:
-            fd.write(b'')
-        fi = FileIterator(self.path, None, None)
-        self.assertRaises(StopIteration, next, iter(fi))
-
     def test_start(self):
         fi = FileIterator(self.path, 4, None)
         self.assertEqual(b'456789', next(fi))
