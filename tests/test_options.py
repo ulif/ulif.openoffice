@@ -57,7 +57,7 @@ class TestArgument(object):
             '-my-opt1', None).default_string == 'None'
 
 
-class ExceptionalArgumentParserTests(unittest.TestCase):
+class TestExceptionalArgumentParser(object):
     # tests for ExceptionalArgumentParser
     def test_is_argument_parser(self):
         parser = ExceptionalArgumentParser()
@@ -66,8 +66,8 @@ class ExceptionalArgumentParserTests(unittest.TestCase):
     def test_throws_gentle_exc(self):
         # ExceptionalArgumntParsers do not sys.exit
         parser = ExceptionalArgumentParser()
-        self.assertRaises(
-            ArgumentParserError, parser.parse_args, ['-x', '1'])
+        with pytest.raises(ArgumentParserError):
+            parser.parse_args(['-x', '1'])
 
 
 class OptionsTests(unittest.TestCase):
