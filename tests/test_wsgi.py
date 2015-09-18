@@ -37,6 +37,15 @@ class TestGetMimetype(object):
         assert get_mimetype('unknown.type') == 'application/octet-stream'
 
 
+class TestFileIterator(object):
+
+    def test_empty_file(self, tmpdir):
+        tmpdir.join("iter.test").write("")
+        fi = FileIterator(str(tmpdir / "iter.test"), None, None)
+        with pytest.raises(StopIteration):
+            next(iter(fi))
+
+
 class FileIteratorTests(unittest.TestCase):
 
     def setUp(self):
