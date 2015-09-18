@@ -16,32 +16,25 @@ from ulif.openoffice.wsgi import (
 pytestmark = pytest.mark.wsgi
 
 
-class GetMimetypeTests(unittest.TestCase):
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-
+class TestGetMimetype(object):
+    # tests for get_mimetype()
     def test_nofilename(self):
-        self.assertEqual(get_mimetype(None), 'application/octet-stream')
+        assert get_mimetype(None) == 'application/octet-stream'
 
     def test_nofile(self):
-        self.assertEqual(
-            get_mimetype('not-a-file'), 'application/octet-stream')
+        assert get_mimetype('not-a-file') == 'application/octet-stream'
 
     def test_txtfile(self):
-        self.assertEqual(get_mimetype('file.txt'), 'text/plain')
+        assert get_mimetype('file.txt') == 'text/plain'
 
     def test_jpgfile(self):
-        self.assertEqual(get_mimetype('file.jpg'), 'image/jpeg')
+        assert get_mimetype('file.jpg') == 'image/jpeg'
 
     def test_zipfile(self):
-        self.assertEqual(get_mimetype('file.zip'), 'application/zip')
+        assert get_mimetype('file.zip') == 'application/zip'
 
     def test_unknownfile(self):
-        self.assertEqual(
-            get_mimetype('unknown.type'), 'application/octet-stream')
+        assert get_mimetype('unknown.type') == 'application/octet-stream'
 
 
 class FileIteratorTests(unittest.TestCase):
