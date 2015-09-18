@@ -1,7 +1,6 @@
 # tests for options module
 import argparse
 import pytest
-import unittest
 from ulif.openoffice.helpers import string_to_stringtuple
 from ulif.openoffice.options import (
     dict_to_argtuple, Argument, ArgumentParserError,
