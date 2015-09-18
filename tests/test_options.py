@@ -11,7 +11,7 @@ from ulif.openoffice.processor import DEFAULT_PROCORDER
 DEFAULT_PROCORDER = string_to_stringtuple(DEFAULT_PROCORDER)
 
 
-class HelperTests(unittest.TestCase):
+class TestHelpers(object):
     # tests for option helpers
     def test_dict_to_argtuple(self):
         # we can turn dicts into lists of arguments
