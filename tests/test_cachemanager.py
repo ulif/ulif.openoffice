@@ -13,12 +13,12 @@ from ulif.openoffice.cachemanager import Bucket, CacheManager, get_marker
 
 @pytest.fixture(scope="function")
 def cache_env(request, tmpdir):
-    (tmpdir / "work" / "src1.txt").write("source1\n", ensure=True)
-    (tmpdir / "work" / "src2.txt").write("source2\n")
-    (tmpdir / "work" / "result1.txt").write("result1\n")
-    (tmpdir / "work" / "result2.txt").write("result2\n")
-    (tmpdir / "work" / "result3.txt").write("result3\n")
-    (tmpdir / "work" / "result4.txt").write("result4\n")
+    (tmpdir / "src1.txt").write("source1\n", ensure=True)
+    (tmpdir / "src2.txt").write("source2\n")
+    (tmpdir / "result1.txt").write("result1\n")
+    (tmpdir / "result2.txt").write("result2\n")
+    (tmpdir / "result3.txt").write("result3\n")
+    (tmpdir / "result4.txt").write("result4\n")
     return tmpdir
 
 
@@ -84,8 +84,8 @@ class TestCacheBucket(object):
     def test_get_stored_source_num(self, cache_env):
         # we can test whether a source file is stored in a bucket already.
         bucket = Bucket(str(cache_env.join("cache")))
-        src1 = cache_env / "work" / "src1.txt"
-        src2 = cache_env / "work" / "src2.txt"
+        src1 = cache_env / "src1.txt"
+        src2 = cache_env / "src2.txt"
         assert bucket.get_stored_source_num(str(src1)) is None
         assert bucket.get_stored_source_num(str(src2)) is None
         shutil.copyfile(str(src1), os.path.join(bucket.srcdir, "source_1"))
@@ -126,8 +126,8 @@ class TestCacheBucket(object):
         # we can store sources with their representations
         bucket = Bucket(str(cache_env.join("cache")))
         res = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"))
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"))
         source_path = cache_env / "cache" / "sources" / "source_1"
         result_path = cache_env / "cache" / "repr" / "1" / "1" / "result1.txt"
         assert res == "1_1"
@@ -143,8 +143,8 @@ class TestCacheBucket(object):
         #  we can store sources with their representations and a string key
         bucket = Bucket(str(cache_env.join("cache")))
         res = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"), repr_key="somekey")
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"), repr_key="somekey")
         assert res == "1_1"
         assert (
             cache_env / "cache" / "keys" / "1" / "1.key").read() == 'somekey'
@@ -154,8 +154,8 @@ class TestCacheBucket(object):
         #  stored in a file.
         bucket = Bucket(str(cache_env.join("cache")))
         res = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"),
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"),
             repr_key=StringIO("somekey"))
         assert res == "1_1"
         assert (
@@ -166,11 +166,11 @@ class TestCacheBucket(object):
         # and key, the old representation will be replaced.
         bucket = Bucket(str(cache_env / "cache"))
         res1 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"), repr_key='mykey')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"), repr_key='mykey')
         res2 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result2.txt"), repr_key='mykey')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result2.txt"), repr_key='mykey')
         assert res1 == "1_1"
         assert res2 == "1_1"
         result_dir = cache_env / "cache" / "repr" / "1" / "1"
@@ -187,8 +187,8 @@ class TestCacheBucket(object):
         # we can get paths of representations
         bucket = Bucket(str(cache_env.join("cache")))
         res1 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"), repr_key=b'mykey')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"), repr_key=b'mykey')
         res2 = bucket.get_representation(res1)
         assert res1 == "1_1"
         assert res2 == cache_env / "cache" / "repr" / "1" / "1" / "result1.txt"
@@ -198,16 +198,16 @@ class TestCacheBucket(object):
         bucket = Bucket(str(cache_env))
         assert list(bucket.keys()) == []
         key1 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"), repr_key='foo')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"), repr_key='foo')
         assert list(bucket.keys()) == [key1, ]
         key2 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result2.txt"), repr_key='bar')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result2.txt"), repr_key='bar')
         assert sorted(list(bucket.keys())) == [key1, key2]
         key3 = bucket.store_representation(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result3.txt"), repr_key='baz')
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result3.txt"), repr_key='baz')
         assert sorted(list(bucket.keys())) == [key1, key2, key3]
 
 
@@ -291,43 +291,43 @@ class TestCacheManager(object):
     def test_get_cached_file_empty(self, cache_env):
         # while cache is empty we get `None` when asking for cached files.
         cm = CacheManager(str(cache_env / "cache"))
-        path = cm.get_cached_file(str(cache_env / "work" / "src1.txt"))
+        path = cm.get_cached_file(str(cache_env / "src1.txt"))
         assert path is None
 
     def test_get_cached_file(self, cache_env):
         # we can get a file cached before.
         cm = CacheManager(str(cache_env / "cache"))
         cache_key = cm.register_doc(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"))
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"))
         path = cm.get_cached_file(cache_key)
         assert path is not None
         assert open(path, 'r').read() == (
-            cache_env / "work" / "result1.txt").read()
+            cache_env / "result1.txt").read()
 
     def test_get_cached_file_w_key(self, cache_env):
         # we can get a cached file, stored under a key
         cm = CacheManager(str(cache_env / "cache"))
         cache_key = cm.register_doc(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"),
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"),
             repr_key='foo')
         path = cm.get_cached_file(cache_key)
         assert path is not None
         assert open(path, 'r').read() == (
-            cache_env / "work" / "result1.txt").read()
+            cache_env / "result1.txt").read()
 
     def test_get_cached_file_w_key_from_file(self, cache_env):
         # we can get a cached file, stored under a key, which is a file
         cm = CacheManager(str(cache_env / "cache"))
         cache_key = cm.register_doc(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"),
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"),
             repr_key=StringIO('foo'))
         path = cm.get_cached_file(cache_key)
         assert path is not None
         assert open(path, 'r').read() == (
-            cache_env / "work" / "result1.txt").read()
+            cache_env / "result1.txt").read()
 
     def test_get_cached_file_invalid_cache_key(self, tmpdir):
         # invalid/unused cache keys return `None` as cached file.
@@ -339,12 +339,12 @@ class TestCacheManager(object):
         cm = CacheManager(str(cache_env / "cache"))
         # without a cache key
         my_id = cm.register_doc(
-            str(cache_env / "work" / "src1.txt"),
-            str(cache_env / "work" / "result1.txt"))
+            str(cache_env / "src1.txt"),
+            str(cache_env / "result1.txt"))
         path, key = cm.get_cached_file_by_source(
-            str(cache_env / "work" / "src1.txt"))
+            str(cache_env / "src1.txt"))
         assert open(path, "r").read() == (
-            cache_env / "work" / "result1.txt").read()
+            cache_env / "result1.txt").read()
         assert key == '737b337e605199de28b3b64c674f9422_1_1'
         assert my_id == key
 
@@ -352,15 +352,15 @@ class TestCacheManager(object):
         # uncached files result in `None` as result
         cm = CacheManager(str(cache_env))
         result, key = cm.get_cached_file_by_source(
-            str(cache_env / "work" / "src1.txt"))
+            str(cache_env / "src1.txt"))
         assert result is None
         assert key is None
 
     def test_get_cached_file_by_src_w_key(self, cache_env):
         cm = CacheManager(str(cache_env / "cache"))
-        src = cache_env / "work" / "src1.txt"
-        result1 = cache_env / "work" / "result1.txt"
-        result2 = cache_env / "work" / "result2.txt"
+        src = cache_env / "src1.txt"
+        result1 = cache_env / "result1.txt"
+        result2 = cache_env / "result2.txt"
         my_id1 = cm.register_doc(str(src), str(result1), 'mykey')
         path1, key1 = cm.get_cached_file_by_source(str(src), 'mykey')
         assert filecmp.cmp(path1, str(result1), shallow=False)
@@ -381,10 +381,10 @@ class TestCacheManager(object):
     def test_register_doc(self, cache_env):
         # we can register docs
         cm = CacheManager(str(cache_env / "cache"))
-        src1 = str(cache_env / "work" / "src1.txt")
-        src2 = str(cache_env / "work" / "src2.txt")
-        result1 = str(cache_env / "work" / "result1.txt")
-        result2 = str(cache_env / "work" / "result2.txt")
+        src1 = str(cache_env / "src1.txt")
+        src2 = str(cache_env / "src2.txt")
+        result1 = str(cache_env / "result1.txt")
+        result2 = str(cache_env / "result2.txt")
         marker1 = cm.register_doc(src1, result1)
         assert marker1 == '737b337e605199de28b3b64c674f9422_1_1'
         marker2 = cm.register_doc(src1, result1)
@@ -399,8 +399,8 @@ class TestCacheManager(object):
     def test_get_hash(self, cache_env, samples_path):
         # we can compute a hash for a source file.
         cm = CacheManager(str(cache_env))
-        hash1 = cm.get_hash(str(cache_env / "work" / "src1.txt"))
-        hash2 = cm.get_hash(str(cache_env / "work" / "src2.txt"))
+        hash1 = cm.get_hash(str(cache_env / "src1.txt"))
+        hash2 = cm.get_hash(str(cache_env / "src2.txt"))
         hash3 = cm.get_hash(str(samples_path / "testdoc1.doc"))
         assert hash1 == '737b337e605199de28b3b64c674f9422'
         assert hash2 == 'd5aa51d7fb180729089d2de904f7dffe'
@@ -411,10 +411,10 @@ class TestCacheManager(object):
     def test_keys(self, cache_env):
         # we can get all cache keys
         cm = CacheManager(str(cache_env / "cache"))
-        src1 = str(cache_env / "work" / "src1.txt")
-        src2 = str(cache_env / "work" / "src2.txt")
-        result1 = str(cache_env / "work" / "result1.txt")
-        result2 = str(cache_env / "work" / "result2.txt")
+        src1 = str(cache_env / "src1.txt")
+        src2 = str(cache_env / "src2.txt")
+        result1 = str(cache_env / "result1.txt")
+        result2 = str(cache_env / "result2.txt")
         key1 = cm.register_doc(src1, result1, 'foo')
         assert list(cm.keys()) == ['737b337e605199de28b3b64c674f9422_1_1']
         assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
@@ -436,10 +436,10 @@ class TestCacheManager(object):
         # we can get all cache keys, even if a custom cache level is set
         # (and keys are stored in different location).
         cm = CacheManager(str(cache_env / "cache"), level=3)
-        src1 = str(cache_env / "work" / "src1.txt")
-        src2 = str(cache_env / "work" / "src2.txt")
-        result1 = str(cache_env / "work" / "result1.txt")
-        result2 = str(cache_env / "work" / "result2.txt")
+        src1 = str(cache_env / "src1.txt")
+        src2 = str(cache_env / "src2.txt")
+        result1 = str(cache_env / "result1.txt")
+        result2 = str(cache_env / "result2.txt")
         key1 = cm.register_doc(src1, result1, 'foo')
         assert list(cm.keys()) == ['737b337e605199de28b3b64c674f9422_1_1']
         assert key1 == '737b337e605199de28b3b64c674f9422_1_1'
@@ -468,12 +468,12 @@ class TestCollision(object):
     # make sure hash collisions are handled correctly
     def test_collisions(self, cache_env):
         cm = NotHashingCacheManager(cache_dir=str(cache_env / "cache"))
-        src1 = str(cache_env / "work" / "src1.txt")
-        src2 = str(cache_env / "work" / "src2.txt")
-        result1 = str(cache_env / "work" / "result1.txt")
-        result2 = str(cache_env / "work" / "result2.txt")
-        result3 = str(cache_env / "work" / "result3.txt")
-        result4 = str(cache_env / "work" / "result4.txt")
+        src1 = str(cache_env / "src1.txt")
+        src2 = str(cache_env / "src2.txt")
+        result1 = str(cache_env / "result1.txt")
+        result2 = str(cache_env / "result2.txt")
+        result3 = str(cache_env / "result3.txt")
+        result4 = str(cache_env / "result4.txt")
         cm.register_doc(src1, result1, repr_key="pdf")
         cm.register_doc(src1, result2, repr_key="html")
         cm.register_doc(src2, result3, repr_key="pdf")
