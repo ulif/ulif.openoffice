@@ -88,32 +88,23 @@ class TestMakeHtaccess(object):
                   None, {}, 'Sample Realm', htaccess_path, 'invalid-auth')
 
 
-class TestHtaccessHandler(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.htaccess_path = os.path.join(self.workdir, 'sample')
-        with open(self.htaccess_path, 'w') as fd:
-            fd.write(PASSWDS)
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
+class TestHtaccessHandler(object):
 
     def simple_app(self, environ, start_response):
         start_response("200 OK", [("Content-type", "text/plain")])
         return ["Hello World!", ]
 
-    def test_simple_request(self):
+    def test_simple_request(self, htaccess_path):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path)
+            self.simple_app, 'Sample Realm', htaccess_path)
         req = Request.blank('/')
         status, headers, body = req.call_application(middleware_app)
         assert status == '401 Unauthorized'
         assert ('WWW-Authenticate', 'Basic realm="Sample Realm"') in headers
 
-    def test_send_valid_credentials(self):
+    def test_send_valid_credentials(self, htaccess_path):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
+            self.simple_app, 'Sample Realm', htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Basic %s' % (
             b64encode(b'miles:sowhat').decode('utf-8'))
@@ -121,27 +112,27 @@ class TestHtaccessHandler(unittest.TestCase):
         assert status == '200 OK'
         assert body == ['Hello World!']
 
-    def test_send_invalid_credentials(self):
+    def test_send_invalid_credentials(self, htaccess_path):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
+            self.simple_app, 'Sample Realm', htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Basic %s' % (
             b64encode(b'miles:waltz').decode('utf-8'))
         status, headers, body = req.call_application(middleware_app)
         assert status == '401 Unauthorized'
 
-    def test_non_basic_auth_request(self):
+    def test_non_basic_auth_request(self, htaccess_path):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
+            self.simple_app, 'Sample Realm', htaccess_path, 'plain')
         req = Request.blank('/')
         req.headers['Authorization'] = 'Digest %s' % (
             b64encode(b'miles:waltz').decode('utf-8'))
         status, headers, body = req.call_application(middleware_app)
         assert status == '401 Unauthorized'
 
-    def test_remote_user_set(self):
+    def test_remote_user_set(self, htaccess_path):
         middleware_app = HtaccessHandler(
-            self.simple_app, 'Sample Realm', self.htaccess_path, 'plain')
+            self.simple_app, 'Sample Realm', htaccess_path, 'plain')
         req = Request.blank('/')
         req.remote_user = 'miles'
         status, headers, body = req.call_application(middleware_app)
