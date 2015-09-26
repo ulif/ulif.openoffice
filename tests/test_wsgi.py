@@ -51,6 +51,12 @@ class TestFileIterator(object):
         with pytest.raises(StopIteration):
             next(iter(fi))
 
+    def test_start(self, iter_path):
+        fi = FileIterator(iter_path, 4, None)
+        assert b'456789' == next(fi)
+        with pytest.raises(StopIteration):
+            next(fi)
+
 
 class FileIteratorTests(unittest.TestCase):
 
@@ -62,11 +68,6 @@ class FileIteratorTests(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
-
-    def test_start(self):
-        fi = FileIterator(self.path, 4, None)
-        self.assertEqual(b'456789', next(fi))
-        self.assertRaises(StopIteration, next, fi)
 
     def test_stop(self):
         fi = FileIterator(self.path, 0, 4)
