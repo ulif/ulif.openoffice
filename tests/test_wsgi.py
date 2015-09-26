@@ -37,6 +37,12 @@ class TestGetMimetype(object):
         assert get_mimetype('unknown.type') == 'application/octet-stream'
 
 
+@pytest.fixture(scope="function")
+def iter_path(tmpdir):
+    tmpdir.join("iter.test").write(b"0123456789")
+    return str(tmpdir.join("iter.test"))
+
+
 class TestFileIterator(object):
 
     def test_empty_file(self, tmpdir):
