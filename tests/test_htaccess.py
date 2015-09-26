@@ -17,11 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 # Tests for htaccess module
-import os
 import pytest
-import shutil
-import tempfile
-import unittest
 from base64 import b64encode
 from webob import Request
 from ulif.openoffice.htaccess import (
