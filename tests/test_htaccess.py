@@ -18,8 +18,8 @@
 #
 # Tests for htaccess module
 import os
-import tempfile
 import shutil
+import tempfile
 import unittest
 from base64 import b64encode
 from webob import Request
