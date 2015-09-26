@@ -71,31 +71,21 @@ class TestCheckCredentials(object):
             'justin', 'pet', htaccess_path)
 
 
-class TestMakeHtaccess(unittest.TestCase):
+class TestMakeHtaccess(object):
 
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.htaccess_path = os.path.join(self.workdir, 'sample')
-        with open(self.htaccess_path, 'w') as fd:
-            fd.write(PASSWDS)
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-
-    def test_valid_values(self):
+    def test_valid_values(self, htaccess_path):
         handler = make_htaccess(
-            None, {}, 'Sample Realm', self.htaccess_path)
+            None, {}, 'Sample Realm', htaccess_path)
         assert isinstance(handler, HtaccessHandler)
 
     def test_illegal_path(self):
-        self.assertRaises(
-            AssertionError, make_htaccess,
-            None, {}, 'Sample Realm', 'not-existent-path')
+        with pytest.raises(AssertionError):
+            make_htaccess(None, {}, 'Sample Realm', 'not-existent-path')
 
-    def test_invalid_auth_type(self):
-        self.assertRaises(
-            ValueError, make_htaccess,
-            None, {}, 'Sample Realm', self.htaccess_path, 'invalid-auth')
+    def test_invalid_auth_type(self, htaccess_path):
+        with pytest.raises(ValueError):
+            make_htaccess(
+                  None, {}, 'Sample Realm', htaccess_path, 'invalid-auth')
 
 
 class TestHtaccessHandler(unittest.TestCase):
