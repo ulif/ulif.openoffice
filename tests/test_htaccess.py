@@ -18,6 +18,7 @@
 #
 # Tests for htaccess module
 import os
+import pytest
 import shutil
 import tempfile
 import unittest
@@ -35,42 +36,39 @@ PASSWDS = (
     "dizzy:{SHA}OjFPntyTrohnUIE45vd2abKu7/w=\n")
 
 
-class CheckCredentialsTests(unittest.TestCase):
+@pytest.fixture(scope="function")
+def htaccess_path(tmpdir):
+    tmpdir.join("sample").write(PASSWDS)
+    return str(tmpdir.join("sample"))
 
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.htaccess_path = os.path.join(self.workdir, 'sample')
-        with open(self.htaccess_path, 'w') as fd:
-            fd.write(PASSWDS)
 
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
+class TestCheckCredentials(object):
 
     def test_invalid_htaccess(self):
         assert False == check_credentials('foo', 'bar', 'invalid-path')
 
-    def test_crypt(self):
+    def test_crypt(self, htaccess_path):
         assert True == check_credentials(
-            'ornette', 'wayout', self.htaccess_path, 'crypt')
+            'ornette', 'wayout', htaccess_path, 'crypt')
         assert False == check_credentials(
-            'ornette', 'waltz', self.htaccess_path, 'crypt')
+            'ornette', 'waltz', htaccess_path, 'crypt')
 
-    def test_plain(self):
+    def test_plain(self, htaccess_path):
         assert True == check_credentials(
-            'miles', 'sowhat', self.htaccess_path, 'plain')
+            'miles', 'sowhat', htaccess_path, 'plain')
         assert False == check_credentials(
-            'miles', 'polka', self.htaccess_path, 'plain')
+            'miles', 'polka', htaccess_path, 'plain')
 
-    def test_sha1(self):
+    def test_sha1(self, htaccess_path):
         assert True == check_credentials(
-            'dizzy', 'nightintunesia', self.htaccess_path, 'sha1')
+            'dizzy', 'nightintunesia', htaccess_path, 'sha1')
         assert False == check_credentials(
-            'dizzy', 'swing', self.htaccess_path, 'sha1')
+            'dizzy', 'swing', htaccess_path, 'sha1')
 
-    def test_invalid_user(self):
+    def test_invalid_user(self, htaccess_path):
         # non existent users can't authenticate
         assert False == check_credentials(
-            'justin', 'pet', self.htaccess_path)
+            'justin', 'pet', htaccess_path)
 
 
 class TestMakeHtaccess(unittest.TestCase):
