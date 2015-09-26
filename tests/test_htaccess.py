@@ -81,7 +81,7 @@ class TestMakeHtaccess(object):
     def test_invalid_auth_type(self, htaccess_path):
         with pytest.raises(ValueError):
             make_htaccess(
-                  None, {}, 'Sample Realm', htaccess_path, 'invalid-auth')
+                None, {}, 'Sample Realm', htaccess_path, 'invalid-auth')
 
 
 class TestHtaccessHandler(object):
