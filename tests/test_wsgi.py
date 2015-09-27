@@ -90,18 +90,6 @@ class TestFileIterator(object):
             next(fi)
 
 
-class FileIteratorTests(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.path = os.path.join(self.workdir, 'iter.test')
-        with open(self.path, 'wb') as fd:
-            fd.write(b'0123456789')  # prepopulate
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-
-
 class FileIterableTests(unittest.TestCase):
 
     def setUp(self):
