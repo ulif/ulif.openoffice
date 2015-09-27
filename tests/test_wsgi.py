@@ -14,6 +14,7 @@ from ulif.openoffice.wsgi import (
 
 pytestmark = pytest.mark.wsgi
 
+
 @pytest.fixture(scope="function")
 def iter_path(tmpdir):
     tmpdir.join("iter.test").write(b"0123456789")
