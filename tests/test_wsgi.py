@@ -91,15 +91,6 @@ class FileIteratorTests(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_multiple_reads(self):
-        block = b'x' * FileIterator.chunk_size
-        with open(self.path, 'wb') as fd:
-            fd.write(2 * block)
-        fi = FileIterator(self.path)
-        self.assertEqual(block, next(fi))
-        self.assertEqual(block, next(fi))
-        self.assertRaises(StopIteration, next, fi)
-
     def test_start_bigger_than_end(self):
         fi = FileIterator(self.path, 2, 1)
         self.assertRaises(StopIteration, next, fi)
