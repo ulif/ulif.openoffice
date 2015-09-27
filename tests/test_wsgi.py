@@ -69,6 +69,16 @@ class TestFileIterator(object):
         with pytest.raises(StopIteration):
             next(fi)
 
+    def test_multiple_reads(self, iter_path):
+        block = b'x' * FileIterator.chunk_size
+        with open(iter_path, 'wb') as fd:
+            fd.write(2 * block)
+        fi = FileIterator(iter_path)
+        assert block == next(fi)
+        assert block == next(fi)
+        with pytest.raises(StopIteration):
+            next(fi)
+
 
 class FileIteratorTests(unittest.TestCase):
 
