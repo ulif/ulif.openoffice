@@ -16,6 +16,12 @@ from ulif.openoffice.wsgi import (
 pytestmark = pytest.mark.wsgi
 
 
+@pytest.fixture(scope="function")
+def iter_path(tmpdir):
+    tmpdir.join("iter.test").write(b"0123456789")
+    return str(tmpdir.join("iter.test"))
+
+
 class TestGetMimetype(object):
     # tests for get_mimetype()
     def test_nofilename(self):
@@ -35,12 +41,6 @@ class TestGetMimetype(object):
 
     def test_unknownfile(self):
         assert get_mimetype('unknown.type') == 'application/octet-stream'
-
-
-@pytest.fixture(scope="function")
-def iter_path(tmpdir):
-    tmpdir.join("iter.test").write(b"0123456789")
-    return str(tmpdir.join("iter.test"))
 
 
 class TestFileIterator(object):
