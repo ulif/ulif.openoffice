@@ -79,6 +79,11 @@ class TestFileIterator(object):
         with pytest.raises(StopIteration):
             next(fi)
 
+    def test_start_bigger_than_end(self, iter_path):
+        fi = FileIterator(iter_path, 2, 1)
+        with pytest.raises(StopIteration):
+            next(fi)
+
 
 class FileIteratorTests(unittest.TestCase):
 
@@ -90,10 +95,6 @@ class FileIteratorTests(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
-
-    def test_start_bigger_than_end(self):
-        fi = FileIterator(self.path, 2, 1)
-        self.assertRaises(StopIteration, next, fi)
 
     def test_end_is_zero(self):
         fi = FileIterator(self.path, 0, 0)
