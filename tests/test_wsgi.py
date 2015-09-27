@@ -90,22 +90,12 @@ class TestFileIterator(object):
             next(fi)
 
 
-class FileIterableTests(unittest.TestCase):
+class TestFileIterable(object):
 
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.path = os.path.join(self.workdir, 'myfile.doc')
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-
-    def test_range(self):
-        # we can get a range
-        with open(self.path, 'wb') as fd:
-            fd.write(b'0123456789')
-        fi = FileIterable(self.path)
-        self.assertEqual([b'234'], list(fi.app_iter_range(2, 5)))
-        self.assertEqual([b'67'], list(fi.app_iter_range(6, 8)))
+    def test_range(self, iter_path):
+        fi = FileIterable(iter_path)
+        assert [b'234'] == list(fi.app_iter_range(2, 5))
+        assert [b'67'] == list(fi.app_iter_range(6, 8))
 
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
