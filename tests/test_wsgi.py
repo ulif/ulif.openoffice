@@ -106,6 +106,15 @@ class TestDocConverterFunctional(object):
         resp = app(req)
         assert resp.status == "404 Not Found"
 
+    def test_restful_doc_converter_simple_get(self):
+        # RESTful sample app handles simple GET
+        app = RESTfulDocConverter()
+        req = Request.blank('http://localhost/docs')
+        resp = app(req)
+        req = Request.blank('http://localhost/docs')
+        resp = app(req)
+        assert resp.status == "200 OK"
+
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
 
