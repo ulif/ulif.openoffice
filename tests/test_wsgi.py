@@ -115,6 +115,13 @@ class TestDocConverterFunctional(object):
         resp = app(req)
         assert resp.status == "200 OK"
 
+    def test_paste_deploy_loader(self, docconv_env):
+        # we can find the docconverter via paste.deploy plugin
+        app = loadapp('config:%s' % (docconv_env / "sample1.ini"))
+        assert isinstance(app, RESTfulDocConverter)
+        assert app.cache_dir is None
+
+
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
     paste_conf = open(os.path.join(
