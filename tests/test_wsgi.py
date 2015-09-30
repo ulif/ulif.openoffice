@@ -148,13 +148,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_paste_deploy_loader(self):
-        # we can find the docconverter via paste.deploy plugin
-        app = loadapp('config:%s' % self.paste_conf1)
-        self.assertTrue(isinstance(app, RESTfulDocConverter))
-        self.assertTrue(app.cache_dir is None)
-        return
-
     def test_paste_deploy_options(self):
         # we can set options via paste.deploy
         app = loadapp('config:%s' % self.paste_conf_tests)
