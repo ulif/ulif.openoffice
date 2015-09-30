@@ -127,6 +127,14 @@ class TestDocConverterFunctional(object):
         assert isinstance(app, RESTfulDocConverter)
         assert app.cache_dir == str(docconv_env / "cache")
 
+    def test_new(self, docconv_env):
+        # we can get a form for sending new docs
+        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        req = Request.blank('http://localhost/docs/new')
+        resp = app(req)
+        assert resp.headers['Content-Type'] == 'text/html; charset=UTF-8'
+        assert b'action="/docs"' in resp.body
+
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
