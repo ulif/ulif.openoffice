@@ -115,6 +115,13 @@ class TestDocConverterFunctional(object):
         resp = app(req)
         assert resp.status == "200 OK"
 
+@pytest.fixture(scope="function")
+def docconv_env(tmpdir):
+    paste_conf = open(os.path.join(
+        os.path.dirname(__file__), "input", "sample1.ini")).read()
+    tmpdir.join("sample1.ini").write(paste_conf)
+    return tmpdir
+
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
 
