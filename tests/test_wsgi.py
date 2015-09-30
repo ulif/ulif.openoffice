@@ -97,6 +97,16 @@ class TestFileIterable(object):
         assert [b'67'] == list(fi.app_iter_range(6, 8))
 
 
+class TestDocConverterFunctional(object):
+
+    def test_restful_doc_converter(self):
+        # we can create a RESTful sample app
+        app = RESTfulDocConverter()
+        req = Request.blank('http://localhost/test.html')
+        resp = app(req)
+        assert resp.status == "404 Not Found"
+
+
 class DocConverterFunctionalTestCase(unittest.TestCase):
 
     def setUp(self):
