@@ -134,16 +134,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_restful_doc_converter_simple_get(self):
-        # RESTful sample app handles simple GET
-        app = RESTfulDocConverter()
-        req = Request.blank('http://localhost/docs')
-        resp = app(req)
-        req = Request.blank('http://localhost/docs')
-        resp = app(req)
-        self.assertEqual(resp.status, '200 OK')
-        return
-
     def test_paste_deploy_loader(self):
         # we can find the docconverter via paste.deploy plugin
         app = loadapp('config:%s' % self.paste_conf1)
