@@ -167,17 +167,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_new(self):
-        # we can get a form for sending new docs
-        app = RESTfulDocConverter(cache_dir=self.cachedir)
-        req = Request.blank('http://localhost/docs/new')
-        resp = app(req)
-        self.assertEqual(resp.headers['Content-Type'],
-                         'text/html; charset=UTF-8')
-        self.assertTrue(
-            b'action="/docs"' in resp.body)
-        return
-
     def test_create_with_cache(self):
         # we can trigger conversions that will be cached
         app = RESTfulDocConverter(cache_dir=self.cachedir)
