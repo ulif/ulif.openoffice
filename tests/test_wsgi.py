@@ -188,31 +188,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_create_with_cache(self):
-        # we can trigger conversions that will be cached
-        app = RESTfulDocConverter(cache_dir=self.cachedir)
-        req = Request.blank(
-            'http://localhost/docs',
-            POST=dict(doc=('sample.txt', 'Hi there!'),
-                      CREATE='Send',
-                      )
-            )
-        resp = app(req)
-        # we get a location header
-        location = resp.headers['Location']
-        self.assertEqual(
-            location,
-            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
-        self.assertEqual(resp.status, '201 Created')
-        self.assertEqual(resp.headers['Content-Type'], 'application/zip')
-        content_file = os.path.join(self.workdir, 'myresult.zip')
-        with open(content_file, 'wb') as fd:
-            fd.write(resp.body)
-        self.assertTrue(zipfile.is_zipfile(content_file))
-        myzipfile = zipfile.ZipFile(content_file, 'r')
-        self.assertTrue('sample.html' in myzipfile.namelist())
-        return
-
     def test_create_without_cache(self):
         # we can convert docs without cache but won't get a GET location
         app = RESTfulDocConverter(cache_dir=None)
