@@ -190,6 +190,31 @@ class TestDocConverterFunctional(object):
         assert resp.headers["Content-Type"] == "application/zip"
         assert is_zipfile_with_sample_html(docconv_env, resp.body)
 
+    def test_create_out_fmt_respected(self, docconv_env):
+        # a single out_fmt option will result in appropriate output format
+        # (the normal option name would be 'oocp.out_fmt')
+        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        myform = dict(
+            doc=('sample.txt', 'Hi there!'),
+            CREATE='Send', out_fmt='pdf',
+            )
+        myform = {
+            'doc': ('sample.txt', 'Hi there!'),
+            'CREATE': 'Send',
+            'out_fmt': 'pdf',
+            }
+        req = Request.blank(
+            'http://localhost/docs',
+            POST=myform
+            )
+        resp = app(req)
+        # we get a location header
+        assert resp.headers["Location"] == (
+            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
+        assert resp.status == "201 Created"
+        assert resp.headers['Content-Type'] == 'application/zip'
+        assert is_zipfile_with_sample_pdf(docconv_env, resp.body)
+
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
