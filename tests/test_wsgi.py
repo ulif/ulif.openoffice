@@ -32,6 +32,17 @@ def is_zipfile_with_sample_html(workdir, content):
     return "sample.html" in zipfile.ZipFile(str(content_file), "r").namelist()
 
 
+def is_zipfile_with_sample_pdf(workdir, content):
+    """Assert that `content` contains a zipfile with ``sample.html`` in it.
+
+    `workdir` should be a `py.local` path where we can create files in.
+    """
+    content_file = workdir / "myresult.zip"
+    content_file.write_binary(content)
+    assert zipfile.is_zipfile(str(content_file))
+    return "sample.pdf" in zipfile.ZipFile(str(content_file), "r").namelist()
+
+
 class TestGetMimetype(object):
     # tests for get_mimetype()
     def test_nofilename(self):
