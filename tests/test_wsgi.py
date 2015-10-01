@@ -146,8 +146,7 @@ class TestDocConverterFunctional(object):
             )
         resp = app(req)
         # we get a location header
-        location = resp.headers['Location']
-        assert location == (
+        assert resp.headers['Location'] == (
             'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
