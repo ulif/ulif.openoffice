@@ -21,7 +21,7 @@ def iter_path(tmpdir):
     return str(tmpdir.join("iter.test"))
 
 
-def is_zipfile_with_sample_html(self, workdir, content):
+def is_zipfile_with_sample_html(workdir, content):
     """Assert that `content` contains a zipfile with ``sample.html`` in it.
 
     `workdir` should be a `py.local` path where we can create files in.
