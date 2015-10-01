@@ -208,30 +208,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_create_without_cache(self):
-        # we can convert docs without cache but won't get a GET location
-        app = RESTfulDocConverter(cache_dir=None)
-        req = Request.blank(
-            'http://localhost/docs',
-            POST=dict(doc=('sample.txt', 'Hi there!'),
-                      CREATE='Send',
-                      )
-            )
-        resp = app(req)
-        # we get a location header
-        self.assertTrue('Location' not in resp.headers)
-        # instead of 201 Created we get 200 Ok
-        self.assertEqual(resp.status, '200 OK')
-        # we get a readable ZIP file
-        self.assertEqual(resp.headers['Content-Type'], 'application/zip')
-        content_file = os.path.join(self.workdir, 'myresult.zip')
-        with open(content_file, 'wb') as fd:
-            fd.write(resp.body)
-        self.assertTrue(zipfile.is_zipfile(content_file))
-        myzipfile = zipfile.ZipFile(content_file, 'r')
-        self.assertTrue('sample.html' in myzipfile.namelist())
-        return
-
     def test_create_out_fmt_respected(self):
         # a single out_fmt option will result in appropriate output format
         # (the normal option name would be 'oocp.out_fmt')
