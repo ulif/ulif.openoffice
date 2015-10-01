@@ -161,11 +161,7 @@ class TestDocConverterFunctional(object):
             'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
-        content_file = docconv_env / "myresult.zip"
-        content_file.write_binary(resp.body)
-        assert zipfile.is_zipfile(str(content_file))
-        myzipfile = zipfile.ZipFile(str(content_file), "r")
-        assert "sample.html" in myzipfile.namelist()
+        assert is_zipfile_with_sample_html(docconv_env, resp.body)
 
     def test_create_without_cache(self, docconv_env):
         # we can convert docs without cache but won't get a GET location
@@ -181,11 +177,7 @@ class TestDocConverterFunctional(object):
         # instead of 201 Created we get 200 Ok
         assert resp.status.lower() == "200 ok"
         assert resp.headers["Content-Type"] == "application/zip"
-        content_file = docconv_env / "myresult.zip"
-        content_file.write_binary(resp.body)
-        assert zipfile.is_zipfile(str(content_file))
-        myzipfile = zipfile.ZipFile(str(content_file), "r")
-        assert "sample.html" in myzipfile.namelist()
+        assert is_zipfile_with_sample_html(docconv_env, resp.body)
 
 
 @pytest.fixture(scope="function")
