@@ -135,6 +135,28 @@ class TestDocConverterFunctional(object):
         assert resp.headers['Content-Type'] == 'text/html; charset=UTF-8'
         assert b'action="/docs"' in resp.body
 
+    def test_create_with_cache(self, docconv_env):
+        # we can trigger conversions that will be cached
+        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        req = Request.blank(
+            'http://localhost/docs',
+            POST=dict(doc=('sample.txt', 'Hi there!'),
+                      CREATE='Send',
+                      )
+            )
+        resp = app(req)
+        # we get a location header
+        location = resp.headers['Location']
+        assert location == (
+            'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
+        assert resp.status == "201 Created"
+        assert resp.headers['Content-Type'] == 'application/zip'
+        content_file = docconv_env / "myresult.zip"
+        content_file.write_binary(resp.body)
+        assert zipfile.is_zipfile(str(content_file))
+        myzipfile = zipfile.ZipFile(str(content_file), "r")
+        assert "sample.html" in myzipfile.namelist()
+
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
