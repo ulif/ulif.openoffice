@@ -197,6 +197,13 @@ class TestDocConverterFunctional(object):
         assert is_zipfile_with_file(
             docconv_env, resp.body, filename="sample.pdf")
 
+    def test_show_yet_uncached_doc(self, docconv_env):
+        # a yet uncached doc results in 404
+        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        url = 'http://localhost/docs/NOT-A-VALID-DOCID'
+        resp = app(Request.blank(url))
+        assert resp.status == "404 Not Found"
+
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
