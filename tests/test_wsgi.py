@@ -233,21 +233,3 @@ def docconv_env(tmpdir):
     tmpdir.join("paste.ini").write(
         paste_conf2.replace("/tmp/mycache", str(cache_dir)))
     return tmpdir
-
-class DocConverterFunctionalTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.cachedir = os.path.join(self.workdir, 'cache')
-        self.inputdir = os.path.join(os.path.dirname(__file__), 'input')
-        self.paste_conf1 = os.path.join(self.inputdir, 'sample1.ini')
-        self.paste_conf2 = os.path.join(self.inputdir, 'sample2.ini')
-        # create local paste conf with local cachedir set
-        self.paste_conf_tests = os.path.join(self.workdir, 'paste.ini')
-        paste_conf = open(self.paste_conf2, 'r').read().replace(
-            '/tmp/mycache', self.cachedir)
-        with open(self.paste_conf_tests, 'w') as fd:
-            fd.write(paste_conf)
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
