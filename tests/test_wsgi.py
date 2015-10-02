@@ -204,6 +204,23 @@ class TestDocConverterFunctional(object):
         resp = app(Request.blank(url))
         assert resp.status == "404 Not Found"
 
+    def test_show_with_cache(self, docconv_env):
+        # we can retrieve cached files
+        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        docconv_env.join("sample_in.txt").write("Fake source.")
+        docconv_env.join("sample_out.pdf").write("Fake result.")
+        marker = get_marker(dict(foo='bar', bar='baz'))
+        doc_id = app.cache_manager.register_doc(
+            source_path=str(docconv_env.join("sample_in.txt")),
+            to_cache=str(docconv_env.join("sample_out.pdf")),
+            repr_key=marker)
+        assert doc_id == '3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
+        url = 'http://localhost/docs/3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
+        req = Request.blank(url)
+        resp = app(req)
+        assert resp.status == "200 OK"
+        assert resp.content_type == "application/pdf"
+
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
@@ -216,7 +233,6 @@ def docconv_env(tmpdir):
     tmpdir.join("paste.ini").write(
         paste_conf2.replace("/tmp/mycache", str(cache_dir)))
     return tmpdir
-
 
 class DocConverterFunctionalTestCase(unittest.TestCase):
 
