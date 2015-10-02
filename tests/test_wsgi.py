@@ -236,13 +236,6 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.workdir)
 
-    def test_show_yet_uncached_doc(self):
-        # a yet uncached doc results in 404
-        app = RESTfulDocConverter(cache_dir=self.cachedir)
-        url = 'http://localhost/docs/NOT-A-VALID-DOCID'
-        resp = app(Request.blank(url))
-        self.assertEqual(resp.status, '404 Not Found')
-
     def test_show_with_cache(self):
         # we can retrieve cached files
         app = RESTfulDocConverter(cache_dir=self.cachedir)
