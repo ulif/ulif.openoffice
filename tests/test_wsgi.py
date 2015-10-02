@@ -21,26 +21,15 @@ def iter_path(tmpdir):
     return str(tmpdir.join("iter.test"))
 
 
-def is_zipfile_with_sample_html(workdir, content):
-    """Assert that `content` contains a zipfile with ``sample.html`` in it.
+def is_zipfile_with_file(workdir, content, filename="sample.html"):
+    """Assert that `content` contains a zipfile containing `filename`.
 
     `workdir` should be a `py.local` path where we can create files in.
     """
     content_file = workdir / "myresult.zip"
     content_file.write_binary(content)
     assert zipfile.is_zipfile(str(content_file))
-    return "sample.html" in zipfile.ZipFile(str(content_file), "r").namelist()
-
-
-def is_zipfile_with_sample_pdf(workdir, content):
-    """Assert that `content` contains a zipfile with ``sample.html`` in it.
-
-    `workdir` should be a `py.local` path where we can create files in.
-    """
-    content_file = workdir / "myresult.zip"
-    content_file.write_binary(content)
-    assert zipfile.is_zipfile(str(content_file))
-    return "sample.pdf" in zipfile.ZipFile(str(content_file), "r").namelist()
+    return filename in zipfile.ZipFile(str(content_file), "r").namelist()
 
 
 class TestGetMimetype(object):
@@ -172,7 +161,7 @@ class TestDocConverterFunctional(object):
             'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
-        assert is_zipfile_with_sample_html(docconv_env, resp.body)
+        assert is_zipfile_with_file(docconv_env, resp.body)
 
     def test_create_without_cache(self, docconv_env):
         # we can convert docs without cache but won't get a GET location
@@ -188,7 +177,7 @@ class TestDocConverterFunctional(object):
         # instead of 201 Created we get 200 Ok
         assert resp.status.lower() == "200 ok"
         assert resp.headers["Content-Type"] == "application/zip"
-        assert is_zipfile_with_sample_html(docconv_env, resp.body)
+        assert is_zipfile_with_file(docconv_env, resp.body)
 
     def test_create_out_fmt_respected(self, docconv_env):
         # a single out_fmt option will result in appropriate output format
@@ -213,7 +202,8 @@ class TestDocConverterFunctional(object):
             'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
-        assert is_zipfile_with_sample_pdf(docconv_env, resp.body)
+        assert is_zipfile_with_file(
+            docconv_env, resp.body, filename="sample.pdf")
 
 
 @pytest.fixture(scope="function")
