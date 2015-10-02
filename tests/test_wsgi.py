@@ -187,15 +187,7 @@ class TestDocConverterFunctional(object):
             doc=('sample.txt', 'Hi there!'),
             CREATE='Send', out_fmt='pdf',
             )
-        myform = {
-            'doc': ('sample.txt', 'Hi there!'),
-            'CREATE': 'Send',
-            'out_fmt': 'pdf',
-            }
-        req = Request.blank(
-            'http://localhost/docs',
-            POST=myform
-            )
+        req = Request.blank('http://localhost/docs', POST=myform)
         resp = app(req)
         # we get a location header
         assert resp.headers["Location"] == (
