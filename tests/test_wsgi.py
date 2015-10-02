@@ -21,6 +21,19 @@ def iter_path(tmpdir):
     return str(tmpdir.join("iter.test"))
 
 
+@pytest.fixture(scope="function")
+def docconv_env(tmpdir):
+    paste_conf1 = open(os.path.join(
+        os.path.dirname(__file__), "input", "sample1.ini")).read()
+    tmpdir.join("sample1.ini").write(paste_conf1)
+    cache_dir = tmpdir / "cache"
+    paste_conf2 = open(os.path.join(
+        os.path.dirname(__file__), "input", "sample2.ini")).read()
+    tmpdir.join("paste.ini").write(
+        paste_conf2.replace("/tmp/mycache", str(cache_dir)))
+    return tmpdir
+
+
 def is_zipfile_with_file(workdir, content, filename="sample.html"):
     """Assert that `content` contains a zipfile containing `filename`.
 
@@ -220,16 +233,3 @@ class TestDocConverterFunctional(object):
         resp = app(req)
         assert resp.status == "200 OK"
         assert resp.content_type == "application/pdf"
-
-
-@pytest.fixture(scope="function")
-def docconv_env(tmpdir):
-    paste_conf1 = open(os.path.join(
-        os.path.dirname(__file__), "input", "sample1.ini")).read()
-    tmpdir.join("sample1.ini").write(paste_conf1)
-    cache_dir = tmpdir / "cache"
-    paste_conf2 = open(os.path.join(
-        os.path.dirname(__file__), "input", "sample2.ini")).read()
-    tmpdir.join("paste.ini").write(
-        paste_conf2.replace("/tmp/mycache", str(cache_dir)))
-    return tmpdir
