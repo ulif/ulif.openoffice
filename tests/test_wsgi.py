@@ -251,23 +251,3 @@ class DocConverterFunctionalTestCase(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.workdir)
-
-    def test_show_with_cache(self):
-        # we can retrieve cached files
-        app = RESTfulDocConverter(cache_dir=self.cachedir)
-        fake_src = os.path.join(self.workdir, 'sample_in.txt')
-        fake_result = os.path.join(self.workdir, 'sample_out.pdf')
-        with open(fake_src, 'w') as fd:
-            fd.write('Fake source.')
-        with open(fake_result, 'w') as fd:
-            fd.write('Fake result.')
-        marker = get_marker(dict(foo='bar', bar='baz'))
-        doc_id = app.cache_manager.register_doc(
-            source_path=fake_src, to_cache=fake_result, repr_key=marker)
-        self.assertEqual('3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1', doc_id)
-        doc_id = '%s_%s' % (doc_id, marker)
-        url = 'http://localhost/docs/3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
-        req = Request.blank(url)
-        resp = app(req)
-        self.assertEqual(resp.status, '200 OK')
-        self.assertEqual(resp.content_type, 'application/pdf')
