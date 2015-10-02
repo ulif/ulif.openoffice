@@ -14,12 +14,23 @@ pytestmark = pytest.mark.wsgi
 
 @pytest.fixture(scope="function")
 def iter_path(tmpdir):
+    """Return the path of a tmp file containung "0123456789".
+
+    Value is for testing file iterables and file iterators.
+    """
     tmpdir.join("iter.test").write(b"0123456789")
     return str(tmpdir.join("iter.test"))
 
 
 @pytest.fixture(scope="function")
 def docconv_env(tmpdir):
+    """Get the py.path local to a docconverter environment.
+
+    The path contains a ``sample1.ini`` with content copied from local
+    ``inputs/sample1.ini``, a cache dir named ``cache`` and a file
+    ``paste.ini``, copied from ``input/sample2.ini`` and with all cache
+    dir references pointing to the local cache dir.
+    """
     paste_conf1 = open(os.path.join(
         os.path.dirname(__file__), "input", "sample1.ini")).read()
     tmpdir.join("sample1.ini").write(paste_conf1)
