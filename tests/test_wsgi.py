@@ -1,9 +1,6 @@
 # tests for wsgi module
 import os
 import pytest
-import shutil
-import tempfile
-import unittest
 import zipfile
 from paste.deploy import loadapp
 from webob import Request
