@@ -49,14 +49,13 @@ def conv_env(workdir):
     ``paste.ini``, copied from ``input/sample2.ini`` and with all cache
     dir references pointing to the local cache dir.
     """
-    paste_conf1 = open(os.path.join(
-        os.path.dirname(__file__), "input", "sample1.ini")).read()
-    workdir.join("sample1.ini").write(paste_conf1)
-    cache_dir = workdir / "cache"
-    paste_conf2 = open(os.path.join(
-        os.path.dirname(__file__), "input", "sample2.ini")).read()
-    workdir.join("paste.ini").write(
-        paste_conf2.replace("/tmp/mycache", str(cache_dir)))
+    input_path = os.path.join(os.path.dirname(__file__), "input")
+    input_dir = workdir.new(dirname=input_path, basename="")
+    workdir.join("sample1.ini").write(
+        input_dir.join("sample1.ini").read())
+    paste_conf2 = input_dir.join("sample2.ini").read().replace(
+        "/tmp/mycache", str(workdir / "cache"))
+    workdir.join("paste.ini").write(paste_conf2)
     return workdir
 
 
