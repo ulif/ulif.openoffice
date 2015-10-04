@@ -41,7 +41,7 @@ def iter_path(tmpdir):
 
 
 @pytest.fixture(scope="function")
-def docconv_env(workdir):
+def conv_env(workdir):
     """Get the py.path local to a docconverter environment.
 
     The path contains a ``sample1.ini`` with content copied from local
@@ -165,29 +165,29 @@ class TestDocConverterFunctional(object):
         resp = app(req)
         assert resp.status == "200 OK"
 
-    def test_paste_deploy_loader(self, docconv_env):
+    def test_paste_deploy_loader(self, conv_env):
         # we can find the docconverter via paste.deploy plugin
-        app = loadapp('config:%s' % (docconv_env / "sample1.ini"))
+        app = loadapp('config:%s' % (conv_env / "sample1.ini"))
         assert isinstance(app, RESTfulDocConverter)
         assert app.cache_dir is None
 
-    def test_paste_deploy_options(self, docconv_env):
+    def test_paste_deploy_options(self, conv_env):
         # we can set options via paste.deploy
-        app = loadapp('config:%s' % (docconv_env / "paste.ini"))
+        app = loadapp('config:%s' % (conv_env / "paste.ini"))
         assert isinstance(app, RESTfulDocConverter)
-        assert app.cache_dir == str(docconv_env / "cache")
+        assert app.cache_dir == str(conv_env / "cache")
 
-    def test_new(self, docconv_env):
+    def test_new(self, conv_env):
         # we can get a form for sending new docs
-        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        app = RESTfulDocConverter(cache_dir=str(conv_env / "cache"))
         req = Request.blank('http://localhost/docs/new')
         resp = app(req)
         assert resp.headers['Content-Type'] == 'text/html; charset=UTF-8'
         assert b'action="/docs"' in resp.body
 
-    def test_create_with_cache(self, docconv_env):
+    def test_create_with_cache(self, conv_env):
         # we can trigger conversions that will be cached
-        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        app = RESTfulDocConverter(cache_dir=str(conv_env / "cache"))
         req = Request.blank(
             'http://localhost/docs',
             POST=dict(doc=('sample.txt', 'Hi there!'),
@@ -200,9 +200,9 @@ class TestDocConverterFunctional(object):
             'http://localhost:80/docs/396199333edbf40ad43e62a1c1397793_1_1')
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
-        assert is_zipfile_with_file(docconv_env, resp.body)
+        assert is_zipfile_with_file(conv_env, resp.body)
 
-    def test_create_without_cache(self, docconv_env):
+    def test_create_without_cache(self, conv_env):
         # we can convert docs without cache but won't get a GET location
         app = RESTfulDocConverter(cache_dir=None)
         req = Request.blank(
@@ -216,12 +216,12 @@ class TestDocConverterFunctional(object):
         # instead of 201 Created we get 200 Ok
         assert resp.status.lower() == "200 ok"
         assert resp.headers["Content-Type"] == "application/zip"
-        assert is_zipfile_with_file(docconv_env, resp.body)
+        assert is_zipfile_with_file(conv_env, resp.body)
 
-    def test_create_out_fmt_respected(self, docconv_env):
+    def test_create_out_fmt_respected(self, conv_env):
         # a single out_fmt option will result in appropriate output format
         # (the normal option name would be 'oocp.out_fmt')
-        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        app = RESTfulDocConverter(cache_dir=str(conv_env / "cache"))
         myform = dict(
             doc=('sample.txt', 'Hi there!'),
             CREATE='Send', out_fmt='pdf',
@@ -234,24 +234,24 @@ class TestDocConverterFunctional(object):
         assert resp.status == "201 Created"
         assert resp.headers['Content-Type'] == 'application/zip'
         assert is_zipfile_with_file(
-            docconv_env, resp.body, filename="sample.pdf")
+            conv_env, resp.body, filename="sample.pdf")
 
-    def test_show_yet_uncached_doc(self, docconv_env):
+    def test_show_yet_uncached_doc(self, conv_env):
         # a yet uncached doc results in 404
-        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
+        app = RESTfulDocConverter(cache_dir=str(conv_env / "cache"))
         url = 'http://localhost/docs/NOT-A-VALID-DOCID'
         resp = app(Request.blank(url))
         assert resp.status == "404 Not Found"
 
-    def test_show_with_cache(self, docconv_env):
+    def test_show_with_cache(self, conv_env):
         # we can retrieve cached files
-        app = RESTfulDocConverter(cache_dir=str(docconv_env / "cache"))
-        docconv_env.join("sample_in.txt").write("Fake source.")
-        docconv_env.join("sample_out.pdf").write("Fake result.")
+        app = RESTfulDocConverter(cache_dir=str(conv_env / "cache"))
+        conv_env.join("sample_in.txt").write("Fake source.")
+        conv_env.join("sample_out.pdf").write("Fake result.")
         marker = get_marker(dict(foo='bar', bar='baz'))
         doc_id = app.cache_manager.register_doc(
-            source_path=str(docconv_env.join("sample_in.txt")),
-            to_cache=str(docconv_env.join("sample_out.pdf")),
+            source_path=str(conv_env.join("sample_in.txt")),
+            to_cache=str(conv_env.join("sample_out.pdf")),
             repr_key=marker)
         assert doc_id == '3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
         url = 'http://localhost/docs/3fe6f0d4c5e62ff9a1deca0a8a65fe8d_1_1'
