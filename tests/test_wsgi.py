@@ -41,7 +41,7 @@ def iter_path(tmpdir):
 
 
 @pytest.fixture(scope="function")
-def docconv_env(tmpdir):
+def docconv_env(workdir):
     """Get the py.path local to a docconverter environment.
 
     The path contains a ``sample1.ini`` with content copied from local
@@ -51,13 +51,13 @@ def docconv_env(tmpdir):
     """
     paste_conf1 = open(os.path.join(
         os.path.dirname(__file__), "input", "sample1.ini")).read()
-    tmpdir.join("sample1.ini").write(paste_conf1)
-    cache_dir = tmpdir / "cache"
+    workdir.join("sample1.ini").write(paste_conf1)
+    cache_dir = workdir / "cache"
     paste_conf2 = open(os.path.join(
         os.path.dirname(__file__), "input", "sample2.ini")).read()
-    tmpdir.join("paste.ini").write(
+    workdir.join("paste.ini").write(
         paste_conf2.replace("/tmp/mycache", str(cache_dir)))
-    return tmpdir
+    return workdir
 
 
 def is_zipfile_with_file(workdir, content, filename="sample.html"):
