@@ -44,15 +44,16 @@ def iter_path(tmpdir):
 def conv_env(workdir):
     """Get the py.path local to a docconverter environment.
 
-    The path contains a ``sample1.ini`` with content copied from local
-    ``inputs/sample1.ini``, a cache dir named ``cache`` and a file
-    ``paste.ini``, copied from ``input/sample2.ini`` and with all cache
-    dir references pointing to the local cache dir.
+    A converter environment contains a `workdir` which is returned.
+
+    The path contains additionally ``sample1.ini`` with content copied
+    from local ``inputs/sample1.ini``, a cache dir named ``cache`` and a
+    file ``paste.ini``, copied from ``input/sample2.ini`` and with all
+    cache dir references pointing to the local cache dir.
     """
     input_path = os.path.join(os.path.dirname(__file__), "input")
     input_dir = workdir.new(dirname=input_path, basename="")
-    workdir.join("sample1.ini").write(
-        input_dir.join("sample1.ini").read())
+    workdir.join("sample1.ini").write(input_dir.join("sample1.ini").read())
     paste_conf2 = input_dir.join("sample2.ini").read().replace(
         "/tmp/mycache", str(workdir / "cache"))
     workdir.join("paste.ini").write(paste_conf2)
