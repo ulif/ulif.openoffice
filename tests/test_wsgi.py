@@ -40,26 +40,6 @@ def iter_path(tmpdir):
     return str(tmpdir.join("iter.test"))
 
 
-@pytest.fixture(scope="function")
-def NOconv_env(workdir):
-    """Get the py.path local to a docconverter environment.
-
-    A converter environment contains a `workdir` which is returned.
-
-    The path contains additionally ``sample1.ini`` with content copied
-    from local ``inputs/sample1.ini``, a cache dir named ``cache`` and a
-    file ``paste.ini``, copied from ``input/sample2.ini`` and with all
-    cache dir references pointing to the local cache dir.
-    """
-    input_path = os.path.join(os.path.dirname(__file__), "input")
-    input_dir = workdir.new(dirname=input_path, basename="")
-    workdir.join("sample1.ini").write(input_dir.join("sample1.ini").read())
-    paste_conf2 = input_dir.join("sample2.ini").read().replace(
-        "/tmp/mycache", str(workdir / "cache"))
-    workdir.join("paste.ini").write(paste_conf2)
-    return workdir
-
-
 def is_zipfile_with_file(workdir, content, filename="sample.html"):
     """Assert that `content` contains a zipfile containing `filename`.
 
