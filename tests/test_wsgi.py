@@ -41,7 +41,7 @@ def iter_path(tmpdir):
 
 
 @pytest.fixture(scope="function")
-def conv_env(workdir):
+def NOconv_env(workdir):
     """Get the py.path local to a docconverter environment.
 
     A converter environment contains a `workdir` which is returned.
