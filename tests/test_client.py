@@ -82,16 +82,6 @@ class TestConvertDoc(object):
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
 
-    def test_cached(self):
-        # with a cache_dir, the result is cached
-        result_path, cache_key, metadata = convert_doc(
-            self.src_doc, options={}, cache_dir=self.cachedir)
-        self.resultdir = os.path.dirname(result_path)
-        assert result_path[-16:] == '/sample.html.zip'
-        # cache keys are same for equal input files
-        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
-        assert metadata == {'error': False, 'oocp_status': 0}
-
     def test_options(self):
         # options given are respected
         options = {'meta-procord': 'unzip,oocp',
