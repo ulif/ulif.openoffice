@@ -55,6 +55,17 @@ class TestConvertDoc(object):
         # the original source doc still exists
         assert src_doc.exists()
 
+    def test_nocache(self, workdir, conv_logger, lo_server):
+        # by default we get a zip'd HTML representation
+        workdir.join('src').chdir()
+        src_doc = workdir.join('src').join('sample.txt')
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(str(src_doc)), options={}, cache_dir=None)
+        assert 'Cmd result: 0' in conv_logger.getvalue()
+        assert os.path.basename(result_path) == "sample.html.zip"
+        assert cache_key is None  # no cache, no cache_key
+        assert metadata == {'error': False, 'oocp_status': 0}
+
 
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
