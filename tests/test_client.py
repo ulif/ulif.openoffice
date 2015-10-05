@@ -66,6 +66,18 @@ class TestConvertDoc(object):
         assert cache_key is None  # no cache, no cache_key
         assert metadata == {'error': False, 'oocp_status': 0}
 
+    def test_cached(self, workdir, conv_logger, lo_server):
+        # with a cache_dir, the result is cached
+        workdir.join('src').chdir()
+        src_doc = workdir.join('src').join('sample.txt')
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(str(src_doc)), options={},
+            cache_dir=str(workdir / "cache"))
+        assert os.path.basename(result_path) == "sample.html.zip"
+        # cache keys are same for equal input files
+        assert cache_key == '396199333edbf40ad43e62a1c1397793_1_1'
+        assert metadata == {'error': False, 'oocp_status': 0}
+
 
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
