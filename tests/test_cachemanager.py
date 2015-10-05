@@ -394,12 +394,12 @@ class TestCacheManager(object):
         marker5 = cm.register_doc(src2, result2, repr_key=StringIO("bar"))
         assert marker5 == 'd5aa51d7fb180729089d2de904f7dffe_1_2'
 
-    def test_get_hash(self, cache_env, samples_path):
+    def test_get_hash(self, cache_env, samples_dir):
         # we can compute a hash for a source file.
         cm = CacheManager(str(cache_env))
         hash1 = cm.get_hash(str(cache_env / "src1.txt"))
         hash2 = cm.get_hash(str(cache_env / "src2.txt"))
-        hash3 = cm.get_hash(str(samples_path / "testdoc1.doc"))
+        hash3 = cm.get_hash(str(samples_dir / "testdoc1.doc"))
         assert hash1 == '737b337e605199de28b3b64c674f9422'
         assert hash2 == 'd5aa51d7fb180729089d2de904f7dffe'
         assert hash3 == '443a07e0e92b7dc6b21f8be6a388f05f'

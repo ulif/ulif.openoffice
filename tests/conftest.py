@@ -148,15 +148,15 @@ def conv_logger(request):
 
 
 @pytest.fixture(scope="function")
-def samples_path(request):
+def samples_dir(request):
     """Get path of local samples dir (scope: function).
 
     The path is delivered as `py.path.local` path for your
     convenience.
     """
-    samples_dir = py.path.local(__file__).dirpath("input")
-    assert samples_dir.check()  # make sure the path exists really
-    return samples_dir
+    path = py.path.local(__file__).dirpath("input")
+    assert path.check()  # make sure the path exists really
+    return path
 
 
 @pytest.fixture(scope="function")

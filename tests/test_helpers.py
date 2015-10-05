@@ -168,9 +168,9 @@ class TestExtractCSS(object):
             "<html><style>a<style>b</style></style></html>", 'sample.html')
         assert css == 'a\nb'
 
-    def test_extract_css_contains_all_styles_from_input(self, samples_path):
+    def test_extract_css_contains_all_styles_from_input(self, samples_dir):
         # Extracted CSS contains all styles from input HTML
-        content = samples_path.join("sample2.html").read()
+        content = samples_dir.join("sample2.html").read()
         html, css = extract_css(content, "sample.html")
         assert css == (
             "@page { size: 21cm 29.7cm; margin: 2cm }\n"
@@ -180,9 +180,9 @@ class TestExtractCSS(object):
             "p.c1 { margin-bottom: 0cm }\n  \n  "
         )
 
-    def test_extract_css_puts_links_into_html(self, samples_path):
+    def test_extract_css_puts_links_into_html(self, samples_dir):
         # the returned HTML part has the styles replaced with a link:
-        content = samples_path.join("sample2.html").read()
+        content = samples_dir.join("sample2.html").read()
         html, css = extract_css(content, "sample.html")
         assert html == (
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
@@ -233,26 +233,26 @@ class TestExtractCSS(object):
         assert result == u'<html><body>ä</body></html>'
         return
 
-    def test_extract_css_complex_html(self, samples_path):
+    def test_extract_css_complex_html(self, samples_dir):
         # Make sure we have styles purged and replaced by a link
-        html_input = samples_path.join("sample2.html").read()
+        html_input = samples_dir.join("sample2.html").read()
         result, css = extract_css(html_input, 'sample.html')
         assert '<style' not in result
         link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
         assert link in result
         return
 
-    def test_extract_css_complex_css(self, samples_path):
+    def test_extract_css_complex_css(self, samples_dir):
         # Make sure we get proper external stylesheets.
-        html_input = samples_path.join("sample2.html").read()
+        html_input = samples_dir.join("sample2.html").read()
         result, css = extract_css(html_input, 'sample.html')
         assert len(css) == 210
         assert css.startswith('@page { size: 21cm')
         return
 
-    def test_extract_css_no_empty_comments(self, samples_path):
+    def test_extract_css_no_empty_comments(self, samples_dir):
         # Make sure there are no empty comments in CSS
-        html_input = samples_path.join("sample2.html").read()
+        html_input = samples_dir.join("sample2.html").read()
         result, css = extract_css(html_input, 'sample.html')
         assert '/*' not in result
         return
@@ -278,9 +278,9 @@ class TestExtractCSS(object):
 class TestCleanupHTML(object):
     # tests for cleanup_html().
 
-    def test_cleanup_html_fix_img_links(self, samples_path):
+    def test_cleanup_html_fix_img_links(self, samples_dir):
         # we do fix links to images.
-        html_input = samples_path.join("image_sample.html").read()
+        html_input = samples_dir.join("image_sample.html").read()
         result, img_map = cleanup_html(
             html_input, 'sample.html', fix_img_links=True)
         assert len(img_map) == 4
@@ -422,9 +422,9 @@ class TestCleanupCSS(object):
 class TestRenameHTMLImgLinks(object):
     # tests for renam_html_img_links() helper.
 
-    def test_rename_html_img_links(self, samples_path):
+    def test_rename_html_img_links(self, samples_dir):
         # Make sure img links are modified
-        html_input = samples_path.join('image_sample.html').read()
+        html_input = samples_dir.join('image_sample.html').read()
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         assert 'image_sample_html_10a8ad02.jpg' not in html_output
         assert 'sample_4.jpg' in html_output
