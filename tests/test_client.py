@@ -93,16 +93,6 @@ class TestConvertDoc(object):
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
 
-    def test_options(self):
-        # options given are respected
-        options = {'meta-procord': 'unzip,oocp',
-                   'oocp-out-fmt': 'pdf'}
-        result_path, cache_key, metadata = convert_doc(
-            self.src_doc, options=options, cache_dir=None)
-        self.resultdir = os.path.dirname(result_path)
-        assert result_path[-11:] == '/sample.pdf'
-        assert metadata == {'error': False, 'oocp_status': 0}
-
     def test_only_one_file_considered_as_input(self):
         # we only consider one input file, not other files in same dir
         options = {
