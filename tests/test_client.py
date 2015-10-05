@@ -70,16 +70,6 @@ class TestConvertDoc(object):
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
 
-    def test_nocache(self):
-        # by default we get a zip'd HTML representation
-        result_path, cache_key, metadata = convert_doc(
-            self.src_doc, options={}, cache_dir=None)
-        assert 'Cmd result: 0' in self.log_catcher.get_log_messages()
-        self.resultdir = os.path.dirname(result_path)
-        assert result_path[-16:] == '/sample.html.zip'
-        assert cache_key is None  # no cache, no cache_key
-        assert metadata == {'error': False, 'oocp_status': 0}
-
     def test_cached(self):
         # with a cache_dir, the result is cached
         result_path, cache_key, metadata = convert_doc(
