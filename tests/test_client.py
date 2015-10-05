@@ -78,6 +78,17 @@ class TestConvertDoc(object):
         assert cache_key == '396199333edbf40ad43e62a1c1397793_1_1'
         assert metadata == {'error': False, 'oocp_status': 0}
 
+    def test_options(self, workdir, lo_server):
+        # options given are respected
+        workdir.join('src').chdir()
+        src_doc = workdir.join('src').join('sample.txt')
+        options = {'meta-procord': 'unzip,oocp',
+                   'oocp-out-fmt': 'pdf'}
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(str(src_doc)), options=options, cache_dir=None)
+        assert os.path.basename(result_path) == "sample.pdf"
+        assert metadata == {'error': False, 'oocp_status': 0}
+
 
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
