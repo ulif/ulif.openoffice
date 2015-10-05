@@ -136,7 +136,7 @@ def conv_env(workdir):
     file ``paste.ini``, copied from ``input/sample2.ini`` and with all
     cache dir references pointing to the local cache dir.
     """
-    input_path = os.path.join(os.path.dirname(__file__), "tests", "input")
+    input_path = os.path.join(os.path.dirname(__file__), "input")
     input_dir = workdir.new(dirname=input_path, basename="")
     workdir.join("sample1.ini").write(input_dir.join("sample1.ini").read())
     paste_conf2 = input_dir.join("sample2.ini").read().replace(
@@ -174,6 +174,6 @@ def samples_path(request):
     The path is delivered as `py.path.local` path for your
     convenience.
     """
-    samples_dir = py.path.local(__file__).dirpath("tests", "input")
+    samples_dir = py.path.local(__file__).dirpath("input")
     assert samples_dir.check()  # make sure the path exists really
     return samples_dir
