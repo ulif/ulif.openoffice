@@ -89,6 +89,21 @@ class TestConvertDoc(object):
         assert os.path.basename(result_path) == "sample.pdf"
         assert metadata == {'error': False, 'oocp_status': 0}
 
+    def test_only_one_file_considered_as_input(self, workdir, lo_server):
+        # we only consider one input file, not other files in same dir
+        options = {
+            'meta-procord': 'oocp',
+            'oocp-out-fmt': 'html'
+            }
+        workdir.join('src').chdir()
+        src_doc = workdir.join('src').join('sample.txt')
+        workdir.join('src').join('other.foo').write('some-content')
+        result_path, cache_key, metadata = convert_doc(
+            os.path.basename(str(src_doc)), options=options, cache_dir=None)
+        result_list = str(os.listdir(os.path.dirname(result_path)))
+        assert 'other.foo' not in result_list
+        assert 'sample.html' in result_list
+
 
 class ConvertDocTests(ClientTestsSetup):
     # tests for convert_doc function
