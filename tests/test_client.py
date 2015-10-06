@@ -105,6 +105,30 @@ class TestConvertDoc(object):
         assert 'sample.html' in result_list
 
 
+class ClientEnv(object):
+    def __init__(self, workdir):
+        self.workdir = workdir
+        self.src_doc = str(workdir / 'src' / 'sample.txt')
+        self.cache_dir = str(workdir / 'cache')
+
+
+@pytest.fixture
+def client_env(workdir, lo_server):
+    return ClientEnv(workdir)
+
+
+class TestClient(object):
+    # tests for API Client
+
+    def test_convert(self, client_env):
+        client = Client()
+        result_path, cache_key, metadata = client.convert(client_env.src_doc)
+        assert result_path.endswith('/sample.html.zip')
+        assert os.path.isfile(result_path)
+        assert cache_key is None  # no cache, no cache_key
+        assert metadata == {'error': False, 'oocp_status': 0}
+
+
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
