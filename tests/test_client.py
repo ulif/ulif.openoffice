@@ -105,25 +105,6 @@ class TestConvertDoc(object):
         assert 'sample.html' in result_list
 
 
-class ConvertDocTests(ClientTestsSetup):
-    # tests for convert_doc function
-
-    def test_only_one_file_considered_as_input(self):
-        # we only consider one input file, not other files in same dir
-        options = {
-            'meta-procord': 'oocp',
-            'oocp-out-fmt': 'html'
-            }
-        os.chdir(os.path.dirname(self.src_doc))
-        other_path = os.path.join(os.path.dirname(self.src_doc), 'other.foo')
-        with open(other_path, 'w') as fd:
-            fd.write('some-content')
-        result_path, cache_key, metadata = convert_doc(
-            os.path.basename(self.src_doc), options=options, cache_dir=None)
-        self.resultdir = os.path.dirname(result_path)
-        assert 'other.foo' not in os.listdir(self.resultdir)
-
-
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
