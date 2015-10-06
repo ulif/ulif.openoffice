@@ -132,7 +132,7 @@ class TestClient(object):
         # when asking for cached files we cope with nonexistent docs
         client = Client(cache_dir=client_env.cache_dir)
         assert client.get_cached(
-            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
+            '396199333edbf40ad43e62a1c1397793_1_1') is None
 
     def test_get_cached(self, client_env):
         # we can get an already cached doc
