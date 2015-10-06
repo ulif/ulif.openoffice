@@ -138,12 +138,6 @@ class TestClient(object):
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
-    def test_get_cached_no_cache_dir(self):
-        # when asking for cached files we cope with no cache dirs
-        client = Client()
-        assert client.get_cached(
-            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
-
     def test_get_cached(self):
         # we can get an already cached doc
         client = Client(cache_dir=self.cachedir)
