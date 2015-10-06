@@ -134,19 +134,18 @@ class TestClient(object):
         assert client.get_cached(
             '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
 
+    def test_get_cached(self, client_env):
+        # we can get an already cached doc
+        client = Client(cache_dir=client_env.cache_dir)
+        result_path, cache_key, metadata = client.convert(client_env.src_doc)
+        assert cache_key == '396199333edbf40ad43e62a1c1397793_1_1'
+        cached_path = client.get_cached(cache_key)
+        assert filecmp.cmp(result_path, cached_path, shallow=False)
+        assert client_env.cache_dir in cached_path
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
-
-    def test_get_cached(self):
-        # we can get an already cached doc
-        client = Client(cache_dir=self.cachedir)
-        result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir = os.path.dirname(result_path)  # for cleanup
-        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
-        cached_path = client.get_cached(cache_key)
-        assert filecmp.cmp(result_path, cached_path, shallow=False)
-        assert self.cachedir in cached_path
 
     def test_options(self):
         # we can pass in options
