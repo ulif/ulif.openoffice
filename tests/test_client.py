@@ -132,15 +132,6 @@ class TestClient(object):
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
-    def test_convert(self):
-        client = Client()
-        result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir = os.path.dirname(result_path)  # for cleanup
-        assert result_path[-16:] == '/sample.html.zip'
-        assert os.path.isfile(result_path)
-        assert cache_key is None  # no cache, no cache_key
-        assert metadata == {'error': False, 'oocp_status': 0}
-
     def test_get_cached_no_file(self):
         # when asking for cached files we cope with nonexistent docs
         client = Client(cache_dir=self.cachedir)
