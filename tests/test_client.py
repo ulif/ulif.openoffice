@@ -128,15 +128,15 @@ class TestClient(object):
         assert cache_key is None  # no cache, no cache_key
         assert metadata == {'error': False, 'oocp_status': 0}
 
+    def test_get_cached_no_file(self, client_env):
+        # when asking for cached files we cope with nonexistent docs
+        client = Client(cache_dir=client_env.cache_dir)
+        assert client.get_cached(
+            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
-
-    def test_get_cached_no_file(self):
-        # when asking for cached files we cope with nonexistent docs
-        client = Client(cache_dir=self.cachedir)
-        assert client.get_cached(
-            '164dfcf01584bd0e3595b62fb53cf12c_1_1') is None
 
     def test_get_cached_no_cache_dir(self):
         # when asking for cached files we cope with no cache dirs
