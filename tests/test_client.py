@@ -164,14 +164,6 @@ class TestClient(object):
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
-    def test_argument_error(self):
-        # wrong args lead to ArgumentErrors
-        client = Client()
-        options = {'oocp-out-fmt': 'foo', 'meta-procord': 'foo,bar'}
-        self.assertRaises(
-            ArgumentParserError,
-            client.convert, self.src_doc, options=options)
-
     def test_get_cached_by_source_no_file(self):
         # we cannot get a cached file not cached before
         client = Client(cache_dir=self.cachedir)
