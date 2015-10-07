@@ -185,6 +185,11 @@ class TestClient(object):
         assert c_key == '396199333edbf40ad43e62a1c1397793_1_1'
 
 
+class TestClientMain(object):
+    # tests for the client modules `main` function
+    pass
+
+
 class MainClientTests(ClientTestsSetup):
     # tests for the client modules `main` function
 
