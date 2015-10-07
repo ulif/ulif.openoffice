@@ -152,6 +152,14 @@ class TestClient(object):
         assert result_path.endswith('/sample.pdf')
         assert metadata == {'error': False, 'oocp_status': 0}
 
+    def test_argument_error(self, client_env):
+        # wrong args lead to ArgumentErrors
+        client = Client()
+        # illegal output format and not existing processors
+        options = {'oocp-out-fmt': 'foo', 'meta-procord': 'foo,bar'}
+        with pytest.raises(ArgumentParserError):
+            client.convert(client_env.src_doc, options=options)
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
