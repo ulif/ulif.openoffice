@@ -187,7 +187,21 @@ class TestClient(object):
 
 class TestClientMain(object):
     # tests for the client modules `main` function
-    pass
+
+    def test_convert_regular(self, client_env, capsys):
+        # we can do a regular conversion
+        main(
+            [
+                '-meta-procord', 'oocp',
+                '-oocp-out-fmt', 'pdf',
+                client_env.src_doc
+            ])
+        out, err = capsys.readouterr()
+        outfile_path = out[10:].strip()
+        assert out.startswith('RESULT in')
+        assert os.path.exists(outfile_path)
+        assert os.path.isfile(outfile_path)
+        assert outfile_path.endswith('/sample.pdf')
 
 
 class MainClientTests(ClientTestsSetup):
@@ -196,22 +210,6 @@ class MainClientTests(ClientTestsSetup):
     @pytest.fixture(autouse=True)
     def mycapsys(self, capsys):
         self.mycapsys = capsys
-
-    def test_convert_regular(self):
-        # we can do a regular conversion
-        main(
-            [
-                '-meta-procord', 'oocp',
-                '-oocp-out-fmt', 'pdf',
-                self.src_doc
-            ])
-        out, err = self.mycapsys.readouterr()
-        outfile_path = out[10:-1]
-        self.resultdir = os.path.dirname(outfile_path)   # for cleanup
-        assert out.startswith('RESULT in')
-        assert os.path.exists(outfile_path)
-        assert os.path.isfile(outfile_path)
-        assert outfile_path.endswith('/sample.pdf')
 
     def test_help(self):
         # we can get help
