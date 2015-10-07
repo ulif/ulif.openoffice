@@ -143,6 +143,15 @@ class TestClient(object):
         assert filecmp.cmp(result_path, cached_path, shallow=False)
         assert client_env.cache_dir in cached_path
 
+    def test_options(self, client_env):
+        # we can pass in options
+        client = Client()
+        options = {'oocp-out-fmt': 'pdf', 'meta-procord': 'oocp'}
+        result_path, cache_key, metadata = client.convert(
+            client_env.src_doc, options=options)
+        assert result_path.endswith('/sample.pdf')
+        assert metadata == {'error': False, 'oocp_status': 0}
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
