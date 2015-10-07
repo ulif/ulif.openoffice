@@ -156,16 +156,6 @@ class TestClient(object):
 class ClientTests(ClientTestsSetup):
     # tests for API Client
 
-    def test_options(self):
-        # we can pass in options
-        client = Client()
-        options = {'oocp-out-fmt': 'pdf', 'meta-procord': 'oocp'}
-        result_path, cache_key, metadata = client.convert(
-            self.src_doc, options=options)
-        self.resultdir = os.path.dirname(result_path)
-        assert result_path[-11:] == '/sample.pdf'
-        assert metadata == {'error': False, 'oocp_status': 0}
-
     def test_argument_error(self):
         # wrong args lead to ArgumentErrors
         client = Client()
