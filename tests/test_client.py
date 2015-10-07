@@ -167,6 +167,13 @@ class TestClient(object):
         assert c_path is None
         assert c_key is None
 
+    def test_get_cached_by_source_no_cache_dir(self, client_env):
+        # we cannot get a cached file if w/o cache_dir set
+        client = Client(cache_dir=None)
+        c_path, c_key = client.get_cached_by_source(client_env.src_doc)
+        assert c_path is None
+        assert c_key is None
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
