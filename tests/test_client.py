@@ -185,21 +185,6 @@ class TestClient(object):
         assert c_key == '396199333edbf40ad43e62a1c1397793_1_1'
 
 
-class ClientTests(ClientTestsSetup):
-    # tests for API Client
-
-    def test_get_cached_by_source(self):
-        # we can get a file when cached and by source/options
-        client = Client(cache_dir=self.cachedir)
-        result_path, cache_key, metadata = client.convert(self.src_doc)
-        self.resultdir = os.path.dirname(result_path)  # for cleanup
-        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
-        cached_path, cache_key = client.get_cached_by_source(self.src_doc)
-        assert filecmp.cmp(result_path, cached_path, shallow=False)
-        assert self.cachedir in cached_path
-        assert cache_key == '164dfcf01584bd0e3595b62fb53cf12c_1_1'
-
-
 class MainClientTests(ClientTestsSetup):
     # tests for the client modules `main` function
 
