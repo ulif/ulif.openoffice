@@ -160,6 +160,13 @@ class TestClient(object):
         with pytest.raises(ArgumentParserError):
             client.convert(client_env.src_doc, options=options)
 
+    def test_get_cached_by_source_no_file(self, client_env):
+        # we cannot get a cached file if it has not been cached before
+        client = Client(cache_dir=client_env.cache_dir)
+        c_path, c_key = client.get_cached_by_source(client_env.src_doc)
+        assert c_path is None
+        assert c_key is None
+
 
 class ClientTests(ClientTestsSetup):
     # tests for API Client
