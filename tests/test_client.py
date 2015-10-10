@@ -218,15 +218,6 @@ class MainClientTests(ClientTestsSetup):
     def mycapsys(self, capsys):
         self.mycapsys = capsys
 
-    def test_help(self):
-        # we can get help
-        try:
-            main(['--help'])
-        except SystemExit:
-            pass  # help causes sys.exit(1)
-        out, err = self.mycapsys.readouterr()
-        assert out[:43] == u"usage: oooclient [-h] [--cachedir CACHEDIR]"
-
     def test_argument_error(self):
         # argument errors are shown and explained
         try:
