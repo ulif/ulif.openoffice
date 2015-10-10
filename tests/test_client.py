@@ -217,21 +217,3 @@ class TestClientMain(object):
         out, err = capsys.readouterr()
         assert err.endswith(
             'error: unrecognized arguments: --not-existing-arg\n')
-
-
-class MainClientTests(ClientTestsSetup):
-    # tests for the client modules `main` function
-
-    @pytest.fixture(autouse=True)
-    def mycapsys(self, capsys):
-        self.mycapsys = capsys
-
-    def test_argument_error(self):
-        # argument errors are shown and explained
-        try:
-            main(['--not-existing-arg', self.src_doc])
-        except SystemExit:
-            pass  # errors cause sys.exit()
-        out, err = self.mycapsys.readouterr()
-        assert err.endswith(
-            'error: unrecognized arguments: --not-existing-arg\n')
