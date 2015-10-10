@@ -210,6 +210,14 @@ class TestClientMain(object):
         out, err = capsys.readouterr()
         assert out.startswith(u"usage: oooclient [-h] [--cachedir CACHEDIR]")
 
+    def test_argument_error(self, client_env, capsys):
+        # argument errors are shown and explained
+        with pytest.raises(SystemExit):
+            main(['--not-existing-arg', client_env.src_doc])
+        out, err = capsys.readouterr()
+        assert err.endswith(
+            'error: unrecognized arguments: --not-existing-arg\n')
+
 
 class MainClientTests(ClientTestsSetup):
     # tests for the client modules `main` function
