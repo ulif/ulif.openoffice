@@ -205,10 +205,8 @@ class TestClientMain(object):
 
     def test_help(self, client_env, capsys):
         # we can get help
-        try:
+        with pytest.raises(SystemExit):
             main(['--help'])
-        except SystemExit:
-            pass  # help causes sys.exit(1)
         out, err = capsys.readouterr()
         assert out.startswith(u"usage: oooclient [-h] [--cachedir CACHEDIR]")
 
