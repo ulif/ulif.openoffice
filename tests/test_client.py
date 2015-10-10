@@ -203,6 +203,15 @@ class TestClientMain(object):
         assert os.path.isfile(outfile_path)
         assert outfile_path.endswith('/sample.pdf')
 
+    def test_help(self, client_env, capsys):
+        # we can get help
+        try:
+            main(['--help'])
+        except SystemExit:
+            pass  # help causes sys.exit(1)
+        out, err = capsys.readouterr()
+        assert out.startswith(u"usage: oooclient [-h] [--cachedir CACHEDIR]")
+
 
 class MainClientTests(ClientTestsSetup):
     # tests for the client modules `main` function
