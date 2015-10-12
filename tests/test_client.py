@@ -10,33 +10,6 @@ from ulif.openoffice.options import ArgumentParserError
 from ulif.openoffice.testing import ConvertLogCatcher
 
 
-class ClientTestsSetup(unittest.TestCase):
-    # a setup for client tests
-    def setUp(self):
-        self.rootdir = tempfile.mkdtemp()
-        self.srcdir = os.path.join(self.rootdir, 'src')
-        os.mkdir(self.srcdir)
-        self.cachedir = os.path.join(self.rootdir, 'cache')
-        os.mkdir(self.cachedir)
-        self.resultdir = None
-        self.src_doc = os.path.join(self.srcdir, 'sample.txt')
-        with open(self.src_doc, 'w') as fd:
-            fd.write('Hi there.')
-        self.entry_wd = os.getcwd()
-        self.log_catcher = ConvertLogCatcher()
-
-    def tearDown(self):
-        try:
-            if os.getcwd() != self.entry_wd:
-                os.chdir(self.entry_wd)
-        except OSError:
-            # might happen if resultdir was deleted already
-            os.chdir(self.entry_wd)
-        shutil.rmtree(self.rootdir)
-        if self.resultdir is not None:
-            shutil.rmtree(self.resultdir)
-
-
 class TestConvertDoc(object):
     # tests for convert_doc function
 
