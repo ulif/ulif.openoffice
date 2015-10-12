@@ -2,12 +2,8 @@
 import filecmp
 import os
 import pytest
-import shutil
-import tempfile
-import unittest
 from ulif.openoffice.client import convert_doc, Client, main
 from ulif.openoffice.options import ArgumentParserError
-from ulif.openoffice.testing import ConvertLogCatcher
 
 
 class TestConvertDoc(object):
