@@ -14,13 +14,6 @@ class TestOOOCtl(object):
 
 class OOOctlTests(unittest.TestCase):
 
-    def test_get_options(self):
-        cmd, options = get_options(['fakeoooctl', 'start'])
-        self.assertEqual(cmd, 'start')
-        self.assertTrue(options.binarypath is not None)
-        self.assertEqual(options.pidfile, '/tmp/ooodaemon.pid')
-        return
-
     def test_get_options_no_argv(self):
         try:
             get_options(argv=[])
