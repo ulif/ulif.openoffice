@@ -3,6 +3,15 @@ import unittest
 from ulif.openoffice.oooctl import get_options
 
 
+class TestOOOCtl(object):
+
+    def test_get_options(self):
+        cmd, options = get_options(["fakeoooctl", "start"])
+        assert cmd == "start"
+        assert options.binarypath is not None
+        assert options.pidfile == "/tmp/ooodaemon.pid"
+
+
 class OOOctlTests(unittest.TestCase):
 
     def test_get_options(self):
