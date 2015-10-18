@@ -1,4 +1,5 @@
 # tests for oooctl module
+import pytest
 import unittest
 from ulif.openoffice.oooctl import get_options
 
@@ -10,6 +11,11 @@ class TestOOOCtl(object):
         assert cmd == "start"
         assert options.binarypath is not None
         assert options.pidfile == "/tmp/ooodaemon.pid"
+
+    def test_get_options_no_argv(self):
+        with pytest.raises(SystemExit) as why:
+            get_options(argv=[])
+            why.code == 2
 
 
 class OOOctlTests(unittest.TestCase):
