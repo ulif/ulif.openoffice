@@ -17,6 +17,11 @@ class TestOOOCtl(object):
             get_options(argv=[])
             why.code == 2
 
+    def test_get_options_invalid_command(self):
+        with pytest.raises(SystemExit) as why:
+            get_options(argv=['fakeoooctl', 'maybestart'])
+            why.code == 2
+
 
 class OOOctlTests(unittest.TestCase):
 
