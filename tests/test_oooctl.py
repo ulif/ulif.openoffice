@@ -22,6 +22,11 @@ class TestOOOCtl(object):
             get_options(argv=['fakeoooctl', 'maybestart'])
             why.code == 2
 
+    def test_get_options_too_many_args(self):
+        with pytest.raises(SystemExit) as why:
+            get_options(argv=['fakeoooctl', 'too', 'much'])
+            assert err.code == 2
+
 
 class OOOctlTests(unittest.TestCase):
 
