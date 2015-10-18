@@ -25,15 +25,6 @@ class TestOOOCtl(object):
 
 class OOOctlTests(unittest.TestCase):
 
-    def test_get_options_invalid_command(self):
-        try:
-            get_options(argv=['fakeoooctl', 'maybestart'])
-        except(SystemExit) as err:
-            self.assertEqual(err.code, 2)
-        else:
-            self.fail('SystemExit exception expected.')
-        return
-
     def test_get_options_too_many_args(self):
         try:
             get_options(argv=['fakeoooctl', 'too', 'much'])
