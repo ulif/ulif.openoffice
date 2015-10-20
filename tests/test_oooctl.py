@@ -32,16 +32,3 @@ class TestOOOCtl(object):
         with pytest.raises(SystemExit) as why:
             get_options(argv=['fakeoooctl', '-b', 'invalid-path', 'start'])
             assert why.code == 2
-
-
-class OOOctlTests(unittest.TestCase):
-
-    def test_get_options_invalid_binpath(self):
-        # we should not pass an invalid path to executable
-        try:
-            get_options(argv=['fakeoooctl', '-b', 'invalid-path', 'start'])
-        except(SystemExit) as err:
-            self.assertEqual(err.code, 2)
-        else:
-            self.fail('SystemExit exception expected.')
-        return
