@@ -27,6 +27,12 @@ class TestOOOCtl(object):
             get_options(argv=['fakeoooctl', 'too', 'much'])
             assert err.code == 2
 
+    def test_get_options_invalid_binpath(self):
+        # we should not pass an invalid path to executable
+        with pytest.raises(SystemExit) as why:
+            get_options(argv=['fakeoooctl', '-b', 'invalid-path', 'start'])
+            assert why.code == 2
+
 
 class OOOctlTests(unittest.TestCase):
 
