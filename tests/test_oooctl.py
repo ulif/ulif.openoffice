@@ -1,6 +1,5 @@
 # tests for oooctl module
 import pytest
-import unittest
 from ulif.openoffice.oooctl import get_options
 
 
