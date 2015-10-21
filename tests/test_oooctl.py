@@ -24,7 +24,7 @@ class TestOOOCtl(object):
     def test_get_options_too_many_args(self):
         with pytest.raises(SystemExit) as why:
             get_options(argv=['fakeoooctl', 'too', 'much'])
-            assert err.code == 2
+        assert why.value.code == 2
 
     def test_get_options_invalid_binpath(self):
         # we should not pass an invalid path to executable
