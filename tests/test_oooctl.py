@@ -14,20 +14,24 @@ class TestOOOCtl(object):
     def test_get_options_no_argv(self):
         with pytest.raises(SystemExit) as why:
             get_options(argv=[])
-        assert why.value.code == 2
+        code = getattr(why.value, "code", why.value)
+        assert code == 2
 
     def test_get_options_invalid_command(self):
         with pytest.raises(SystemExit) as why:
             get_options(argv=['fakeoooctl', 'maybestart'])
-        assert why.value.code == 2
+        code = getattr(why.value, "code", why.value)
+        assert code == 2
 
     def test_get_options_too_many_args(self):
         with pytest.raises(SystemExit) as why:
             get_options(argv=['fakeoooctl', 'too', 'much'])
-        assert why.value.code == 2
+        code = getattr(why.value, "code", why.value)
+        assert code == 2
 
     def test_get_options_invalid_binpath(self):
         # we should not pass an invalid path to executable
         with pytest.raises(SystemExit) as why:
             get_options(argv=['fakeoooctl', '-b', 'invalid-path', 'start'])
-        assert why.value.code == 2
+        code = getattr(why.value, "code", why.value)
+        assert code == 2
