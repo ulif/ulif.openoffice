@@ -59,7 +59,7 @@ def get_unoconv_version():
 UNOCONV_VERSION = get_unoconv_version()
 
 
-class TestProcessorHelpers(unittest.TestCase):
+class TestProcessorHelpers(object):
 
     def test_processor_order_valid(self):
         assert processor_order('unzip, zip') == ('unzip', 'zip')
@@ -70,8 +70,8 @@ class TestProcessorHelpers(unittest.TestCase):
 
     def test_processor_order_invalid(self):
         # we do accept only valid processor names
-        self.assertRaises(
-            ValueError, processor_order, 'unzip, invalid, zip')
+        with pytest.raises(ValueError) as why:
+            processor_order('unzip, invalid, zip')
 
 
 class TestBaseProcessor(unittest.TestCase):
