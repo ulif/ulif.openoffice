@@ -74,13 +74,13 @@ class TestProcessorHelpers(object):
             processor_order('unzip, invalid, zip')
 
 
-class TestBaseProcessor(unittest.TestCase):
+class TestBaseProcessor(object):
 
     def test_process_raises_not_implemented(self):
         # make sure a call to process raises something
         proc = BaseProcessor()
-        self.assertRaises(
-            NotImplementedError, proc.process, None, None)
+        with pytest.raises(NotImplementedError):
+            proc.process(None, None)
 
     def test_args(self):
         # each processor should provide an arparser compatible list of
