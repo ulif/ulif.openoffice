@@ -129,6 +129,11 @@ class TestMetaProcessorNew(object):
             "oocp_port=2002"
         )
 
+    def test_options_invalid(self):
+        # Make sure that invalid options lead to exceptions
+        with pytest.raises(ArgumentParserError):
+            MetaProcessor(options={'meta-procord': 'oop,nonsense'})
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -152,13 +157,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_options_invalid(self):
-        # Make sure that invalid options lead to exceptions
-        self.assertRaises(
-            ArgumentParserError,
-            MetaProcessor, options={'meta-procord': 'oop,nonsense'})
-        return
 
     def test_avail_processors(self):
         # Make sure processors defined via entry points are found
