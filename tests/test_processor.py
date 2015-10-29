@@ -96,6 +96,11 @@ class TestMetaProcessorNew(object):
         proc = MetaProcessor()
         assert 'meta_processor_order' in proc.options.keys()
 
+    def test_ignored_options(self):
+        # We ignore keys not in default dict
+        proc = MetaProcessor(options={'meta-foo': '12'})
+        assert 'meta-foo' not in proc.options.keys()
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -119,11 +124,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_ignored_options(self):
-        # We ignore keys not in default dict
-        proc = MetaProcessor(options={'meta-foo': '12'})
-        assert 'meta-foo' not in proc.options.keys()
 
     def test_non_meta_options(self):
         # We ignore options not determined for the meta processor
