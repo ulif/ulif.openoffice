@@ -89,6 +89,14 @@ class TestBaseProcessor(object):
         assert proc.args == []
 
 
+class TestMetaProcessorNew(object):
+
+    def test_no_options(self):
+        # We cope with no options set
+        proc = MetaProcessor()
+        assert 'meta_processor_order' in proc.options.keys()
+
+
 class TestMetaProcessor(unittest.TestCase):
 
     def create_input(self):
