@@ -120,12 +120,6 @@ class TestMetaProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_no_options(self):
-        # We cope with no options set
-        proc = MetaProcessor()
-        assert 'meta_processor_order' in proc.options.keys()
-        return
-
     def test_ignored_options(self):
         # We ignore keys not in default dict
         proc = MetaProcessor(options={'meta-foo': '12'})
