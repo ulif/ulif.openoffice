@@ -106,6 +106,11 @@ class TestMetaProcessorNew(object):
         proc = MetaProcessor(options={'foo.bar': '12'})
         assert 'bar' not in proc.options.keys()
 
+    def test_option_set(self):
+        # We respect options set if available in the defaults dict
+        proc = MetaProcessor(options={'meta-procord': 'oocp,oocp'})
+        assert proc.options['meta_processor_order'] == ('oocp', 'oocp')
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -129,11 +134,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_option_set(self):
-        # We respect options set if available in the defaults dict
-        proc = MetaProcessor(options={'meta-procord': 'oocp,oocp'})
-        assert proc.options['meta_processor_order'] == ('oocp', 'oocp')
 
     def test_options_as_strings(self):
         proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
