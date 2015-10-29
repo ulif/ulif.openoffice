@@ -111,6 +111,24 @@ class TestMetaProcessorNew(object):
         proc = MetaProcessor(options={'meta-procord': 'oocp,oocp'})
         assert proc.options['meta_processor_order'] == ('oocp', 'oocp')
 
+    def test_options_as_strings(self):
+        proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
+        result = proc.get_options_as_string()
+        assert result == (
+            "css_cleaner_minified=True"
+            "css_cleaner_prettify_html=False"
+            "html_cleaner_fix_heading_numbers=True"
+            "html_cleaner_fix_image_links=True"
+            "html_cleaner_fix_sd_fields=True"
+            "meta_processor_order=('unzip', 'oocp', 'tidy', 'html_cleaner', "
+            "'css_cleaner', 'zip')"
+            "oocp_hostname=localhost"
+            "oocp_output_format=html"
+            "oocp_pdf_tagged=False"
+            "oocp_pdf_version=False"
+            "oocp_port=2002"
+        )
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -134,24 +152,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_options_as_strings(self):
-        proc = MetaProcessor(options={'meta.procord': 'oocp, oocp'})
-        result = proc.get_options_as_string()
-        assert result == (
-            "css_cleaner_minified=True"
-            "css_cleaner_prettify_html=False"
-            "html_cleaner_fix_heading_numbers=True"
-            "html_cleaner_fix_image_links=True"
-            "html_cleaner_fix_sd_fields=True"
-            "meta_processor_order=('unzip', 'oocp', 'tidy', 'html_cleaner', "
-            "'css_cleaner', 'zip')"
-            "oocp_hostname=localhost"
-            "oocp_output_format=html"
-            "oocp_pdf_tagged=False"
-            "oocp_pdf_version=False"
-            "oocp_port=2002"
-        )
 
     def test_options_invalid(self):
         # Make sure that invalid options lead to exceptions
