@@ -134,6 +134,12 @@ class TestMetaProcessorNew(object):
         with pytest.raises(ArgumentParserError):
             MetaProcessor(options={'meta-procord': 'oop,nonsense'})
 
+    def test_avail_processors(self):
+        # Make sure processors defined via entry points are found
+        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
+        assert proc.avail_procs['oocp'] is OOConvProcessor
+        assert len(proc.avail_procs.items()) > 0
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -157,12 +163,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_avail_processors(self):
-        # Make sure processors defined via entry points are found
-        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
-        assert proc.avail_procs['oocp'] is OOConvProcessor
-        assert len(proc.avail_procs.items()) > 0
 
     def test_build_pipeline_single(self):
         proc = MetaProcessor(options={'meta-procord': 'oocp'})
