@@ -145,6 +145,16 @@ class TestMetaProcessorNew(object):
         result = proc._build_pipeline()
         assert result == (OOConvProcessor,)
 
+    def test_build_pipeline_twoitems(self):
+        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
+        result = proc._build_pipeline()
+        assert result == (OOConvProcessor, OOConvProcessor)
+
+    def test_build_pipeline_empty(self):
+        proc = MetaProcessor(options={'meta-procord': ''})
+        result = proc._build_pipeline()
+        assert result == ()
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -168,16 +178,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_build_pipeline_twoitems(self):
-        proc = MetaProcessor(options={'meta-procord': 'oocp, oocp'})
-        result = proc._build_pipeline()
-        assert result == (OOConvProcessor, OOConvProcessor)
-
-    def test_build_pipeline_empty(self):
-        proc = MetaProcessor(options={'meta-procord': ''})
-        result = proc._build_pipeline()
-        assert result == ()
 
     def test_build_pipeline_empty_elements(self):
         proc = MetaProcessor(options={'meta-procord': 'oocp,,,oocp'})
