@@ -191,12 +191,6 @@ class TestMetaProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_process_default(self):
-        proc = MetaProcessor(options={})
-        self.resultpath, metadata = proc.process(self.input)
-        assert metadata['error'] is False and metadata['oocp_status'] == 0
-        assert self.resultpath.endswith('sample.html.zip')
-
     def test_process_xhtml_unzipped(self):
         proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
                                       'meta-procord': 'unzip,oocp'})
