@@ -160,6 +160,13 @@ class TestMetaProcessorNew(object):
         result = proc._build_pipeline()
         assert result == (OOConvProcessor, OOConvProcessor)
 
+    def test_process_default(self, tmpdir):
+        tmpdir.join("sample.txt").write("Sample Doc")
+        proc = MetaProcessor(options={})
+        resultpath, metadata = proc.process(str(tmpdir / "sample.txt"))
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
+        assert resultpath.endswith('sample.html.zip')
+
 
 class TestMetaProcessor(unittest.TestCase):
 
