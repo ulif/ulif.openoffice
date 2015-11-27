@@ -166,6 +166,15 @@ class TestMetaProcessorNew(object):
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert resultpath.endswith('sample.html.zip')
 
+    def test_process_xhtml_unzipped(self, workdir):
+        proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
+                                      'meta-procord': 'unzip,oocp'})
+        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        assert os.path.isfile(resultpath)
+        assert metadata['error'] is False and metadata['oocp_status'] == 0
+        assert open(resultpath, 'r').read().startswith('<?xml ')
+        assert resultpath.endswith('sample.html')
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -189,15 +198,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_process_xhtml_unzipped(self):
-        proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
-                                      'meta-procord': 'unzip,oocp'})
-        self.resultpath, metadata = proc.process(self.input)
-        assert os.path.isfile(self.resultpath)
-        assert metadata['error'] is False and metadata['oocp_status'] == 0
-        assert open(self.resultpath, 'r').read().startswith('<?xml ')
-        assert self.resultpath.endswith('sample.html')
 
     def test_process_html_unzipped(self):
         proc = MetaProcessor(options={'oocp-out-fmt': 'html',
