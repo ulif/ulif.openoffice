@@ -184,6 +184,15 @@ class TestMetaProcessorNew(object):
         assert open(resultpath, 'r').read().startswith('<!DOCTYPE')
         assert resultpath.endswith('sample.html')
 
+    def test_process_with_errors(self, workdir):
+        proc = MetaProcessor(options={'meta-procord': 'error'})
+        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        assert resultpath is None
+        assert metadata == {
+            'error': True,
+            'error-descr': 'Intentional error. Please ignore',
+            }
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -207,15 +216,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_process_with_errors(self):
-        proc = MetaProcessor(options={'meta-procord': 'error'})
-        self.resultpath, metadata = proc.process(self.input)
-        assert self.resultpath is None
-        assert metadata == {
-            'error': True,
-            'error-descr': 'Intentional error. Please ignore',
-            }
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
