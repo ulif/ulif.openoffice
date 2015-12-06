@@ -162,14 +162,16 @@ class TestMetaProcessor(object):
 
     def test_process_default(self, workdir):
         proc = MetaProcessor(options={})
-        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.txt"))
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert resultpath.endswith('sample.html.zip')
 
     def test_process_xhtml_unzipped(self, workdir):
         proc = MetaProcessor(options={'oocp-out-fmt': 'xhtml',
                                       'meta-procord': 'unzip,oocp'})
-        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.txt"))
         assert os.path.isfile(resultpath)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert open(resultpath, 'r').read().startswith('<?xml ')
@@ -178,7 +180,8 @@ class TestMetaProcessor(object):
     def test_process_html_unzipped(self, workdir):
         proc = MetaProcessor(options={'oocp-out-fmt': 'html',
                                       'meta-procord': 'unzip,oocp'})
-        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.txt"))
         assert os.path.isfile(resultpath)
         assert metadata['error'] is False and metadata['oocp_status'] == 0
         assert open(resultpath, 'r').read().startswith('<!DOCTYPE')
@@ -186,7 +189,8 @@ class TestMetaProcessor(object):
 
     def test_process_with_errors(self, workdir):
         proc = MetaProcessor(options={'meta-procord': 'error'})
-        resultpath, metadata = proc.process(str(workdir / "src" / "sample.txt"))
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.txt"))
         assert resultpath is None
         assert metadata == {
             'error': True,
