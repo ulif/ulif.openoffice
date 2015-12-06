@@ -89,7 +89,7 @@ class TestBaseProcessor(object):
         assert proc.args == []
 
 
-class TestMetaProcessorNew(object):
+class TestMetaProcessor(object):
 
     def test_no_options(self):
         # We cope with no options set
@@ -209,30 +209,6 @@ class TestMetaProcessorNew(object):
         result = vars(parser.parse_args(['-meta-procord', 'unzip,oocp,zip']))
         assert result == {
             'meta_processor_order': ('unzip', 'oocp', 'zip')}
-
-
-class TestMetaProcessor(unittest.TestCase):
-
-    def create_input(self):
-        os.mkdir(os.path.join(self.workdir, 'input'))
-        with open(self.input, 'w') as fd:
-            fd.write('Hi there!')
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        os.mkdir(os.path.join(self.workdir, 'input'))
-        os.mkdir(os.path.join(self.workdir, 'output'))
-        self.input = os.path.join(self.workdir, 'input', 'sample.txt')
-        self.output = os.path.join(self.workdir, 'output', 'result.txt')
-        with open(self.input, 'w') as fd:
-            fd.write('Hi there!')
-        with open(self.output, 'w') as fd:
-            fd.write('I am a (fake) converted doc')
-
-    def tearDown(self):
-        remove_file_dir(self.workdir)
-        remove_file_dir(self.resultpath)
 
 
 class FakeUnoconvContext(object):
