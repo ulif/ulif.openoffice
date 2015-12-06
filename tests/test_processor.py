@@ -193,6 +193,23 @@ class TestMetaProcessorNew(object):
             'error-descr': 'Intentional error. Please ignore',
             }
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in MetaProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {
+            'meta_processor_order':
+            ('unzip', 'oocp', 'tidy', 'html_cleaner', 'css_cleaner', 'zip',)
+            }
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args(['-meta-procord', 'unzip,oocp,zip']))
+        assert result == {
+            'meta_processor_order': ('unzip', 'oocp', 'zip')}
+
 
 class TestMetaProcessor(unittest.TestCase):
 
@@ -216,23 +233,6 @@ class TestMetaProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in MetaProcessor.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {
-            'meta_processor_order':
-            ('unzip', 'oocp', 'tidy', 'html_cleaner', 'css_cleaner', 'zip',)
-            }
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args(['-meta-procord', 'unzip,oocp,zip']))
-        assert result == {
-            'meta_processor_order': ('unzip', 'oocp', 'zip')}
 
 
 class FakeUnoconvContext(object):
