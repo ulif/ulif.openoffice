@@ -457,6 +457,14 @@ class TestUnzipProcessorNew(object):
         resultpath, metadata = proc.process(
             str(samples_dir / "sample2.zip"), {})
         assert resultpath.endswith('simple.txt')
+
+     def test_one_file_only(self, workdir, samples_dir):
+        # if a zip file contains more than one file, that's an error
+        proc = UnzipProcessor()
+        result_path, metadata = proc.process(
+            str(samples_dir / "sample1.zip"), {'error': False})
+        assert metadata['error'] is True
+        assert result_path is None
     
 
 class TestUnzipProcessor(unittest.TestCase):
@@ -484,14 +492,6 @@ class TestUnzipProcessor(unittest.TestCase):
             self.result_path = os.path.dirname(self.result_path)
         shutil.rmtree(self.result_path)
         return
-
-    def test_one_file_only(self):
-        # if a zip file contains more than one file, that's an error
-        proc = UnzipProcessor()
-        self.result_path, metadata = proc.process(
-            self.zipfile2_path, {'error': False})
-        assert metadata['error'] is True
-        assert self.result_path is None
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
