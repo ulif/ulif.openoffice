@@ -465,6 +465,21 @@ class TestUnzipProcessorNew(object):
             str(samples_dir / "sample1.zip"), {'error': False})
         assert metadata['error'] is True
         assert result_path is None
+
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in UnzipProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
+
+
     
 
 class TestUnzipProcessor(unittest.TestCase):
