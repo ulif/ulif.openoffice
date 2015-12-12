@@ -452,13 +452,13 @@ class TestOOConvProcessor(TestOOServerSetup):
 
 class TestUnzipProcessorNew(object):
 
-     def test_simple(self, workdir, samples_dir):
+    def test_simple(self, workdir, samples_dir):
         proc = UnzipProcessor()
         resultpath, metadata = proc.process(
             str(samples_dir / "sample2.zip"), {})
         assert resultpath.endswith('simple.txt')
 
-     def test_one_file_only(self, workdir, samples_dir):
+    def test_one_file_only(self, workdir, samples_dir):
         # if a zip file contains more than one file, that's an error
         proc = UnzipProcessor()
         result_path, metadata = proc.process(
@@ -479,8 +479,6 @@ class TestUnzipProcessorNew(object):
         result = vars(parser.parse_args([]))
         assert result == {}
 
-
-    
 
 class TestUnzipProcessor(unittest.TestCase):
 
