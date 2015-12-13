@@ -506,19 +506,6 @@ class TestUnzipProcessor(unittest.TestCase):
         shutil.rmtree(self.result_path)
         return
 
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in UnzipProcessor.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {}
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args([]))
-        assert result == {}
-
 
 class TestZipProcessor(unittest.TestCase):
 
