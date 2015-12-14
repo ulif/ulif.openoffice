@@ -466,6 +466,15 @@ class TestUnzipProcessorNew(object):
         assert metadata['error'] is True
         assert result_path is None
 
+    def test_unsupported_extension(self, workdir):
+        # if the given file has unsupported filenames extension,
+        # it is returned unchanged.
+        proc = UnzipProcessor()
+        input_path = str(workdir / "src" / "sample.txt")
+        result_path, metadata = proc.process(input_path, {'error': False})
+        assert metadata['error'] is False
+        assert result_path == input_path
+
     def test_args(self):
         # we can add create argparse-arguments from `args`
         parser = ArgumentParser()
