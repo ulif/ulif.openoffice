@@ -489,33 +489,6 @@ class TestUnzipProcessorNew(object):
         assert result == {}
 
 
-class TestUnzipProcessor(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.zipfile_path = os.path.join(self.workdir, 'sample2.zip')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample2.zip'),
-            self.zipfile_path)
-        self.zipfile2_path = os.path.join(self.workdir, 'sample1.zip')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample1.zip'),
-            self.zipfile2_path)
-        self.result_path = None
-        return
-
-    def tearDown(self):
-        shutil.rmtree(self.workdir)
-        if self.result_path is None:
-            return
-        if not os.path.exists(self.result_path):
-            return
-        if os.path.isfile(self.result_path):
-            self.result_path = os.path.dirname(self.result_path)
-        shutil.rmtree(self.result_path)
-        return
-
-
 class TestZipProcessor(unittest.TestCase):
 
     def setUp(self):
