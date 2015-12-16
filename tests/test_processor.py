@@ -450,7 +450,7 @@ class TestOOConvProcessor(TestOOServerSetup):
                           'oocp_port': 1234}
 
 
-class TestUnzipProcessorNew(object):
+class TestUnzipProcessor(object):
 
     def test_simple(self, workdir, samples_dir):
         proc = UnzipProcessor()
