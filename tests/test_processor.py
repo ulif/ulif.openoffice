@@ -489,6 +489,30 @@ class TestUnzipProcessor(object):
         assert result == {}
 
 
+class TestZipProcessorNew(object):
+
+    def test_simple(self, workdir):
+        sample_path = str(workdir / "src" / "sample.txt")
+        proc = ZipProcessor()
+        result_path, metadata = proc.process(
+            sample_path, {'error': False})
+        assert zipfile.is_zipfile(result_path)
+        zip_file = zipfile.ZipFile(result_path, 'r')
+        assert zip_file.namelist() == ['sample.txt', ]
+
+    def test_store_several_files(self, workdir):
+        # Zip processor is able to store several files in a ZIP file.
+        sample_path = str(workdir / "src" / "sample.txt")
+        workdir.join("src").join("othersample.txt").write("Hi there")
+        proc = ZipProcessor()
+        result_path, metadata = proc.process(
+            sample_path, {'error': False})
+        assert zipfile.is_zipfile(result_path)
+        zip_file = zipfile.ZipFile(result_path, 'r')
+        namelist = zip_file.namelist()
+        assert sorted(namelist) == ['othersample.txt', 'sample.txt']
+
+
 class TestZipProcessor(unittest.TestCase):
 
     def setUp(self):
