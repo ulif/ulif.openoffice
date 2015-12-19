@@ -70,7 +70,7 @@ class TestProcessorHelpers(object):
 
     def test_processor_order_invalid(self):
         # we do accept only valid processor names
-        with pytest.raises(ValueError) as why:
+        with pytest.raises(ValueError):
             processor_order('unzip, invalid, zip')
 
 
