@@ -489,7 +489,7 @@ class TestUnzipProcessor(object):
         assert result == {}
 
 
-class TestZipProcessorNew(object):
+class TestZipProcessor(object):
 
     def test_simple(self, workdir):
         sample_path = str(workdir / "src" / "sample.txt")
@@ -524,26 +524,6 @@ class TestZipProcessorNew(object):
         # explicitly set value (different from default)
         result = vars(parser.parse_args([]))
         assert result == {}
-
-
-class TestZipProcessor(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.result_path = None
-        return
-
-    def tearDown(self):
-        if os.path.isdir(self.workdir):
-            shutil.rmtree(self.workdir)
-        if self.result_path is None:
-            return
-        if not os.path.exists(self.result_path):
-            return
-        if os.path.isfile(self.result_path):
-            self.result_path = os.path.dirname(self.result_path)
-        shutil.rmtree(self.result_path)
-        return
 
 
 class TestTidyProcessor(unittest.TestCase):
