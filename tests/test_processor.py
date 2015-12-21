@@ -512,6 +512,19 @@ class TestZipProcessorNew(object):
         namelist = zip_file.namelist()
         assert sorted(namelist) == ['othersample.txt', 'sample.txt']
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in ZipProcessor.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
+
 
 class TestZipProcessor(unittest.TestCase):
 
@@ -531,19 +544,6 @@ class TestZipProcessor(unittest.TestCase):
             self.result_path = os.path.dirname(self.result_path)
         shutil.rmtree(self.result_path)
         return
-
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in ZipProcessor.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {}
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args([]))
-        assert result == {}
 
 
 class TestTidyProcessor(unittest.TestCase):
