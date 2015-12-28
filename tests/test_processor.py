@@ -528,13 +528,12 @@ class TestZipProcessor(object):
 
 class TestTidyProcessorNew(object):
     
-    def test_default_xhtml(self, workdir):
+    def test_default_xhtml(self, workdir, samples_dir):
         # make sure by default we get XHTML output from HTML.
-        sample_file = workdir / "src" / "sample.html"
-        sample_file.write("<html><body>Hi there!</body></html>")
-        sample_path = str(sample_file)
+        samples_dir.join("sample1.html").copy(workdir / "src" / "sample.html")
         proc = Tidy()
-        resultpath, metadata = proc.process(sample_path, {'error': False})
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
         contents = open(resultpath, 'rb').read()
         assert b'xmlns="http://www.w3.org/1999/xhtml"' in contents
 
