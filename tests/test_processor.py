@@ -554,14 +554,6 @@ class TestTidyProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_default_xhtml(self):
-        # make sure by default we get XHTML output from HTML.
-        proc = Tidy()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'rb').read()
-        assert b'xmlns="http://www.w3.org/1999/xhtml"' in contents
-
     def test_encoding_utf8(self):
         # make sure we get UTF-8 output and no special stuff.
         proc = Tidy()
