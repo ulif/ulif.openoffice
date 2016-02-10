@@ -526,7 +526,7 @@ class TestZipProcessor(object):
         assert result == {}
 
 
-class TestTidyProcessorNew(object):
+class TestTidyProcessor(object):
 
     def test_default_xhtml(self, workdir, samples_dir):
         # make sure by default we get XHTML output from HTML.
@@ -569,22 +569,6 @@ class TestTidyProcessorNew(object):
         # explicitly set value (different from default)
         result = vars(parser.parse_args([]))
         assert result == {}
-
-
-class TestTidyProcessor(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        self.sample_path = os.path.join(self.workdir, 'sample.html')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample1.html'),
-            self.sample_path)
-        return
-
-    def tearDown(self):
-        remove_file_dir(self.workdir)
-        remove_file_dir(self.resultpath)
 
 
 class TestCSSCleanerProcessor(unittest.TestCase):
