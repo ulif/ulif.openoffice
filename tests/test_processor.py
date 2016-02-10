@@ -547,6 +547,16 @@ class TestTidyProcessorNew(object):
         assert 'Ü' in contents
         assert '&Uuml;' not in contents
 
+    def test_non_html_ignored(self, workdir):
+        # we do not try to tidy non html/xhtml files
+        proc = Tidy()
+        sample_path = workdir / "sample.txt"
+        sample_path.write('Sample file.')
+        resultpath, metadata = proc.process(
+            str(sample_path), {'error': False})
+        # the document path hasn't changed
+        assert resultpath == str(sample_path)
+
 
 class TestTidyProcessor(unittest.TestCase):
 
@@ -562,17 +572,6 @@ class TestTidyProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_non_html_ignored(self):
-        # we do not try to tidy non html/xhtml files
-        proc = Tidy()
-        sample_path = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_path, 'w') as fd:
-            fd.write('Sample file.')
-        self.resultpath, metadata = proc.process(
-            sample_path, {'error': False})
-        # the document path hasn't changed
-        assert self.resultpath == sample_path
 
     def test_args(self):
         # we can add create argparse-arguments from `args`
