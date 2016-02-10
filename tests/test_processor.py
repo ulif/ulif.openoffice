@@ -557,6 +557,19 @@ class TestTidyProcessorNew(object):
         # the document path hasn't changed
         assert resultpath == str(sample_path)
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in Tidy.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {}
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args([]))
+        assert result == {}
+
 
 class TestTidyProcessor(unittest.TestCase):
 
@@ -572,19 +585,6 @@ class TestTidyProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in Tidy.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {}
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args([]))
-        assert result == {}
 
 
 class TestCSSCleanerProcessor(unittest.TestCase):
