@@ -2,7 +2,7 @@
 #
 # test_processor.py
 #
-# Copyright (C) 2011, 2013, 2015 Uli Fouquet
+# Copyright (C) 2011, 2013, 2015-2016 Uli Fouquet
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -527,7 +527,7 @@ class TestZipProcessor(object):
 
 
 class TestTidyProcessorNew(object):
-    
+
     def test_default_xhtml(self, workdir, samples_dir):
         # make sure by default we get XHTML output from HTML.
         samples_dir.join("sample1.html").copy(workdir / "src" / "sample.html")
