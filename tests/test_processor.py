@@ -537,6 +537,16 @@ class TestTidyProcessorNew(object):
         contents = open(resultpath, 'rb').read()
         assert b'xmlns="http://www.w3.org/1999/xhtml"' in contents
 
+    def test_encoding_utf8(self, workdir, samples_dir):
+        # make sure we get UTF-8 output and no special stuff.
+        samples_dir.join("sample1.html").copy(workdir / "src" / "sample.html")
+        proc = Tidy()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        contents = open(resultpath, 'r').read()
+        assert 'Ü' in contents
+        assert '&Uuml;' not in contents
+
 
 class TestTidyProcessor(unittest.TestCase):
 
@@ -552,15 +562,6 @@ class TestTidyProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_encoding_utf8(self):
-        # make sure we get UTF-8 output and no special stuff.
-        proc = Tidy()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        assert 'Ü' in contents
-        assert '&Uuml;' not in contents
 
     def test_non_html_ignored(self):
         # we do not try to tidy non html/xhtml files
