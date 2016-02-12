@@ -586,6 +586,17 @@ class TestCSSCleanerProcessorNew(object):
         assert snippet in contents
         assert 'With umlaut: ä' in contents
 
+    def test_cleaner_css_correct_css(self, workdir, samples_dir):
+        # make sure we get a new CSS file and a link to it in HTML
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        resultdir = os.path.dirname(resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'r').read()
+        assert 'font-family: ;' not in result_css
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
