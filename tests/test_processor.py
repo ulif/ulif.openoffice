@@ -613,17 +613,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_cleaner_css_correct_css(self):
-        # make sure we get a new CSS file and a link to it in HTML
-        proc = CSSCleaner()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-
-        resultdir = os.path.dirname(self.resultpath)
-        result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'r').read()
-        assert 'font-family: ;' not in result_css
-
     def test_cleaner_css_minified(self):
         # make sure we can get minified CSS if we wish so.
         proc = CSSCleaner(options={'css_cleaner.minified': '1'})
