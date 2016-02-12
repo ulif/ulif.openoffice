@@ -624,17 +624,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_cleaner_css_minified(self):
-        # make sure we can get minified CSS if we wish so.
-        proc = CSSCleaner(options={'css_cleaner.minified': '1'})
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-
-        resultdir = os.path.dirname(self.resultpath)
-        result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'r').read()
-        assert 'p{margin-bottom:.21cm}span.c2' in result_css
-
     def test_cleaner_css_non_minified(self):
         # make sure we can get non-minified CSS if we wish so.
         proc = CSSCleaner(options={'css-cleaner-min': '0'})
