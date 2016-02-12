@@ -597,6 +597,17 @@ class TestCSSCleanerProcessorNew(object):
             os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'font-family: ;' not in result_css
 
+    def test_cleaner_css_minified(self, workdir, samples_dir):
+        # make sure we can get minified CSS if we wish so.
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner(options={'css_cleaner.minified': '1'})
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        resultdir = os.path.dirname(resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'r').read()
+        assert 'p{margin-bottom:.21cm}span.c2' in result_css
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
