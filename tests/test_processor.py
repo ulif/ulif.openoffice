@@ -571,6 +571,22 @@ class TestTidyProcessor(object):
         assert result == {}
 
 
+class TestCSSCleanerProcessorNew(object):
+
+    def test_cleaner(self, workdir, samples_dir):
+        # make sure we get a new CSS file and a link to it in HTML
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        contents = open(resultpath, 'r').read()
+        snippet = "%s" % (
+            '<link href="sample.css" rel="stylesheet" type="text/css"/>')
+        assert 'sample.css' in os.listdir(os.path.dirname(resultpath))
+        assert snippet in contents
+        assert 'With umlaut: ä' in contents
+
+
 class TestCSSCleanerProcessor(unittest.TestCase):
 
     def setUp(self):
