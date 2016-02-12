@@ -602,20 +602,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
 
-    def test_cleaner(self):
-        # make sure we get a new CSS file and a link to it in HTML
-        proc = CSSCleaner()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-
-        resultdir = os.path.dirname(self.resultpath)
-        snippet = "%s" % (
-            '<link href="sample.css" rel="stylesheet" type="text/css"/>')
-        assert 'sample.css' in os.listdir(resultdir)
-        assert snippet in contents
-        assert 'With umlaut: ä' in contents
-
     def test_cleaner_css_correct_css(self):
         # make sure we get a new CSS file and a link to it in HTML
         proc = CSSCleaner()
