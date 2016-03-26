@@ -619,6 +619,17 @@ class TestCSSCleanerProcessorNew(object):
             os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'p {\n    margin-bottom: 0.21cm\n    }\n' in result_css
 
+    def test_cleaner_css_default_minified(self, workdir, samples_dir):
+        # make sure we can get non-minified CSS if we wish so.
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        resultdir = os.path.dirname(resultpath)
+        result_css = open(
+            os.path.join(resultdir, 'sample.css'), 'r').read()
+        assert 'p{margin-bottom:.21cm}' in result_css
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
@@ -634,17 +645,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_cleaner_css_default_minified(self):
-        # make sure we can get non-minified CSS if we wish so.
-        proc = CSSCleaner()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-
-        resultdir = os.path.dirname(self.resultpath)
-        result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'r').read()
-        assert 'p{margin-bottom:.21cm}' in result_css
 
     def test_cleaner_invalid_minified(self):
         # The minified option must be true or false
