@@ -630,6 +630,11 @@ class TestCSSCleanerProcessorNew(object):
             os.path.join(resultdir, 'sample.css'), 'r').read()
         assert 'p{margin-bottom:.21cm}' in result_css
 
+    def test_cleaner_invalid_minified(self):
+        # The minified option must be true or false
+        with pytest.raises(ArgumentParserError):
+            CSSCleaner(options={'css-cleaner-min': 'nonsense'})
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
@@ -645,12 +650,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_cleaner_invalid_minified(self):
-        # The minified option must be true or false
-        self.assertRaises(
-            ArgumentParserError,
-            CSSCleaner, options={'css-cleaner-min': 'nonsense'})
 
     def test_cleaner_prettify(self):
         # we can get prettified HTML from CSS cleaner
