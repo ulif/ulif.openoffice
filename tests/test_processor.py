@@ -635,6 +635,17 @@ class TestCSSCleanerProcessorNew(object):
         with pytest.raises(ArgumentParserError):
             CSSCleaner(options={'css-cleaner-min': 'nonsense'})
 
+    def test_cleaner_prettify(self, workdir, samples_dir):
+        # we can get prettified HTML from CSS cleaner
+        # This might result in gaps in rendered output.
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner(options={'css-cleaner-prettify': '1'})
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        with open(resultpath, 'r') as fd:
+            result_html = fd.read()
+        assert 'seam\n   </span>\n   <span>\n    less' in result_html
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
@@ -650,16 +661,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_cleaner_prettify(self):
-        # we can get prettified HTML from CSS cleaner
-        # This might result in gaps in rendered output.
-        proc = CSSCleaner(options={'css-cleaner-prettify': '1'})
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        with open(self.resultpath, 'r') as fd:
-            result_html = fd.read()
-        assert 'seam\n   </span>\n   <span>\n    less' in result_html
 
     def test_cleaner_non_prettify(self):
         # we can get non-prettified HTML from CSS cleaner
