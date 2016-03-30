@@ -656,6 +656,16 @@ class TestCSSCleanerProcessorNew(object):
             result_html = fd.read()
         assert 'seam</span><span>less text.</span>' in result_html
 
+    def test_cleaner_non_prettify_is_default(self, workdir, samples_dir):
+        # we get non-prettified HTML from CSS cleaner by default
+        samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html") , {'error': False}, )
+        with open(resultpath, 'r') as fd:
+            result_html = fd.read()
+        assert 'seam</span><span>less text.</span>' in result_html
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
@@ -671,15 +681,6 @@ class TestCSSCleanerProcessor(unittest.TestCase):
     def tearDown(self):
         remove_file_dir(self.workdir)
         remove_file_dir(self.resultpath)
-
-    def test_cleaner_non_prettify_is_default(self):
-        # we get non-prettified HTML from CSS cleaner by default
-        proc = CSSCleaner()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False}, )
-        with open(self.resultpath, 'r') as fd:
-            result_html = fd.read()
-        assert 'seam</span><span>less text.</span>' in result_html
 
     def test_non_html_ignored(self):
         # Non .html/.xhtml files are ignored
