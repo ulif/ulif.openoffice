@@ -661,7 +661,7 @@ class TestCSSCleanerProcessorNew(object):
         samples_dir.join("sample2.html").copy(workdir / "src" / "sample.html")
         proc = CSSCleaner()
         resultpath, metadata = proc.process(
-            str(workdir / "src" / "sample.html") , {'error': False}, )
+            str(workdir / "src" / "sample.html"), {'error': False}, )
         with open(resultpath, 'r') as fd:
             result_html = fd.read()
         assert 'seam</span><span>less text.</span>' in result_html
