@@ -675,6 +675,29 @@ class TestCSSCleanerProcessorNew(object):
         # input was not touched
         assert resultpath == str(sample_path)
 
+    def test_args(self):
+        # we can add create argparse-arguments from `args`
+        parser = ArgumentParser()
+        for arg in CSSCleaner.args:
+            parser.add_argument(
+                arg.short_name, arg.long_name, **arg.keywords)
+        result = vars(parser.parse_args([]))
+        # defaults
+        assert result == {
+            'css_cleaner_minified': True,
+            'css_cleaner_prettify_html': False,
+        }
+        # explicitly set value (different from default)
+        result = vars(parser.parse_args(
+            [
+                '-css-cleaner-min', 'no',
+                '-css-cleaner-prettify', 'yes',
+            ]))
+        assert result == {
+            'css_cleaner_minified': False,
+            'css_cleaner_prettify_html': True,
+        }
+
 
 class TestCSSCleanerProcessor(unittest.TestCase):
 
