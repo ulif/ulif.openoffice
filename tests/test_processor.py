@@ -699,45 +699,6 @@ class TestCSSCleanerProcessorNew(object):
         }
 
 
-class TestCSSCleanerProcessor(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.resultpath = None
-        self.sample_path = os.path.join(self.workdir, 'sample.html')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample2.html'),
-            self.sample_path)
-        return
-
-    def tearDown(self):
-        remove_file_dir(self.workdir)
-        remove_file_dir(self.resultpath)
-
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in CSSCleaner.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {
-            'css_cleaner_minified': True,
-            'css_cleaner_prettify_html': False,
-        }
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args(
-            [
-                '-css-cleaner-min', 'no',
-                '-css-cleaner-prettify', 'yes',
-            ]))
-        assert result == {
-            'css_cleaner_minified': False,
-            'css_cleaner_prettify_html': True,
-        }
-
-
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
     def setUp(self):
