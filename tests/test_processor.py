@@ -571,7 +571,7 @@ class TestTidyProcessor(object):
         assert result == {}
 
 
-class TestCSSCleanerProcessorNew(object):
+class TestCSSCleanerProcessor(object):
 
     def test_cleaner(self, workdir, samples_dir):
         # make sure we get a new CSS file and a link to it in HTML
