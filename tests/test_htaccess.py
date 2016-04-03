@@ -41,30 +41,30 @@ def htaccess_path(tmpdir):
 class TestCheckCredentials(object):
 
     def test_invalid_htaccess(self):
-        assert False == check_credentials('foo', 'bar', 'invalid-path')
+        assert check_credentials('foo', 'bar', 'invalid-path') is False
 
     def test_crypt(self, htaccess_path):
-        assert True == check_credentials(
-            'ornette', 'wayout', htaccess_path, 'crypt')
-        assert False == check_credentials(
-            'ornette', 'waltz', htaccess_path, 'crypt')
+        assert check_credentials(
+            'ornette', 'wayout', htaccess_path, 'crypt') is True
+        assert check_credentials(
+            'ornette', 'waltz', htaccess_path, 'crypt') is False
 
     def test_plain(self, htaccess_path):
-        assert True == check_credentials(
-            'miles', 'sowhat', htaccess_path, 'plain')
-        assert False == check_credentials(
-            'miles', 'polka', htaccess_path, 'plain')
+        assert check_credentials(
+            'miles', 'sowhat', htaccess_path, 'plain') is True
+        assert check_credentials(
+            'miles', 'polka', htaccess_path, 'plain') is False
 
     def test_sha1(self, htaccess_path):
-        assert True == check_credentials(
-            'dizzy', 'nightintunesia', htaccess_path, 'sha1')
-        assert False == check_credentials(
-            'dizzy', 'swing', htaccess_path, 'sha1')
+        assert check_credentials(
+            'dizzy', 'nightintunesia', htaccess_path, 'sha1') is True
+        assert check_credentials(
+            'dizzy', 'swing', htaccess_path, 'sha1') is False
 
     def test_invalid_user(self, htaccess_path):
         # non existent users can't authenticate
-        assert False == check_credentials(
-            'justin', 'pet', htaccess_path)
+        assert check_credentials(
+            'justin', 'pet', htaccess_path) is False
 
 
 class TestMakeHtaccess(object):
