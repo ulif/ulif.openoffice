@@ -748,22 +748,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
-    def test_cleaner(self):
-        # make sure erranous headings are fixed by default.
-        proc = HTMLCleaner()
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        snippet1 = "%s" % (
-            '<span class="u-o-headnum">1</span>Häding1')
-        snippet2 = "%s" % (
-            '<span class="u-o-headnum">1.1</span>Heading1.1')
-        snippet3 = "%s" % (
-            '<span class="u-o-headnum">1.2.</span>Heading1.2.')
-        assert snippet1 in contents
-        assert snippet2 in contents
-        assert snippet3 in contents
-
     def test_option_fix_head_nums_true(self):
         # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
