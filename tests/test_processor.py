@@ -699,6 +699,26 @@ class TestCSSCleanerProcessor(object):
         }
 
 
+class TestHTMLCleanerProcessorNew(object):
+
+    def test_cleaner(self, workdir, samples_dir):
+        # make sure erranous headings are fixed by default.
+        samples_dir.join("sample3.html").copy(workdir / "src" / "sample.html")
+        proc = HTMLCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        contents = open(resultpath, 'r').read()
+        snippet1 = "%s" % (
+            '<span class="u-o-headnum">1</span>Häding1')
+        snippet2 = "%s" % (
+            '<span class="u-o-headnum">1.1</span>Heading1.1')
+        snippet3 = "%s" % (
+            '<span class="u-o-headnum">1.2.</span>Heading1.2.')
+        assert snippet1 in contents
+        assert snippet2 in contents
+        assert snippet3 in contents
+
+
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
     def setUp(self):
