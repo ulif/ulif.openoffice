@@ -698,6 +698,19 @@ class TestCSSCleanerProcessor(object):
             'css_cleaner_prettify_html': True,
         }
 
+    def test_spaces_preserved_by_default(self, workdir, samples_dir):
+        # we can be sure that any whitespaces are preserved (by default)
+        samples_dir.join(
+            "sample-font-props.html").copy(workdir / "src" / "sample.html")
+        proc = CSSCleaner()
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        result_html = open(resultpath, 'r').read()
+        assert " <sub>sub" in result_html             # space before tag
+        assert "sub<sub>script" in result_html        # no space before tag
+        assert "sub</sub>script" in result_html       # no space after tag
+        assert "script</sub> parts" in result_html    # space after tag
+
 
 class TestHTMLCleanerProcessorNew(object):
 
