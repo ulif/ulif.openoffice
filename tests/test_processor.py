@@ -787,18 +787,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
-    def test_option_fix_head_nums_false(self):
-        # Make sure we respect the `fix_head_nums` option if false.
-        proc = HTMLCleaner(
-            options={
-                'html-cleaner-fix-head-nums': 'False'})
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        snippet1 = "%s" % (
-            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
-        assert snippet1 not in contents
-
     def test_option_fix_img_links_false(self):
         # Make sure we respect the `fix_head_nums` option if true
         proc = HTMLCleaner(
