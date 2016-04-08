@@ -806,21 +806,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
-    def test_option_fix_img_links_false(self):
-        # Make sure we respect the `fix_head_nums` option if true
-        proc = HTMLCleaner(
-            options={
-                'html-cleaner-fix-img-links': '0'})
-        self.resultpath, metadata = proc.process(
-            self.img_sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        resultdir = os.path.dirname(self.resultpath)
-        snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
-        list_dir = os.listdir(resultdir)
-        assert snippet in contents
-        assert 'image_sample_html_m20918026.gif' in list_dir
-        assert 'sample_1.gif' not in list_dir
-
     def test_option_fix_img_links_true(self):
         # Make sure we respect the `fix_img_links` option if true
         proc = HTMLCleaner(
