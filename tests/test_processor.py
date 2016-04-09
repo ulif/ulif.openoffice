@@ -941,7 +941,7 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
             'html_cleaner_fix_sd_fields': False}
 
 
-class TestErrorProcessor(unittest.TestCase):
+class TestErrorProcessor(object):
 
     def test_error(self):
         proc = Error()
