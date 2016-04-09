@@ -776,6 +776,25 @@ class TestHTMLCleanerProcessorNew(object):
         assert 'image_sample_html_m20918026.gif' in list_dir
         assert 'sample_1.gif' not in list_dir
 
+    def test_option_fix_img_links_true(self, samples_dir, workdir):
+        # Make sure we respect the `fix_img_links` option if true
+        samples_dir.join("image_sample.html").copy(
+            workdir / "src" / "sample.html")
+        samples_dir.join("image_sample_html_m20918026.gif").copy(
+            workdir / "src" / "image_sample_html_m20918026.gif")
+        proc = HTMLCleaner(
+            options={
+                'html-cleaner-fix-img-links': '1'})
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        contents = open(resultpath, 'r').read()
+        resultdir = os.path.dirname(resultpath)
+        snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
+        list_dir = os.listdir(resultdir)
+        assert snippet not in contents
+        assert 'image_sample_html_m20918026.gif' not in list_dir
+        assert 'sample_1.gif' in list_dir
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
@@ -805,21 +824,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
-
-    def test_option_fix_img_links_true(self):
-        # Make sure we respect the `fix_img_links` option if true
-        proc = HTMLCleaner(
-            options={
-                'html-cleaner-fix-img-links': '1'})
-        self.resultpath, metadata = proc.process(
-            self.img_sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        resultdir = os.path.dirname(self.resultpath)
-        snippet = '<IMG SRC="image_sample_html_m20918026.gif"'
-        list_dir = os.listdir(resultdir)
-        assert snippet not in contents
-        assert 'image_sample_html_m20918026.gif' not in list_dir
-        assert 'sample_1.gif' in list_dir
 
     def test_option_fix_sdfields_false(self):
         # Make sure we respect the `fix_sdtags` option if false
