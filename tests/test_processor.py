@@ -807,6 +807,18 @@ class TestHTMLCleanerProcessorNew(object):
         snippet = '<sdfield type="PAGE">'
         assert snippet in contents
 
+    def test_option_fix_sdfields_true(self, samples_dir, workdir):
+        # Make sure we respect the `fix_sdtags` option if false
+        samples_dir.join("sample3.html").copy(workdir / "src" / "sample.html")
+        proc = HTMLCleaner(
+            options={
+                'html-cleaner-fix-sd-fields': '1'})
+        resultpath, metadata = proc.process(
+            str(workdir / "src" / "sample.html"), {'error': False})
+        contents = open(resultpath, 'r').read()
+        snippet = '<sdfield type="PAGE">'
+        assert snippet not in contents
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
@@ -836,17 +848,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
-
-    def test_option_fix_sdfields_true(self):
-        # Make sure we respect the `fix_sdtags` option if false
-        proc = HTMLCleaner(
-            options={
-                'html-cleaner-fix-sd-fields': '1'})
-        self.resultpath, metadata = proc.process(
-            self.sample_path, {'error': False})
-        contents = open(self.resultpath, 'r').read()
-        snippet = '<sdfield type="PAGE">'
-        assert snippet not in contents
 
     def test_option_invalid(self):
         # Make sure we complain when trash is set as `fix_head_nums`.
