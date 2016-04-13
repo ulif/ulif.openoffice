@@ -819,6 +819,15 @@ class TestHTMLCleanerProcessorNew(object):
         snippet = '<sdfield type="PAGE">'
         assert snippet not in contents
 
+    def test_option_invalid(self):
+        # Make sure we complain when trash is set as `fix_head_nums`.
+        with pytest.raises(ArgumentParserError):
+            HTMLCleaner(options={'html-cleaner-fix-head-nums': 'foo'})
+        with pytest.raises(ArgumentParserError):
+            HTMLCleaner(options={'html-cleaner-fix-img-links': 'foo'})
+        with pytest.raises(ArgumentParserError):
+            HTMLCleaner(options={'html-cleaner-fix-sdfields': 'foo'})
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
@@ -848,18 +857,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
-
-    def test_option_invalid(self):
-        # Make sure we complain when trash is set as `fix_head_nums`.
-        self.assertRaises(
-            ArgumentParserError,
-            HTMLCleaner, options={'html-cleaner-fix-head-nums': 'foo'})
-        self.assertRaises(
-            ArgumentParserError,
-            HTMLCleaner, options={'html-cleaner-fix-img-links': 'foo'})
-        self.assertRaises(
-            ArgumentParserError,
-            HTMLCleaner, options={'html-cleaner-fix-sdfields': 'foo'})
 
     def test_rename_img_files(self):
         proc = HTMLCleaner(
