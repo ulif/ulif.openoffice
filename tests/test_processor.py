@@ -855,6 +855,22 @@ class TestHTMLCleanerProcessorNew(object):
         list_dir = os.listdir(str(workdir / "src"))
         assert 'sample_1.gif' not in list_dir
 
+    def test_rename_img_files_dst_exists_already(self, samples_dir, workdir):
+        # We cope with dest files that already exist
+        samples_dir.join("image_sample_html_m20918026.gif").copy(
+            workdir / "src" / "image_sample_html_m20918026.gif")
+        proc = HTMLCleaner(
+            options={'html-cleaner-fix-img-links': '1'})
+        proc.rename_img_files(
+            str(workdir / "src"),
+            {
+                'image_sample_html_m20918026.gif':
+                'image_sample_html_m20918026.gif'
+            }
+        )
+        list_dir = os.listdir(str(workdir / "src"))
+        assert 'image_sample_html_m20918026.gif' in list_dir
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
@@ -884,20 +900,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
-
-    def test_rename_img_files_dst_exists_already(self):
-        # We cope with dest files that already exist
-        proc = HTMLCleaner(
-            options={'html-cleaner-fix-img-links': '1'})
-        proc.rename_img_files(
-            self.workdir2,
-            {
-                'image_sample_html_m20918026.gif':
-                'image_sample_html_m20918026.gif'
-            }
-        )
-        list_dir = os.listdir(self.workdir2)
-        assert 'image_sample_html_m20918026.gif' in list_dir
 
     def test_rename_img_files_src_is_dir(self):
         # We cope with src files that are in fact dirs
