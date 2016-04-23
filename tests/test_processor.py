@@ -871,6 +871,15 @@ class TestHTMLCleanerProcessorNew(object):
         list_dir = os.listdir(str(workdir / "src"))
         assert 'image_sample_html_m20918026.gif' in list_dir
 
+    def test_rename_img_files_src_is_dir(self, workdir):
+        # We cope with src files that are in fact dirs
+        proc = HTMLCleaner(
+            options={'html-cleaner-fix-img-links': '1'})
+        proc.rename_img_files(
+            str(workdir), {'src': 'sample.jpg'})
+        list_dir = os.listdir(str(workdir))
+        assert 'sample.jpg' not in list_dir
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
@@ -900,18 +909,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir)
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
-
-    def test_rename_img_files_src_is_dir(self):
-        # We cope with src files that are in fact dirs
-        proc = HTMLCleaner(
-            options={'html-cleaner-fix-img-links': '1'})
-        os.mkdir(os.path.join(self.workdir2, 'some_dir'))
-        proc.rename_img_files(
-            self.workdir2,
-            {'some_dir': 'sample.jpg'}
-            )
-        list_dir = os.listdir(self.workdir2)
-        assert 'sample.jpg' not in list_dir
 
     def test_non_html_ignored(self):
         # Non .html/.xhtml files are ignored
