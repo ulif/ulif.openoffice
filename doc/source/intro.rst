@@ -37,7 +37,7 @@ Development can be tracked on github:
 
 The documentation can be browsed on:
 
-  https://ulif-openoffice.readthedocs.org/en/latest/
+  https://ulif-openoffice.readthedocs.io/en/latest/
 
 
 Requirements

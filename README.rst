@@ -41,7 +41,7 @@ Resources
 
 The complete documentation can be found at
 
-  https://ulif-openoffice.readthedocs.org/en/latest/
+  https://ulif-openoffice.readthedocs.io/en/latest/
 
 
 .. contents::
@@ -114,7 +114,7 @@ such a web-based document converter in minutes.
 
 See the extended docs under
 
-  https://ulif-openoffice.readthedocs.org/en/latest/
+  https://ulif-openoffice.readthedocs.io/en/latest/
 
 for details.
 

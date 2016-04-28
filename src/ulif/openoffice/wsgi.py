@@ -131,7 +131,7 @@ class RESTfulDocConverter(object):
         directory is created if it does not exist.
 
     """
-    # cf: http://routes.readthedocs.org/en/latest/restful.html
+    # cf: https://routes.readthedocs.io/en/latest/restful.html
     #     http://blog.ianbicking.org/2010/03/12/a-webob-app-example/
     map = Mapper()
     map.resource('doc', 'docs')
