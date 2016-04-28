@@ -132,7 +132,7 @@ class RESTfulDocConverter(object):
 
     """
     # cf: https://routes.readthedocs.io/en/latest/restful.html
-    #     http://blog.ianbicking.org/2010/03/12/a-webob-app-example/
+    #     http://www.ianbicking.org/blog/2010/03/12/a-webob-app-example/
     map = Mapper()
     map.resource('doc', 'docs')
 
