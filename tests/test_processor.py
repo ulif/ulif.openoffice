@@ -880,6 +880,15 @@ class TestHTMLCleanerProcessorNew(object):
         list_dir = os.listdir(str(workdir))
         assert 'sample.jpg' not in list_dir
 
+    def test_non_html_ignored(self, workdir):
+        # Non .html/.xhtml files are ignored
+        proc = HTMLCleaner()
+        sample_path = workdir / "src" / "sample.txt"
+        resultpath, metadata = proc.process(
+            str(sample_path), {'error': False})
+        # input was not touched
+        assert resultpath == str(sample_path)
+
 
 class TestHTMLCleanerProcessor(unittest.TestCase):
 
