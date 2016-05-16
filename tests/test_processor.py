@@ -919,17 +919,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
-    def test_non_html_ignored(self):
-        # Non .html/.xhtml files are ignored
-        proc = HTMLCleaner()
-        sample_path = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_path, 'w') as fd:
-            fd.write('Sample file.')
-        self.resultpath, metadata = proc.process(
-            sample_path, {'error': False})
-        # input was not touched
-        assert self.resultpath == sample_path
-
     def test_args(self):
         # we can add create argparse-arguments from `args`
         parser = ArgumentParser()
