@@ -941,28 +941,6 @@ class TestHTMLCleanerProcessor(unittest.TestCase):
         remove_file_dir(self.workdir2)
         remove_file_dir(self.resultpath)
 
-    def test_args(self):
-        # we can add create argparse-arguments from `args`
-        parser = ArgumentParser()
-        for arg in HTMLCleaner.args:
-            parser.add_argument(
-                arg.short_name, arg.long_name, **arg.keywords)
-        result = vars(parser.parse_args([]))
-        # defaults
-        assert result == {
-            'html_cleaner_fix_heading_numbers': True,
-            'html_cleaner_fix_image_links': True,
-            'html_cleaner_fix_sd_fields': True}
-        # explicitly set value (different from default)
-        result = vars(parser.parse_args([
-            '-html-cleaner-fix-head-nums', '0',
-            '-html-cleaner-fix-img-links', 'false',
-            '-html-cleaner-fix-sd-fields', 'No']))
-        assert result == {
-            'html_cleaner_fix_heading_numbers': False,
-            'html_cleaner_fix_image_links': False,
-            'html_cleaner_fix_sd_fields': False}
-
 
 class TestErrorProcessor(object):
 
