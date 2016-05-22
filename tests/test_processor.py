@@ -912,36 +912,6 @@ class TestHTMLCleanerProcessorNew(object):
             'html_cleaner_fix_sd_fields': False}
 
 
-class TestHTMLCleanerProcessor(unittest.TestCase):
-
-    def setUp(self):
-        self.workdir = tempfile.mkdtemp()
-        self.workdir2 = tempfile.mkdtemp()
-        self.resultpath = None
-        self.sample_path = os.path.join(self.workdir, 'sample.html')
-        self.img_sample_path = os.path.join(self.workdir2, 'sample.html')
-        self.img_file_path = os.path.join(
-            self.workdir2, 'image_sample_html_m20918026.gif')
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input', 'sample3.html'),
-            self.sample_path)
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input',
-                         'image_sample.html'),
-            self.img_sample_path)
-        shutil.copy(
-            os.path.join(os.path.dirname(__file__), 'input',
-                         'image_sample_html_m20918026.gif'),
-            self.img_file_path
-            )
-        return
-
-    def tearDown(self):
-        remove_file_dir(self.workdir)
-        remove_file_dir(self.workdir2)
-        remove_file_dir(self.resultpath)
-
-
 class TestErrorProcessor(object):
 
     def test_error(self):
