@@ -712,7 +712,7 @@ class TestCSSCleanerProcessor(object):
         assert "script</sub> parts" in result_html    # space after tag
 
 
-class TestHTMLCleanerProcessorNew(object):
+class TestHTMLCleanerProcessor(object):
 
     def test_cleaner(self, workdir, samples_dir):
         # make sure erranous headings are fixed by default.
