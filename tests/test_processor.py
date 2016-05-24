@@ -33,10 +33,6 @@ from ulif.openoffice.processor import (
     ZipProcessor, Tidy, CSSCleaner, HTMLCleaner, Error, processor_order)
 from ulif.openoffice.testing import (
     TestOOServerSetup, ConvertLogCatcher, envpath_wo_virtualenvs)
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 
 def get_unoconv_version():
