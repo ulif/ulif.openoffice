@@ -26,7 +26,6 @@ import shutil
 import tempfile
 import zipfile
 from argparse import ArgumentParser
-from ulif.openoffice.helpers import remove_file_dir
 from ulif.openoffice.options import ArgumentParserError, Options
 from ulif.openoffice.processor import (
     BaseProcessor, MetaProcessor, OOConvProcessor, UnzipProcessor,
