@@ -9,4 +9,9 @@ RUN apt-get install -y python2.7-dev libxml2-dev libxslt1-dev \
 RUN apt-get install -y libssl-dev libffi-dev
 RUN apt-get install -y sudo wget git
 
+# add user `deploy`
+RUN useradd -ms /bin/bash deploy
+# set password of user `deploy` and add to group 'sudo'
+RUN echo deploy:deploy | chpasswd && adduser deploy sudo
+
 CMD /bin/bash
