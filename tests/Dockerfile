@@ -19,4 +19,7 @@ WORKDIR /home/deploy
 USER deploy
 ENV HOME /home/deploy
 
+# get sources
+RUN git clone https://github.com/ulif/ulif.openoffice
+
 CMD /bin/bash
