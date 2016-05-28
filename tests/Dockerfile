@@ -14,4 +14,9 @@ RUN useradd -ms /bin/bash deploy
 # set password of user `deploy` and add to group 'sudo'
 RUN echo deploy:deploy | chpasswd && adduser deploy sudo
 
+# become user `deploy`
+WORKDIR /home/deploy
+USER deploy
+ENV HOME /home/deploy
+
 CMD /bin/bash
