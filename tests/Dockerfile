@@ -24,6 +24,10 @@ RUN git clone https://github.com/ulif/ulif.openoffice
 
 # install a virtualenv
 RUN virtualenv -p /usr/bin/python2.7 py27
-RUN py27/bin/pip install --upgrade pip
+RUN /home/deploy/py27/bin/pip install --upgrade pip
+
+# set dev env
+WORKDIR /home/deploy/ulif.openoffice
+RUN /home/deploy/py27/bin/python setup.py dev
 
 CMD /bin/bash
