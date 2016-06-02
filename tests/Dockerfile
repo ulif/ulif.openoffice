@@ -23,9 +23,13 @@ ENV HOME /home/deploy
 # get sources
 RUN git clone https://github.com/ulif/ulif.openoffice
 
-# install a virtualenv
+# install a py2 virtualenv
 RUN virtualenv -p /usr/bin/python2.7 py27
 RUN /home/deploy/py27/bin/pip install --upgrade pip
+
+# install a py3 virtualenv
+RUN virtualenv -p /usr/bin/python3.4 py34
+RUN /home/deploy/py34/bin/pip install --upgrade pip
 
 # set dev env
 WORKDIR /home/deploy/ulif.openoffice
