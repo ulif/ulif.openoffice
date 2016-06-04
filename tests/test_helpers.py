@@ -170,7 +170,7 @@ class TestExtractCSS(object):
 
     def test_extract_css_contains_all_styles_from_input(self, samples_dir):
         # Extracted CSS contains all styles from input HTML
-        content = samples_dir.join("sample2.html").read()
+        content = samples_dir.join("sample2.html").read_text('utf-8')
         html, css = extract_css(content, "sample.html")
         assert css == (
             "@page { size: 21cm 29.7cm; margin: 2cm }\n"
