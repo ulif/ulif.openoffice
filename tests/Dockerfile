@@ -31,8 +31,12 @@ RUN /home/deploy/py27/bin/pip install --upgrade pip
 RUN virtualenv -p /usr/bin/python3.4 py34
 RUN /home/deploy/py34/bin/pip install --upgrade pip
 
-# set dev env
+# init dev env (py2.7)
 WORKDIR /home/deploy/ulif.openoffice
 RUN /home/deploy/py27/bin/python setup.py dev
+
+# init dev env (py3.4)
+WORKDIR /home/deploy/ulif.openoffice
+RUN /home/deploy/py34/bin/python setup.py dev
 
 CMD /bin/bash
