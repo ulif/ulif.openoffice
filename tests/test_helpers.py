@@ -235,7 +235,7 @@ class TestExtractCSS(object):
 
     def test_extract_css_complex_html(self, samples_dir):
         # Make sure we have styles purged and replaced by a link
-        html_input = samples_dir.join("sample2.html").read()
+        html_input = samples_dir.join("sample2.html").read_text('utf-8')
         result, css = extract_css(html_input, 'sample.html')
         assert '<style' not in result
         link = '<link href="sample.css" rel="stylesheet" type="text/css"/>'
