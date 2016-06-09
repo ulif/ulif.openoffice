@@ -182,7 +182,7 @@ class TestExtractCSS(object):
 
     def test_extract_css_puts_links_into_html(self, samples_dir):
         # the returned HTML part has the styles replaced with a link:
-        content = samples_dir.join("sample2.html").read()
+        content = samples_dir.join("sample2.html").read_text('utf-8')
         html, css = extract_css(content, "sample.html")
         assert html == (
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n'
