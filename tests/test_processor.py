@@ -20,6 +20,7 @@
 """
 Test processors defined in this package.
 """
+import codecs
 import os
 import pytest
 import shutil
@@ -294,8 +295,8 @@ class TestOOConvProcessor(TestOOServerSetup):
     def test_process_umlauts(self):
         proc = OOConvProcessor()
         sample_file = os.path.join(self.workdir, 'sample.txt')
-        with open(sample_file, 'w') as fd:
-            fd.write('A sample with umlauts: ä')
+        with codecs.open(sample_file, 'w', encoding='utf-8') as fd:
+            fd.write(u'A sample with umlauts: ä')
         self.result_path, meta = proc.process(sample_file, {})
         assert meta['oocp_status'] == 0
         assert self.result_path.endswith('sample.html')
