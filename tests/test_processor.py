@@ -539,7 +539,7 @@ class TestTidyProcessor(object):
         proc = Tidy()
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        contents = open(resultpath, 'r').read()
+        contents = codecs.open(resultpath, 'r', encoding='utf-8').read()
         assert 'Ü' in contents
         assert '&Uuml;' not in contents
 
