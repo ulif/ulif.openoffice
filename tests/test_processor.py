@@ -589,8 +589,8 @@ class TestCSSCleanerProcessor(object):
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
         resultdir = os.path.dirname(resultpath)
-        result_css = open(
-            os.path.join(resultdir, 'sample.css'), 'r').read()
+        result_css = codecs.open(
+            os.path.join(resultdir, 'sample.css'), 'r', 'utf-8').read()
         assert 'font-family: ;' not in result_css
 
     def test_cleaner_css_minified(self, workdir, samples_dir):
