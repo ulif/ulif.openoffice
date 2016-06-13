@@ -540,8 +540,8 @@ class TestTidyProcessor(object):
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
         contents = codecs.open(resultpath, 'r', encoding='utf-8').read()
-        assert 'Ü' in contents
-        assert '&Uuml;' not in contents
+        assert u'Ü' in contents
+        assert u'&Uuml;' not in contents
 
     def test_non_html_ignored(self, workdir):
         # we do not try to tidy non html/xhtml files
@@ -576,11 +576,11 @@ class TestCSSCleanerProcessor(object):
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
         contents = codecs.open(resultpath, 'r', encoding='utf-8').read()
-        snippet = "%s" % (
+        snippet = u"%s" % (
             '<link href="sample.css" rel="stylesheet" type="text/css"/>')
-        assert 'sample.css' in os.listdir(os.path.dirname(resultpath))
+        assert u'sample.css' in os.listdir(os.path.dirname(resultpath))
         assert snippet in contents
-        assert 'With umlaut: ä' in contents
+        assert u'With umlaut: ä' in contents
 
     def test_cleaner_css_correct_css(self, workdir, samples_dir):
         # make sure we get a new CSS file and a link to it in HTML
@@ -658,9 +658,9 @@ class TestCSSCleanerProcessor(object):
         proc = CSSCleaner()
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False}, )
-        with open(resultpath, 'r') as fd:
+        with codecs.open(resultpath, 'r', 'utf-8') as fd:
             result_html = fd.read()
-        assert 'seam</span><span>less text.</span>' in result_html
+        assert u'seam</span><span>less text.</span>' in result_html
 
     def test_non_html_ignored(self, workdir):
         # Non .html/.xhtml files are ignored
