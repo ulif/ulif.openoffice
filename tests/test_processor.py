@@ -638,7 +638,7 @@ class TestCSSCleanerProcessor(object):
         proc = CSSCleaner(options={'css-cleaner-prettify': '1'})
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        with open(resultpath, 'r') as fd:
+        with codecs.open(resultpath, 'r', 'utf-8') as fd:
             result_html = fd.read()
         assert 'seam\n   </span>\n   <span>\n    less' in result_html
 
