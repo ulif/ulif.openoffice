@@ -440,6 +440,10 @@ def rename_html_img_links(html_input, basename):
     this function).
 
     Links to 'external' sources (http and similar) are ignored.
+
+    This funtion expects text as input and returns text, not bytes.
+    I.e. you will get unicode snippets under Python 2.x and text
+    (or `str`) under Python 3.x.
     """
     soup = BeautifulSoup(html_input, 'html.parser')
     img_tags = soup.findAll('img')
