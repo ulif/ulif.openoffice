@@ -466,7 +466,7 @@ def rename_html_img_links(html_input, basename):
         num += 1
         tag['src'] = new_src
         img_map[src] = new_src
-    return str(soup), img_map
+    return soup.decode(), img_map
 
 
 RE_SDFIELD_OPEN = re.compile('<sdfield([^>]*)>', re.M + re.S + re.I)

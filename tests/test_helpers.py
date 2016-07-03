@@ -24,7 +24,7 @@ import shutil
 import stat
 import zipfile
 from io import StringIO, BytesIO
-from six import string_types
+from six import string_types, text_type
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
@@ -443,8 +443,8 @@ class TestRenameHTMLImgLinks(object):
         html_output, img_map = rename_html_img_links(html_input, 'sample.html')
         key = list(img_map.keys())[0]
         val = list(img_map.values())[0]
-        assert isinstance(key, string_types)
-        assert isinstance(val, string_types)
+        assert isinstance(key, text_type)
+        assert isinstance(val, text_type)
 
     def test_rename_html_img_links_only_local(self):
         # We do not convert links to external images
@@ -481,6 +481,12 @@ class TestRenameHTMLImgLinks(object):
         assert html_output == (
             '<img name="foo"/>'
             '<img name="bar" src="sample_1"/>')
+
+    def test_rename_html_img_links_returns_text(self, samples_dir):
+        # we return text, not binary data.
+        html_input = samples_dir.join('image_sample.html').read()
+        html_output, img_map = rename_html_img_links(html_input, 'sample.html')
+        assert isinstance(html_output, text_type)
 
 
 class TestFileLikeCmp(object):
