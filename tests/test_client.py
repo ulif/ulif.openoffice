@@ -103,6 +103,12 @@ class TestClient(object):
         assert client.get_cached(
             '396199333edbf40ad43e62a1c1397793_1_1') is None
 
+    def test_get_cached_no_manager(self, client_env):
+        # no cache_dir -> no cache_manager, but we cope with it
+        client = Client(cache_dir=None)
+        assert client.get_cached(
+            '396199333edbf40ad43e62a1c1397793_1_1') is None
+
     def test_get_cached(self, client_env):
         # we can get an already cached doc
         client = Client(cache_dir=client_env.cache_dir)
