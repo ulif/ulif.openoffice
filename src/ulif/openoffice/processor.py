@@ -36,6 +36,7 @@ or reading the ``out_fmt`` parameter of the ``oocp`` processor or,
 more accurate: the processor with `prefix` ``oocp`` (which happens to
 be the :class:`OOConvProcessor`, see below).
 """
+import codecs
 import os
 import shutil
 import tempfile
@@ -504,14 +505,14 @@ class HTMLCleaner(BaseProcessor):
             copy_to_secure_location(path), basename)
         src_dir = os.path.dirname(src_path)
         remove_file_dir(path)
-
         new_html, img_name_map = cleanup_html(
-            open(src_path, 'rb').read().decode('utf-8'), basename,
+            codecs.open(src_path, 'r', 'utf-8').read(),
+            basename,
             fix_head_nums=self.options['html_cleaner_fix_heading_numbers'],
             fix_img_links=self.options['html_cleaner_fix_image_links'],
             fix_sdfields=self.options['html_cleaner_fix_sd_fields'],
             )
-        with open(src_path, 'w') as fd:
+        with codecs.open(src_path, 'wb', 'utf-8') as fd:
             fd.write(new_html)
         # Rename images
         self.rename_img_files(src_dir, img_name_map)
