@@ -24,7 +24,7 @@ import shutil
 import stat
 import zipfile
 from io import StringIO, BytesIO
-from six import string_types, text_type
+from six import text_type
 from ulif.openoffice.processor import OOConvProcessor
 from ulif.openoffice.helpers import (
     copytree, copy_to_secure_location, get_entry_points, unzip, zip,
