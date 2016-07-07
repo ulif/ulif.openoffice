@@ -716,16 +716,10 @@ class TestHTMLCleanerProcessor(object):
         proc = HTMLCleaner()
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        contents = open(resultpath, 'r').read()
-        snippet1 = "%s" % (
-            '<span class="u-o-headnum">1</span>Häding1')
-        snippet2 = "%s" % (
-            '<span class="u-o-headnum">1.1</span>Heading1.1')
-        snippet3 = "%s" % (
-            '<span class="u-o-headnum">1.2.</span>Heading1.2.')
-        assert snippet1 in contents
-        assert snippet2 in contents
-        assert snippet3 in contents
+        contents = codecs.open(resultpath, 'r', 'utf-8').read()
+        u'<span class="u-o-headnum">1</span>Häding1' in contents
+        u'<span class="u-o-headnum">1.1</span>Heading1.1' in contents
+        u'<span class="u-o-headnum">1.2.</span>Heading1.2.' in contents
 
     def test_option_fix_head_nums_true(self, samples_dir, workdir):
         # Make sure we respect the `fix_head_nums` option if true
