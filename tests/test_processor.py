@@ -740,10 +740,8 @@ class TestHTMLCleanerProcessor(object):
                 'html-cleaner-fix-head-nums': 'False'})
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        contents = open(resultpath, 'r').read()
-        snippet1 = "%s" % (
-            '<h1 class="foo"><span class="u-o-headnum">1</span>Häding1</h1>')
-        assert snippet1 not in contents
+        contents = codecs.open(resultpath, 'r', 'utf-8').read()
+        assert u'<span class="u-o-headnum">1</span>Häding1' not in contents
 
     def test_option_fix_img_links_false(self, samples_dir, workdir):
         # Make sure we respect the `fix_head_nums` option if true
