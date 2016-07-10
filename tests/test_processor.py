@@ -789,9 +789,8 @@ class TestHTMLCleanerProcessor(object):
                 'html-cleaner-fix-sd-fields': '0'})
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        contents = open(resultpath, 'r').read()
-        snippet = '<sdfield type="PAGE">'
-        assert snippet in contents
+        contents = codecs.open(resultpath, 'r', 'utf-8').read()
+        assert u'<sdfield type="PAGE">' in contents
 
     def test_option_fix_sdfields_true(self, samples_dir, workdir):
         # Make sure we respect the `fix_sdtags` option if false
