@@ -800,9 +800,8 @@ class TestHTMLCleanerProcessor(object):
                 'html-cleaner-fix-sd-fields': '1'})
         resultpath, metadata = proc.process(
             str(workdir / "src" / "sample.html"), {'error': False})
-        contents = open(resultpath, 'r').read()
-        snippet = '<sdfield type="PAGE">'
-        assert snippet not in contents
+        contents = codecs.open(resultpath, 'r', 'utf-8').read()
+        assert u'<sdfield type="PAGE">' not in contents
 
     def test_option_invalid(self):
         # Make sure we complain when trash is set as `fix_head_nums`.
