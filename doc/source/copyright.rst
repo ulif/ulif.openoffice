@@ -4,7 +4,7 @@ Copyright
 
 `ulif.openoffice` and this documentation is:
 
-Copyright © 2009-2015 Uli Fouquet. All rights reserved.
+Copyright (c) 2009-2015 Uli Fouquet. All rights reserved.
 
 ----------
 
