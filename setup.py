@@ -74,7 +74,7 @@ setup(
         tests=[
             'py-restclient',
             'WebTest',
-            'pytest >= 2.0.3, < 3.0',
+            'pytest >= 2.0.3',
             'pytest-xdist',
             'pytest-cov',
         ],
