@@ -30,7 +30,10 @@ def monkeypatch_sess(request):
     """Like `monkeypatch` fixture, but for sessions.
     """
     from _pytest import monkeypatch
-    mpatch = monkeypatch.monkeypatch()
+    if pytest.__version__ < "3":
+        mpatch = monkeypatch.monkeypatch()
+    else:
+        mpatch = monkeypatch.monkeypatch(request)
     request.addfinalizer(mpatch.undo)
     return mpatch
 
